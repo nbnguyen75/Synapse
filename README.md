@@ -1,221 +1,327 @@
-# 🧠 SYNAPSE — Multi-Tenant AI Task Management Platform
+<a id="readme-top"></a>
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Architecture-Polyglot%20Microservices-blueviolet?style=for-the-badge" alt="Architecture">
-  <img src="https://img.shields.io/badge/Backend-TypeScript%20%7C%20Bun%20%7C%20Java-orange?style=for-the-badge" alt="Backend">
-  <img src="https://img.shields.io/badge/Gateway-Kong%20Gateway-blue?style=for-the-badge" alt="Gateway">
-  <img src="https://img.shields.io/badge/Orchestration-Kubernetes-cyan?style=for-the-badge" alt="Orchestration">
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
-</p>
 
----
+<div align="center">
 
-## 🌌 What is Synapse?
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![License][license-shield]][license-url]
 
-**Synapse** is a multi-tenant task management platform featuring AI-powered sprint retrospectives. It is built on a high-performance polyglot microservices architecture utilizing **TypeScript/Bun** and **Spring Boot/Java**, orchestrated via **Kong Gateway**, and designed to run seamlessly on **Kubernetes**.
+</div>
 
----
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <h3 align="center">🧠 Synapse</h3>
 
-## 🛠️ Prerequisites
+  <p align="center">
+    A personal AI-powered knowledge assistant — notes that you can chat with.
+    <br />
+    <em>End-to-end showcase project: microservices, event-driven architecture, RAG & agentic AI on Kubernetes</em>
+    <br />
+    <br />
+    <a href="#architecture"><strong>Explore the Architecture »</strong></a>
+    <br />
+    <br />
+    <a href="#roadmap">Roadmap</a>
+    ·
+    <a href="https://github.com/nbnguyen75/synapse/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    ·
+    <a href="https://github.com/nbnguyen75/synapse/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+  </p>
+</div>
 
-| Tool | Version | Notes |
-| :--- | :--- | :--- |
-| **Node.js** | `v24+` | Required for the TanStack Start client |
-| **Bun** | `v1.1+` | Runtime engine for `auth-service` & `ai-service` |
-| **Java** | `17+` | Runtime environment for `task-service` & `notification-service` |
-| **Maven** | `3.9+` | Build automation tool for Spring Boot services |
-| **Docker** | `v24+` | Container virtualization runtime |
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#architecture">Architecture</a>
+      <ul>
+        <li><a href="#high-level-system-diagram">High-Level System Diagram</a></li>
+        <li><a href="#core-flow-note-creation--rag-chat">Core Flow: Note Creation & RAG Chat</a></li>
+      </ul>
+    </li>
+    <li><a href="#built-with">Built With</a></li>
+    <li><a href="#core-features">Core Features</a></li>
+    <li><a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
----
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
-## ⚡ Quick Start (Local Dev)
+**Synapse** is a Personal Knowledge Assistant: users write notes, the system automatically generates embeddings for them, and users can "chat" with an AI that retrieves relevant notes (RAG) to answer questions — plus agentic features like auto-creating reminders from note content.
 
-```bash
-# Clone the repository locally
-git clone [https://github.com/your-username/synapse.git](https://github.com/your-username/synapse.git)
-cd synapse
+This project isn't just a CRUD app — it's an **end-to-end architecture showcase**, deliberately built in growth stages (MVP → event-driven → observability → advanced agentic → caching with measured justification → optional Kafka migration → scaling/resilience) so that every technical decision has a clear "why," not just a checkbox on a CV.
 
-# Configure environment variables from the template
-cp .env.example .env
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# Install all JS/TS dependencies across the monorepo
-pnpm install
+<!-- ARCHITECTURE -->
+## Architecture
 
-# Spin up PostgreSQL, Kong Gateway, and all backend services
-docker-compose up --build
-
-```
-
-> 💡 **Once everything is up, you can access the following endpoints:**
-> * **Main Application (App):** [http://localhost:3000](https://www.google.com/search?q=http://localhost:3000)
-> * **Kong API Gateway Proxy:** [http://localhost:8000](https://www.google.com/search?q=http://localhost:8000)
-> * **Kong Admin Console:** [http://localhost:8001](https://www.google.com/search?q=http://localhost:8001)
-
----
-
-## 🗺️ Architecture Overview
-
-The system architecture manages the data flow securely from the client through the API Gateway before routing to specialized microservices downstream:
+### High-Level System Diagram
 
 ```mermaid
-graph TD
-    Client[🎨 TanStack Start Client] -->|HTTP / WS Traffic| Kong[🎛️ Kong Gateway]
-    
-    subgraph Gateway & Security Layer
-        Kong -->|Rate Limiting / JWT Validation / Header Injection| Auth[🔐 auth-service<br>Hono + Better Auth<br>TS / Bun]
-        Kong -->|Routing & Core API| Task[📋 task-service<br>Spring Boot<br>Java 17+]
-        Kong -->|Routing & AI Features| AI[🤖 ai-service<br>Hono + Vercel AI SDK<br>TS / Bun]
+flowchart TB
+    subgraph Client["🖥️ Client"]
+        FE["SvelteKit App<br/>(Login · Notes · AI Chat)"]
     end
 
-    subgraph Event & Real-Time Layer
-        Task -->|Trigger Events| Notif[🔔 notification-service<br>Spring Boot + SSE]
+    subgraph Gateway["🚪 API Gateway"]
+        Kong["Kong<br/>Routing · Rate Limiting · JWT Verify"]
     end
 
-    subgraph Storage Layer
-        Auth --> DB_Auth[(💾 PostgreSQL<br>synapse_auth)]
-        Task --> DB_Task[(💾 PostgreSQL<br>synapse_tasks)]
+    subgraph Services["⚙️ Core Services"]
+        Auth["Auth Service<br/>(Hono + better-auth)<br/>JWT issue/verify"]
+        Notes["Notes Service<br/>CRUD Notes"]
+        AI["AI Service<br/>RAG + Agentic Tool-Calling"]
     end
 
-    subgraph Production Config Management
-        K8s[☸️ K8s ConfigMap / Secret] -.->|Injected directly as Env| Notif
-        K8s -.->|Injected directly as Env| Task
+    subgraph Data["💾 Data & Cache"]
+        PG[("PostgreSQL<br/>+ pgvector")]
+        Valkey[("Valkey<br/>Session & AI Response Cache")]
     end
 
-    style Kong fill:#4A154B,stroke:#333,stroke-width:2px,color:#fff
-    style K8s fill:#326CE5,stroke:#333,stroke-width:1px,color:#fff
-    style DB_Auth fill:#336791,stroke:#333,stroke-width:1px,color:#fff
-    style DB_Task fill:#336791,stroke:#333,stroke-width:1px,color:#fff
+    subgraph Async["📨 Event Bus (post-MVP)"]
+        MQ["RabbitMQ / Kafka"]
+        Worker["Embedding Worker"]
+    end
 
+    subgraph External["🌐 External"]
+        Gemini["Gemini API"]
+    end
+
+    FE -->|HTTPS| Kong
+    Kong --> Auth
+    Kong --> Notes
+    Kong --> AI
+
+    Auth --> PG
+    Notes --> PG
+    Notes -.->|note.created event| MQ
+    MQ --> Worker
+    Worker -->|generate embedding| PG
+
+    AI -->|retrieve top-k| PG
+    AI -->|cache lookup| Valkey
+    AI -->|generate response| Gemini
+
+    style Client fill:#1e293b,color:#fff
+    style Gateway fill:#7c3aed,color:#fff
+    style Services fill:#2563eb,color:#fff
+    style Data fill:#059669,color:#fff
+    style Async fill:#d97706,color:#fff
+    style External fill:#dc2626,color:#fff
 ```
 
-### 📑 Service Responsibilities
+### Core Flow: Note Creation & RAG Chat
 
-| Service | Stack | Port | Primary Responsibility |
-| --- | --- | --- | --- |
-| `auth-service` | Hono + Better Auth (Bun) | `3001` | Registration, login, Google OAuth, and JWT refresh token lifecycle management. |
-| `task-service` | Spring Boot + PostgreSQL | `8080` | Workspaces management, tasks CRUD, internal RBAC enforcement, and immutable audit logs. |
-| `notification-service` | Spring Boot + SSE | `8081` | Real-time push notifications delivered seamlessly using Server-Sent Events. |
-| `ai-service` | Hono + Vercel AI SDK (Bun) | `3002` | Processes LLM prompt pipelines to generate automated sprint retrospectives. |
-| `kong` | Kong Gateway | `8000` / `8001` | URL routing, secure auth header injection, and consumer rate limiting. |
+```mermaid
+sequenceDiagram
+    actor User
+    participant Client as SvelteKit Client
+    participant Kong as Kong Gateway
+    participant Notes as Notes Service
+    participant AI as AI Service
+    participant PG as Postgres + pgvector
+    participant Gemini as Gemini API
 
----
+    User->>Client: Create note
+    Client->>Kong: POST /notes (JWT)
+    Kong->>Kong: Verify JWT
+    Kong->>Notes: Forward request
+    Notes->>PG: Save note
+    Notes->>PG: Generate & store embedding
+    Notes-->>Client: 201 Created
 
-## 📂 Project Structure
-
-```markdown
-synapse/
-├── apps/
-│   └── web/                  # TanStack Start frontend client
-├── services/
-│   ├── auth-service/         # Authentication service: Hono + Better Auth (Bun)
-│   ├── task-service/         # Task core engine: Spring Boot (Maven)
-│   ├── notification-service/ # Realtime alerts service: Spring Boot (Maven)
-│   └── ai-service/           # Intelligence engine: Hono + Vercel AI SDK (Bun)
-├── infra/
-│   ├── kong/                 # Declarative configuration for Kong (kong.yml)
-│   └── k8s/                  # Kubernetes production manifests (Phase 2)
-│       ├── configmaps/
-│       ├── secrets/
-│       └── deployments/
-├── docker-compose.yml        # Orchestration for the local development stack
-├── .env.example              # Master template for environmental configurations
-└── pnpm-workspace.yaml       # Monorepo configuration for JS/TS packages
-
+    User->>Client: Ask AI about notes
+    Client->>Kong: POST /ai/chat (JWT)
+    Kong->>AI: Forward request
+    AI->>PG: Retrieve top-k similar notes
+    AI->>Gemini: Prompt + retrieved context
+    Gemini-->>AI: Answer
+    AI-->>Client: Response grounded in user's notes
 ```
 
----
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## 🔑 Environment Variables
+### Built With
 
-Copy `.env.example` to `.env` and populate the fields with your actual secrets before booting up the platform:
+* [![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)](https://kit.svelte.dev/)
+* [![Hono](https://img.shields.io/badge/Hono-E36002?style=for-the-badge&logo=hono&logoColor=white)](https://hono.dev/)
+* [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+* [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+* [![Kong](https://img.shields.io/badge/Kong-003459?style=for-the-badge&logo=kong&logoColor=white)](https://konghq.com/)
+* [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](https://www.rabbitmq.com/)
+* [![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com/)
+* [![Gemini](https://img.shields.io/badge/Gemini_API-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
+* [![Valkey](https://img.shields.io/badge/Valkey-2B5C8A?style=for-the-badge&logo=redis&logoColor=white)](https://valkey.io/)
 
-```dotenv
-# ─── PostgreSQL Authentication DB ─────────────────────────────
-POSTGRES_AUTH_HOST=localhost
-POSTGRES_AUTH_PORT=5432
-POSTGRES_AUTH_DB=synapse_auth
-POSTGRES_AUTH_USER=postgres
-POSTGRES_AUTH_PASSWORD=            # REQUIRED — Set a strong password
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# ─── PostgreSQL Tasks DB ──────────────────────────────────────
-POSTGRES_TASK_HOST=localhost
-POSTGRES_TASK_PORT=5433
-POSTGRES_TASK_DB=synapse_tasks
-POSTGRES_TASK_USER=postgres
-POSTGRES_TASK_PASSWORD=            # REQUIRED — Set a strong password
+<!-- CORE FEATURES -->
+## Core Features
 
-# ─── JWT Security ─────────────────────────────────────────────
-JWT_SECRET=                        # REQUIRED — Min 32 characters, random string
+| Group | Feature |
+|---|---|
+| Auth | Register/login, JWT access + refresh tokens, basic RBAC (user/admin) |
+| Core Domain | Notes CRUD, automatic embedding generation on create/update |
+| AI Service | RAG chat over personal notes, agentic tool-calling (e.g. summarize, create reminders from note content) |
+| Gateway | Kong routing, rate limiting, JWT verification at the gateway |
+| Async/Event | `note.created` → embedding job; `reminder.due` → notification |
+| Infra | Service discovery via k8s DNS, ConfigMap per service, Valkey cache for sessions + AI response cache |
+| Observability | Centralized logging, health checks, (later stage) tracing/metrics |
+| Client | SvelteKit: login, notes management, AI chat UI |
 
-# ─── Google OAuth (Optional for local dev) ────────────────────
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-# ─── AI Engine Configuration ──────────────────────────────────
-OPENAI_API_KEY=                    # REQUIRED for Phase 3 AI features
+<!-- GETTING STARTED -->
+## Getting Started
 
-# ─── Internal Service Ports ───────────────────────────────────
-AUTH_SERVICE_PORT=3001
-TASK_SERVICE_PORT=8080
-NOTIFICATION_SERVICE_PORT=8081
-AI_SERVICE_PORT=3002
-WEB_PORT=3000
+To get a local copy up and running, follow these steps.
 
-# ─── Kong Gateway Proxy Routing ───────────────────────────────
-KONG_ADMIN_PORT=8001
-KONG_PROXY_PORT=8000
+### Prerequisites
 
+* [Bun](https://bun.sh) (used instead of Node/npm for all services)
+
+```sh
+  curl -fsSL https://bun.sh/install | bash
 ```
 
-> ⚠️ **Security Warning:** Never check your `.env` file into version control. Only `.env.example` (with empty or redacted secrets) belongs in the repository.
+* Docker & Docker Compose
 
----
+* A Gemini API key from [Google AI Studio](https://aistudio.google.com/)
 
-## 🎛️ Configuration Strategy
+### Installation
 
-Configurations are injected dynamically depending on the current runtime environment to ensure agility and safety:
+1. Clone the repo
 
-| Environment | How configuration is loaded | Technical Implementation |
-| --- | --- | --- |
-| **Local Dev** | `.env` + Docker Compose | Uses the `env_file` attribute to map variables natively into running containers. |
-| **Kubernetes** | `ConfigMap` + `Secret` | Separates non-sensitive parameters (`ConfigMap`) from encrypted credentials (`Secret`) at the Pod block. |
-| **Spring Boot** | Fabric8 Config Operator | Employs `spring-cloud-kubernetes-fabric8-config` to native-read active maps/secrets from K8s clusters without an external server. |
-| **Hono / Bun** | Native `process.env` | K8s streams env keys straight into the process runtime engine with zero third-party dependencies. |
+```sh
+   git clone https://github.com/nbnguyen75/synapse.git
+   cd synapse
+```
 
-> 📌 **Architectural Principle:** No dedicated Config Server to maintain. Eliminates redundant resource usage and eradicates a classic Single Point of Failure (SPOF).
+2. Install dependencies with Bun
 
----
+```sh
+   bun install
+```
 
-## 🗺️ Roadmap
+3. Copy the environment template and set your API key
 
-### 🟢 Phase 0 — Infrastructure Foundation
+```sh
+   cp .env.example .env
+   # then edit .env and set GEMINI_API_KEY=your_key_here
+```
 
-* [ ] Set up local development workspaces via Docker Compose.
-* [ ] Establish initial gateway routes and service health checks inside the Kong mapping layer.
+4. Start local infrastructure (Postgres + pgvector)
 
-### 🔵 Phase 1 — Core MVP Features
+```sh
+   docker compose up -d
+```
 
-* [ ] **Authentication:** Complete registration/login flows, Google OAuth setups, and strict JWT refresh token handling.
-* [ ] **Workspaces:** Implement strict multi-tenant isolation architectures (users only view contexts matching their authorized organizations).
-* [ ] **Task Management:** Establish full task CRUD, assignment hooks, status/priority matrix flags, and search filtering lookups.
-* [ ] **Multi-tenant RBAC:** Enforce explicit security checks (Owner vs. Member roles) inside service boundaries rather than relying on gateway edge rules alone.
-* [ ] **Event Audit Logs:** Track actions via an append-only transaction pipeline inside the `audit_events` schema for potential history replay capabilities.
+5. Run services locally
 
-### 🟣 Phase 2 — Production Hardening
+```sh
+   bun run dev
+```
 
-* [ ] **Real-time Notifications:** Launch async message delivery mechanisms driven by native Server-Sent Events (SSE).
-* [ ] **Kubernetes Implementations:** Package manifest scripts for k3s distribution structures on GCP Cloud infrastructure, transitioning environments to internal K8s Secret bindings.
-* [ ] **Kong Rate Limiting:** Enforce strict traffic ceilings using the per-consumer rate-limiting plugin within Kong.
+6. Change git remote url to avoid accidental pushes to the base project
 
-### 🟡 Phase 3 — Intelligent Capabilities (AI Differentiation)
+```sh
+   git remote set-url origin nbnguyen75/synapse
+   git remote -v # confirm the changes
+```
 
-* [ ] **AI Sprint Retro:** Interface with the specialized `ai-service` to process finished/failed sprint tasks, producing summaries along with immediate actionable items.
-* [ ] Polish end-to-end telemetry (Observability trackers), refine system documentations, and prepare the interactive live showcase demo.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
----
+<!-- USAGE -->
+## Usage
 
-## 📄 License
+1. Register/login through the SvelteKit client.
+2. Create a note — an embedding is generated automatically (sync in MVP, async via event bus in later stages).
+3. Open the AI chat panel and ask a question about your notes — Synapse retrieves relevant notes via `pgvector` and answers using Gemini, grounded in your own data.
 
-Distributed under the terms of the **MIT License**.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
----
+<!-- ROADMAP -->
+## Roadmap
+
+- [x] **MVP** — Auth, Notes CRUD, simple RAG, Kong gateway, SvelteKit client, deployed on GKE Autopilot
+- [ ] **Event-driven** — Move embedding generation to async via RabbitMQ + worker
+- [ ] **Observability** — Structured logging, health checks, Cloud Monitoring/Logging integration
+- [ ] **Advanced Agentic** — Multi-step tool-calling (create reminder, search related notes, call weather API)
+- [ ] **Valkey caching** — Cache AI responses & sessions, backed by measured latency improvements
+- [ ] *(Optional)* **Kafka migration** — Event replay & multi-consumer support
+- [ ] **Scaling & Resilience** — HPA autoscaling, circuit breakers, load testing with k6
+
+See the [open issues](https://github.com/nbnguyen75/synapse/issues) for a full list of proposed features and known issues.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTRIBUTING -->
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTACT -->
+## Contact
+
+Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - your.email@example.com
+
+Project Link: [https://github.com/nbnguyen75/synapse](https://github.com/nbnguyen75/synapse)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+* [Kong Gateway](https://konghq.com/)
+* [pgvector](https://github.com/pgvector/pgvector)
+* [Shields.io](https://shields.io)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[contributors-shield]: https://img.shields.io/github/contributors/nbnguyen75/synapse.svg?style=for-the-badge
+[contributors-url]: https://github.com/nbnguyen75/synapse/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/nbnguyen75/synapse.svg?style=for-the-badge
+[forks-url]: https://github.com/nbnguyen75/synapse/network/members
+[stars-shield]: https://img.shields.io/github/stars/nbnguyen75/synapse.svg?style=for-the-badge
+[stars-url]: https://github.com/nbnguyen75/synapse/stargazers
+[issues-shield]: https://img.shields.io/github/issues/nbnguyen75/synapse.svg?style=for-the-badge
+[issues-url]: https://github.com/nbnguyen75/synapse/issues
+[license-shield]: https://img.shields.io/github/license/nbnguyen75/synapse.svg?style=for-the-badge
+[license-url]: https://github.com/nbnguyen75/synapse/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/linkedin_username
