@@ -1,0 +1,2 @@
+cd services/auth
+bun lint-staged

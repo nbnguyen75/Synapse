@@ -1,0 +1,31 @@
+{
+	"name": "auth",
+	"lint-staged": {
+		"*": "bun --bun format"
+	},
+	"scripts": {
+		"dev": "NODE_ENV=development bun run --port 5001 --hot src/app.ts",
+		"build": "bun build --production --outdir=dist --minify --target=node src/app.ts",
+		"lint": "prettier --check . && oxlint . && eslint .",
+		"format": "prettier --write . && oxlint --fix && eslint --fix",
+		"prepare": "husky"
+	},
+	"dependencies": {
+		"hono": "^4.12.27"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@hono/eslint-config": "^2.1.0",
+		"@types/bun": "latest",
+		"eslint": "^10.6.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-oxlint": "^1.72.0",
+		"eslint-plugin-perfectionist": "^5.9.1",
+		"globals": "^17.7.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^17.0.8",
+		"oxlint": "^1.73.0",
+		"prettier": "^3.9.4",
+		"typescript-eslint": "^8.63.0"
+	}
+}
