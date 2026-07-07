@@ -16,8 +16,17 @@
 		"jsxImportSource": "hono/jsx",
 		"paths": {
 			"#/*": ["./src/*"]
-		}
+		},
+		"types": ["node"]
 	},
-	"include": ["ambient.d.ts", "env.d.ts", "non-ambient.d.ts", "src/**/*.ts", "src/**/*.js"],
+	"include": [
+		"ambient.d.ts",
+		"env.d.ts",
+		"non-ambient.d.ts",
+		"**/*.ts",
+		"**/*.js",
+		"eslint.config.js",
+		"prettier.config.js"
+	],
 	"exclude": ["node_modules/**", "dist/**"]
 }

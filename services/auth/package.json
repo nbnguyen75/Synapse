@@ -6,17 +6,30 @@
 	"scripts": {
 		"dev": "NODE_ENV=development bun run --port 5001 --hot src/app.ts",
 		"build": "bun build --production --outdir=dist --minify --target=node src/app.ts",
+		"generate-auth-schema": "bun x --bun auth@latest generate --config src/core/auth/auth.service.ts --output src/core/database/schema.ts --yes",
 		"lint": "prettier --check . && oxlint . && eslint .",
 		"format": "prettier --write . && oxlint --fix && eslint --fix",
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"hono": "^4.12.27"
+		"@better-auth/drizzle-adapter": "^1.6.23",
+		"@better-auth/oauth-provider": "^1.6.23",
+		"@t3-oss/env-core": "^0.13.11",
+		"bcrypt": "^6.0.0",
+		"better-auth": "^1.6.23",
+		"drizzle-orm": "^1.0.0-rc.4",
+		"hono": "^4.12.27",
+		"pg": "^8.22.0",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@hono/eslint-config": "^2.1.0",
+		"@types/bcrypt": "^6.0.0",
 		"@types/bun": "latest",
+		"@types/node": "^26.1.0",
+		"@types/pg": "^8.20.0",
+		"drizzle-kit": "^1.0.0-rc.4",
 		"eslint": "^10.6.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-oxlint": "^1.72.0",

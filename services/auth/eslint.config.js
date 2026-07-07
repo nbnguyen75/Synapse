@@ -23,22 +23,23 @@ export default defineConfig(
 				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
 			],
 			'@typescript-eslint/prefer-nullish-coalescing': 'warn',
+			'@typescript-eslint/no-unnecessary-condition': 'warn',
 			'no-console': ['warn', { allow: ['warn', 'error'] }],
 			'@typescript-eslint/no-unsafe-member-access': 'off',
 			'@typescript-eslint/prefer-optional-chain': 'warn',
-			'@typescript-eslint/no-unsafe-assignment': 'warn',
+			'@typescript-eslint/no-unsafe-assignment': 'off',
 			'@typescript-eslint/no-explicit-any': 'error',
 			'@typescript-eslint/no-unsafe-return': 'warn',
-			'@typescript-eslint/no-unsafe-call': 'warn'
+			'@typescript-eslint/no-unsafe-call': 'warn',
+			'no-undef': 'off'
 		},
 		languageOptions: {
 			parserOptions: {
-				project: './tsconfig.json'
+				projectService: true
 			},
 			globals: { ...globals.node }
 		},
 		files: ['**/*.ts', '**/*.js'],
-		ignores: ['eslint.config.js'],
 		plugins: {
 			baseConfig
 		}

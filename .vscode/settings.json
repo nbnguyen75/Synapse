@@ -1,0 +1,27 @@
+{
+   "files.readonlyInclude": {
+      "**/bun.lock": true
+   },
+   "js/ts.preferences.importModuleSpecifier": "non-relative",
+   "js/ts.preferences.preferTypeOnlyAutoImports": true,
+   "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      "**/node_modules": true,
+      "**/LICENSE": true,
+      "**/README.md": true,
+      "**/bun.lock": false,
+   },
+   "editor.codeActionsOnSave": {
+      "source.fixAll.prettier": "never",
+      "source.addMissingImports.ts": "explicit",
+      "source.organizeImports": "never"
+   },
+   "js/ts.updateImportsOnFileMove.enabled": "always",
+   "workbench.tree.renderIndentGuides": "always",
+   "workbench.tree.indent": 10,
+   "editor.tabSize": 3
+}
