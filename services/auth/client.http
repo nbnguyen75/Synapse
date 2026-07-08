@@ -1,0 +1,32 @@
+POST http://localhost:5001/api/auth/sign-up/email
+Origin: http://localhost:5001
+Content-Type: application/json
+
+{
+   "email":"a@test.com",
+   "password":"12345678",
+   "name":"A"
+}
+
+
+###
+# @name postLogin
+POST http://localhost:5001/api/auth/sign-in/email
+Origin: http://localhost:5001
+Content-Type: application/json
+
+{
+   "email":"a@test.com",
+   "password":"12345678"
+}
+
+###
+@sessionToken = {{postLogin.response.body.token}}
+
+GET http://localhost:5001/api/auth/token
+Authorization: Bearer {{sessionToken}}
+
+###
+
+GET http://localhost:5001/api/auth/.well-known/jwks.json
+Authorization: Bearer {{sessionToken}}

@@ -1,16 +1,29 @@
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { oauthProvider } from '@better-auth/oauth-provider';
-import { jwt } from 'better-auth/plugins';
+import { jwt, bearer } from 'better-auth/plugins';
 import { betterAuth } from 'better-auth';
 import bcrypt from 'bcrypt';
 
 import { verifyUserEmailWhenSignInByGoogle } from '#/core/auth/auth.repository';
+import * as schema from '#/core/database/schema';
 import { db } from '#/core/database';
 import { env } from '#/env';
 
 export const auth = betterAuth({
 	plugins: [
+		bearer(),
 		jwt({
+			jwt: {
+				definePayload({ user }) {
+					return {
+						role: user.role ?? 'user',
+						email: user.email,
+						sub: user.id
+					};
+				},
+				audience: env.PUBLIC_APP_NAME,
+				issuer: env.PUBLIC_APP_NAME,
+				expirationTime: '15m'
+			},
 			jwks: {
 				keyPairConfig: {
 					alg: 'RS256' // Spring Boot natively supports RS256 / ES256
@@ -18,10 +31,6 @@ export const auth = betterAuth({
 				jwksPath: '/.well-known/jwks.json'
 			},
 			disableSettingJwtHeader: true
-		}),
-		oauthProvider({
-			consentPage: '/consent',
-			loginPage: '/sign-in'
 		})
 	],
 	emailAndPassword: {
@@ -33,7 +42,6 @@ export const auth = betterAuth({
 				return bcrypt.hash(password, 12);
 			}
 		},
-		disableSignUp: true,
 		enabled: true
 	},
 	databaseHooks: {
@@ -55,10 +63,10 @@ export const auth = betterAuth({
 		}
 	},
 	database: drizzleAdapter(db, {
-		provider: 'pg'
+		provider: 'pg',
+		schema
 	}),
 	trustedOrigins: env.BETTER_AUTH_TRUST_ORIGINS,
 	appName: env.PUBLIC_APP_NAME,
-	baseURL: env.BETTER_AUTH_URL,
-	disabledPaths: ['/token']
+	baseURL: env.BETTER_AUTH_URL
 });

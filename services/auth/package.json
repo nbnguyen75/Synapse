@@ -9,11 +9,15 @@
 		"generate-auth-schema": "bun x --bun auth@latest generate --config src/core/auth/auth.service.ts --output src/core/database/schema.ts --yes",
 		"lint": "prettier --check . && oxlint . && eslint .",
 		"format": "prettier --write . && oxlint --fix && eslint --fix",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:push": "drizzle-kit push",
+		"db:pull": "drizzle-kit pull",
+		"db:studio": "drizzle-kit studio",
 		"prepare": "husky"
 	},
 	"dependencies": {
 		"@better-auth/drizzle-adapter": "^1.6.23",
-		"@better-auth/oauth-provider": "^1.6.23",
 		"@t3-oss/env-core": "^0.13.11",
 		"bcrypt": "^6.0.0",
 		"better-auth": "^1.6.23",
