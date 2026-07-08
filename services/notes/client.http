@@ -1,1 +1,38 @@
-GET http://localhost:8082/notes HTTP/1.1
+# @name postRegister
+@sessionToken = {{postRegister.response.body.token}}
+POST http://localhost:5001/api/auth/sign-up/email
+Origin: http://localhost:5001
+Content-Type: application/json
+
+{
+   "email":"a@test.com",
+   "password":"12345678",
+   "name":"A"
+}
+
+
+###
+# @name postLogin
+@sessionToken = {{postLogin.response.body.token}}
+POST http://localhost:5001/api/auth/sign-in/email
+Origin: http://localhost:5001
+Content-Type: application/json
+
+{
+   "email":"a@test.com",
+   "password":"12345678"
+}
+
+###
+# @name getAccessToken
+@accessToken = {{getAccessToken.response.body.token}}
+GET http://localhost:5001/api/auth/token
+Authorization: Bearer {{sessionToken}}
+
+###
+GET http://localhost:5001/api/auth/.well-known/jwks.json
+Authorization: Bearer {{accessToken}}
+
+###
+GET http://localhost:8082/api/notes HTTP/1.1
+Authorization: Bearer {{accessToken}}

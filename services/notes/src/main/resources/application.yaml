@@ -2,6 +2,9 @@ server:
    port: 8082
 
 spring:
+   web:
+      resources:
+         add-mappings: false
    datasource:
       url: jdbc:postgresql://localhost:5432/notes_db
       username: synapse
@@ -9,8 +12,8 @@ spring:
    jpa:
       hibernate:
          ddl-auto: update
-   # security:
-   #    oauth2:
-   #       resourceserver:
-   #          jwt:
-   #             jwk-set-uri: http://localhost:5001/api/auth/.well-known/jwks.json
+   security:
+      oauth2:
+         resourceserver:
+            jwt:
+               jwk-set-uri: http://localhost:5001/api/auth/.well-known/jwks.json

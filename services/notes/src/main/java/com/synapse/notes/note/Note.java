@@ -1,4 +1,4 @@
-package com.synapse.notes;
+package com.synapse.notes.note;
 
 import java.time.Instant;
 import java.util.UUID;
