@@ -1,4 +1,15 @@
 {
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/build": true,
+        "**/LICENSE": true,
+        "**/README.md": true,
+        "**/.gradle": true
+    },
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "interactive",
     "editor.tabSize": 3
