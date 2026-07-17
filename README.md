@@ -1,31 +1,41 @@
 <a id="readme-top"></a>
 
-
 <div align="center">
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![License][license-shield]][license-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+
+[![Bun][bun-shield]][bun-url]
+[![Node.js][node-shield]][node-url]
+[![Hono][hono-shield]][hono-url]
+[![Spring Boot][spring-shield]][spring-url]
+[![React][react-shield]][react-url]
+[![Vite][vite-shield]][vite-url]
+[![TanStack Query][tanstack-shield]][tanstack-url]
+[![Kong][kong-shield]][kong-url]
+[![PostgreSQL][postgres-shield]][postgres-url]
+[![pgvector][pgvector-shield]][pgvector-url]
+[![Valkey][valkey-shield]][valkey-url]
+[![Kubernetes][k8s-shield]][k8s-url]
+[![Google Cloud][gcp-shield]][gcp-url]
 
 </div>
 
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <h3 align="center">🧠 Synapse</h3>
 
   <p align="center">
-    A personal AI-powered knowledge assistant — notes that you can chat with.
+    An AI-powered personal knowledge assistant — capture notes, chat with them via RAG, and let agentic tools handle reminders for you.
     <br />
-    <em>End-to-end showcase project: microservices, event-driven architecture, RAG & agentic AI on Kubernetes</em>
-    <br />
-    <br />
-    <a href="#architecture"><strong>Explore the Architecture »</strong></a>
+    <a href="https://github.com/nbnguyen75/synapse"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="#roadmap">Roadmap</a>
+    <a href="https://github.com/nbnguyen75/synapse">View Demo</a>
     ·
     <a href="https://github.com/nbnguyen75/synapse/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
@@ -33,20 +43,18 @@
   </p>
 </div>
 
-<!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li><a href="#about-the-project">About The Project</a></li>
-    <li><a href="#architecture">Architecture</a>
+    <li>
+      <a href="#about-the-project">About The Project</a>
       <ul>
-        <li><a href="#high-level-system-diagram">High-Level System Diagram</a></li>
-        <li><a href="#core-flow-note-creation--rag-chat">Core Flow: Note Creation & RAG Chat</a></li>
+        <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
-    <li><a href="#built-with">Built With</a></li>
-    <li><a href="#core-features">Core Features</a></li>
-    <li><a href="#getting-started">Getting Started</a>
+    <li><a href="#architecture">Architecture</a></li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
@@ -61,187 +69,141 @@
   </ol>
 </details>
 
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
-**Synapse** is a Personal Knowledge Assistant: users write notes, the system automatically generates embeddings for them, and users can "chat" with an AI that retrieves relevant notes (RAG) to answer questions — plus agentic features like auto-creating reminders from note content.
+**Synapse** is a personal knowledge assistant that turns your notes into a queryable, AI-powered second brain. Create notes, and the system automatically embeds them; chat with an AI that retrieves relevant notes (RAG) to answer your questions; let agentic tool-calling handle follow-up actions like generating reminders straight from note content.
 
-This project isn't just a CRUD app — it's an **end-to-end architecture showcase**, deliberately built in growth stages (MVP → event-driven → observability → advanced agentic → caching with measured justification → optional Kafka migration → scaling/resilience) so that every technical decision has a clear "why," not just a checkbox on a CV.
+The project is deliberately built as a small polyglot microservices system — mixing runtimes and frameworks on purpose — to demonstrate system-design thinking rather than a single-stack CRUD app:
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- ARCHITECTURE -->
-## Architecture
-
-### High-Level System Diagram
-
-```mermaid
-flowchart TB
-    subgraph Client["🖥️ Client"]
-        FE["SvelteKit App<br/>(Login · Notes · AI Chat)"]
-    end
-
-    subgraph Gateway["🚪 API Gateway"]
-        Kong["Kong<br/>Routing · Rate Limiting · JWT Verify"]
-    end
-
-    subgraph Services["⚙️ Core Services"]
-        Auth["Auth Service<br/>(Hono + better-auth)<br/>JWT issue/verify"]
-        Notes["Notes Service<br/>CRUD Notes"]
-        AI["AI Service<br/>RAG + Agentic Tool-Calling"]
-    end
-
-    subgraph Data["💾 Data & Cache"]
-        PG[("PostgreSQL<br/>+ pgvector")]
-        Valkey[("Valkey<br/>Session & AI Response Cache")]
-    end
-
-    subgraph Async["📨 Event Bus (post-MVP)"]
-        MQ["RabbitMQ / Kafka"]
-        Worker["Embedding Worker"]
-    end
-
-    subgraph External["🌐 External"]
-        Gemini["Gemini API"]
-    end
-
-    FE -->|HTTPS| Kong
-    Kong --> Auth
-    Kong --> Notes
-    Kong --> AI
-
-    Auth --> PG
-    Notes --> PG
-    Notes -.->|note.created event| MQ
-    MQ --> Worker
-    Worker -->|generate embedding| PG
-
-    AI -->|retrieve top-k| PG
-    AI -->|cache lookup| Valkey
-    AI -->|generate response| Gemini
-
-    style Client fill:#1e293b,color:#fff
-    style Gateway fill:#7c3aed,color:#fff
-    style Services fill:#2563eb,color:#fff
-    style Data fill:#059669,color:#fff
-    style Async fill:#d97706,color:#fff
-    style External fill:#dc2626,color:#fff
-```
-
-### Core Flow: Note Creation & RAG Chat
-
-```mermaid
-sequenceDiagram
-    actor User
-    participant Client as SvelteKit Client
-    participant Kong as Kong Gateway
-    participant Notes as Notes Service
-    participant AI as AI Service
-    participant PG as Postgres + pgvector
-    participant Gemini as Gemini API
-
-    User->>Client: Create note
-    Client->>Kong: POST /notes (JWT)
-    Kong->>Kong: Verify JWT
-    Kong->>Notes: Forward request
-    Notes->>PG: Save note
-    Notes->>PG: Generate & store embedding
-    Notes-->>Client: 201 Created
-
-    User->>Client: Ask AI about notes
-    Client->>Kong: POST /ai/chat (JWT)
-    Kong->>AI: Forward request
-    AI->>PG: Retrieve top-k similar notes
-    AI->>Gemini: Prompt + retrieved context
-    Gemini-->>AI: Answer
-    AI-->>Client: Response grounded in user's notes
-```
+| Service | Stack | Why |
+|---|---|---|
+| Auth | Hono + better-auth on **Bun** | Fast cold-start, ideal for a small, focused service |
+| Notes | **Java Spring Boot / Spring Cloud** | Enterprise-grade, cloud-native microservice patterns |
+| AI Service | Hono on **Node.js** | Needs the mature Node AI SDK ecosystem for RAG/tool-calling |
+| Notification/Worker | Hono on **Bun** | Lightweight event consumer |
+| Gateway | **Kong** | Routing, rate limiting, JWT verification |
+| Client | React + Vite + TanStack Router/Query + shadcn | Modern, type-safe SPA tooling |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
 
-* [![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)](https://kit.svelte.dev/)
-* [![Hono](https://img.shields.io/badge/Hono-E36002?style=for-the-badge&logo=hono&logoColor=white)](https://hono.dev/)
-* [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-* [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
-* [![Kong](https://img.shields.io/badge/Kong-003459?style=for-the-badge&logo=kong&logoColor=white)](https://konghq.com/)
-* [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](https://www.rabbitmq.com/)
-* [![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com/)
-* [![Gemini](https://img.shields.io/badge/Gemini_API-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](https://ai.google.dev/)
-* [![Valkey](https://img.shields.io/badge/Valkey-2B5C8A?style=for-the-badge&logo=redis&logoColor=white)](https://valkey.io/)
+* [![Bun][bun-shield]][bun-url]
+* [![Node.js][node-shield]][node-url]
+* [![Hono][hono-shield]][hono-url]
+* [![Spring Boot][spring-shield]][spring-url]
+* [![React][react-shield]][react-url]
+* [![Vite][vite-shield]][vite-url]
+* [![Kong][kong-shield]][kong-url]
+* [![PostgreSQL][postgres-shield]][postgres-url]
+* [![Kubernetes][k8s-shield]][k8s-url]
+* [![Google Cloud][gcp-shield]][gcp-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- CORE FEATURES -->
-## Core Features
+## Architecture
 
-| Group | Feature |
-|---|---|
-| Auth | Register/login, JWT access + refresh tokens, basic RBAC (user/admin) |
-| Core Domain | Notes CRUD, automatic embedding generation on create/update |
-| AI Service | RAG chat over personal notes, agentic tool-calling (e.g. summarize, create reminders from note content) |
-| Gateway | Kong routing, rate limiting, JWT verification at the gateway |
-| Async/Event | `note.created` → embedding job; `reminder.due` → notification |
-| Infra | Service discovery via k8s DNS, ConfigMap per service, Valkey cache for sessions + AI response cache |
-| Observability | Centralized logging, health checks, (later stage) tracing/metrics |
-| Client | SvelteKit: login, notes management, AI chat UI |
+```mermaid
+flowchart TB
+    subgraph Client
+        UI["React + Vite<br/>TanStack Router/Query + shadcn"]
+    end
+
+    subgraph Gateway
+        KONG["Kong Gateway<br/>Routing · Rate Limit · JWT Verify"]
+    end
+
+    subgraph Services
+        AUTH["Auth Service<br/>Hono + better-auth (Bun)"]
+        NOTES["Notes Service<br/>Spring Boot / Spring Cloud"]
+        AI["AI Service<br/>Hono (Node.js) — RAG + Agentic Tools"]
+        WORKER["Notification/Worker<br/>Hono (Bun)"]
+    end
+
+    subgraph Data
+        PG[("PostgreSQL + pgvector")]
+        VALKEY[("Valkey Cache<br/>Session + AI response cache")]
+    end
+
+    subgraph External
+        GEMINI["Gemini API"]
+    end
+
+    UI -->|HTTPS| KONG
+    KONG --> AUTH
+    KONG --> NOTES
+    KONG --> AI
+
+    AUTH -->|session| VALKEY
+    NOTES -->|CRUD| PG
+    NOTES -->|"event: note.created"| WORKER
+    WORKER -->|generate embedding| AI
+    AI -->|retrieve top-k| PG
+    AI -->|cache response| VALKEY
+    AI -->|"reminder.due event"| WORKER
+    AI -->|prompt / completion| GEMINI
+    WORKER -->|internal API call| NOTES
+
+    classDef bun fill:#fbf0df,stroke:#f9f1a5,color:#000
+    classDef node fill:#e8f5e9,stroke:#68a063,color:#000
+    classDef spring fill:#e8f5e9,stroke:#6db33f,color:#000
+    classDef data fill:#eef2ff,stroke:#6366f1,color:#000
+
+    class AUTH,WORKER bun
+    class AI node
+    class NOTES spring
+    class PG,VALKEY data
+```
+
+**Request flow (RAG chat example):**
+1. Client authenticates via **Auth Service**, receiving a JWT.
+2. Requests pass through **Kong**, which verifies the JWT and routes to the target service.
+3. **Notes Service** persists notes in PostgreSQL and emits a `note.created` event.
+4. The **Worker** picks up the event and asks the **AI Service** to generate embeddings, stored via pgvector.
+5. On chat, the **AI Service** retrieves top-k relevant notes, builds a prompt, and calls **Gemini**, optionally caching the response in **Valkey**.
+6. Agentic tool-calls (e.g., reminders) call back into **Notes Service** or trigger `reminder.due` events for the **Worker** to notify the user.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- GETTING STARTED -->
 ## Getting Started
 
+This is an example of how you may give instructions on setting up the project locally.
 To get a local copy up and running, follow these steps.
 
 ### Prerequisites
 
-* [Bun](https://bun.sh) (used instead of Node/npm for all services)
-
+* [Bun](https://bun.sh/)
 ```sh
   curl -fsSL https://bun.sh/install | bash
 ```
-
+* Node.js (LTS)
+* Java 21+ and Maven/Gradle
 * Docker & Docker Compose
-
-* A Gemini API key from [Google AI Studio](https://aistudio.google.com/)
+* [kind](https://kind.sigs.k8s.io/) (for local Kubernetes)
 
 ### Installation
 
 1. Clone the repo
-
 ```sh
    git clone https://github.com/nbnguyen75/synapse.git
-   cd synapse
 ```
-
-2. Install dependencies with Bun
-
-```sh
-   bun install
-```
-
-3. Copy the environment template and set your API key
-
-```sh
-   cp .env.example .env
-   # then edit .env and set GEMINI_API_KEY=your_key_here
-```
-
-4. Start local infrastructure (Postgres + pgvector)
-
+2. Start local infra (Postgres + pgvector)
 ```sh
    docker compose up -d
 ```
-
-5. Run services locally
-
+3. Install dependencies per service
 ```sh
-   bun run dev
+   cd services/auth && bun install
+   cd services/ai && npm install
+   cd services/notes && ./mvnw install
+   cd client && npm install
 ```
-
-6. Change git remote url to avoid accidental pushes to the base project
-
+4. Configure environment variables
+```sh
+   cp .env.example .env
+   # set DATABASE_URL, JWT_SECRET, GEMINI_API_KEY, etc.
+```
+5. Change git remote url to avoid accidental pushes to the base project
 ```sh
    git remote set-url origin nbnguyen75/synapse
    git remote -v # confirm the changes
@@ -249,31 +211,31 @@ To get a local copy up and running, follow these steps.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- USAGE -->
 ## Usage
 
-1. Register/login through the SvelteKit client.
-2. Create a note — an embedding is generated automatically (sync in MVP, async via event bus in later stages).
-3. Open the AI chat panel and ask a question about your notes — Synapse retrieves relevant notes via `pgvector` and answers using Gemini, grounded in your own data.
+* Register/login via the Auth Service.
+* Create notes through the client — embeddings are generated automatically.
+* Open the chat panel to ask questions about your notes (RAG).
+* Ask the AI to "remind me about X" — agentic tool-calling creates a reminder automatically.
+
+_For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- ROADMAP -->
 ## Roadmap
 
-- [x] **MVP** — Auth, Notes CRUD, simple RAG, Kong gateway, SvelteKit client, deployed on GKE Autopilot
-- [ ] **Event-driven** — Move embedding generation to async via RabbitMQ + worker
-- [ ] **Observability** — Structured logging, health checks, Cloud Monitoring/Logging integration
-- [ ] **Advanced Agentic** — Multi-step tool-calling (create reminder, search related notes, call weather API)
-- [ ] **Valkey caching** — Cache AI responses & sessions, backed by measured latency improvements
-- [ ] *(Optional)* **Kafka migration** — Event replay & multi-consumer support
-- [ ] **Scaling & Resilience** — HPA autoscaling, circuit breakers, load testing with k6
+- [x] MVP: Auth + Notes + AI Service (sync RAG) behind Kong, deployed to GKE Autopilot
+- [ ] Event-driven embedding pipeline (RabbitMQ)
+- [ ] Structured logging & observability (Actuator, pino, Cloud Monitoring)
+- [ ] Advanced multi-step agentic tool-calling
+- [ ] Valkey caching with measured latency improvements
+- [ ] Spring Cloud Config / Gateway exploration
+- [ ] HPA autoscaling, circuit breakers, load testing (k6)
 
 See the [open issues](https://github.com/nbnguyen75/synapse/issues) for a full list of proposed features and known issues.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- CONTRIBUTING -->
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -286,29 +248,25 @@ Contributions are what make the open source community such an amazing place to l
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - your.email@example.com
+Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
 
 Project Link: [https://github.com/nbnguyen75/synapse](https://github.com/nbnguyen75/synapse)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
 * [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
-* [Kong Gateway](https://konghq.com/)
+* [Vercel AI SDK](https://sdk.vercel.ai/)
 * [pgvector](https://github.com/pgvector/pgvector)
-* [Shields.io](https://shields.io)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -325,3 +283,30 @@ Project Link: [https://github.com/nbnguyen75/synapse](https://github.com/nbnguye
 [license-url]: https://github.com/nbnguyen75/synapse/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
+
+[bun-shield]: https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=white
+[bun-url]: https://bun.sh/
+[node-shield]: https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white
+[node-url]: https://nodejs.org/
+[hono-shield]: https://img.shields.io/badge/Hono-E36002?style=for-the-badge&logo=hono&logoColor=white
+[hono-url]: https://hono.dev/
+[spring-shield]: https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white
+[spring-url]: https://spring.io/projects/spring-boot
+[react-shield]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[react-url]: https://reactjs.org/
+[vite-shield]: https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white
+[vite-url]: https://vitejs.dev/
+[tanstack-shield]: https://img.shields.io/badge/TanStack_Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white
+[tanstack-url]: https://tanstack.com/query
+[kong-shield]: https://img.shields.io/badge/Kong-003459?style=for-the-badge&logo=kong&logoColor=white
+[kong-url]: https://konghq.com/
+[postgres-shield]: https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
+[postgres-url]: https://www.postgresql.org/
+[pgvector-shield]: https://img.shields.io/badge/pgvector-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
+[pgvector-url]: https://github.com/pgvector/pgvector
+[valkey-shield]: https://img.shields.io/badge/Valkey-A41E11?style=for-the-badge&logo=redis&logoColor=white
+[valkey-url]: https://valkey.io/
+[k8s-shield]: https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white
+[k8s-url]: https://kubernetes.io/
+[gcp-shield]: https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white
+[gcp-url]: https://cloud.google.com/
