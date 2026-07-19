@@ -1,0 +1,26 @@
+{
+   "recommendations": [
+      "imgildev.vscode-auto-barrel",
+      "wmaurer.change-case",
+      "oven.bun-vscode",
+      "aaron-bond.better-comments",
+      "usernamehw.errorlens",
+      "styled-components.vscode-styled-components",
+      "bradlc.vscode-tailwindcss",
+      "ionutvmi.path-autocomplete",
+      "yoavbls.pretty-ts-errors",
+      "humao.rest-client",
+      "suhelmakkad.shadcn-ui",
+      "inlang.vs-code-extension",
+      "dbaeumer.vscode-eslint",
+      "donjayamanne.githistory",
+      "vincaslt.highlight-matching-tag",
+      "kisstkondoros.vscode-gutter-preview",
+      "oderwat.indent-rainbow",
+      "mariusalchimavicius.json-to-ts",
+      "anteprimorac.html-end-tag-labels",
+      "xabikos.javascriptsnippets",
+      "gruntfuggly.todo-tree",
+      "naumovs.color-highlight"
+   ]
+}
