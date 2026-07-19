@@ -32,14 +32,14 @@
   <p align="center">
     An AI-powered personal knowledge assistant — capture notes, chat with them via RAG, and let agentic tools handle reminders for you.
     <br />
-    <a href="https://github.com/nbnguyen75/synapse"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/nbnguyen75/Synapse"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/nbnguyen75/synapse">View Demo</a>
+    <a href="https://github.com/nbnguyen75/Synapse">View Demo</a>
     ·
-    <a href="https://github.com/nbnguyen75/synapse/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/nbnguyen75/Synapse/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
-    <a href="https://github.com/nbnguyen75/synapse/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/nbnguyen75/Synapse/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
@@ -185,7 +185,7 @@ To get a local copy up and running, follow these steps.
 
 1. Clone the repo
 ```sh
-   git clone https://github.com/nbnguyen75/synapse.git
+   git clone https://github.com/nbnguyen75/Synapse.git
 ```
 2. Start local infra (Postgres + pgvector)
 ```sh
@@ -205,7 +205,7 @@ To get a local copy up and running, follow these steps.
 ```
 5. Change git remote url to avoid accidental pushes to the base project
 ```sh
-   git remote set-url origin nbnguyen75/synapse
+   git remote set-url origin nbnguyen75/Synapse
    git remote -v # confirm the changes
 ```
 
@@ -232,7 +232,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 - [ ] Spring Cloud Config / Gateway exploration
 - [ ] HPA autoscaling, circuit breakers, load testing (k6)
 
-See the [open issues](https://github.com/nbnguyen75/synapse/issues) for a full list of proposed features and known issues.
+See the [open issues](https://github.com/nbnguyen75/Synapse/issues) for a full list of proposed features and known issues.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -258,7 +258,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
 
-Project Link: [https://github.com/nbnguyen75/synapse](https://github.com/nbnguyen75/synapse)
+Project Link: [https://github.com/nbnguyen75/Synapse](https://github.com/nbnguyen75/Synapse)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -271,16 +271,16 @@ Project Link: [https://github.com/nbnguyen75/synapse](https://github.com/nbnguye
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[contributors-shield]: https://img.shields.io/github/contributors/nbnguyen75/synapse.svg?style=for-the-badge
-[contributors-url]: https://github.com/nbnguyen75/synapse/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/nbnguyen75/synapse.svg?style=for-the-badge
-[forks-url]: https://github.com/nbnguyen75/synapse/network/members
-[stars-shield]: https://img.shields.io/github/stars/nbnguyen75/synapse.svg?style=for-the-badge
-[stars-url]: https://github.com/nbnguyen75/synapse/stargazers
-[issues-shield]: https://img.shields.io/github/issues/nbnguyen75/synapse.svg?style=for-the-badge
-[issues-url]: https://github.com/nbnguyen75/synapse/issues
-[license-shield]: https://img.shields.io/github/license/nbnguyen75/synapse.svg?style=for-the-badge
-[license-url]: https://github.com/nbnguyen75/synapse/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/nbnguyen75/Synapse.svg?style=for-the-badge
+[contributors-url]: https://github.com/nbnguyen75/Synapse/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/nbnguyen75/Synapse.svg?style=for-the-badge
+[forks-url]: https://github.com/nbnguyen75/Synapse/network/members
+[stars-shield]: https://img.shields.io/github/stars/nbnguyen75/Synapse.svg?style=for-the-badge
+[stars-url]: https://github.com/nbnguyen75/Synapse/stargazers
+[issues-shield]: https://img.shields.io/github/issues/nbnguyen75/Synapse.svg?style=for-the-badge
+[issues-url]: https://github.com/nbnguyen75/Synapse/issues
+[license-shield]: https://img.shields.io/github/license/nbnguyen75/Synapse.svg?style=for-the-badge
+[license-url]: https://github.com/nbnguyen75/Synapse/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
 
