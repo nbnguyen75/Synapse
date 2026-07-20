@@ -16,6 +16,9 @@ export default defineConfig([
       'public/*',
       'src/routeTree.gen.ts',
       'README.md',
+      'src/routeTree.gen.ts',
+      '.agents/**/scripts',
+      '.claude/**/scripts',
    ]),
    {
       files: ['**/*.{ts,tsx}'],
@@ -28,6 +31,8 @@ export default defineConfig([
          '@typescript-eslint/require-await': 'warn',
          '@typescript-eslint/no-unsafe-assignment': 'warn',
          '@typescript-eslint/no-unsafe-member-access': 'warn',
+         '@typescript-eslint/no-floating-promises': 'off',
+         '@typescript-eslint/no-misused-promises': 'off',
          '@typescript-eslint/no-unsafe-argument': 'warn',
          '@typescript-eslint/restrict-template-expressions': [
             'warn',
@@ -70,30 +75,24 @@ export default defineConfig([
             {
                customGroups: [
                   {
-                     /* Core React & Next.js Framework */
+                     /* Core React & TanStack Framework */
                      elementNamePattern: [
                         '^react$',
                         '^react-.+$',
-                        '^next$',
-                        '^next/.+$',
+                        '^@tanstack/.*$',
                      ],
                      modifiers: ['value'],
                      groupName: 'framework',
                   },
                   {
-                     elementNamePattern: '^#translation/.*$',
-                     modifiers: ['value'],
-                     groupName: 'translation',
-                  },
-                  {
-                     /* App Router segments (app/**) */
-                     elementNamePattern: '^@/app/.*$',
+                     /* Routes components or logic */
+                     elementNamePattern: '^@/routes/.*$',
                      modifiers: ['value'],
                      groupName: 'routes',
                   },
                   {
                      /* Business Logic Modules */
-                     elementNamePattern: '^@/modules/.*$',
+                     elementNamePattern: '^@/features/.*$',
                      modifiers: ['value'],
                      groupName: 'modules',
                   },
@@ -122,7 +121,7 @@ export default defineConfig([
                      groupName: 'shadcn',
                   },
                   {
-                     /* Radix / Base UI primitives */
+                     /* Assets & Icons */
                      elementNamePattern: ['^@radix-ui/.*$', '^@base-ui/.*$'],
                      modifiers: ['value'],
                      groupName: 'lib-ui',
@@ -130,10 +129,9 @@ export default defineConfig([
                   {
                      /* Assets & Icons */
                      elementNamePattern: [
-                        '^@/assets.*$',
+                        '^#/assets.*$',
                         '^lucide-react$',
                         '^@iconify/react',
-                        '^@iconify-react.*$',
                         '^.+\\.css$',
                      ],
                      modifiers: ['value'],
@@ -145,13 +143,12 @@ export default defineConfig([
                   'builtin',
                   'framework',
                   'external',
-                  'translation',
                   'routes',
                   'modules',
                   'hooks',
                   'libs',
-                  'components', // Component tự viết lên trước
-                  'shadcn', // Component UI (shadcn) theo sau
+                  'components',
+                  'shadcn',
                   'lib-ui',
                   'parent',
                   'sibling',
