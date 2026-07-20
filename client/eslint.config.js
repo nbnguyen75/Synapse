@@ -26,6 +26,17 @@ export default defineConfig([
          'simple-import-sort/imports': 'off',
          '@typescript-eslint/array-type': 'warn',
          '@typescript-eslint/require-await': 'warn',
+         '@typescript-eslint/no-unsafe-assignment': 'warn',
+         '@typescript-eslint/no-unsafe-member-access': 'warn',
+         '@typescript-eslint/no-unsafe-argument': 'warn',
+         '@typescript-eslint/restrict-template-expressions': [
+            'warn',
+            {
+               allowNumber: true,
+               allowBoolean: true,
+               allowAny: true,
+            },
+         ],
          '@typescript-eslint/no-unused-vars': [
             'warn',
             {
