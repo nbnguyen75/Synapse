@@ -11,7 +11,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import ReactMarkdown from 'react-markdown';
-import * as React from 'react';
 
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -96,12 +95,20 @@ import {
 import { deleteNote, getNotes, createNote, updateNote } from '@/api/notes';
 import * as M from '@/paraglides/messages';
 
+export const DEFAULT_NOTES_SEARCH = {
+   sort: 'updatedAt_desc',
+   pageSize: 10,
+   tag: '',
+   page: 1,
+   q: '',
+};
+
 const notesSearchSchema = z.object({
-   sort: z.string().optional().default('updatedAt_desc'),
-   pageSize: z.number().optional().default(10),
-   tag: z.string().optional().default(''),
-   page: z.number().optional().default(1),
-   q: z.string().optional().default(''),
+   pageSize: z.number().optional().default(DEFAULT_NOTES_SEARCH.pageSize),
+   sort: z.string().optional().default(DEFAULT_NOTES_SEARCH.sort),
+   page: z.number().optional().default(DEFAULT_NOTES_SEARCH.page),
+   tag: z.string().optional().default(DEFAULT_NOTES_SEARCH.tag),
+   q: z.string().optional().default(DEFAULT_NOTES_SEARCH.q),
 });
 
 export const Route = createFileRoute('/_app/notes')({

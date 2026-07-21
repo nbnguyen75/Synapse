@@ -6,6 +6,8 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
+import { DEFAULT_NOTES_SEARCH } from '@/routes/_app/notes';
+
 import { createTitle } from '@/lib/metadata';
 
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
@@ -81,7 +83,7 @@ function RouteComponent() {
             description: m.auth_welcome_back({ appName: env.VITE_APP_NAME }),
          });
 
-         void navigate({ to: '/notes' });
+         void navigate({ search: DEFAULT_NOTES_SEARCH, to: '/notes' });
       } catch (error) {
          const err = error as Error;
 

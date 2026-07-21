@@ -10,6 +10,7 @@
    "scripts": {
       "dev": "vite",
       "build": "tsc -b && vite build",
+      "postinstall": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglides",
       "preview": "vite preview",
       "generate-routes": "tsr generate",
       "lint": "oxlint . && eslint .",
