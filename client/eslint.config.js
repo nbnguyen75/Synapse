@@ -17,6 +17,9 @@ export default defineConfig([
       'src/routeTree.gen.ts',
       'README.md',
       'src/routeTree.gen.ts',
+      'project.inlang/**',
+      '!project.inlang/settings.json',
+      'src/paraglides/**',
       '.agents/**/scripts',
       '.claude/**/scripts',
    ]),
@@ -33,6 +36,26 @@ export default defineConfig([
          '@typescript-eslint/no-unsafe-member-access': 'warn',
          '@typescript-eslint/no-floating-promises': 'off',
          '@typescript-eslint/no-misused-promises': 'off',
+         '@typescript-eslint/no-unsafe-call': 'off',
+         '@typescript-eslint/only-throw-error': [
+            'error',
+            {
+               allowThrowingAny: false,
+               allowThrowingUnknown: false,
+               allow: [
+                  {
+                     from: 'package',
+                     package: '@tanstack/router-core',
+                     name: 'Redirect',
+                  },
+                  {
+                     from: 'package',
+                     package: '@tanstack/router-core',
+                     name: 'NotFoundError',
+                  },
+               ],
+            },
+         ],
          '@typescript-eslint/no-unsafe-argument': 'warn',
          '@typescript-eslint/restrict-template-expressions': [
             'warn',

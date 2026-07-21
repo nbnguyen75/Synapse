@@ -1,8 +1,16 @@
 import type { QueryClient } from '@tanstack/react-query';
 import type { AuthContext } from '@/types';
 
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import {
+   createRootRouteWithContext,
+   HeadContent,
+   Outlet,
+} from '@tanstack/react-router';
+import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
+import { TanStackDevtools } from '@tanstack/react-devtools';
+
+import appCss from '@/styles.css?url';
 
 import { env } from '@/env';
 
@@ -22,7 +30,13 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             name: 'viewport',
          },
          {
-            title: `${env.VITE_APP_NAME}`,
+            title: env.VITE_APP_NAME,
+         },
+      ],
+      links: [
+         {
+            rel: 'stylesheet',
+            href: appCss,
          },
       ],
    }),
@@ -32,8 +46,24 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootLayout() {
    return (
       <>
+         <HeadContent />
          <Outlet />
-         <TanStackRouterDevtools initialIsOpen={false} />
+
+         <TanStackDevtools
+            config={{
+               hideUntilHover: true,
+            }}
+            plugins={[
+               {
+                  render: <ReactQueryDevtoolsPanel />,
+                  name: 'TanStack Query',
+               },
+               {
+                  render: <TanStackRouterDevtoolsPanel />,
+                  name: 'TanStack Router',
+               },
+            ]}
+         />
       </>
    );
 }

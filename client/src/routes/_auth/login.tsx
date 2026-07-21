@@ -6,6 +6,8 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
+import { createTitle } from '@/lib/metadata';
+
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
@@ -14,17 +16,26 @@ import { Input } from '@/components/ui/input';
 import { Icon } from '@iconify/react';
 
 import { signIn } from '@/core/client/auth-client';
+import * as m from '@/paraglides/messages';
+import { env } from '@/env';
 
 export const Route = createFileRoute('/_auth/login')({
+   head: () => ({
+      meta: [
+         {
+            title: createTitle(m.login_page_title()),
+         },
+      ],
+   }),
    component: RouteComponent,
 });
 
 const loginSchema = z.object({
    password: z
       .string()
-      .min(1, 'Password is required')
-      .min(6, 'Password must be at least 6 characters'),
-   email: z.email('Please enter a valid email address'),
+      .min(1, m.validation_password_required())
+      .min(6, m.validation_password_min()),
+   email: z.email(m.validation_email_invalid()),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -57,28 +68,25 @@ function RouteComponent() {
          });
 
          if (error) {
-            toast.error('Authentication Failed', {
-               description:
-                  error.message || 'Invalid credentials. Please try again.',
+            toast.error(m.auth_failed(), {
+               description: error.message || m.auth_invalid_credentials(),
             });
             setError('root', {
-               message:
-                  error.message || 'Invalid credentials. Please try again.',
+               message: error.message || m.auth_invalid_credentials(),
             });
             return;
          }
 
-         toast.success('Successfully logged in!', {
-            description: 'Welcome back to Synapse.',
+         toast.success(m.auth_login_success(), {
+            description: m.auth_welcome_back({ appName: env.VITE_APP_NAME }),
          });
 
          void navigate({ to: '/notes' });
       } catch (error) {
          const err = error as Error;
 
-         const message =
-            err?.message || 'An unexpected error occurred. Please try again.';
-         toast.error('Authentication Failed', { description: message });
+         const message = err?.message || m.auth_unexpected_error();
+         toast.error(m.auth_failed(), { description: message });
          setError('root', { message });
       }
    };
@@ -91,19 +99,21 @@ function RouteComponent() {
          });
 
          if (error) {
-            toast.error('OAuth Failed', {
+            toast.error(m.login_page_oauth_failed(), {
                description:
-                  error.message || `${provider} authentication failed.`,
+                  error.message || m.login_page_oauth_description({ provider }),
             });
             setError('root', {
-               message: error.message || `${provider} authentication failed.`,
+               message:
+                  error.message || m.login_page_oauth_description({ provider }),
             });
          }
       } catch (error) {
          const err = error as Error;
 
-         const message = err?.message || 'OAuth authentication failed.';
-         toast.error('OAuth Failed', { description: message });
+         const message =
+            err?.message || m.login_page_oauth_description({ provider });
+         toast.error(m.login_page_oauth_failed(), { description: message });
          setError('root', { message });
       }
    };
@@ -118,17 +128,17 @@ function RouteComponent() {
          {/* Header Block */}
          <div className="text-center mb-6">
             <h1 className="text-xl font-semibold tracking-tight text-white">
-               Welcome to Synapse
+               {m.login_page_welcome({ appName: env.VITE_APP_NAME })}
             </h1>
             <p className="mt-1.5 text-xs text-zinc-400">
-               Don't have an account?{' '}
-               <button
-                  type="button"
+               {m.login_page_no_account()}{' '}
+               <Button
+                  variant="link"
                   onClick={() => navigate({ to: '/register' })}
-                  className="font-medium text-white hover:underline cursor-pointer"
+                  className="h-auto p-0 font-medium text-white hover:underline cursor-pointer"
                >
-                  Sign up
-               </button>
+                  {m.login_page_sign_up()}
+               </Button>
             </p>
          </div>
 
@@ -155,7 +165,7 @@ function RouteComponent() {
                         className="text-xs font-medium text-zinc-400"
                         htmlFor="login-email"
                      >
-                        Email
+                        {m.login_page_email_label()}
                      </FieldLabel>
                      <Input
                         {...field}
@@ -184,20 +194,22 @@ function RouteComponent() {
                            className="text-xs font-medium text-zinc-400"
                            htmlFor="login-password"
                         >
-                           Password
+                           {m.login_page_password_label()}
                         </FieldLabel>
-                        <button
+                        <Button
+                           variant="ghost"
+                           size="xs"
                            type="button"
                            onClick={() => {
                               setValue('email', 'nbnguyen.dev@gmail.com');
                               setValue('password', 'password123');
                               trigger();
-                              toast.info('Demo credentials loaded!');
+                              toast.info(m.login_page_demo_loaded());
                            }}
-                           className="text-[11px] font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                           className="h-auto p-0 text-[11px] font-medium text-zinc-400 hover:text-white hover:bg-transparent cursor-pointer"
                         >
-                           Fill Demo Credentials
-                        </button>
+                           {m.login_page_fill_demo()}
+                        </Button>
                      </div>
                      <div className="relative">
                         <Input
@@ -209,12 +221,16 @@ function RouteComponent() {
                            className="w-full bg-zinc-900/40 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-zinc-700 focus-visible:border-zinc-700 h-9.5 rounded-lg pr-9 text-xs"
                            disabled={isSubmitting}
                         />
-                        <button
+                        <Button
+                           variant="ghost"
+                           size="icon-xs"
                            type="button"
                            onClick={() => setShowPassword(!showPassword)}
-                           className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                           className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 hover:bg-transparent cursor-pointer"
                            title={
-                              showPassword ? 'Hide password' : 'Show password'
+                              showPassword
+                                 ? m.login_page_hide_password()
+                                 : m.login_page_show_password()
                            }
                         >
                            <Icon
@@ -223,7 +239,7 @@ function RouteComponent() {
                               }
                               className="h-4 w-4"
                            />
-                        </button>
+                        </Button>
                      </div>
                      {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -241,10 +257,10 @@ function RouteComponent() {
                {isSubmitting ? (
                   <div className="flex items-center gap-1.5">
                      <Spinner className="h-3 w-3 border-2 border-zinc-950 border-t-transparent" />
-                     <span>Please wait...</span>
+                     <span>{m.login_page_please_wait()}</span>
                   </div>
                ) : (
-                  <span>Login</span>
+                  <span>{m.login_page_submit()}</span>
                )}
             </Button>
          </form>
@@ -253,48 +269,50 @@ function RouteComponent() {
          <div className="w-full flex items-center gap-3 my-5">
             <div className="h-px flex-1 bg-zinc-800/80" />
             <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">
-               Or
+               {m.login_page_or()}
             </span>
             <div className="h-px flex-1 bg-zinc-800/80" />
          </div>
 
          {/* OAuth Buttons */}
          <div className="grid grid-cols-2 gap-3 w-full">
-            <button
+            <Button
+               variant="outline"
                type="button"
                onClick={() => handleSocialLogin('github')}
                disabled={isSubmitting}
-               className="flex items-center justify-center gap-2 px-3 h-9 rounded-lg border border-zinc-800/80 bg-zinc-900/20 hover:bg-zinc-900/50 hover:border-zinc-700 text-zinc-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
+               className="flex items-center justify-center gap-2 px-3 h-9 rounded-lg border-zinc-800/80 bg-zinc-900/20 hover:bg-zinc-900/50 hover:border-zinc-700 text-zinc-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
             >
                <Icon icon="simple-icons:github" className="h-4 w-4" />
                <span>GitHub</span>
-            </button>
-            <button
+            </Button>
+            <Button
+               variant="outline"
                type="button"
                onClick={() => handleSocialLogin('google')}
                disabled={isSubmitting}
-               className="flex items-center justify-center gap-2 px-3 h-9 rounded-lg border border-zinc-800/80 bg-zinc-900/20 hover:bg-zinc-900/50 hover:border-zinc-700 text-zinc-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
+               className="flex items-center justify-center gap-2 px-3 h-9 rounded-lg border-zinc-800/80 bg-zinc-900/20 hover:bg-zinc-900/50 hover:border-zinc-700 text-zinc-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
             >
                <Icon icon="simple-icons:google" className="h-4 w-4" />
                <span>Google</span>
-            </button>
+            </Button>
          </div>
 
          {/* Footer */}
          <div className="text-[10px] text-center text-zinc-500 mt-8 leading-relaxed max-w-70">
-            By clicking continue, you agree to our{' '}
+            {m.login_page_footer()}{' '}
             <a
                href="#"
                className="underline hover:text-zinc-300 transition-colors"
             >
-               Terms of Service
+               {m.login_page_terms()}
             </a>{' '}
-            and{' '}
+            {m.login_page_and()}{' '}
             <a
                href="#"
                className="underline hover:text-zinc-300 transition-colors"
             >
-               Privacy Policy
+               {m.login_page_privacy()}
             </a>
             .
          </div>

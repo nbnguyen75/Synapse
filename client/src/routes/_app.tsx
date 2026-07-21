@@ -1,17 +1,28 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
+
+import { AppLayout, type AppTab } from '@/components/layouts/app-layout';
 
 export const Route = createFileRoute('/_app')({
-   // beforeLoad: ({ context, location }) => {
-   //    if (!context.auth.isAuthenticated) {
-   //       throw redirect({
-   //          to: '/login',
-   //          search: { redirect: location.href },
-   //       })
-   //    }
-   // },
    component: RouteComponent,
 });
 
+const TAB_ROUTES: Record<AppTab, string> = {
+   archived: '/notes',
+   notes: '/notes',
+   chat: '/chat',
+   tags: '/tags',
+};
+
 function RouteComponent() {
-   return <Outlet />;
+   const navigate = useNavigate();
+
+   const handleNavigate = (tab: AppTab) => {
+      void navigate({ to: TAB_ROUTES[tab] });
+   };
+
+   return (
+      <AppLayout activeTab="notes" onNavigate={handleNavigate}>
+         <Outlet />
+      </AppLayout>
+   );
 }
