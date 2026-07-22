@@ -17,7 +17,7 @@ export default defineConfig({
          strategy: ['cookie', 'baseLocale'],
          cookieName: 'synapse-locale',
          project: './project.inlang',
-         outdir: './src/paraglides',
+         outdir: './src/paraglide',
          emitTsDeclarations: true,
       }),
       tanstackRouter({

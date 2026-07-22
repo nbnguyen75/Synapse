@@ -1,15 +1,14 @@
-import type { AuthContext } from '@/types';
+import type { AuthContext } from '@/shared/types';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import ReactDOM from 'react-dom/client';
 import { StrictMode } from 'react';
 
-import { ThemeProvider } from '@/components/providers/theme-providers';
+import { Toaster } from '@/shared/components/ui/sonner';
 
-import { Toaster } from '@/components/ui/sonner';
-
-import { useSession } from '@/core/client/auth-client';
+import { ThemeProvider } from '@/core/components/theme-provider';
+import { useSession } from '@/core/auth-client';
 // Import the generated route tree
 import { routeTree } from '@/routeTree.gen';
 

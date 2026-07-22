@@ -6,8 +6,8 @@ LICENSE
 .output
 .vercel
 src/routeTree.gen.ts
-paraglide/translation
-paraglide/project.inlang
-!paraglide/project.inlang/settings.json
+src/paraglide/**
+project.inlang/**
+!project.inlang/settings.json
 .agents/**/scripts
 .claude/**/scripts

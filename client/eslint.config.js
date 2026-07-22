@@ -19,7 +19,7 @@ export default defineConfig([
       'src/routeTree.gen.ts',
       'project.inlang/**',
       '!project.inlang/settings.json',
-      'src/paraglides/**',
+      'src/paraglide/**',
       '.agents/**/scripts',
       '.claude/**/scripts',
    ]),
@@ -121,25 +121,25 @@ export default defineConfig([
                   },
                   {
                      /* Custom React Hooks */
-                     elementNamePattern: '^@/hooks/.*$',
+                     elementNamePattern: '^@/shared/hooks/.*$',
                      modifiers: ['value'],
                      groupName: 'hooks',
                   },
                   {
                      /* Internal Libraries & Utils */
-                     elementNamePattern: '^@/lib/.*$',
+                     elementNamePattern: '^@/shared/lib/.*$',
                      modifiers: ['value'],
                      groupName: 'libs',
                   },
                   {
                      /* App Components (Custom) */
-                     elementNamePattern: '^@/components/(?!ui/).*$',
+                     elementNamePattern: '^@/shared/components/(?!ui/).*$',
                      modifiers: ['value'],
                      groupName: 'components',
                   },
                   {
                      /* UI Components (Shadcn/UI) */
-                     elementNamePattern: '^@/components/ui/.*$',
+                     elementNamePattern: '^@/shared/components/ui/.*$',
                      modifiers: ['value'],
                      groupName: 'shadcn',
                   },
@@ -152,7 +152,7 @@ export default defineConfig([
                   {
                      /* Assets & Icons */
                      elementNamePattern: [
-                        '^#/assets.*$',
+                        '^@/assets.*$',
                         '^lucide-react$',
                         '^@iconify/react',
                         '^.+\\.css$',

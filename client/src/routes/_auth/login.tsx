@@ -6,19 +6,17 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 import * as z from 'zod';
 
-import { DEFAULT_NOTES_SEARCH } from '@/routes/_app/notes';
+import { createTitle } from '@/shared/lib/metadata';
 
-import { createTitle } from '@/lib/metadata';
-
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Field, FieldError, FieldLabel } from '@/shared/components/ui/field';
+import { Spinner } from '@/shared/components/ui/spinner';
+import { Button } from '@/shared/components/ui/button';
+import { Input } from '@/shared/components/ui/input';
 
 import { Icon } from '@iconify/react';
 
-import { signIn } from '@/core/client/auth-client';
-import * as m from '@/paraglides/messages';
+import { signIn } from '@/core/auth-client';
+import { m } from '@/paraglide/messages';
 import { env } from '@/env';
 
 export const Route = createFileRoute('/_auth/login')({
@@ -83,7 +81,7 @@ function RouteComponent() {
             description: m.auth_welcome_back({ appName: env.VITE_APP_NAME }),
          });
 
-         void navigate({ search: DEFAULT_NOTES_SEARCH, to: '/notes' });
+         void navigate({ to: '/notes' });
       } catch (error) {
          const err = error as Error;
 
