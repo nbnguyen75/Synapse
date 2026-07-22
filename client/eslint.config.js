@@ -30,6 +30,12 @@ export default defineConfig([
          'sort-imports': 'off',
          'import/order': 'off',
          'simple-import-sort/imports': 'off',
+         'no-empty': [
+            'warn',
+            {
+               allowEmptyCatch: true,
+            },
+         ],
          '@typescript-eslint/array-type': 'warn',
          '@typescript-eslint/require-await': 'warn',
          '@typescript-eslint/no-unsafe-assignment': 'warn',
