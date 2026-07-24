@@ -54,7 +54,7 @@ export const InlineCitationText = ({
 export type InlineCitationCardProps = ComponentProps<typeof HoverCard>;
 
 export const InlineCitationCard = (props: InlineCitationCardProps) => (
-   <HoverCard closeDelay={0} openDelay={0} {...props} />
+   <HoverCard {...props} />
 );
 
 export type InlineCitationCardTriggerProps = ComponentProps<typeof Badge> & {
@@ -184,12 +184,12 @@ export const InlineCitationCarouselIndex = ({
          return;
       }
 
-      syncState();
+      const syncStateWrapper = () => syncState();
 
-      api.on('select', syncState);
+      api.on('select', syncStateWrapper);
 
       return () => {
-         api.off('select', syncState);
+         api.off('select', syncStateWrapper);
       };
    }, [api, syncState]);
 

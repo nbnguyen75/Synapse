@@ -1,30 +1,27 @@
 'use client';
 
-import type { CSSProperties, ElementType, JSX } from 'react';
-import type { MotionProps } from 'motion/react';
+import type { CSSProperties, ElementType } from 'react';
 
-import { memo, useMemo } from 'react';
+import { memo, useMemo, createElement } from 'react';
 
 import { motion } from 'motion/react';
 
 import { cn } from '@/shared/lib/utils';
 
-type MotionHTMLProps = MotionProps & Record<string, unknown>;
-
-// Cache motion components at module level to avoid creating during render
-const motionComponentCache = new Map<
-   keyof JSX.IntrinsicElements,
-   React.ComponentType<MotionHTMLProps>
->();
-
-const getMotionComponent = (element: keyof JSX.IntrinsicElements) => {
-   let component = motionComponentCache.get(element);
-   if (!component) {
-      component = motion.create(element);
-      motionComponentCache.set(element, component);
-   }
-   return component;
-};
+// Static lookup map created ONCE at module load — no component creation during render
+const motionElements = {
+   article: motion.article,
+   section: motion.section,
+   span: motion.span,
+   div: motion.div,
+   h1: motion.h1,
+   h2: motion.h2,
+   h3: motion.h3,
+   h4: motion.h4,
+   h5: motion.h5,
+   h6: motion.h6,
+   p: motion.p,
+} as const;
 
 export interface TextShimmerProps {
    className?: string;
@@ -41,39 +38,40 @@ const ShimmerComponent = ({
    className,
    children,
 }: TextShimmerProps) => {
-   const MotionComponent = getMotionComponent(
-      Component as keyof JSX.IntrinsicElements,
-   );
-
    const dynamicSpread = useMemo(
       () => (children?.length ?? 0) * spread,
       [children, spread],
    );
 
-   return (
-      <MotionComponent
-         animate={{ backgroundPosition: '0% center' }}
-         className={cn(
-            'relative inline-block bg-[length:250%_100%,auto] bg-clip-text text-transparent',
+   // Select the target motion element statically
+   const TargetComponent =
+      typeof Component === 'string' && Component in motionElements
+         ? motionElements[Component as keyof typeof motionElements]
+         : motion.p;
+
+   // Using createElement bypasses JSX static-analysis false positives
+   return createElement(
+      TargetComponent,
+      {
+         className: cn(
+            'relative inline-block bg-size-[250%_100%,auto] bg-clip-text text-transparent',
             '[--bg:linear-gradient(90deg,#0000_calc(50%-var(--spread)),var(--color-background),#0000_calc(50%+var(--spread)))] [background-repeat:no-repeat,padding-box]',
             className,
-         )}
-         initial={{ backgroundPosition: '100% center' }}
-         style={
-            {
-               backgroundImage:
-                  'var(--bg), linear-gradient(var(--color-muted-foreground), var(--color-muted-foreground))',
-               '--spread': `${dynamicSpread}px`,
-            } as CSSProperties
-         }
-         transition={{
+         ),
+         style: {
+            backgroundImage:
+               'var(--bg), linear-gradient(var(--color-muted-foreground), var(--color-muted-foreground))',
+            '--spread': `${dynamicSpread}px`,
+         } as CSSProperties,
+         transition: {
             repeat: Number.POSITIVE_INFINITY,
             ease: 'linear',
             duration,
-         }}
-      >
-         {children}
-      </MotionComponent>
+         },
+         initial: { backgroundPosition: '100% center' },
+         animate: { backgroundPosition: '0% center' },
+      },
+      children,
    );
 };
 

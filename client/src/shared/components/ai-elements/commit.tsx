@@ -170,15 +170,7 @@ export const CommitTimestamp = ({
    date,
    ...props
 }: CommitTimestampProps) => {
-   const [formatted, setFormatted] = useState('');
-
-   const updateFormatted = useCallback(() => {
-      setFormatted(formatRelativeDate(date));
-   }, [date]);
-
-   useEffect(() => {
-      updateFormatted();
-   }, [updateFormatted]);
+   const formatted = formatRelativeDate(date);
 
    return (
       <time

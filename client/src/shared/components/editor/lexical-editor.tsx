@@ -334,7 +334,7 @@ function ShortcutsHelpDialog() {
             <Keyboard className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Shortcuts</span>
          </DialogTrigger>
-         <DialogContent className="sm:max-w-[480px] bg-background border border-border shadow-flat-lg rounded-2xl p-6">
+         <DialogContent className="sm:max-w-120 bg-background border border-border shadow-flat-lg rounded-2xl p-6">
             <DialogHeader>
                <DialogTitle className="text-base font-semibold tracking-tight flex items-center gap-2 text-foreground">
                   <Keyboard className="h-4 w-4 text-primary" />

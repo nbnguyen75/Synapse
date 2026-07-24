@@ -1,5 +1,6 @@
 'use client';
 
+import type { DialogRootChangeEventDetails } from '@base-ui/react';
 import type { ComponentProps, ReactNode } from 'react';
 
 import { createContext, useCallback, useContext, useMemo } from 'react';
@@ -84,8 +85,12 @@ export const VoiceSelector = ({
    });
 
    const [open, setOpen] = useControllableState({
+      onChange: (nextOpen: boolean) => {
+         onOpenChange?.(nextOpen, {
+            reason: 'none',
+         } as DialogRootChangeEventDetails);
+      },
       defaultProp: defaultOpen,
-      onChange: onOpenChange,
       prop: openProp,
    });
 
@@ -203,6 +208,7 @@ export const VoiceSelectorGender = ({
    value,
    ...props
 }: VoiceSelectorGenderProps) => {
+   // eslint-disable-next-line no-useless-assignment
    let icon: ReactNode | null = null;
 
    switch (value) {
@@ -286,6 +292,7 @@ export const VoiceSelectorAccent = ({
    value,
    ...props
 }: VoiceSelectorAccentProps) => {
+   // eslint-disable-next-line no-useless-assignment
    let emoji: string | null = null;
 
    switch (value) {

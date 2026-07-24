@@ -4,9 +4,9 @@ import { useDebounce } from '@/shared/hooks/use-debounce';
 
 import { SidebarManagerTrigger } from '@/shared/components/ui/sidebar';
 import { Separator } from '@/shared/components/ui/separator';
+import { Kbd, KbdGroup } from '@/shared/components/ui/kbd';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { Kbd } from '@/shared/components/ui/kbd';
 
 import { PanelRightIcon, SearchIcon } from 'lucide-react';
 
@@ -84,7 +84,11 @@ export default function AppTopHeader() {
                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 h-7 rounded-lg border border-border bg-neutral-50 dark:bg-neutral-950 text-[10px] font-mono text-muted-foreground hover:bg-neutral-100 dark:hover:bg-neutral-900 hover:text-foreground transition-all cursor-pointer font-normal"
             >
                <span>Command Palette</span>
-               <Kbd>⌘K</Kbd>
+               <KbdGroup>
+                  <Kbd>Ctrl (⌘)</Kbd>
+                  <span>+</span>
+                  <Kbd>B</Kbd>
+               </KbdGroup>
             </Button>
 
             <ThemeToggle />

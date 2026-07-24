@@ -35,14 +35,17 @@ const useStrictModeSafeInit = () => {
 export type PersonaState =
    'idle' | 'listening' | 'thinking' | 'speaking' | 'asleep';
 
-interface PersonaProps {
+interface StableCallbacks {
    onLoadError?: RiveParameters['onLoadError'];
    onPause?: RiveParameters['onPause'];
    onLoad?: RiveParameters['onLoad'];
    onPlay?: RiveParameters['onPlay'];
    onStop?: RiveParameters['onStop'];
-   variant?: keyof typeof sources;
    onReady?: () => void;
+}
+
+interface PersonaProps extends StableCallbacks {
+   variant?: keyof typeof sources;
    state: PersonaState;
    className?: string;
 }
@@ -225,7 +228,7 @@ export const Persona: FC<PersonaProps> = memo(
          };
       }, [onLoad, onLoadError, onPause, onPlay, onReady, onStop]);
 
-      const stableCallbacks = useMemo(
+      const stableCallbacks: StableCallbacks = useMemo(
          () => ({
             onLoad: (loadedRive) => callbacksRef.current.onLoad?.(loadedRive),
             onLoadError: (err) => callbacksRef.current.onLoadError?.(err),
@@ -274,21 +277,33 @@ export const Persona: FC<PersonaProps> = memo(
       );
       const asleepInput = useStateMachineInput(rive, stateMachine, 'asleep');
 
+      // 2. Wrap inputs in a Ref to satisfy React Compiler's immutability rules
+      const inputsRef = useRef({
+         listening: listeningInput,
+         thinking: thinkingInput,
+         speaking: speakingInput,
+         asleep: asleepInput,
+      });
+
+      // 3. Keep the ref updated as Rive initializes
+      useEffect(() => {
+         inputsRef.current = {
+            listening: listeningInput,
+            thinking: thinkingInput,
+            speaking: speakingInput,
+            asleep: asleepInput,
+         };
+      }, [listeningInput, thinkingInput, speakingInput, asleepInput]);
+
       // Rive state machine inputs are mutable objects that must be set via direct
       // property assignment — this is the intended Rive API, not a React anti-pattern.
       useEffect(() => {
-         if (listeningInput) {
-            listeningInput.value = state === 'listening';
-         }
-         if (thinkingInput) {
-            thinkingInput.value = state === 'thinking';
-         }
-         if (speakingInput) {
-            speakingInput.value = state === 'speaking';
-         }
-         if (asleepInput) {
-            asleepInput.value = state === 'asleep';
-         }
+         const { listening, thinking, speaking, asleep } = inputsRef.current;
+
+         if (listening) listening.value = state === 'listening';
+         if (thinking) thinking.value = state === 'thinking';
+         if (speaking) speaking.value = state === 'speaking';
+         if (asleep) asleep.value = state === 'asleep';
       }, [state, listeningInput, thinkingInput, speakingInput, asleepInput]);
 
       const Component = source.hasModel

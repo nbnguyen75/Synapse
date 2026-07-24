@@ -22,8 +22,6 @@ export default defineConfig([
       'src/paraglide/**',
       '.agents/**/scripts',
       '.claude/**/scripts',
-      'src/shared/components/ai-elements/**',
-      'src/shared/components/ui/**',
    ]),
    {
       files: ['**/*.{ts,tsx}'],

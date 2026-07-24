@@ -65,7 +65,7 @@ const addKeysToTokens = (lines: ThemedToken[][]): KeyedLine[] =>
 // Token rendering component
 const TokenSpan = ({ token }: { token: ThemedToken }) => (
    <span
-      className="dark:!bg-[var(--shiki-dark-bg)] dark:!text-[var(--shiki-dark)]"
+      className="dark:bg-(--shiki-dark-bg)! dark:text-(--shiki-dark)!"
       style={{
          textDecoration: isUnderline(token.fontStyle) ? 'underline' : undefined,
          fontStyle: isItalic(token.fontStyle) ? 'italic' : undefined,
@@ -276,7 +276,7 @@ const CodeBlockBody = memo(
       return (
          <pre
             className={cn(
-               'dark:!bg-[var(--shiki-dark-bg)] dark:!text-[var(--shiki-dark)] m-0 p-4 text-sm',
+               'dark:bg-(--shiki-dark-bg)! dark:text-(--shiki-dark)! m-0 p-4 text-sm',
                className,
             )}
             style={preStyle}
@@ -399,16 +399,16 @@ export const CodeBlockContent = ({
    const [asyncTokens, setAsyncTokens] = useState<TokenizedCode | null>(null);
    const asyncKeyRef = useRef({ language, code });
 
-   // Invalidate stale async tokens synchronously during render
-   if (
-      asyncKeyRef.current.code !== code ||
-      asyncKeyRef.current.language !== language
-   ) {
-      asyncKeyRef.current = { language, code };
-      setAsyncTokens(null);
-   }
-
    useEffect(() => {
+      // Invalidate stale async tokens when code/language changes
+      if (
+         asyncKeyRef.current.code !== code ||
+         asyncKeyRef.current.language !== language
+      ) {
+         asyncKeyRef.current = { language, code };
+         setAsyncTokens(null);
+      }
+
       let cancelled = false;
 
       highlightCode(code, language, (result) => {

@@ -103,11 +103,11 @@ export const AgentTool = memo(
       return (
          <AccordionItem
             className={cn('border-b last:border-b-0', className)}
-            value={value}
+            value={value as unknown}
             {...props}
          >
             <AccordionTrigger className="px-3 py-2 text-sm hover:no-underline">
-               {tool.description ?? 'No description'}
+               <>{tool.description ?? 'No description'}</>
             </AccordionTrigger>
             <AccordionContent className="px-3 pb-3">
                <div className="rounded-md bg-muted/50">

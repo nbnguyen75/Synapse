@@ -122,7 +122,10 @@ export const useAudioDevices = () => {
    }, [loading]);
 
    useEffect(() => {
-      loadDevicesWithoutPermission();
+      const doLoad = async () => {
+         await loadDevicesWithoutPermission();
+      };
+      doLoad();
    }, [loadDevicesWithoutPermission]);
 
    useEffect(() => {

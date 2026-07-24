@@ -597,6 +597,7 @@ export default function ChatBot({ className }: ChatBotProps) {
       <div
          className={cn(
             'relative flex size-full flex-col divide-y overflow-hidden',
+            className,
          )}
       >
          <Conversation>
@@ -682,8 +683,12 @@ export default function ChatBot({ className }: ChatBotProps) {
                      <PromptInputTools>
                         <PromptInputActionMenu>
                            <PromptInputActionMenuTrigger />
-                           <PromptInputActionMenuContent>
-                              <PromptInputActionAddAttachments />
+                           <PromptInputActionMenuContent
+                              className={'max-w-56 w-full'}
+                           >
+                              <PromptInputActionAddAttachments
+                                 className={'w-full'}
+                              />
                            </PromptInputActionMenuContent>
                         </PromptInputActionMenu>
                         <SpeechInput
@@ -720,8 +725,9 @@ export default function ChatBot({ className }: ChatBotProps) {
                               }
                            />
 
-                           <ModelSelectorContent>
+                           <ModelSelectorContent showCloseButton={false}>
                               <ModelSelectorInput placeholder="Search models..." />
+
                               <ModelSelectorList>
                                  <ModelSelectorEmpty>
                                     No models found.
@@ -747,6 +753,7 @@ export default function ChatBot({ className }: ChatBotProps) {
                            </ModelSelectorContent>
                         </ModelSelector>
                      </PromptInputTools>
+
                      <PromptInputSubmit
                         disabled={isSubmitDisabled}
                         status={status}

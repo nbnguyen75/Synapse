@@ -1,6 +1,6 @@
 'use client';
 
-import type { ComponentProps, HTMLAttributes, ReactElement } from 'react';
+import type { ComponentProps, HTMLAttributes, Key, ReactElement } from 'react';
 import type { UIMessage } from 'ai';
 
 import {
@@ -207,7 +207,7 @@ export const MessageBranchContent = ({
 }: MessageBranchContentProps) => {
    const { currentBranch, setBranches, branches } = useMessageBranch();
    const childrenArray = useMemo(
-      () => (Array.isArray(children) ? children : [children]),
+      () => (Array.isArray(children) ? children : [children]) as ReactElement[],
       [children],
    );
 
@@ -224,7 +224,7 @@ export const MessageBranchContent = ({
             'grid gap-2 overflow-hidden [&>div]:pb-0',
             index === currentBranch ? 'block' : 'hidden',
          )}
-         key={branch.key}
+         key={(branch as { key: Key }).key}
          {...props}
       >
          {branch}

@@ -18,8 +18,8 @@ import {
    Plus,
    Moon,
    LogOut,
-   CornerDownLeft,
-   Keyboard,
+   KeyboardIcon,
+   CornerDownLeftIcon,
 } from 'lucide-react';
 
 import { signOut } from '@/core/auth/auth-client';
@@ -206,10 +206,9 @@ export default function CommandPalette() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="w-full text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto bg-transparent placeholder-neutral-400 text-foreground"
+                  className="w-full text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 h-auto bg-transparent placeholder-neutral-400 text-foreground"
                   autoFocus
                />
-               <Kbd className="hidden sm:inline-flex">ESC</Kbd>
             </div>
 
             {/* Results List */}
@@ -262,7 +261,7 @@ export default function CommandPalette() {
                            {isSelected && (
                               <div className="flex items-center gap-1 text-[10px] font-mono text-primary">
                                  <Kbd>Enter</Kbd>
-                                 <CornerDownLeft className="h-3 w-3" />
+                                 <CornerDownLeftIcon className="h-3 w-3" />
                               </div>
                            )}
                         </Button>
@@ -275,7 +274,7 @@ export default function CommandPalette() {
             <div className="border-t border-border bg-background/80 px-4 py-2.5 flex items-center justify-between text-[10px] text-neutral-400">
                <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1">
-                     <Keyboard className="h-3.5 w-3.5" /> Shortcuts
+                     <KeyboardIcon className="h-3.5 w-3.5" /> Shortcuts
                   </span>
                   <span className="flex items-center gap-1">
                      <Kbd>N</Kbd> New Note

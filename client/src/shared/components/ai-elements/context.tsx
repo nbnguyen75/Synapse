@@ -26,7 +26,10 @@ const ICON_STROKE_WIDTH = 2;
 type ModelId = string;
 
 interface ContextSchema {
-   usage?: LanguageModelUsage;
+   usage?: LanguageModelUsage & {
+      cachedInputTokens?: number;
+      reasoningTokens?: number;
+   };
    usedTokens: number;
    maxTokens: number;
    modelId?: ModelId;
@@ -60,7 +63,7 @@ export const Context = ({
 
    return (
       <ContextContext.Provider value={contextValue}>
-         <HoverCard closeDelay={0} openDelay={0} {...props} />
+         <HoverCard {...props} />
       </ContextContext.Provider>
    );
 };
