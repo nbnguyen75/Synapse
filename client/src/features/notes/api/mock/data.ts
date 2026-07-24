@@ -34,4 +34,81 @@ export const INITIAL_NOTES: Note[] = [
       pinned: false,
       id: 'note_3',
    },
+   {
+      content:
+         '## Goals\n\n1. Ship notes MVP\n2. Launch AI chat integration\n3. Onboard first 100 beta users\n\n## Timeline\n\n- **July**: Notes + Tags\n- **August**: AI chat + RAG\n- **September**: Beta launch + Feedback loop',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      title: 'Project Roadmap Q3',
+      tags: ['roadmap', 'q3'],
+      userId: 'usr_01',
+      pinned: false,
+      id: 'note_4',
+   },
+   {
+      content:
+         '## Goals\n\n1. Ship notes MVP\n2. Launch AI chat integration\n3. Onboard first 100 beta users\n\n## Timeline\n\n- **July**: Notes + Tags\n- **August**: AI chat + RAG\n- **September**: Beta launch + Feedback loop',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      title: 'Project Roadmap Q3',
+      tags: ['roadmap', 'q3'],
+      userId: 'usr_01',
+      pinned: false,
+      id: 'note_5',
+   },
+   {
+      content:
+         '## Goals\n\n1. Ship notes MVP\n2. Launch AI chat integration\n3. Onboard first 100 beta users\n\n## Timeline\n\n- **July**: Notes + Tags\n- **August**: AI chat + RAG\n- **September**: Beta launch + Feedback loop',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      title: 'Project Roadmap Q3',
+      tags: ['roadmap', 'q3'],
+      userId: 'usr_01',
+      pinned: false,
+      id: 'note_6',
+   },
+   {
+      content:
+         '## Goals\n\n1. Ship notes MVP\n2. Launch AI chat integration\n3. Onboard first 100 beta users\n\n## Timeline\n\n- **July**: Notes + Tags\n- **August**: AI chat + RAG\n- **September**: Beta launch + Feedback loop',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      title: 'Project Roadmap Q3',
+      tags: ['roadmap', 'q3'],
+      userId: 'usr_01',
+      pinned: false,
+      id: 'note_7',
+   },
+   {
+      content:
+         '## Goals\n\n1. Ship notes MVP\n2. Launch AI chat integration\n3. Onboard first 100 beta users\n\n## Timeline\n\n- **July**: Notes + Tags\n- **August**: AI chat + RAG\n- **September**: Beta launch + Feedback loop',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      title: 'Project Roadmap Q3',
+      tags: ['roadmap', 'q3'],
+      userId: 'usr_01',
+      pinned: false,
+      id: 'note_8',
+   },
+   {
+      content:
+         '## Goals\n\n1. Ship notes MVP\n2. Launch AI chat integration\n3. Onboard first 100 beta users\n\n## Timeline\n\n- **July**: Notes + Tags\n- **August**: AI chat + RAG\n- **September**: Beta launch + Feedback loop',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      title: 'Project Roadmap Q3',
+      tags: ['roadmap', 'q3'],
+      userId: 'usr_01',
+      pinned: false,
+      id: 'note_9',
+   },
+   {
+      content:
+         '## Goals\n\n1. Ship notes MVP\n2. Launch AI chat integration\n3. Onboard first 100 beta users\n\n## Timeline\n\n- **July**: Notes + Tags\n- **August**: AI chat + RAG\n- **September**: Beta launch + Feedback loop',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      updatedAt: new Date(Date.now() - 86400000).toISOString(),
+      title: 'Project Roadmap Q3',
+      tags: ['roadmap', 'q3'],
+      userId: 'usr_01',
+      pinned: false,
+      id: 'note_10',
+   },
 ];

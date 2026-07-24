@@ -1,4 +1,4 @@
-import type { AuthUser } from '@/core/auth-client';
+import type { AuthUser } from '@/core/auth/auth-client';
 
 export type AuthContext =
    | { isAuthenticated: true; user: AuthUser }

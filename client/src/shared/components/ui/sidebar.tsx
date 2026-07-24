@@ -245,7 +245,7 @@ function Sidebar({
             data-slot="sidebar-container"
             data-side={side}
             className={cn(
-               'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex',
+               'fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:-left-(--sidebar-width) data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:-right-(--sidebar-width) md:flex',
                // Adjust the padding for floating and inset variants.
                variant === 'floating' || variant === 'inset'
                   ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]'
@@ -720,6 +720,121 @@ function SidebarMenuSubButton({
    });
 }
 
+// A record to hold the sidebar context for each named sidebar
+type SidebarRegistry = Record<string, SidebarContextProps>;
+
+type SidebarManagerContextProps = {
+   register: (name: string, context: SidebarContextProps) => void;
+   use: (name: string) => SidebarContextProps | null;
+   unregister: (name: string) => void;
+};
+
+const SidebarManagerContext =
+   React.createContext<SidebarManagerContextProps | null>(null);
+
+function useSidebarManager() {
+   const context = React.useContext(SidebarManagerContext);
+   if (!context) {
+      throw new Error(
+         'useSidebarManager must be used within a SidebarManagerProvider.',
+      );
+   }
+   return context;
+}
+
+function SidebarManagerProvider({ children }: { children: React.ReactNode }) {
+   const [sidebars, setSidebars] = React.useState<SidebarRegistry>({});
+
+   const register = React.useCallback(
+      (name: string, context: SidebarContextProps) => {
+         setSidebars((prev) => ({ ...prev, [name]: context }));
+      },
+      [],
+   );
+
+   const unregister = React.useCallback((name: string) => {
+      setSidebars((prev) => {
+         const next = { ...prev };
+         delete next[name];
+         return next;
+      });
+   }, []);
+
+   const value = React.useMemo(
+      () => ({ use: (name: string) => sidebars[name], unregister, register }),
+      [register, unregister, sidebars],
+   );
+
+   return (
+      <SidebarManagerContext.Provider value={value}>
+         {children}
+      </SidebarManagerContext.Provider>
+   );
+}
+
+function SidebarManager({
+   children,
+   name,
+}: {
+   children: React.ReactNode;
+   name: string;
+}) {
+   const sidebarContext = useSidebar();
+   const manager = useSidebarManager();
+
+   // Use refs to avoid infinite loops - we don't want changes to these
+   // objects to trigger re-registration, only changes to `name` should.
+   const sidebarContextRef = React.useRef(sidebarContext);
+   const managerRef = React.useRef(manager);
+
+   // Keep refs up to date
+   React.useLayoutEffect(() => {
+      sidebarContextRef.current = sidebarContext;
+      managerRef.current = manager;
+   });
+
+   // Register on mount / when name changes, unregister on unmount
+   React.useEffect(() => {
+      managerRef.current.register(name, sidebarContextRef.current);
+      return () => managerRef.current.unregister(name);
+   }, [name]);
+
+   // Keep the registry updated when sidebarContext changes (without causing loops)
+   React.useEffect(() => {
+      managerRef.current.register(name, sidebarContext);
+   }, [name, sidebarContext]);
+
+   return <>{children}</>;
+}
+
+function SidebarManagerTrigger({
+   className,
+   onClick,
+   name,
+   ...props
+}: React.ComponentProps<typeof Button> & { name: string }) {
+   const manager = useSidebarManager();
+   const sidebar = manager.use(name);
+
+   return (
+      <Button
+         data-sidebar="manager-trigger"
+         data-slot="manager-sidebar-trigger"
+         variant="ghost"
+         size="icon-sm"
+         className={cn(className)}
+         onClick={(event) => {
+            onClick?.(event);
+            sidebar?.toggleSidebar();
+         }}
+         {...props}
+      >
+         <PanelLeftIcon />
+         <span className="sr-only">Toggle {name} Sidebar</span>
+      </Button>
+   );
+}
+
 export {
    Sidebar,
    SidebarContent,
@@ -745,4 +860,8 @@ export {
    SidebarSeparator,
    SidebarTrigger,
    useSidebar,
+   useSidebarManager,
+   SidebarManagerProvider,
+   SidebarManager,
+   SidebarManagerTrigger,
 };

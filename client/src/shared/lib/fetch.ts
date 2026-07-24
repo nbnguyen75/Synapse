@@ -1,6 +1,6 @@
 import { createFetch } from '@better-fetch/fetch';
 
-import { authClient } from '@/core/auth-client';
+import { authClient } from '@/core/auth/auth-client';
 import { env } from '@/env';
 
 export const $fetch = createFetch({

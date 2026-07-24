@@ -1,121 +1,92 @@
-import type { AppTab } from '@/shared/components/layout/types';
+import type { PanelImperativeHandle } from 'react-resizable-panels';
+
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { useEffect, useRef } from 'react';
+
+import { CommandPalette } from '@/features/command';
 
 import {
-   createFileRoute,
-   Outlet,
-   useLocation,
-   useNavigate,
-} from '@tanstack/react-router';
-import { useState } from 'react';
-
-import { WorkspacePanel } from '@/features/workspace/workspace-panel';
-
-import { SidebarUserMenu } from '@/shared/components/layout/sidebar-user-menu';
-import { NavSecondary } from '@/shared/components/layout/nav-secondary';
-import { LayoutHeader } from '@/shared/components/layout/layout-header';
-import { SidebarLogo } from '@/shared/components/layout/sidebar-logo';
-import { NAV_ITEMS } from '@/shared/components/layout/layout-data';
-import { NavItems } from '@/shared/components/layout/nav-items';
-
-import {
-   Sidebar,
-   SidebarContent,
-   SidebarFooter,
-   SidebarHeader,
    SidebarInset,
+   SidebarManager,
+   SidebarManagerProvider,
    SidebarProvider,
-   SidebarSeparator,
 } from '@/shared/components/ui/sidebar';
+import {
+   ResizableHandle,
+   ResizablePanel,
+   ResizablePanelGroup,
+} from '@/shared/components/ui/resizable';
 
-import { useSettingsStore } from '@/store/settings-store';
+import { AppLeftSidebar, AppRightSidebar, AppTopHeader } from '@/core/layouts';
+import { TOGGLE_RIGHT_SIDEBAR_EVENT_NAME } from '@/shared/constants/event';
 
 export const Route = createFileRoute('/_app')({
-   component: RouteComponent,
+   component: AppLayout,
 });
 
-const TAB_ROUTES: Record<AppTab, string> = {
-   settings: '/settings',
-   profile: '/profile',
-   archived: '/notes',
-   notes: '/notes',
-   chat: '/chat',
-   tags: '/tags',
-};
+function AppLayout() {
+   const rightPanelRef = useRef<PanelImperativeHandle>(null);
 
-function RouteComponent() {
-   const navigate = useNavigate();
-   const pathname = useLocation().pathname;
-   const { setSidebarOpen, sidebar } = useSettingsStore();
-   const [rightSidebarOpen, setRightSidebarOpen] = useState(() => {
-      const saved = localStorage.getItem('synapse_right_sidebar_open');
-      return saved !== 'false';
-   });
+   useEffect(() => {
+      const handleToggle = () => {
+         const panel = rightPanelRef.current;
+         if (!panel) return;
 
-   const activeTab: AppTab =
-      pathname === '/profile'
-         ? 'profile'
-         : pathname === '/settings'
-           ? 'settings'
-           : pathname === '/chat'
-             ? 'chat'
-             : pathname === '/tags'
-               ? 'tags'
-               : 'notes';
+         if (panel.isCollapsed()) {
+            panel.expand();
+         } else {
+            panel.collapse();
+         }
+      };
 
-   const handleNavigate = (tab: AppTab) => {
-      void navigate({ to: TAB_ROUTES[tab] });
-   };
-
-   const toggleRightSidebar = () => setRightSidebarOpen((prev) => !prev);
-
-   const navItems = NAV_ITEMS.filter((i) => i.group === 'navigation');
-   const mgmtItems = NAV_ITEMS.filter((i) => i.group === 'management');
+      window.addEventListener(TOGGLE_RIGHT_SIDEBAR_EVENT_NAME, handleToggle);
+      return () =>
+         window.removeEventListener(
+            TOGGLE_RIGHT_SIDEBAR_EVENT_NAME,
+            handleToggle,
+         );
+   }, []);
 
    return (
-      <SidebarProvider open={sidebar.open} onOpenChange={setSidebarOpen}>
-         <Sidebar variant="inset">
-            <SidebarHeader className="h-16 items-center px-6 border-b border-neutral-100 dark:border-neutral-900/60">
-               <SidebarLogo />
-            </SidebarHeader>
+      <>
+         <CommandPalette />
 
-            <SidebarSeparator />
+         <SidebarManagerProvider>
+            <SidebarProvider className="h-svh overflow-hidden">
+               {/* Left sidebar */}
+               <SidebarManager name="left">
+                  <AppLeftSidebar variant="inset" />
+               </SidebarManager>
 
-            <SidebarContent>
-               <NavItems
-                  onNavigate={handleNavigate}
-                  activeTab={activeTab}
-                  items={navItems}
-                  label="Navigation"
-               />
-               <NavItems
-                  onNavigate={handleNavigate}
-                  activeTab={activeTab}
-                  items={mgmtItems}
-                  label="Management"
-               />
-               <NavSecondary />
-            </SidebarContent>
+               <SidebarInset>
+                  <SidebarProvider>
+                     <ResizablePanelGroup
+                        orientation="horizontal"
+                        className="overflow-hidden max-h-svh"
+                     >
+                        <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
+                           <AppTopHeader />
+                           <main className="overflow-hidden p-3">
+                              <Outlet />
+                           </main>
+                        </ResizablePanel>
 
-            <SidebarSeparator />
-
-            <SidebarFooter>
-               <SidebarUserMenu />
-            </SidebarFooter>
-         </Sidebar>
-         <SidebarInset>
-            <LayoutHeader
-               rightSidebarOpen={rightSidebarOpen}
-               onToggleRightSidebar={toggleRightSidebar}
-               activeTab={activeTab}
-            />
-            <div className="flex-1 overflow-auto">
-               <Outlet />
-            </div>
-         </SidebarInset>
-         <WorkspacePanel
-            isOpen={rightSidebarOpen}
-            onToggle={toggleRightSidebar}
-         />
-      </SidebarProvider>
+                        <ResizableHandle withHandle />
+                        <ResizablePanel
+                           panelRef={rightPanelRef}
+                           collapsible={true}
+                           defaultSize="30%"
+                           minSize="30%"
+                           maxSize="55%"
+                           className="no-scrollbar transition-[flex-grow,flex-basis] duration-200 ease-linear"
+                        >
+                           <AppRightSidebar className="no-scrollbar w-full" />
+                        </ResizablePanel>
+                     </ResizablePanelGroup>
+                  </SidebarProvider>
+               </SidebarInset>
+            </SidebarProvider>
+         </SidebarManagerProvider>
+      </>
    );
 }

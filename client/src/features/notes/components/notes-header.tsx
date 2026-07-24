@@ -44,7 +44,7 @@ export function NotesHeader({
    view,
 }: NotesHeaderProps) {
    return (
-      <div className="flex items-center gap-3 border-b px-6 py-3">
+      <div className="flex items-center gap-3 border-b px-6 py-3 overflow-x-auto no-scrollbar">
          <Button
             variant="ghost"
             size="icon-sm"

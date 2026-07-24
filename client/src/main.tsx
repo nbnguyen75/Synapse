@@ -7,8 +7,8 @@ import { StrictMode } from 'react';
 
 import { Toaster } from '@/shared/components/ui/sonner';
 
-import { ThemeProvider } from '@/core/components/theme-provider';
-import { useSession } from '@/core/auth-client';
+import { ThemeProvider } from '@/core/theme/theme-provider';
+import { useSession } from '@/core/auth/auth-client';
 // Import the generated route tree
 import { routeTree } from '@/routeTree.gen';
 

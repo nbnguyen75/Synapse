@@ -15,7 +15,7 @@ import { Input } from '@/shared/components/ui/input';
 
 import { Icon } from '@iconify/react';
 
-import { signIn } from '@/core/auth-client';
+import { signIn } from '@/core/auth/auth-client';
 import { m } from '@/paraglide/messages';
 import { env } from '@/env';
 

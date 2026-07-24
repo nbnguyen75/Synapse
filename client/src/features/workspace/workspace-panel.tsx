@@ -489,7 +489,7 @@ function SidebarCopilotTab() {
          const saved = localStorage.getItem('synapse_copilot_config');
          if (saved) {
             try {
-               const config = JSON.parse(saved);
+               const config = JSON.parse(saved) as { name?: string };
                setCopilotName(config.name || 'Assistant');
             } catch {}
          }

@@ -16,7 +16,7 @@ import {
 
 import { Mail, Calendar } from 'lucide-react';
 
-import { useSession } from '@/core/auth-client';
+import { useSession } from '@/core/auth/auth-client';
 import { m } from '@/paraglide/messages';
 
 export const Route = createFileRoute('/_app/profile')({

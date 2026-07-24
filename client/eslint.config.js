@@ -22,6 +22,8 @@ export default defineConfig([
       'src/paraglide/**',
       '.agents/**/scripts',
       '.claude/**/scripts',
+      'src/shared/components/ai-elements/**',
+      'src/shared/components/ui/**',
    ]),
    {
       files: ['**/*.{ts,tsx}'],
@@ -36,6 +38,7 @@ export default defineConfig([
                allowEmptyCatch: true,
             },
          ],
+         'no-useless-assignment': 'warn',
          '@typescript-eslint/array-type': 'warn',
          '@typescript-eslint/require-await': 'warn',
          '@typescript-eslint/no-unsafe-assignment': 'warn',

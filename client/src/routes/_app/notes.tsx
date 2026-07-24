@@ -1196,7 +1196,7 @@ function LexicalEditorInline({
    return (
       <Suspense
          fallback={
-            <div className="h-[200px] rounded-lg border bg-muted/30 animate-pulse" />
+            <div className="h-50 rounded-lg border bg-muted/30 animate-pulse" />
          }
       >
          <LexicalEditorLazy

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as AppArchivedRouteImport } from './routes/_app/archived'
 import { Route as AppChatRouteImport } from './routes/_app/chat'
 import { Route as AppNotesRouteImport } from './routes/_app/notes'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
@@ -32,6 +33,11 @@ const AppRoute = AppRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppArchivedRoute = AppArchivedRouteImport.update({
+  id: '/archived',
+  path: '/archived',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppChatRoute = AppChatRouteImport.update({
   id: '/chat',
@@ -71,6 +77,7 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/archived': typeof AppArchivedRoute
   '/chat': typeof AppChatRoute
   '/notes': typeof AppNotesRoute
   '/profile': typeof AppProfileRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/archived': typeof AppArchivedRoute
   '/chat': typeof AppChatRoute
   '/notes': typeof AppNotesRoute
   '/profile': typeof AppProfileRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
+  '/_app/archived': typeof AppArchivedRoute
   '/_app/chat': typeof AppChatRoute
   '/_app/notes': typeof AppNotesRoute
   '/_app/profile': typeof AppProfileRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/archived'
     | '/chat'
     | '/notes'
     | '/profile'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/archived'
     | '/chat'
     | '/notes'
     | '/profile'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/_auth'
+    | '/_app/archived'
     | '/_app/chat'
     | '/_app/notes'
     | '/_app/profile'
@@ -165,6 +177,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/archived': {
+      id: '/_app/archived'
+      path: '/archived'
+      fullPath: '/archived'
+      preLoaderRoute: typeof AppArchivedRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/chat': {
       id: '/_app/chat'
@@ -219,6 +238,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppArchivedRoute: typeof AppArchivedRoute
   AppChatRoute: typeof AppChatRoute
   AppNotesRoute: typeof AppNotesRoute
   AppProfileRoute: typeof AppProfileRoute
@@ -227,6 +247,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppArchivedRoute: AppArchivedRoute,
   AppChatRoute: AppChatRoute,
   AppNotesRoute: AppNotesRoute,
   AppProfileRoute: AppProfileRoute,

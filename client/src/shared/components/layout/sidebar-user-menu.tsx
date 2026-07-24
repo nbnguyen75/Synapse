@@ -19,9 +19,9 @@ import {
    AvatarImage,
 } from '@/shared/components/ui/avatar';
 
-import { ChevronsUpDown, LogOut } from 'lucide-react';
+import { ChevronsUpDownIcon, LogOutIcon } from 'lucide-react';
 
-import { useSession, signOut } from '@/core/auth-client';
+import { useSession, signOut } from '@/core/auth/auth-client';
 import { m } from '@/paraglide/messages';
 
 export function SidebarUserMenu() {
@@ -60,7 +60,7 @@ export function SidebarUserMenu() {
                         {user?.email || ''}
                      </span>
                   </div>
-                  <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
+                  <ChevronsUpDownIcon className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
                </DropdownMenuTrigger>
                <DropdownMenuContent
                   className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
@@ -93,7 +93,7 @@ export function SidebarUserMenu() {
                      variant="destructive"
                      onClick={handleSignOut}
                   >
-                     <LogOut className="size-4" />
+                     <LogOutIcon className="size-4" />
                      <span>{m.sidebar_log_out()}</span>
                   </DropdownMenuItem>
                </DropdownMenuContent>

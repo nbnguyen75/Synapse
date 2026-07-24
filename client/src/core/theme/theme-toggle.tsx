@@ -1,8 +1,8 @@
 import { Button } from '@/shared/components/ui/button';
 
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { SunIcon, MoonIcon, MonitorIcon } from 'lucide-react';
 
-import { useTheme } from '@/core/components/theme-provider';
+import { useTheme } from '@/core/theme/theme-provider';
 
 export function ThemeToggle({ className }: { className?: string }) {
    const { setTheme, theme } = useTheme();
@@ -19,11 +19,12 @@ export function ThemeToggle({ className }: { className?: string }) {
          size="icon-sm"
          onClick={cycle}
          className={className}
-         title={theme}
+         title={`Current theme: ${theme}`}
+         aria-label="Toggle theme"
       >
-         {theme === 'light' && <Sun className="size-4" />}
-         {theme === 'dark' && <Moon className="size-4" />}
-         {theme === 'system' && <Monitor className="size-4" />}
+         {theme === 'light' && <SunIcon className="size-4" />}
+         {theme === 'dark' && <MoonIcon className="size-4" />}
+         {theme === 'system' && <MonitorIcon className="size-4" />}
       </Button>
    );
 }
