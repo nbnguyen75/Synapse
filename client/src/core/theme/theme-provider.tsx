@@ -52,36 +52,24 @@ export function ThemeProvider({
    }, [theme]);
 
    const setTheme = (newTheme: Theme) => {
-      // Fallback if View Transitions API is not supported or user prefers reduced motion
-      if (
-         !document.startViewTransition ||
-         window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      ) {
+      const hasAPI = !!document.startViewTransition();
+      const reducedMotion = window.matchMedia(
+         '(prefers-reduced-motion: reduce)',
+      ).matches;
+
+      // Fallback cho trình duyệt cũ hoặc người dùng bật "Reduce Motion"
+      if (!hasAPI || reducedMotion) {
          localStorage.setItem(storageKey, newTheme);
          setThemeState(newTheme);
          return;
       }
 
-      // Calculate center coordinates
-      const x = document.documentElement.clientWidth;
-      const y = document.documentElement.clientHeight;
-
-      const maxRadius = Math.hypot(x, y);
-
-      document.documentElement.style.setProperty('--theme-circle-x', `${x}px`);
-      document.documentElement.style.setProperty('--theme-circle-y', `${y}px`);
-      document.documentElement.style.setProperty(
-         '--theme-circle-radius',
-         `${maxRadius}px`,
-      );
-
-      // Trigger View Transition
+      // Kích hoạt Cross-Fade với View Transitions
       document.startViewTransition(() => {
          flushSync(() => {
             localStorage.setItem(storageKey, newTheme);
             setThemeState(newTheme);
 
-            // Update DOM classes synchronously for transition snapshot capture
             const root = window.document.documentElement;
             root.classList.remove('light', 'dark');
 
@@ -100,7 +88,6 @@ export function ThemeProvider({
    };
 
    const toggleTheme = () => {
-      // Check if current active state is dark (including system preference)
       const isCurrentlyDark =
          theme === 'dark' ||
          (theme === 'system' &&
