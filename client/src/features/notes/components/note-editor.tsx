@@ -1,6 +1,5 @@
 import type { NoteEditorProps } from '../types';
 
-import ReactMarkdown from 'react-markdown';
 import { type ChangeEvent } from 'react';
 
 import { toast } from 'sonner';
@@ -9,6 +8,8 @@ import LexicalEditor from '@/features/notes/components/lexical-editor';
 import { generateAiTitle } from '@/features/notes/lib/ai-title';
 
 import { m } from '@/paraglide/messages';
+
+import MarkdownRenderer from '@/components/common/markdown-renderer';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -204,9 +205,9 @@ export function NoteEditor({
                      {m.notes_page_create_preview()}
                   </Label>
                   <div className="h-[320px] max-h-[320px] overflow-y-auto rounded-lg border border-border bg-muted/30 p-4 text-xs leading-relaxed">
-                     <ReactMarkdown>
-                        {content || m.notes_page_create_empty_preview()}
-                     </ReactMarkdown>
+                     <MarkdownRenderer
+                        content={content || m.notes_page_create_empty_preview()}
+                     />
                   </div>
                </div>
             </div>
@@ -234,9 +235,11 @@ export function NoteEditor({
                         {m.notes_page_create_content_label()}
                      </Label>
                      <div className="min-h-[140px] max-h-[220px] overflow-y-auto rounded-lg border border-border bg-muted/30 p-3 text-xs leading-relaxed">
-                        <ReactMarkdown>
-                           {content || m.notes_page_create_empty_preview_tab()}
-                        </ReactMarkdown>
+                        <MarkdownRenderer
+                           content={
+                              content || m.notes_page_create_empty_preview_tab()
+                           }
+                        />
                      </div>
                   </div>
                )}
