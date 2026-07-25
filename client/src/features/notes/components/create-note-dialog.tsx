@@ -2,18 +2,18 @@ import type { NoteTab } from '../types';
 
 import { type FormEvent } from 'react';
 
+import { m } from '@/paraglide/messages';
+
 import {
    Dialog,
    DialogContent,
    DialogDescription,
    DialogHeader,
    DialogTitle,
-} from '@/shared/components/ui/dialog';
-import { Button } from '@/shared/components/ui/button';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 import { NoteEditor } from './note-editor';
-
-import { m } from '@/paraglide/messages';
 
 interface CreateNoteDialogProps {
    onOpenChange: (open: boolean) => void;

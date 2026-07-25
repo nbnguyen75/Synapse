@@ -1,4 +1,6 @@
-import { Button } from '@/shared/components/ui/button';
+import { m } from '@/paraglide/messages';
+
+import { Button } from '@/components/ui/button';
 
 import {
    ChevronsLeft,
@@ -6,8 +8,6 @@ import {
    ChevronLeft,
    ChevronRight,
 } from 'lucide-react';
-
-import { m } from '@/paraglide/messages';
 
 interface NotesPaginationProps {
    onPageSizeChange: (size: number) => void;

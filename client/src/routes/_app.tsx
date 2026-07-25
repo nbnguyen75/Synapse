@@ -1,24 +1,26 @@
 import type { PanelImperativeHandle } from 'react-resizable-panels';
 
-import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { useEffect, useRef } from 'react';
 
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+
 import { CommandPalette } from '@/features/command';
+
+import { TOGGLE_RIGHT_SIDEBAR_EVENT_NAME } from '@/config/events';
 
 import {
    SidebarInset,
    SidebarManager,
    SidebarManagerProvider,
    SidebarProvider,
-} from '@/shared/components/ui/sidebar';
+} from '@/components/ui/sidebar';
 import {
    ResizableHandle,
    ResizablePanel,
    ResizablePanelGroup,
-} from '@/shared/components/ui/resizable';
+} from '@/components/ui/resizable';
 
-import { AppLeftSidebar, AppRightSidebar, AppTopHeader } from '@/core/layouts';
-import { TOGGLE_RIGHT_SIDEBAR_EVENT_NAME } from '@/shared/constants/event';
+import { AppLeftSidebar, AppRightSidebar, AppTopHeader } from '@/layouts';
 
 export const Route = createFileRoute('/_app')({
    component: AppLayout,

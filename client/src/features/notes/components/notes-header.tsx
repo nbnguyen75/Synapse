@@ -1,14 +1,16 @@
 import { SORT_OPTIONS } from '@/features/notes/constants';
 
+import { m } from '@/paraglide/messages';
+
 import {
    Select,
    SelectContent,
    SelectItem,
    SelectTrigger,
    SelectValue,
-} from '@/shared/components/ui/select';
-import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 import {
    Plus,
@@ -17,8 +19,6 @@ import {
    Archive,
    FileText,
 } from 'lucide-react';
-
-import { m } from '@/paraglide/messages';
 
 interface NotesHeaderProps {
    onViewChange: (view: 'active' | 'archived') => void;

@@ -1,5 +1,7 @@
 import type { Note } from '@/features/notes/types';
 
+import { m } from '@/paraglide/messages';
+
 import {
    AlertDialog,
    AlertDialogAction,
@@ -9,9 +11,7 @@ import {
    AlertDialogHeader,
    AlertDialogTitle,
    AlertDialogFooter,
-} from '@/shared/components/ui/alert-dialog';
-
-import { m } from '@/paraglide/messages';
+} from '@/components/ui/alert-dialog';
 
 interface DeleteAlertDialogProps {
    onOpenChange: (open: boolean) => void;

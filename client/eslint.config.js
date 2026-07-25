@@ -24,7 +24,7 @@ export default defineConfig([
       '.claude/**/scripts',
    ]),
    {
-      files: ['**/*.{ts,tsx}'],
+      files: ['**/*.{ts,tsx,js,jsx}'],
       rules: {
          'import/no-cycle': 'off',
          'sort-imports': 'off',
@@ -105,64 +105,113 @@ export default defineConfig([
             {
                customGroups: [
                   {
-                     /* Core React & TanStack Framework */
+                     /* 1. Core React */
                      elementNamePattern: [
                         '^react$',
+                        '^react-dom.*$',
                         '^react-.+$',
-                        '^@tanstack/.*$',
                      ],
                      modifiers: ['value'],
-                     groupName: 'framework',
+                     groupName: 'react',
                   },
                   {
-                     /* Routes components or logic */
-                     elementNamePattern: '^@/routes/.*$',
+                     /* 2. TanStack Ecosystem */
+                     elementNamePattern: '^@tanstack.*$',
                      modifiers: ['value'],
-                     groupName: 'routes',
+                     groupName: 'tanstack',
                   },
                   {
-                     /* Business Logic Modules */
-                     elementNamePattern: '^@/features/.*$',
-                     modifiers: ['value'],
-                     groupName: 'modules',
-                  },
-                  {
-                     /* Custom React Hooks */
-                     elementNamePattern: '^@/shared/hooks/.*$',
-                     modifiers: ['value'],
-                     groupName: 'hooks',
-                  },
-                  {
-                     /* Internal Libraries & Utils */
-                     elementNamePattern: '^@/shared/lib/.*$',
-                     modifiers: ['value'],
-                     groupName: 'libs',
-                  },
-                  {
-                     /* App Components (Custom) */
-                     elementNamePattern: '^@/shared/components/(?!ui/).*$',
-                     modifiers: ['value'],
-                     groupName: 'components',
-                  },
-                  {
-                     /* UI Components (Shadcn/UI) */
-                     elementNamePattern: '^@/shared/components/ui/.*$',
-                     modifiers: ['value'],
-                     groupName: 'shadcn',
-                  },
-                  {
-                     /* Assets & Icons */
+                     /* 3. Low-level UI Primitives */
                      elementNamePattern: ['^@radix-ui/.*$', '^@base-ui/.*$'],
                      modifiers: ['value'],
                      groupName: 'lib-ui',
                   },
                   {
-                     /* Assets & Icons */
+                     /* 4. AI SDKs & Third-party AI Libraries */
+                     elementNamePattern: ['^ai$', '^@ai-sdk/.*$'],
+                     modifiers: ['value'],
+                     groupName: 'ai-libs',
+                  },
+                  {
+                     /* 5. Routes & Generated Route Tree */
+                     elementNamePattern: [
+                        '^@/routes/.*$',
+                        '.*routeTree\\.gen.*',
+                     ],
+                     modifiers: ['value'],
+                     groupName: 'routes',
+                  },
+                  {
+                     /* 6. Page Layouts (DashboardLayout, RootLayout,...) */
+                     elementNamePattern: '^@/layouts/.*$',
+                     modifiers: ['value'],
+                     groupName: 'layouts',
+                  },
+                  {
+                     /* 7. Feature Modules (Business Logic) */
+                     elementNamePattern: '^@/features/.*$',
+                     modifiers: ['value'],
+                     groupName: 'modules',
+                  },
+                  {
+                     /* 8. Custom React Hooks */
+                     elementNamePattern: '^@/hooks/.*$',
+                     modifiers: ['value'],
+                     groupName: 'hooks',
+                  },
+                  {
+                     /* 9. Global State Store */
+                     elementNamePattern: '^@/store/.*$',
+                     modifiers: ['value'],
+                     groupName: 'store',
+                  },
+                  {
+                     /* 10. Context Providers */
+                     elementNamePattern: '^@/providers/.*$',
+                     modifiers: ['value'],
+                     groupName: 'providers',
+                  },
+                  {
+                     /* 11. Configurations & Environment */
+                     elementNamePattern: '^@/config/.*$',
+                     modifiers: ['value'],
+                     groupName: 'config',
+                  },
+                  {
+                     /* 12. Internal Utils & i18n (Paraglide) */
+                     elementNamePattern: [
+                        '^@/lib/.*$',
+                        '^@/paraglide/.*$',
+                        '^\\./paraglide/.*$',
+                     ],
+                     modifiers: ['value'],
+                     groupName: 'libs',
+                  },
+                  {
+                     /* 13. App Components (Loại trừ ui/ và ai-elements/) */
+                     elementNamePattern:
+                        '^@/components/(?!(ui|ai-elements)/).*$',
+                     modifiers: ['value'],
+                     groupName: 'components',
+                  },
+                  {
+                     /* 14. AI Elements Components */
+                     elementNamePattern: '^@/components/ai-elements/.*$',
+                     modifiers: ['value'],
+                     groupName: 'ai-elements',
+                  },
+                  {
+                     /* 15. UI Components (Shadcn/UI) */
+                     elementNamePattern: '^@/components/ui/.*$',
+                     modifiers: ['value'],
+                     groupName: 'shadcn',
+                  },
+                  {
+                     /* 16. Assets & Icons */
                      elementNamePattern: [
                         '^@/assets.*$',
                         '^lucide-react$',
-                        '^@iconify/react',
-                        '^.+\\.css$',
+                        '^@iconify/react$',
                      ],
                      modifiers: ['value'],
                      groupName: 'assets',
@@ -171,15 +220,22 @@ export default defineConfig([
                groups: [
                   'type',
                   'builtin',
-                  'framework',
+                  'react',
+                  'tanstack',
                   'external',
+                  'lib-ui',
+                  'ai-libs',
                   'routes',
+                  'layouts',
                   'modules',
                   'hooks',
+                  'store',
+                  'providers',
+                  'config',
                   'libs',
                   'components',
+                  'ai-elements',
                   'shadcn',
-                  'lib-ui',
                   'parent',
                   'sibling',
                   'index',
@@ -198,45 +254,27 @@ export default defineConfig([
          ],
          'perfectionist/sort-variable-declarations': [
             'warn',
-            {
-               type: 'line-length',
-               order: 'desc',
-            },
+            { type: 'line-length', order: 'desc' },
          ],
          'perfectionist/sort-object-types': [
             'warn',
-            {
-               type: 'line-length',
-               order: 'desc',
-            },
+            { type: 'line-length', order: 'desc' },
          ],
          'perfectionist/sort-interfaces': [
             'warn',
-            {
-               type: 'line-length',
-               order: 'desc',
-            },
+            { type: 'line-length', order: 'desc' },
          ],
          'perfectionist/sort-exports': [
             'warn',
-            {
-               type: 'line-length',
-               order: 'desc',
-            },
+            { type: 'line-length', order: 'desc' },
          ],
          'perfectionist/sort-objects': [
             'warn',
-            {
-               type: 'line-length',
-               order: 'desc',
-            },
+            { type: 'line-length', order: 'desc' },
          ],
          'perfectionist/sort-classes': [
             'warn',
-            {
-               type: 'line-length',
-               order: 'desc',
-            },
+            { type: 'line-length', order: 'desc' },
          ],
       },
       files: ['**/*.tsx', '**/*.jsx', '**/*.ts', '**/*.js'],

@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { AuthContext } from '@/shared/types';
+import type { AuthContext } from '@/types/shared';
 
 import {
    createRootRouteWithContext,
@@ -11,11 +11,11 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 
-import { CommandPalette } from '@/shared/components/command-palette';
+import { env } from '@/config/env';
 
-import appCss from '@/styles.css?url';
+import { CommandPalette } from '@/components/common/global-keybinds';
 
-import { env } from '@/env';
+import appCss from '@/assets/styles.css?url';
 
 interface RouterContext {
    queryClient: QueryClient;

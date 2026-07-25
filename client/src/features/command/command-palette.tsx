@@ -1,15 +1,18 @@
 import type { Note } from '@/features/notes';
 
 import React, { useState, useEffect, useRef } from 'react';
+
 import { useNavigate } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 
 import { getNotes } from '@/features/notes/api';
 
-import { Dialog, DialogContent } from '@/shared/components/ui/dialog';
-import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
-import { Kbd } from '@/shared/components/ui/kbd';
+import { signOut } from '@/lib/auth-client';
+
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Kbd } from '@/components/ui/kbd';
 
 import {
    Search,
@@ -21,8 +24,6 @@ import {
    KeyboardIcon,
    CornerDownLeftIcon,
 } from 'lucide-react';
-
-import { signOut } from '@/core/auth/auth-client';
 
 export default function CommandPalette() {
    const [isOpen, setIsOpen] = useState(false);

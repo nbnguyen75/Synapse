@@ -1,9 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/_app/archived')({
-   component: RouteComponent,
-});
+import ArchivedPage from '@/features/notes/components/archived-page';
 
-function RouteComponent() {
-   return <div>Hello "archived"!</div>;
-}
+export const Route = createFileRoute('/_app/archived')({
+   component: ArchivedPage,
+});

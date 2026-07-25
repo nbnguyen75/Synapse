@@ -7,13 +7,15 @@ import {
    exportMarkdown,
 } from '@/features/notes/constants';
 
+import { m } from '@/paraglide/messages';
+
 import {
    DropdownMenu,
    DropdownMenuContent,
    DropdownMenuItem,
    DropdownMenuSeparator,
    DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import {
    Card,
    CardContent,
@@ -21,9 +23,9 @@ import {
    CardFooter,
    CardHeader,
    CardTitle,
-} from '@/shared/components/ui/card';
-import { Button } from '@/shared/components/ui/button';
-import { Badge } from '@/shared/components/ui/badge';
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 import {
    MoreVertical,
@@ -35,8 +37,6 @@ import {
    Trash2,
    Sparkles,
 } from 'lucide-react';
-
-import { m } from '@/paraglide/messages';
 
 interface NoteCardProps {
    onArchive: (id: string, archived: boolean, title: string) => void;

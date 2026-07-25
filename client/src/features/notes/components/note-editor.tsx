@@ -5,18 +5,17 @@ import { type ChangeEvent } from 'react';
 
 import { toast } from 'sonner';
 
-import { generateAiTitle } from '@/shared/lib/ai-title';
+import LexicalEditor from '@/features/notes/components/lexical-editor';
+import { generateAiTitle } from '@/features/notes/lib/ai-title';
 
-import LexicalEditor from '@/shared/components/editor/lexical-editor';
+import { m } from '@/paraglide/messages';
 
-import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
-import { Label } from '@/shared/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 import { Edit3, Eye } from 'lucide-react';
 import { Sparkles } from 'lucide-react';
-
-import { m } from '@/paraglide/messages';
 
 export function NoteEditor({
    contentPlaceholder,

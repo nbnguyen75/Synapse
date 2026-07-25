@@ -6,7 +6,9 @@ import {
    deleteCustomTemplate,
    PREDEFINED_TEMPLATES,
    type NoteTemplate,
-} from '@/shared/lib/copilot-config';
+} from '@/features/chat/lib/copilot-config';
+
+import { m } from '@/paraglide/messages';
 
 import {
    Dialog,
@@ -14,11 +16,11 @@ import {
    DialogFooter,
    DialogHeader,
    DialogTitle,
-} from '@/shared/components/ui/dialog';
-import { Textarea } from '@/shared/components/ui/textarea';
-import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
-import { Label } from '@/shared/components/ui/label';
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 import {
    Plus,
@@ -28,8 +30,6 @@ import {
    FileSpreadsheet,
    GraduationCap,
 } from 'lucide-react';
-
-import { m } from '@/paraglide/messages';
 
 interface TemplateSelectorProps {
    onApplyTemplate: (title: string, content: string) => void;

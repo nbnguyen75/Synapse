@@ -1,16 +1,18 @@
-import type { AuthContext } from '@/shared/types';
+import type { AuthContext } from '@/types/shared';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RouterProvider, createRouter } from '@tanstack/react-router';
 import ReactDOM from 'react-dom/client';
 import { StrictMode } from 'react';
 
-import { Toaster } from '@/shared/components/ui/sonner';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider, createRouter } from '@tanstack/react-router';
 
-import { ThemeProvider } from '@/core/theme/theme-provider';
-import { useSession } from '@/core/auth/auth-client';
-// Import the generated route tree
 import { routeTree } from '@/routeTree.gen';
+
+import { ThemeProvider } from '@/providers/theme-provider';
+
+import { useSession } from '@/lib/auth-client';
+
+import { Toaster } from '@/components/ui/sonner';
 
 const queryClient = new QueryClient({
    defaultOptions: {

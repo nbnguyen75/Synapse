@@ -1,10 +1,10 @@
 import type { NoteVersion } from '@/features/notes/types';
 
-import { Button } from '@/shared/components/ui/button';
+import { m } from '@/paraglide/messages';
+
+import { Button } from '@/components/ui/button';
 
 import { Clock, RotateCcw } from 'lucide-react';
-
-import { m } from '@/paraglide/messages';
 
 interface VersionHistoryProps {
    onSelectVersion: (v: NoteVersion | null) => void;

@@ -2,11 +2,11 @@ import type { Note } from '@/features/notes/types';
 
 import { useState } from 'react';
 
-import { Button } from '@/shared/components/ui/button';
+import { m } from '@/paraglide/messages';
+
+import { Button } from '@/components/ui/button';
 
 import { FileText, Pin, X, ChevronDown, ChevronRight } from 'lucide-react';
-
-import { m } from '@/paraglide/messages';
 
 interface FilterSidebarProps {
    onNavigateToNote: (note: Note) => void;
