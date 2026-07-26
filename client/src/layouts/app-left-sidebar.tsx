@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router';
 
-import { NavMain, NavUser } from '@/layouts/nav';
+import { NavMain, NavCompanion, NavUser } from '@/layouts/nav';
+import { NavSecondary } from '@/layouts/nav-secondary';
 
 import { env } from '@/config/env';
 
@@ -52,6 +53,8 @@ export default function AppLeftSidebar({
 
          <SidebarContent>
             <NavMain />
+            <NavCompanion />
+            <NavSecondary />
          </SidebarContent>
 
          <SidebarFooter>

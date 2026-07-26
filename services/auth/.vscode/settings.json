@@ -23,5 +23,32 @@
 	"js/ts.updateImportsOnFileMove.enabled": "always",
 	"workbench.tree.renderIndentGuides": "always",
 	"workbench.tree.indent": 10,
-	"editor.tabSize": 3
+	"editor.tabSize": 3,
+	"workbench.colorCustomizations": {
+      "activityBar.activeBackground": "#f86903",
+      "activityBar.background": "#f86903",
+      "activityBar.foreground": "#15202b",
+      "activityBar.inactiveForeground": "#15202b99",
+      "activityBarBadge.background": "#03fc6b",
+      "activityBarBadge.foreground": "#15202b",
+      "commandCenter.border": "#e7e7e799",
+      "sash.hoverBorder": "#f86903",
+      "statusBar.background": "#c65402",
+      "statusBar.foreground": "#e7e7e7",
+      "statusBarItem.hoverBackground": "#f86903",
+      "statusBarItem.remoteBackground": "#02dd5e",
+      "statusBarItem.remoteForeground": "#e7e7e7",
+      "titleBar.activeBackground": "#c65402",
+      "titleBar.activeForeground": "#e7e7e7",
+      "titleBar.inactiveBackground": "#c6540299",
+      "titleBar.inactiveForeground": "#e7e7e799",
+      "activityBarTop.activeBackground": "#f86903",
+      "activityBarTop.background": "#f86903",
+      "activityBarTop.foreground": "#15202b",
+      "activityBarTop.inactiveForeground": "#15202b99",
+      "commandCenter.foreground": "#e7e7e7",
+      "statusBar.debuggingBackground": "#c65402",
+      "statusBar.debuggingForeground": "#e7e7e7"
+   },
+	"peacock.color": "#c65402"
 }

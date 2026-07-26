@@ -1,0 +1,236 @@
+{
+   "features": [
+      {
+         "id": "feat-001",
+         "name": "Project Setup & Tooling",
+         "description": "Vite 8 + Bun + TypeScript 7 + React 19. ESLint, oxlint, Prettier, Husky pre-commit hooks, TanStack devtools.",
+         "dependencies": [],
+         "status": "done",
+         "evidence": "package.json, vite.config.ts, eslint.config.js, prettier.config.js, .husky/, init.sh"
+      },
+      {
+         "id": "feat-002",
+         "name": "Routing & Navigation",
+         "description": "File-based TanStack Router with auto-generated route tree. Routes: /notes, /chat, /settings, /profile, /tags, /archived, /login, /register.",
+         "dependencies": ["feat-001"],
+         "status": "done",
+         "evidence": "src/routes/, src/routeTree.gen.ts, src/layouts/"
+      },
+      {
+         "id": "feat-003",
+         "name": "Auth System",
+         "description": "better-auth with email/password login, register, OAuth (GitHub, Google). Zod validation via react-hook-form. Session management.",
+         "dependencies": ["feat-002"],
+         "status": "done",
+         "evidence": "src/lib/auth-client.ts, src/features/auth/components/login-page.tsx, src/features/auth/components/register-page.tsx, src/routes/_auth/"
+      },
+      {
+         "id": "feat-004",
+         "name": "Notes CRUD & Editor",
+         "description": "Full note management with Lexical rich text editor, markdown support, auto-save, AI title generation, export to markdown, pin/archive/delete.",
+         "dependencies": ["feat-003"],
+         "status": "done",
+         "evidence": "src/features/notes/hooks/use-notes.ts, src/features/notes/components/notes-page.tsx, src/features/notes/components/note-editor.tsx, src/features/notes/components/lexical-editor.tsx"
+      },
+      {
+         "id": "feat-005",
+         "name": "Tags Management",
+         "description": "Tag CRUD with color badges, note counts, filter sidebar integration.",
+         "dependencies": ["feat-004"],
+         "status": "done",
+         "evidence": "src/features/notes/hooks/use-tags.ts, src/features/notes/components/tags-page.tsx, src/features/notes/components/tag-filter-bar.tsx"
+      },
+      {
+         "id": "feat-006",
+         "name": "AI Chat / Copilot",
+         "description": "AI chat with Vercel AI SDK components, model selector, streaming responses, web search toggle, speech input, file attachments, suggestion chips, sources & reasoning display.",
+         "dependencies": ["feat-003"],
+         "status": "done",
+         "evidence": "src/features/chat/components/chat-bot.tsx, src/features/chat/components/chat-page.tsx, src/components/ai-elements/"
+      },
+      {
+         "id": "feat-007",
+         "name": "Settings (General, Copilot, Templates)",
+         "description": "Settings with 3 tabs: General (autosave, email digests, copilot alerts), Copilot (name, temperature, avatar, persona, prompt, welcome message), Templates (CRUD custom templates).",
+         "dependencies": ["feat-003"],
+         "status": "done",
+         "evidence": "src/features/settings/components/settings-page.tsx, src/features/settings/components/general-tab.tsx, src/features/settings/components/copilot-tab.tsx, src/features/settings/components/templates-tab.tsx"
+      },
+      {
+         "id": "feat-008",
+         "name": "i18n (English & Vietnamese)",
+         "description": "Paraglide JS compiled i18n with EN and VI locales. All user-facing strings via m.*() calls. Cookie-based locale detection.",
+         "dependencies": ["feat-001"],
+         "status": "done",
+         "evidence": "messages/en.json, messages/vi.json, src/paraglide/, vite.config.ts (paraglideVitePlugin)"
+      },
+      {
+         "id": "feat-009",
+         "name": "Layout: Sidebars & Header",
+         "description": "Left collapsible sidebar (logo, NavMain Platform, NavCompanion, NavSecondary, user dropdown). Right sidebar with direct ChatBot. Top header with sidebar trigger, search bar (opens command palette), theme toggle, right sidebar toggle.",
+         "dependencies": ["feat-002"],
+         "status": "done",
+         "evidence": "src/layouts/app-left-sidebar.tsx, src/layouts/app-right-sidebar.tsx, src/layouts/app-top-header.tsx, src/layouts/nav/nav-main.tsx, src/layouts/nav/nav-companion.tsx, src/layouts/nav-secondary.tsx, src/routes/_app.tsx"
+      },
+      {
+         "id": "feat-010",
+         "name": "Pomodoro Timer (Focus)",
+         "description": "Pomodoro timer with work/short break/long break cycles, SVG ring indicator, session counter.",
+         "dependencies": [],
+         "status": "done",
+         "evidence": "src/features/focus/components/pomodoro-timer.tsx"
+      },
+      {
+         "id": "feat-011",
+         "name": "Draft Editor (Scratchpad)",
+         "description": "Quick scratchpad with auto-save, copy to clipboard, export to note.",
+         "dependencies": [],
+         "status": "done",
+         "evidence": "src/features/notes/components/draft-editor.tsx"
+      },
+      {
+         "id": "feat-012",
+         "name": "Command Palette",
+         "description": "Keyboard-activated command palette (Ctrl+K / Cmd+K or click search bar) with 5 slash commands (/help, /theme, /stats, /notes, /create), output panels, note search, theme toggle, logout.",
+         "dependencies": ["feat-002", "feat-015"],
+         "status": "done",
+         "evidence": "src/features/command/command-palette.tsx, src/layouts/app-top-header.tsx (search bar trigger)"
+      },
+      {
+         "id": "feat-013",
+         "name": "Profile Page",
+         "description": "User profile display with avatar, name, email, join date, note count stats.",
+         "dependencies": ["feat-003"],
+         "status": "done",
+         "evidence": "src/features/users/components/profile-page.tsx"
+      },
+      {
+         "id": "feat-014",
+         "name": "Notes Version History",
+         "description": "View and restore previous note versions from localStorage history.",
+         "dependencies": ["feat-004"],
+         "status": "done",
+         "evidence": "src/features/notes/components/version-history.tsx"
+      },
+      {
+         "id": "feat-015",
+         "name": "Theme System",
+         "description": "Light/dark/system theme with View Transition API circle animation, persisted preference.",
+         "dependencies": ["feat-001"],
+         "status": "done",
+         "evidence": "src/providers/theme-provider.tsx, src/components/common/theme-toggle.tsx"
+      },
+      {
+         "id": "feat-016",
+         "name": "Note Templates",
+         "description": "6 predefined templates (Meeting, Journal, Project, RFC, Sprint Retro, Study) + custom templates with markdown content, title patterns.",
+         "dependencies": ["feat-004"],
+         "status": "done",
+         "evidence": "src/features/chat/lib/copilot-config.ts (PREDEFINED_TEMPLATES), src/features/notes/components/template-selector.tsx"
+      },
+      {
+         "id": "feat-017",
+         "name": "Archived Notes View",
+         "description": "Separate route and view for archived notes with unarchive action.",
+         "dependencies": ["feat-004"],
+         "status": "done",
+         "evidence": "src/features/notes/components/archived-page.tsx, src/routes/_app/archived.tsx"
+      },
+      {
+         "id": "feat-018",
+         "name": "Filter Sidebar for Notes",
+         "description": "Collapsible filter sidebar with tag filtering, category folders, recent notes list.",
+         "dependencies": ["feat-004"],
+         "status": "done",
+         "evidence": "src/features/notes/components/filter-sidebar.tsx"
+      },
+      {
+         "id": "feat-019",
+         "name": "Paginated Notes List",
+         "description": "Client-side pagination with page size selector (10/20/50/100), first/prev/next/last navigation.",
+         "dependencies": ["feat-004"],
+         "status": "done",
+         "evidence": "src/features/notes/components/notes-pagination.tsx, src/hooks/use-pagination.ts"
+      },
+      {
+         "id": "feat-020",
+         "name": "Note Templates Settings Tab",
+         "description": "Full CRUD for custom note templates within settings page, with inline dialog editor.",
+         "dependencies": ["feat-007"],
+         "status": "done",
+         "evidence": "src/features/settings/components/templates-tab.tsx"
+      },
+      {
+         "id": "feat-021",
+         "name": "Copilot Config Persistence",
+         "description": "Persistent copilot configuration (name, temperature, avatar, persona, custom instructions, prompt, welcome message) via localStorage.",
+         "dependencies": ["feat-007"],
+         "status": "done",
+         "evidence": "src/features/chat/lib/copilot-config.ts"
+      },
+      {
+         "id": "feat-022",
+         "name": "Keyboard Shortcut Guard",
+         "description": "Editor guard on sidebar global keydown to prevent Ctrl+B conflict with Lexical bold. Also adds open-command-palette event for search bar click trigger.",
+         "dependencies": ["feat-009", "feat-012"],
+         "status": "done",
+         "evidence": "src/components/ui/sidebar.tsx (editor guard), src/features/command/command-palette.tsx (open-command-palette event)"
+      },
+      {
+         "id": "feat-023",
+         "name": "AI Tab Completion Plugin",
+         "description": "Lexical plugin for AI-powered tab completion (present in old synapse 1, not yet integrated in current).",
+         "dependencies": ["feat-004"],
+         "status": "not-started",
+         "evidence": "Missing from current project. Present in old as src/components/AITabCompletionPlugin.tsx"
+      },
+      {
+         "id": "feat-024",
+         "name": "Voice-to-Text in Notes",
+         "description": "Voice input for note editor content (present in old, not yet integrated in current).",
+         "dependencies": ["feat-004"],
+         "status": "not-started",
+         "evidence": "Missing from current project. Present in old in NoteEditorPage.tsx"
+      },
+      {
+         "id": "feat-025",
+         "name": "Batch Note Actions",
+         "description": "Multi-select notes and perform batch tag/archive/delete operations (present in old, not yet integrated in current).",
+         "dependencies": ["feat-004"],
+         "status": "not-started",
+         "evidence": "Missing from current project. Present in old as src/features/notes/components/note-batch-actions.tsx"
+      },
+      {
+         "id": "feat-026",
+         "name": "Date Range Filter for Notes",
+         "description": "Filter notes by date range (present in old, not yet integrated in current).",
+         "dependencies": ["feat-004"],
+         "status": "not-started",
+         "evidence": "Missing from current project. Present in old as src/features/notes/components/note-date-filter.tsx"
+      },
+      {
+         "id": "feat-027",
+         "name": "PDF Export",
+         "description": "Export notes as PDF via print dialog (present in old, not yet integrated in current).",
+         "dependencies": ["feat-004"],
+         "status": "not-started",
+         "evidence": "Missing from current project. Present in old as src/utils/export.ts"
+      },
+      {
+         "id": "feat-028",
+         "name": "Quick Note Dialog",
+         "description": "Floating quick-capture note dialog with inline editor (present in old, not yet integrated in current).",
+         "dependencies": ["feat-004"],
+         "status": "not-started",
+         "evidence": "Missing from current project. Present in old as src/features/notes/components/NoteQuickDialog.tsx"
+      },
+      {
+         "id": "feat-029",
+         "name": "Keyboard Shortcuts Reference Modal",
+         "description": "Comprehensive keyboard shortcuts reference modal triggered by ? key (present in old, not yet integrated in current).",
+         "dependencies": ["feat-002"],
+         "status": "not-started",
+         "evidence": "Missing from current project. Present in old as src/components/KeyboardShortcutsModal.tsx"
+      }
+   ]
+}

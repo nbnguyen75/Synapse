@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useDebounce } from '@/hooks/use-debounce';
-
 import {
-   NOTE_SEARCH_EVENT_NAME,
    NOTE_SEARCH_SYNC_EVENT_NAME,
    TOGGLE_RIGHT_SIDEBAR_EVENT_NAME,
 } from '@/config/events';
@@ -12,7 +9,6 @@ import { ThemeToggle } from '@/components/common/theme-toggle';
 
 import { SidebarManagerTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Kbd, KbdGroup } from '@/components/ui/kbd';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -20,19 +16,6 @@ import { PanelRightIcon, SearchIcon } from 'lucide-react';
 
 export default function AppTopHeader() {
    const [searchVal, setSearchVal] = useState('');
-   const debouncedSearchVal = useDebounce(searchVal, 300);
-
-   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchVal(e.target.value);
-   };
-
-   useEffect(() => {
-      window.dispatchEvent(
-         new CustomEvent(NOTE_SEARCH_EVENT_NAME, {
-            detail: debouncedSearchVal,
-         }),
-      );
-   }, [debouncedSearchVal]);
 
    useEffect(() => {
       const handleSync = (e: Event) => {
@@ -57,41 +40,28 @@ export default function AppTopHeader() {
                className="mr-2 my-auto data-[orientation=vertical]:h-4"
             />
 
-            <div className="relative flex-1 max-w-md">
-               <SearchIcon className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground z-10" />
+            <div
+               onClick={() =>
+                  window.dispatchEvent(new CustomEvent('open-command-palette'))
+               }
+               className="relative flex-1 max-w-md cursor-pointer"
+            >
+               <SearchIcon className="absolute left-3 top-2.5 h-3.5 w-3.5 text-muted-foreground z-10 pointer-events-none" />
                <Input
                   id="header-search-input"
                   type="text"
-                  placeholder="Search notes... ('/' to focus)"
+                  readOnly
+                  placeholder="Search notes... (Ctrl+K)"
                   value={searchVal}
-                  onChange={handleSearchChange}
-                  className="w-full h-9 pl-9 pr-8 text-xs bg-neutral-50 dark:bg-neutral-950 border border-border rounded-lg outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 placeholder:text-muted-foreground transition-all focus-visible:ring-0"
+                  className="w-full h-9 pl-9 pr-8 text-xs bg-neutral-50 dark:bg-neutral-950 border border-border rounded-lg outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 placeholder:text-muted-foreground transition-all focus-visible:ring-0 cursor-pointer"
                />
-               <span className="absolute right-3 top-2.5 text-[9px] font-mono text-muted-foreground bg-neutral-200/50 dark:bg-neutral-900/80 px-1.5 py-0.5 rounded">
-                  /
+               <span className="absolute right-3 top-2.5 text-[9px] font-mono text-muted-foreground bg-neutral-200/50 dark:bg-neutral-900/80 px-1.5 py-0.5 rounded pointer-events-none">
+                  ⌘K
                </span>
             </div>
          </div>
 
          <div className="flex items-center gap-2">
-            {/* Quick Switcher Indicator */}
-            <Button
-               onClick={() =>
-                  window.dispatchEvent(
-                     new CustomEvent('toggle-command-palette'),
-                  )
-               }
-               variant="outline"
-               className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 h-7 rounded-lg border border-border bg-neutral-50 dark:bg-neutral-950 text-[10px] font-mono text-muted-foreground hover:bg-neutral-100 dark:hover:bg-neutral-900 hover:text-foreground transition-all cursor-pointer font-normal"
-            >
-               <span>Command Palette</span>
-               <KbdGroup>
-                  <Kbd>Ctrl (⌘)</Kbd>
-                  <span>+</span>
-                  <Kbd>B</Kbd>
-               </KbdGroup>
-            </Button>
-
             <ThemeToggle />
 
             <Separator

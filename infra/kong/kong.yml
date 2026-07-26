@@ -1,0 +1,18 @@
+_format_version: "3.0"
+
+services:
+  - name: auth-service
+    url: http://auth:3000
+    routes:
+      - name: auth-route
+        paths:
+          - /api/auth
+        strip_path: true
+
+  - name: notes-service
+    url: http://notes:8080
+    routes:
+      - name: notes-route
+        paths:
+          - /api/notes
+        strip_path: true

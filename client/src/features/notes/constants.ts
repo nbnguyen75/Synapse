@@ -73,14 +73,32 @@ export function exportMarkdown(title: string, content: string) {
 }
 
 export const SORT_OPTIONS = [
-   { labelKey: 'notes_page_sort_updated' as const, value: 'updatedAt_desc' },
-   {
-      labelKey: 'notes_page_sort_created_new' as const,
-      value: 'createdAt_desc',
-   },
-   { labelKey: 'notes_page_sort_created_old' as const, value: 'createdAt_asc' },
-   { labelKey: 'notes_page_sort_title_az' as const, value: 'title_asc' },
-   { labelKey: 'notes_page_sort_title_za' as const, value: 'title_desc' },
-   { labelKey: 'notes_page_sort_read_long' as const, value: 'readTime_desc' },
-   { labelKey: 'notes_page_sort_read_short' as const, value: 'readTime_asc' },
+   { value: 'updatedAt_desc', key: 'updated' },
+   { value: 'createdAt_desc', key: 'createdNew' },
+   { value: 'createdAt_asc', key: 'createdOld' },
+   { value: 'title_asc', key: 'titleAz' },
+   { value: 'title_desc', key: 'titleZa' },
+   { value: 'readTime_desc', key: 'readLong' },
+   { value: 'readTime_asc', key: 'readShort' },
 ] as const;
+
+export function getSortOptionLabel(key: string): string {
+   switch (key) {
+      case 'updated':
+         return m.notes_page_sort_updated();
+      case 'createdNew':
+         return m.notes_page_sort_created_new();
+      case 'createdOld':
+         return m.notes_page_sort_created_old();
+      case 'titleAz':
+         return m.notes_page_sort_title_az();
+      case 'titleZa':
+         return m.notes_page_sort_title_za();
+      case 'readLong':
+         return m.notes_page_sort_read_long();
+      case 'readShort':
+         return m.notes_page_sort_read_short();
+      default:
+         return key;
+   }
+}

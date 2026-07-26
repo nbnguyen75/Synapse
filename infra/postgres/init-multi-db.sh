@@ -6,3 +6,12 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "postgres" <<-EOSQL
     CREATE DATABASE notes_db;
     CREATE DATABASE ai_db;
 EOSQL
+
+# enable pgvector cho db cần (notes_db và ai_db dùng embedding)
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "notes_db" <<-EOSQL
+    CREATE EXTENSION IF NOT EXISTS vector;
+EOSQL
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "ai_db" <<-EOSQL
+    CREATE EXTENSION IF NOT EXISTS vector;
+EOSQL

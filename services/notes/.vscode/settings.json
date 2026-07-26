@@ -12,5 +12,32 @@
     },
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "interactive",
-    "editor.tabSize": 3
+    "editor.tabSize": 3,
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#63a239",
+        "activityBar.background": "#63a239",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#d0dcee",
+        "activityBarBadge.foreground": "#15202b",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#63a239",
+        "statusBar.background": "#4c7c2c",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#63a239",
+        "statusBarItem.remoteBackground": "#89a8d5",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#4c7c2c",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#4c7c2c99",
+        "titleBar.inactiveForeground": "#e7e7e799",
+        "activityBarTop.activeBackground": "#63a239",
+        "activityBarTop.background": "#63a239",
+        "activityBarTop.foreground": "#15202b",
+        "activityBarTop.inactiveForeground": "#15202b99",
+        "commandCenter.foreground": "#e7e7e7",
+        "statusBar.debuggingBackground": "#4c7c2c",
+        "statusBar.debuggingForeground": "#e7e7e7"
+    },
+    "peacock.color": "#4c7c2c"
 }

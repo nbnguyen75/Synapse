@@ -11,3 +11,8 @@ project.inlang/**
 !project.inlang/settings.json
 .agents/**/scripts
 .claude/**/scripts
+AGENTS.md
+feature_list.json
+init.sh
+progress.md
+session-handoff.md

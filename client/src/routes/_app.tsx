@@ -41,12 +41,26 @@ function AppLayout() {
          }
       };
 
+      const handleKeyDown = (e: KeyboardEvent) => {
+         if (
+            (e.ctrlKey || e.metaKey) &&
+            e.altKey &&
+            e.key.toLowerCase() === 'b'
+         ) {
+            e.preventDefault();
+            handleToggle();
+         }
+      };
+
       window.addEventListener(TOGGLE_RIGHT_SIDEBAR_EVENT_NAME, handleToggle);
-      return () =>
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
          window.removeEventListener(
             TOGGLE_RIGHT_SIDEBAR_EVENT_NAME,
             handleToggle,
          );
+         window.removeEventListener('keydown', handleKeyDown);
+      };
    }, []);
 
    return (

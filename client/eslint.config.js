@@ -22,6 +22,11 @@ export default defineConfig([
       'src/paraglide/**',
       '.agents/**/scripts',
       '.claude/**/scripts',
+      'AGENTS.md',
+      'feature_list.json',
+      'init.sh',
+      'progress.md',
+      'session-handoff.md',
    ]),
    {
       files: ['**/*.{ts,tsx,js,jsx}'],

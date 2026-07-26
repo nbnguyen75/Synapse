@@ -52,7 +52,7 @@ export function ThemeProvider({
    }, [theme]);
 
    const setTheme = (newTheme: Theme) => {
-      const hasAPI = !!document.startViewTransition();
+      const hasAPI = !!document.startViewTransition;
       const reducedMotion = window.matchMedia(
          '(prefers-reduced-motion: reduce)',
       ).matches;
