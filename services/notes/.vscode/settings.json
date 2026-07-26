@@ -12,7 +12,6 @@
     },
     "java.compile.nullAnalysis.mode": "automatic",
     "java.configuration.updateBuildConfiguration": "interactive",
-    "editor.tabSize": 3,
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#63a239",
         "activityBar.background": "#63a239",

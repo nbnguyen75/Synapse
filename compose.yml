@@ -23,6 +23,7 @@ services:
   auth:
     build:
       context: ./services/auth
+      target: app
     container_name: synapse-auth
     restart: unless-stopped
     environment:
@@ -35,6 +36,25 @@ services:
       PORT: 5001
     ports:
       - "5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - synapse-net
+
+  auth-migrate:
+    build:
+      context: ./services/auth
+      target: migrate
+    container_name: synapse-auth-migrate
+    command: ["bun", "--bun", "db:push"]
+    environment:
+      DATABASE_URL: postgresql://synapse:root@postgres:5432/auth_db
+      BETTER_AUTH_URL: http://auth:5001
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_TRUST_ORIGINS: ${BETTER_AUTH_TRUST_ORIGINS}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     depends_on:
       postgres:
         condition: service_healthy

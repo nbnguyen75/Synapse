@@ -3,10 +3,10 @@ import { jwt, bearer } from 'better-auth/plugins';
 import { betterAuth } from 'better-auth';
 import bcrypt from 'bcrypt';
 
-import { verifyUserEmailWhenSignInByGoogle } from '#/core/auth/auth.repository';
-import * as schema from '#/core/database/schema';
-import { db } from '#/core/database';
-import { env } from '#/env';
+import { verifyUserEmailWhenSignInByGoogle } from '@/core/auth/auth.repository';
+import * as schema from '@/core/database/schema';
+import { db } from '@/core/database';
+import { env } from '@/env';
 
 export const auth = betterAuth({
 	plugins: [

@@ -56,17 +56,17 @@ export default defineConfig(
 							groupName: 'hono'
 						},
 						{
-							elementNamePattern: '^#/.+',
+							elementNamePattern: '^@/.+',
 							groupName: 'internal',
 							modifiers: ['value']
 						},
 						{
-							elementNamePattern: '^#/modules*',
+							elementNamePattern: '^@/modules*',
 							groupName: 'modules',
 							modifiers: ['value']
 						},
 						{
-							elementNamePattern: '^#/lib*',
+							elementNamePattern: '^@/lib*',
 							modifiers: ['value'],
 							groupName: 'lib'
 						}

@@ -4,7 +4,10 @@ import { z } from 'zod';
 export const env = createEnv({
 	server: {
 		BETTER_AUTH_TRUST_ORIGINS: z
-			.preprocess((val) => (typeof val === 'string' ? [val] : val), z.array(z.string()))
+			.preprocess(
+				(val) => (typeof val === 'string' ? val.split(',').map((v) => v.trim()) : val),
+				z.array(z.string())
+			)
 			.optional()
 			.default([]),
 		GOOGLE_CLIENT_SECRET: z.string().nonempty(),

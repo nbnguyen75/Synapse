@@ -2,15 +2,34 @@ plugins {
 	java
 	id("org.springframework.boot") version "4.1.0"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("com.diffplug.spotless") version "6.25.0"
 }
 
 group = "com.synapse"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
+}
+
+spotless {
+    java {
+        target("src/**/*.java")
+        googleJavaFormat("1.22.0")
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+tasks.named("compileJava") {
+    dependsOn(tasks.named("spotlessApply"))
+}
+
+tasks.named("spotlessCheck") {
+    enabled = false
 }
 
 repositories {

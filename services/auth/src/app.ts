@@ -1,7 +1,8 @@
 import { cors } from 'hono/cors';
 import { Hono } from 'hono';
 
-import { auth } from '#/core/auth/auth.service';
+import { auth } from '@/core/auth/auth.service';
+import { env } from '@/env';
 
 const app = new Hono();
 
@@ -10,8 +11,8 @@ app.use(
 	cors({
 		allowHeaders: ['Content-Type', 'Authorization'],
 		allowMethods: ['POST', 'GET', 'OPTIONS'],
+		origin: env.BETTER_AUTH_TRUST_ORIGINS,
 		exposeHeaders: ['Content-Length'],
-		origin: 'http://localhost:5001', // replace with your origin
 		credentials: true,
 		maxAge: 600
 	})

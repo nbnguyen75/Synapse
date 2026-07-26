@@ -1,11 +1,16 @@
-FROM oven/bun:latest AS base
+FROM oven/bun:latest AS app
 WORKDIR /app
-
-# cài dependencies trước để tận dụng docker layer cache
-COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile
-
-COPY . .
-
+COPY package.json bun.lock tsconfig.json ./
+RUN bun install --frozen-lockfile --production --ignore-scripts
+COPY src ./src
 EXPOSE 5001
-CMD ["bun", "run", "src/app.ts"]
+CMD ["bun", "--bun", "run", "src/app.ts"]
+
+FROM oven/bun:latest AS migrate
+WORKDIR /app
+COPY package.json bun.lock tsconfig.json ./
+RUN bun install --frozen-lockfile --ignore-scripts
+COPY src ./src
+COPY drizzle ./drizzle
+COPY drizzle.config.ts ./
+CMD ["bun", "--bun", "db:push"]

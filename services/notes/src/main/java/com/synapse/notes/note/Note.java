@@ -1,14 +1,13 @@
 package com.synapse.notes.note;
 
-import java.time.Instant;
-import java.util.UUID;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,19 +23,20 @@ import lombok.Setter;
 @Builder
 public class Note {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false)
-    private String userId;
+  @Column(nullable = false)
+  private String userId;
 
-    @Column(nullable = false)
-    private String title;
+  @Column(nullable = false)
+  private String title;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
+  @Column(columnDefinition = "TEXT")
+  private String content;
 
-    @Builder.Default
-    private Instant createdAt = Instant.now();
+  @Builder.Default private Instant createdAt = Instant.now();
+
+  @Builder.Default private Instant updatedAt = Instant.now();
 }

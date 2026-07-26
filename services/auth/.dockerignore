@@ -23,9 +23,7 @@
 LICENSE
 README.md
 client.http
-**/drizzle
 **/.husky
-drizzle.config.ts
 eslint.config.js
 .prettierrc
 .prettierignore
