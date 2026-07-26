@@ -21,10 +21,11 @@
       "**/node_modules": true,
       "**/LICENSE": true,
       "**/README.md": true,
-      "**/.husky": false,
+      "**/.husky": true,
       "**/bun.lock": true,
       "**/dist": true,
-      "**/.tanstack": true
+      "**/.tanstack": true,
+      "**/vercel.json": true
    },
    "editor.codeActionsOnSave": {
       "source.fixAll.prettier": "never",

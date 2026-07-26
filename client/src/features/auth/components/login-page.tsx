@@ -119,8 +119,14 @@ function LoginPage() {
    return (
       <div className="w-full max-w-95 flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
          {/* Top Minimalist Icon */}
-         <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 shadow-lg text-white">
-            <Icon icon="lucide:archive" className="h-5 w-5 text-zinc-100" />
+         <div className="mb-4 flex h-10 w-10 items-center justify-center">
+            <img
+               src="/images/logo.png"
+               className="rounded-md"
+               alt=""
+               width={40}
+               height={40}
+            />
          </div>
 
          {/* Header Block */}
@@ -139,17 +145,6 @@ function LoginPage() {
                </Button>
             </p>
          </div>
-
-         {/* Inline Error Alert */}
-         {form.formState.errors.root && (
-            <div className="w-full flex items-start gap-2.5 rounded-lg bg-red-950/20 border border-red-900/40 p-3 text-xs text-red-400 mb-4 animate-in fade-in slide-in-from-top-2">
-               <Icon
-                  icon="lucide:shield-alert"
-                  className="h-4 w-4 shrink-0 mt-0.5"
-               />
-               <div>{form.formState.errors.root.message}</div>
-            </div>
-         )}
 
          {/* Form */}
          <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
@@ -199,8 +194,8 @@ function LoginPage() {
                            size="xs"
                            type="button"
                            onClick={() => {
-                              setValue('email', 'nbnguyen.dev@gmail.com');
-                              setValue('password', 'password123');
+                              setValue('email', 'demo@synapse.dev');
+                              setValue('password', 'Demo@12345');
                               trigger();
                               toast.info(m.login_page_demo_loaded());
                            }}
@@ -254,7 +249,7 @@ function LoginPage() {
             >
                {isSubmitting ? (
                   <div className="flex items-center gap-1.5">
-                     <Spinner className="h-3 w-3 border-2 border-zinc-950 border-t-transparent" />
+                     <Spinner className="h-4 w-4" />
                      <span>{m.login_page_please_wait()}</span>
                   </div>
                ) : (

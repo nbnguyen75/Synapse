@@ -98,8 +98,14 @@ function RegisterPage() {
    return (
       <div className="w-full max-w-95 flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
          {/* Top Minimalist Icon */}
-         <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 shadow-lg text-white">
-            <Icon icon="lucide:archive" className="h-5 w-5 text-zinc-100" />
+         <div className="mb-4 flex h-10 w-10 items-center justify-center">
+            <img
+               src="/images/logo.png"
+               className="rounded-md"
+               alt=""
+               width={40}
+               height={40}
+            />
          </div>
 
          {/* Header Block */}

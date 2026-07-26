@@ -12,6 +12,8 @@ import { ThemeProvider } from '@/providers/theme-provider';
 
 import { useSession } from '@/lib/auth-client';
 
+import { LoadingScreen } from '@/components/common/loading-screen';
+
 import { Toaster } from '@/components/ui/sonner';
 
 const queryClient = new QueryClient({
@@ -40,7 +42,11 @@ declare module '@tanstack/react-router' {
 }
 
 function InnerApp() {
-   const { data: session } = useSession();
+   const { data: session, isPending } = useSession();
+
+   if (isPending) {
+      return <LoadingScreen />;
+   }
 
    const auth: AuthContext = session
       ? { isAuthenticated: true, user: session.user }

@@ -2,7 +2,7 @@ import type { PanelImperativeHandle } from 'react-resizable-panels';
 
 import { useEffect, useRef } from 'react';
 
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import { CommandPalette } from '@/features/command';
 
@@ -23,6 +23,16 @@ import {
 import { AppLeftSidebar, AppRightSidebar, AppTopHeader } from '@/layouts';
 
 export const Route = createFileRoute('/_app')({
+   beforeLoad: ({ location, context }) => {
+      if (!context.auth.isAuthenticated) {
+         throw redirect({
+            search: {
+               redirect: location.href,
+            },
+            to: '/login',
+         });
+      }
+   },
    component: AppLayout,
 });
 

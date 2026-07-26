@@ -1,3 +1,5 @@
+import { useNavigate, useRouter } from '@tanstack/react-router';
+
 import { useSession, signOut } from '@/lib/auth-client';
 import { m } from '@/paraglide/messages';
 
@@ -21,13 +23,22 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ChevronsUpDownIcon, LogOutIcon } from 'lucide-react';
 
 export function SidebarUserMenu() {
-   const { data: session } = useSession();
+   const { data: session, isPending } = useSession();
    const { isMobile } = useSidebar();
+   const router = useRouter();
+   const navigate = useNavigate();
    const user = session?.user;
 
    const handleSignOut = async () => {
-      await signOut();
-      window.location.href = '/login';
+      await signOut({
+         fetchOptions: {
+            onSuccess: async () => {
+               await navigate({ replace: true, to: '/login' });
+
+               await router.invalidate();
+            },
+         },
+      });
    };
 
    return (
@@ -88,6 +99,7 @@ export function SidebarUserMenu() {
                   <DropdownMenuItem
                      variant="destructive"
                      onClick={handleSignOut}
+                     disabled={isPending}
                   >
                      <LogOutIcon className="size-4" />
                      <span>{m.sidebar_log_out()}</span>

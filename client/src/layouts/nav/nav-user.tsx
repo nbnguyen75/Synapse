@@ -1,6 +1,4 @@
-'use client';
-
-import { useNavigate } from '@tanstack/react-router';
+import { useRouter } from '@tanstack/react-router';
 
 import {
    Style as DiceBearStyle,
@@ -50,9 +48,8 @@ function Loading() {
 
 export default function NavUser() {
    const { data: session, isPending } = useSession();
-
+   const router = useRouter();
    const { isMobile } = useSidebar();
-   const navigate = useNavigate();
 
    if (isPending) return <Loading />;
 
@@ -70,8 +67,15 @@ export default function NavUser() {
    };
 
    const handleSignOut = async () => {
-      await signOut();
-      navigate({ to: '/login' });
+      await signOut({
+         fetchOptions: {
+            onSuccess: async () => {
+               await router.invalidate();
+
+               window.location.reload();
+            },
+         },
+      });
    };
 
    return (
@@ -155,8 +159,10 @@ export default function NavUser() {
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem
+                     variant="destructive"
                      onClick={handleSignOut}
                      className="cursor-pointer"
+                     disabled={isPending}
                   >
                      <LogOutIcon />
                      Log out
