@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import {
-   NOTE_SEARCH_SYNC_EVENT_NAME,
-   TOGGLE_RIGHT_SIDEBAR_EVENT_NAME,
-} from '@/config/events';
+import { useSettingsStore } from '@/store/settings-store';
+
+import { NOTE_SEARCH_SYNC_EVENT_NAME } from '@/config/events';
 
 import { ThemeToggle } from '@/components/common/theme-toggle';
 
@@ -77,9 +76,11 @@ export default function AppTopHeader() {
                size="icon-sm"
                className="-mr-1 cursor-pointer"
                onClick={() =>
-                  window.dispatchEvent(
-                     new CustomEvent(TOGGLE_RIGHT_SIDEBAR_EVENT_NAME),
-                  )
+                  useSettingsStore
+                     .getState()
+                     .setRightSidebarOpen(
+                        !useSettingsStore.getState().rightSidebar.open,
+                     )
                }
             >
                <PanelRightIcon />

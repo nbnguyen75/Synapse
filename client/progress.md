@@ -2,21 +2,30 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-26
-**Session ID:** feat-implementation-session-3
-**Active Feature:** Multi-feature: nav flatten, settings nav item, config popover + keyboard shortcuts dialog, Ctrl+Alt+B shortcut, extract reusable filter bar + pagination
+**Last Updated:** 2026-07-27
+**Session ID:** feat-refactor-session-4
+**Active Feature:** Codebase cleanup + layout restructuring + right sidebar store migration
 
 ## Status
 
 ### What's Done
 
-- [x] **NavMain flattened** — Removed collapsible wrapper, removed Sebastian (`MessageSquareIcon`), added Settings nav item
-- [x] **NavSecondary rewrite** — Config popover with Theme (Light/Dark/System) + Language (EN/VI) toggles; Keyboard Shortcuts dialog with 3 sections (Global, Editor, Navigation)
-- [x] **Ctrl+Alt+B** — Added keyboard handler in `_app.tsx` to toggle right sidebar
-- [x] **ListFilterBar extracted** — Generic `list-filter-bar.tsx` reusable across Notes, Tags, Archived pages; responsive via `hidden md:flex` on view/sort/create controls
-- [x] **ListPagination extracted** — Generic `list-pagination.tsx` with prop-based labels
-- [x] **NotesHeader + NotesPagination** — Updated to wrap new generic components
-- [x] **i18n** — Added 23 new strings for config popover, keyboard shortcuts, responsive bar
+- [x] **Fixed dynamic Paraglide message calls** — Removed unsafe `(m as Record<string, () => string>)[dynamicKey]()` pattern; replaced with `getSortOptionLabel()` using explicit `if/else if` chain
+- [x] **Deleted dead draft-editor** — `draft-editor.tsx` removed (no references)
+- [x] **Created `features/tags/` feature folder** — Moved tags-page, use-tags hook, lib/tags utils out of notes; cleaned related imports
+- [x] **Grouped notes components into subdirectories** — `editor/`, `list/`, `dialogs/`, `sidebar/`, `pages/` under `features/notes/components/`
+- [x] **Deleted dead tag-filter-bar** — `tag-filter-bar.tsx` removed
+- [x] **Created compound FilterBar** — `src/components/common/filter-bar.tsx` from merged filter/search/sort controls
+- [x] **Promoted ListPagination** — Moved to `src/components/common/list-pagination.tsx`
+- [x] **Extracted sidebar-config.tsx** — `ConfigPopover` + `KeyboardShortcutsDialog` into `src/components/common/sidebar-config.tsx`
+- [x] **Restructured layouts/** — Split into `app/` (sidebar, header) and `auth/` subdirectories
+- [x] **Created auth-layout.tsx** — Extracted auth page layout from `_auth.tsx`
+- [x] **Renamed sidebar-data.ts → nav-items-data.ts** — Better name for scope
+- [x] **Extended types.ts** — Added `LayoutMode` type (`servant` | `chat`)
+- [x] **Extended settings-store.ts** — Added `rightSidebar` (open/collapsible) and `layoutMode` state + actions
+- [x] **Updated sidebar-config.tsx** — Reference project pattern: Layout Mode (Servant/Chat toggle), Theme (Dark/Light), Language (EN/VI)
+- [x] **Replaced custom event for right sidebar** — Removed `TOGGLE_RIGHT_SIDEBAR_EVENT_NAME`; right sidebar toggle now uses `useSettingsStore` both in keyboard handler and header button
+- [x] **Cleanup events.ts** — Removed dead `TOGGLE_RIGHT_SIDEBAR_EVENT_NAME` and unused `NOTE_SEARCH_EVENT_NAME`
 - [x] **Verification** — `bun --bun check` passes (prettier + oxlint + eslint, zero errors)
 
 ### What's In Progress
@@ -36,9 +45,10 @@ Remaining features from `feature_list.json` (not-started):
 
 ## Key Findings
 
-- Config popover uses Base UI `Popover` directly with `SidebarMenuButton` as trigger via `render` prop
-- `ListFilterBar` uses `(m as Record<string, () => string>)[opt.labelKey]()` to call dynamic Paraglide message keys from `sortOptions` prop
-- `ListPagination` uses prop-based labels instead of `m.*()` calls — reuse by any feature without i18n coupling
+- Custom event pattern (`window.dispatchEvent(new CustomEvent(...))`) was replaced with zustand store for right sidebar state — eliminates fragile event string coupling
+- `useSettingsStore.getState()` used in `app-top-header.tsx` to toggle sidebar without re-rendering the header component on store changes
+- Layout restructure followed feature-first architecture: `layouts/app/sidebar/`, `layouts/app/header/`, `layouts/auth/`
+- `settings-store.ts` now owns `rightSidebar.open` + `rightSidebar.collapsible` — the resizable panel ref in `_app.tsx` syncs to store state via `useEffect`
 
 ## Blockers / Risks
 
@@ -46,29 +56,33 @@ Remaining features from `feature_list.json` (not-started):
 
 ## Decisions Made
 
-- **Keyboard shortcuts dialog**: Placed inline in NavSecondary (no separate component file), uses Base UI `Dialog`
-- **Config popover**: click-triggered `Popover` (not hover), layout toggle skipped per user
-- **Responsive filter bar**: View toggle, sort select, create button hidden below `md` breakpoint; filter icon + search always visible
-- **Generic components**: `ListFilterBar` and `ListPagination` keep feature-specific props optional via `onViewChange?` / `view?` — notes-specific view toggle is optional
+- **Custom event removal**: Right sidebar toggle migrated fully to zustand store; `resizable-panels` ref retained in `_app.tsx` but synced to store via `useEffect`
+- **`useSettingsStore.getState()` in header**: Used instead of hook subscription to avoid re-rendering the header on every right sidebar state change
+- **`features/tags/`**: Mirrors notes structure (page + hook + lib) — consistent with feature-first convention
+- **notes components grouping**: 5 subdirectories (editor, list, dialogs, sidebar, pages) — avoids filename prefix clutter
 
 ## Files Modified This Session
 
-- `src/layouts/nav/nav-main.tsx` — Flattened, removed Sebastian, added Settings
-- `src/layouts/nav-secondary.tsx` — Config popover + Keyboard Shortcuts dialog
-- `src/routes/_app.tsx` — Ctrl+Alt+B handler
-- `src/features/notes/components/list-filter-bar.tsx` — New file, generic filter bar
-- `src/features/notes/components/list-pagination.tsx` — New file, generic pagination
-- `src/features/notes/components/notes-header.tsx` — Rewrapped with ListFilterBar
-- `src/features/notes/components/notes-pagination.tsx` — Rewrapped with ListPagination
-- `messages/en.json` — 23 new strings
-- `messages/vi.json` — 23 new strings
-- `src/components/common/keyboard-shortcuts-dialog.tsx` — Deleted (content merged into nav-secondary.tsx)
+- `src/layouts/nav/nav-secondary.tsx` — Rewired to use extracted common components
+- `src/routes/_app.tsx` — Replaced custom event with store-based right sidebar toggle; added store → panel sync useEffect
+- `src/routes/_auth.tsx` — Uses AuthLayout component
+- `src/layouts/app/app-top-header.tsx` — Uses store directly instead of dispatching custom event
+- `src/layouts/app/sidebar/app-right-sidebar.tsx` — Uses store directly instead of dispatching custom event
+- `src/components/common/sidebar-config.tsx` — New (extracted); Layout Mode + Theme + Language toggles
+- `src/components/common/filter-bar.tsx` — New (compound component from merged filter/search/sort)
+- `src/components/common/list-pagination.tsx` — New (promoted from notes)
+- `src/config/events.ts` — Removed dead constants
+- `src/store/settings-store.ts` — Extended with rightSidebar/layoutMode state
+- `src/layouts/types.ts` — Added LayoutMode
+- `src/layouts/index.ts` — Updated barrel exports
+- `src/features/tags/` — 3 new files (page, hook, lib)
+- `src/features/notes/components/` — 5 subdirectories created, files moved
 
 ## Evidence of Completion
 
-- [x] All 8 tasks implemented and verified
-- [x] `bun --bun check` passes (prettier + oxlint + eslint)
-- [x] i18n keys added for all new user-facing strings
+- [x] All refactoring tasks implemented and verified
+- [x] `bun --bun check` passes (prettier + oxlint + eslint, zero errors)
+- [x] Repository restartable from `./init.sh`
 
 ## Notes for Next Session
 

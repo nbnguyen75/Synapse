@@ -1,6 +1,11 @@
 import { useEffect } from 'react';
 
-import { discoverTagsFromNotes } from '@/features/notes/lib/tags';
+import {
+   useTags,
+   TAG_COLORS,
+   TAG_COLOR_VALUES,
+} from '@/features/tags/hooks/use-tags';
+import { discoverTagsFromNotes } from '@/features/tags/lib/tags';
 
 import { m } from '@/paraglide/messages';
 
@@ -32,8 +37,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-
-import { useTags, TAG_COLORS, TAG_COLOR_VALUES } from '../hooks/use-tags';
 
 import {
    Tag,

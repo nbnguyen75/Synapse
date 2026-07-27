@@ -12,7 +12,7 @@ import {
    cascadeRenameTag,
    cascadeDeleteTag,
    type TagMetadata,
-} from '@/features/notes/lib/tags';
+} from '@/features/tags/lib/tags';
 import { getNotes } from '@/features/notes/api';
 
 import { m } from '@/paraglide/messages';

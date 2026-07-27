@@ -2,18 +2,18 @@ import type { ChangeEvent } from 'react';
 
 import { Suspense, lazy } from 'react';
 
-import { DeleteAlertDialog } from '@/features/notes/components/delete-alert-dialog';
-import { CreateNoteDialog } from '@/features/notes/components/create-note-dialog';
-import { TemplateSelector } from '@/features/notes/components/template-selector';
-import { NotesPagination } from '@/features/notes/components/notes-pagination';
-import { EditNoteDialog } from '@/features/notes/components/edit-note-dialog';
-import { VersionHistory } from '@/features/notes/components/version-history';
-import { FilterSidebar } from '@/features/notes/components/filter-sidebar';
-import { FullPageView } from '@/features/notes/components/full-page-view';
+import { DeleteAlertDialog } from '@/features/notes/components/dialogs/delete-alert-dialog';
+import { CreateNoteDialog } from '@/features/notes/components/dialogs/create-note-dialog';
+import { TemplateSelector } from '@/features/notes/components/dialogs/template-selector';
+import { EditNoteDialog } from '@/features/notes/components/dialogs/edit-note-dialog';
+import { VersionHistory } from '@/features/notes/components/dialogs/version-history';
+import { NotesPagination } from '@/features/notes/components/list/notes-pagination';
+import { FilterSidebar } from '@/features/notes/components/sidebar/filter-sidebar';
+import { FullPageView } from '@/features/notes/components/pages/full-page-view';
+import { NotesHeader } from '@/features/notes/components/list/notes-header';
+import { NoteEditor } from '@/features/notes/components/editor/note-editor';
 import { exportMarkdown, getReadTime } from '@/features/notes/constants';
-import { NotesHeader } from '@/features/notes/components/notes-header';
-import { NoteEditor } from '@/features/notes/components/note-editor';
-import { NoteCard } from '@/features/notes/components/note-card';
+import { NoteCard } from '@/features/notes/components/list/note-card';
 import useNotes from '@/features/notes/hooks/use-notes';
 
 import { m } from '@/paraglide/messages';
@@ -651,7 +651,7 @@ export default function NotesPage() {
 }
 
 const LexicalEditorLazy = lazy(
-   () => import('@/features/notes/components/lexical-editor'),
+   () => import('@/features/notes/components/editor/lexical-editor'),
 );
 function LexicalEditorInline({
    onChange,

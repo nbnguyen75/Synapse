@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
 
-import { NavMain, NavCompanion, NavUser } from '@/layouts/nav';
-import { NavSecondary } from '@/layouts/nav-secondary';
+import { NavMain, NavCompanion, NavUser } from '@/layouts/app/sidebar/nav';
+import { NavSecondary } from '@/layouts/app/sidebar/nav/nav-secondary';
 
 import { env } from '@/config/env';
 

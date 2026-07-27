@@ -1,12 +1,12 @@
 import type { PanelImperativeHandle } from 'react-resizable-panels';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 
 import { CommandPalette } from '@/features/command';
 
-import { TOGGLE_RIGHT_SIDEBAR_EVENT_NAME } from '@/config/events';
+import { useSettingsStore } from '@/store/settings-store';
 
 import {
    SidebarInset,
@@ -23,34 +23,48 @@ import {
 import { AppLeftSidebar, AppRightSidebar, AppTopHeader } from '@/layouts';
 
 export const Route = createFileRoute('/_app')({
-   beforeLoad: ({ location, context }) => {
-      if (!context.auth.isAuthenticated) {
-         throw redirect({
-            search: {
-               redirect: location.href,
-            },
-            to: '/login',
-         });
-      }
-   },
+   // beforeLoad: ({ location, context }) => {
+   //    if (!context.auth.isAuthenticated) {
+   //       throw redirect({
+   //          search: {
+   //             redirect: location.href,
+   //          },
+   //          to: '/login',
+   //       });
+   //    }
+   // },
    component: AppLayout,
 });
 
 function AppLayout() {
    const rightPanelRef = useRef<PanelImperativeHandle>(null);
+   const { setRightSidebarOpen, rightSidebar } = useSettingsStore();
+
+   const toggleRightSidebar = useCallback(() => {
+      const panel = rightPanelRef.current;
+      if (!panel) return;
+
+      if (panel.isCollapsed()) {
+         panel.expand();
+         setRightSidebarOpen(true);
+      } else {
+         panel.collapse();
+         setRightSidebarOpen(false);
+      }
+   }, [setRightSidebarOpen]);
 
    useEffect(() => {
-      const handleToggle = () => {
-         const panel = rightPanelRef.current;
-         if (!panel) return;
+      const panel = rightPanelRef.current;
+      if (!panel) return;
 
-         if (panel.isCollapsed()) {
-            panel.expand();
-         } else {
-            panel.collapse();
-         }
-      };
+      if (rightSidebar.open && panel.isCollapsed()) {
+         panel.expand();
+      } else if (!rightSidebar.open && !panel.isCollapsed()) {
+         panel.collapse();
+      }
+   }, [rightSidebar.open]);
 
+   useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
          if (
             (e.ctrlKey || e.metaKey) &&
@@ -58,20 +72,13 @@ function AppLayout() {
             e.key.toLowerCase() === 'b'
          ) {
             e.preventDefault();
-            handleToggle();
+            toggleRightSidebar();
          }
       };
 
-      window.addEventListener(TOGGLE_RIGHT_SIDEBAR_EVENT_NAME, handleToggle);
       window.addEventListener('keydown', handleKeyDown);
-      return () => {
-         window.removeEventListener(
-            TOGGLE_RIGHT_SIDEBAR_EVENT_NAME,
-            handleToggle,
-         );
-         window.removeEventListener('keydown', handleKeyDown);
-      };
-   }, []);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+   }, [toggleRightSidebar]);
 
    return (
       <>
@@ -92,7 +99,7 @@ function AppLayout() {
                      >
                         <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
                            <AppTopHeader />
-                           <main className="overflow-hidden p-3">
+                           <main className="overflow-hidden flex-1 p-3">
                               <Outlet />
                            </main>
                         </ResizablePanel>

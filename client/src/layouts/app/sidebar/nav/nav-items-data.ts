@@ -1,4 +1,4 @@
-import type { AppTab } from './types';
+import type { AppTab } from '../../../types';
 
 import { m } from '@/paraglide/messages';
 

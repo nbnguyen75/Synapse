@@ -1,10 +1,10 @@
-import type { NoteEditorProps } from '../types';
+import type { NoteEditorProps } from '../../types';
 
 import { type ChangeEvent } from 'react';
 
 import { toast } from 'sonner';
 
-import LexicalEditor from '@/features/notes/components/lexical-editor';
+import LexicalEditor from '@/features/notes/components/editor/lexical-editor';
 import { generateAiTitle } from '@/features/notes/lib/ai-title';
 
 import { m } from '@/paraglide/messages';

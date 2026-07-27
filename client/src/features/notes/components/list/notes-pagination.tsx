@@ -1,4 +1,4 @@
-import { ListPagination } from '@/features/notes/components/list-pagination';
+import { ListPagination } from '@/components/common/list-pagination';
 
 interface NotesPaginationProps {
    onPageSizeChange: (size: number) => void;

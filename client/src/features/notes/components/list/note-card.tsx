@@ -70,7 +70,7 @@ export function NoteCard({
                      onClick={() => onTogglePin(note.id, !note.pinned)}
                      className={`shrink-0 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${
                         note.pinned
-                           ? '!opacity-100 text-amber-500'
+                           ? 'opacity-100! text-amber-500'
                            : 'text-muted-foreground'
                      }`}
                      title={

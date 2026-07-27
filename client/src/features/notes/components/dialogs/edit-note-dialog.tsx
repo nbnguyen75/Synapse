@@ -1,4 +1,4 @@
-import type { NoteTab } from '../types';
+import type { NoteTab } from '../../types';
 
 import { type FormEvent } from 'react';
 
@@ -13,9 +13,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
-import { exportMarkdown } from '../constants';
-
-import { NoteEditor } from './note-editor';
+import { NoteEditor } from '../editor/note-editor';
+import { exportMarkdown } from '../../constants';
 
 import { Edit3, Eye, FileDown } from 'lucide-react';
 
