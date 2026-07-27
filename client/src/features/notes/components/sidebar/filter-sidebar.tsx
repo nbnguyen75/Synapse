@@ -1,3 +1,4 @@
+// !Will be used later — multi-condition filter panel
 import type { Note } from '@/features/notes/types';
 
 import { useState } from 'react';

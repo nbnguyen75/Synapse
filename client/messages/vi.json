@@ -230,8 +230,7 @@
    "notes_page_ai_title": "Tóm tắt tiêu đề AI",
    "notes_page_ai_title_loading": "Đang tạo tiêu đề...",
    "notes_page_ai_title_success": "Đã tạo tiêu đề!",
-   "notes_page_view_active": "Ghi chú đang hoạt động",
-   "notes_page_view_archived": "Ghi chú đã lưu trữ",
+
    "notes_page_no_notes_archived": "Không có ghi chú đã lưu trữ",
    "notes_page_no_notes_archived_desc": "Lưu trữ ghi chú để giữ không gian làm việc gọn gàng.",
    "notes_page_template_heading": "Mẫu tài liệu",
@@ -364,7 +363,6 @@
    "sidebar_config_dark": "Tối",
    "sidebar_config_system": "Hệ thống",
    "sidebar_config_theme": "Giao diện",
-   "sidebar_config_language": "Ngôn ngữ",
    "keyboard_shortcuts_title": "Phím tắt",
    "keyboard_shortcuts_global": "Toàn cục",
    "keyboard_shortcuts_editor": "Soạn thảo",
@@ -380,5 +378,16 @@
    "keyboard_shortcuts_code": "Mã",
    "keyboard_shortcuts_go_notes": "Đến Ghi chú",
    "keyboard_shortcuts_go_chat": "Đến Trò chuyện",
-   "keyboard_shortcuts_go_settings": "Đến Cài đặt"
+   "keyboard_shortcuts_go_settings": "Đến Cài đặt",
+   "header_language_en": "Tiếng Anh",
+   "header_language_vi": "Tiếng Việt",
+   "notes_batch_selected": "{count} được chọn",
+   "notes_batch_add_tag": "Thêm thẻ",
+   "notes_batch_remove_tag": "Xóa thẻ",
+   "notes_batch_archive": "Lưu trữ",
+   "notes_batch_delete": "Xóa",
+   "notes_batch_select_all": "Chọn tất cả trang",
+   "notes_batch_clear": "Bỏ chọn",
+   "notes_batch_close": "Đóng",
+   "notes_date_filter_reset": "Đặt lại bộ lọc"
 }

@@ -1,5 +1,5 @@
-import type { Note, NoteVersion } from '@/features/notes/types';
 import type { NoteTab } from '@/features/notes/types';
+import type { Note } from '@/features/notes/types';
 import type { FormEvent } from 'react';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -35,6 +35,8 @@ export default function useNotes() {
    const currentPage = searchParams.page;
    const pageSize = searchParams.pageSize;
    const view = searchParams.view || 'active';
+   const startDate = searchParams.startDate || '';
+   const endDate = searchParams.endDate || '';
 
    const searchInput = useSearchInput({ defaultValue: q, delay: 300 });
 
@@ -78,19 +80,6 @@ export default function useNotes() {
    const [isCreatePageOpen, setIsCreatePageOpen] = useState(false);
    const [viewingNoteForDetails, setViewingNoteForDetails] =
       useState<Note | null>(null);
-   const [selectedVersion, setSelectedVersion] = useState<NoteVersion | null>(
-      null,
-   );
-   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(
-      () => localStorage.getItem('synapse_filter_sidebar') !== 'false',
-   );
-
-   useEffect(() => {
-      localStorage.setItem(
-         'synapse_filter_sidebar',
-         String(isFilterSidebarOpen),
-      );
-   }, [isFilterSidebarOpen]);
 
    const { data: notes = [], isLoading } = useQuery<Note[]>({
       queryKey: ['notes'],
@@ -114,9 +103,14 @@ export default function useNotes() {
                note.content.toLowerCase().includes(q.toLowerCase());
             const matchesTag =
                !selectedTag || (note.tags && note.tags.includes(selectedTag));
-            return matchesSearch && matchesTag;
+            const matchesDate =
+               (!startDate ||
+                  new Date(note.createdAt) >= new Date(startDate)) &&
+               (!endDate ||
+                  new Date(note.createdAt) <= new Date(endDate + 'T23:59:59'));
+            return matchesSearch && matchesTag && matchesDate;
          }),
-      [notes, view, q, selectedTag],
+      [notes, view, q, selectedTag, startDate, endDate],
    );
 
    const sortedNotes = useMemo(() => {
@@ -392,14 +386,12 @@ export default function useNotes() {
       setNoteTags(note.tags ? note.tags.join(', ') : '');
       setEditTab('write');
       setIsSplitEdit(false);
-      setSelectedVersion(null);
       setSaveState(null);
    }
 
    function handleCloseDetailView() {
       setViewingNoteForDetails(null);
       setActiveNote(null);
-      setSelectedVersion(null);
    }
 
    function handleDetailSaveNow() {
@@ -472,16 +464,6 @@ export default function useNotes() {
          }),
          to: '/chat',
       });
-   }
-
-   function handleSelectVersion(version: NoteVersion | null) {
-      setSelectedVersion(version);
-   }
-
-   function handleRestoreVersion(version: NoteVersion) {
-      setNoteTitle(version.title);
-      setNoteContent(version.content);
-      toast.success('Version restored');
    }
 
    function handleApplyTemplate(
@@ -590,18 +572,14 @@ export default function useNotes() {
 
    return {
       handleCreatePageAiTitle,
-      setIsFilterSidebarOpen,
       handleCreatePageSubmit,
       viewingNoteForDetails,
       handleCloseDetailView,
       handleNavigateToNote,
-      handleRestoreVersion,
       handleCreatePageOpen,
       handleCreatePageBack,
-      isFilterSidebarOpen,
       handleDetailSaveNow,
       handleDeleteConfirm,
-      handleSelectVersion,
       handleApplyTemplate,
       handleCreateSubmit,
       handleDetailDelete,
@@ -613,7 +591,6 @@ export default function useNotes() {
       handleViewChange,
       setIsCreateOpen,
       setDeleteTarget,
-      selectedVersion,
       handleTogglePin,
       setNoteContent,
       setIsSplitEdit,
@@ -628,7 +605,6 @@ export default function useNotes() {
       setCreateTab,
       isCreateOpen,
       deleteTarget,
-      searchInput,
       selectedTag,
       noteContent,
       setNoteTags,

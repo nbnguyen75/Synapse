@@ -10,14 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-import {
-   Plus,
-   Search,
-   SlidersHorizontal,
-   Archive,
-   FileText,
-   X,
-} from 'lucide-react';
+import { Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 
 export interface SortOption {
    value: string;
@@ -32,6 +25,7 @@ function FilterBar({ children }: { children: ReactNode }) {
    );
 }
 
+// !Will be used later — filter sidebar toggle
 FilterBar.FilterToggle = function FilterToggle({
    onClick,
    isOpen,
@@ -54,6 +48,7 @@ FilterBar.FilterToggle = function FilterToggle({
    );
 };
 
+// !Will be used later — keyword search
 FilterBar.Search = function SearchInput({
    placeholder,
    onChange,
@@ -80,41 +75,6 @@ FilterBar.Search = function SearchInput({
                <X className="size-4" />
             </button>
          )}
-      </div>
-   );
-};
-
-FilterBar.ViewToggle = function ViewToggle({
-   archivedLabel,
-   activeLabel,
-   onChange,
-   view,
-}: {
-   onChange: (view: 'active' | 'archived') => void;
-   view: 'active' | 'archived';
-   archivedLabel: string;
-   activeLabel: string;
-}) {
-   return (
-      <div className="hidden md:flex items-center gap-1 rounded-lg border p-0.5">
-         <Button
-            variant={view === 'active' ? 'secondary' : 'ghost'}
-            size="xs"
-            onClick={() => onChange('active')}
-            className="text-xs"
-         >
-            <FileText className="mr-1 size-3.5" />
-            {activeLabel}
-         </Button>
-         <Button
-            variant={view === 'archived' ? 'secondary' : 'ghost'}
-            size="xs"
-            onClick={() => onChange('archived')}
-            className="text-xs"
-         >
-            <Archive className="mr-1 size-3.5" />
-            {archivedLabel}
-         </Button>
       </div>
    );
 };

@@ -6,14 +6,18 @@ import { m } from '@/paraglide/messages';
 
 export const DEFAULT_NOTES_SEARCH = {
    sort: 'updatedAt_desc',
+   startDate: '',
    pageSize: 10,
+   endDate: '',
    tag: '',
    page: 1,
    q: '',
 };
 
 export const notesSearchSchema = z.object({
+   startDate: z.string().default(DEFAULT_NOTES_SEARCH.startDate),
    pageSize: z.number().default(DEFAULT_NOTES_SEARCH.pageSize),
+   endDate: z.string().default(DEFAULT_NOTES_SEARCH.endDate),
    sort: z.string().default(DEFAULT_NOTES_SEARCH.sort),
    page: z.number().default(DEFAULT_NOTES_SEARCH.page),
    tag: z.string().default(DEFAULT_NOTES_SEARCH.tag),

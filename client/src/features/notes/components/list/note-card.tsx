@@ -36,24 +36,31 @@ import {
    Archive,
    Trash2,
    Sparkles,
+   Check,
 } from 'lucide-react';
 
 interface NoteCardProps {
    onArchive: (id: string, archived: boolean, title: string) => void;
    onTogglePin: (id: string, pinned: boolean) => void;
+   onToggleSelect?: (id: string) => void;
    onChatWithNote: (note: Note) => void;
    onOpenDetail: (note: Note) => void;
    onTagClick: (tag: string) => void;
    onDelete: (note: Note) => void;
    onEdit: (note: Note) => void;
+   isBatchMode?: boolean;
+   isSelected?: boolean;
    note: Note;
 }
 
 export function NoteCard({
    onChatWithNote,
+   onToggleSelect,
    onOpenDetail,
    onTogglePin,
+   isBatchMode,
    onTagClick,
+   isSelected,
    onArchive,
    onDelete,
    onEdit,
@@ -64,23 +71,36 @@ export function NoteCard({
          <CardHeader className="pb-2">
             <div className="flex items-start justify-between gap-2">
                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <Button
-                     variant="ghost"
-                     size="icon-xs"
-                     onClick={() => onTogglePin(note.id, !note.pinned)}
-                     className={`shrink-0 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${
-                        note.pinned
-                           ? 'opacity-100! text-amber-500'
-                           : 'text-muted-foreground'
-                     }`}
-                     title={
-                        note.pinned
-                           ? m.notes_page_pin_unpin()
-                           : m.notes_page_pin_pin()
-                     }
-                  >
-                     <Pin className="size-3" />
-                  </Button>
+                  {isBatchMode && onToggleSelect ? (
+                     <button
+                        onClick={() => onToggleSelect(note.id)}
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors cursor-pointer ${
+                           isSelected
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-muted-foreground/30 hover:border-muted-foreground/60'
+                        }`}
+                     >
+                        {isSelected && <Check className="h-3 w-3" />}
+                     </button>
+                  ) : (
+                     <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => onTogglePin(note.id, !note.pinned)}
+                        className={`shrink-0 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${
+                           note.pinned
+                              ? 'opacity-100! text-amber-500'
+                              : 'text-muted-foreground'
+                        }`}
+                        title={
+                           note.pinned
+                              ? m.notes_page_pin_unpin()
+                              : m.notes_page_pin_pin()
+                        }
+                     >
+                        <Pin className="h-3.5 w-3.5" />
+                     </Button>
+                  )}
                   <CardTitle
                      className="text-sm font-semibold leading-tight truncate cursor-pointer hover:text-primary transition-colors"
                      onClick={() => onOpenDetail(note)}

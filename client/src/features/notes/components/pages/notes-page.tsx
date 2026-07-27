@@ -1,18 +1,18 @@
-import type { ChangeEvent } from 'react';
+import { useCallback, Suspense, lazy } from 'react';
 
-import { Suspense, lazy } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { DeleteAlertDialog } from '@/features/notes/components/dialogs/delete-alert-dialog';
 import { CreateNoteDialog } from '@/features/notes/components/dialogs/create-note-dialog';
 import { TemplateSelector } from '@/features/notes/components/dialogs/template-selector';
+import { NoteBatchActions } from '@/features/notes/components/list/note-batch-actions';
 import { EditNoteDialog } from '@/features/notes/components/dialogs/edit-note-dialog';
-import { VersionHistory } from '@/features/notes/components/dialogs/version-history';
 import { NotesPagination } from '@/features/notes/components/list/notes-pagination';
-import { FilterSidebar } from '@/features/notes/components/sidebar/filter-sidebar';
 import { FullPageView } from '@/features/notes/components/pages/full-page-view';
 import { NotesHeader } from '@/features/notes/components/list/notes-header';
 import { NoteEditor } from '@/features/notes/components/editor/note-editor';
 import { exportMarkdown, getReadTime } from '@/features/notes/constants';
+import { useMultiSelect } from '@/features/notes/hooks/use-multi-select';
 import { NoteCard } from '@/features/notes/components/list/note-card';
 import useNotes from '@/features/notes/hooks/use-notes';
 
@@ -45,18 +45,13 @@ import {
 export default function NotesPage() {
    const {
       handleCreatePageAiTitle,
-      setIsFilterSidebarOpen,
       handleCreatePageSubmit,
       viewingNoteForDetails,
       handleCloseDetailView,
-      handleNavigateToNote,
-      handleRestoreVersion,
       handleCreatePageOpen,
       handleCreatePageBack,
-      isFilterSidebarOpen,
       handleDetailSaveNow,
       handleDeleteConfirm,
-      handleSelectVersion,
       handleApplyTemplate,
       handleCreateSubmit,
       handleDetailDelete,
@@ -65,10 +60,8 @@ export default function NotesPage() {
       setIsSplitCreate,
       isCreatePageOpen,
       handleEditSubmit,
-      handleViewChange,
       setIsCreateOpen,
       setDeleteTarget,
-      selectedVersion,
       handleTogglePin,
       setNoteContent,
       setIsSplitEdit,
@@ -83,13 +76,11 @@ export default function NotesPage() {
       setCreateTab,
       isCreateOpen,
       deleteTarget,
-      searchInput,
       selectedTag,
       noteContent,
       setNoteTags,
       isSplitEdit,
       sortedNotes,
-      activeNote,
       setEditTab,
       isEditOpen,
       pagination,
@@ -105,6 +96,13 @@ export default function NotesPage() {
       view,
       q,
    } = useNotes();
+
+   const queryClient = useQueryClient();
+   const multiSelect = useMultiSelect();
+
+   const handleBatchUpdate = useCallback(() => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+   }, [queryClient]);
 
    if (isCreatePageOpen) {
       return (
@@ -384,12 +382,6 @@ export default function NotesPage() {
                      </div>
                   </div>
                   <TemplateSelector onApplyTemplate={handleApplyTemplate} />
-                  <VersionHistory
-                     versions={activeNote?.versions || []}
-                     selectedVersion={selectedVersion}
-                     onSelectVersion={handleSelectVersion}
-                     onRestoreVersion={handleRestoreVersion}
-                  />
                </div>
             }
          >
@@ -480,7 +472,7 @@ export default function NotesPage() {
                      id="details-note-content"
                   />
                ) : (
-                  <div className="rounded-lg border bg-muted/30 p-4 text-sm min-h-[200px]">
+                  <div className="rounded-lg border bg-muted/30 p-4 text-sm min-h-50">
                      <MarkdownRenderer content={noteContent} />
                   </div>
                )}
@@ -492,117 +484,110 @@ export default function NotesPage() {
    return (
       <div className="flex h-full flex-col overflow-hidden">
          <NotesHeader
-            searchValue={searchInput.value}
             sortBy={sortBy}
-            onSearchChange={(v) =>
-               searchInput.setValue({
-                  target: { value: v },
-               } as ChangeEvent<HTMLInputElement>)
-            }
             onSortChange={(value) => updateSearchParam('sort', value)}
             onCreateClick={handleCreatePageOpen}
-            onToggleFilter={() => setIsFilterSidebarOpen(!isFilterSidebarOpen)}
-            isFilterOpen={isFilterSidebarOpen}
-            view={view}
-            onViewChange={handleViewChange}
          />
 
-         <div className="flex flex-1 overflow-hidden">
-            <FilterSidebar
-               allTags={allTags}
-               selectedTag={selectedTag}
-               onTagClick={handleTagClick}
-               onClearFilter={() => updateSearchParam('tag', '')}
-               onNavigateToNote={handleNavigateToNote}
-               notes={notes}
-               isOpen={isFilterSidebarOpen}
-               onToggle={() => setIsFilterSidebarOpen(!isFilterSidebarOpen)}
-            />
-
-            <div className="flex flex-1 flex-col overflow-hidden">
-               <div className="flex-1 overflow-y-auto scrollbar-none px-6 py-6 @container">
-                  {isLoading ? (
-                     <div className="grid gap-4 grid-cols-1 @2xl:grid-cols-2 @5xl:grid-cols-3">
-                        {Array.from({ length: 6 }).map((_, i) => (
-                           <div
-                              key={i}
-                              className="rounded-xl border-none bg-background shadow-flat-sm p-4"
-                           >
-                              <Skeleton className="mb-1 h-4 w-3/4" />
-                              <Skeleton className="h-3 w-1/2" />
-                           </div>
-                        ))}
-                     </div>
-                  ) : sortedNotes.length === 0 ? (
-                     <Empty className="py-20">
-                        <EmptyHeader>
-                           <EmptyMedia variant="icon">
-                              <FileText className="h-5 w-5" />
-                           </EmptyMedia>
-                           <EmptyTitle>
-                              {q || selectedTag
-                                 ? m.notes_page_no_results()
-                                 : view === 'archived'
-                                   ? m.notes_page_no_notes_archived()
-                                   : m.notes_page_no_notes()}
-                           </EmptyTitle>
-                           <EmptyDescription>
-                              {q || selectedTag
-                                 ? ''
-                                 : view === 'archived'
-                                   ? m.notes_page_no_notes_archived_desc()
-                                   : m.notes_page_no_notes_desc()}
-                           </EmptyDescription>
-                        </EmptyHeader>
-                        {!q && !selectedTag && view !== 'archived' && (
-                           <EmptyContent>
-                              <Button onClick={handleCreatePageOpen}>
-                                 <Plus className="h-4 w-4" />
-                                 {m.notes_page_create()}
-                              </Button>
-                           </EmptyContent>
-                        )}
-                     </Empty>
-                  ) : (
-                     <div className="grid gap-4 grid-cols-1 @2xl:grid-cols-2 @5xl:grid-cols-3">
-                        {paginatedNotes.map((note) => (
-                           <NoteCard
-                              key={note.id}
-                              note={note}
-                              onEdit={openEdit}
-                              onDelete={(n) => {
-                                 setDeleteTarget(n);
-                              }}
-                              onTogglePin={handleTogglePin}
-                              onArchive={handleArchive}
-                              onTagClick={handleTagClick}
-                              onOpenDetail={openDetailView}
-                              onChatWithNote={handleChatWithNote}
-                           />
-                        ))}
-                     </div>
-                  )}
-               </div>
-
-               {sortedNotes.length > 0 && (
-                  <NotesPagination
-                     currentPage={pagination.currentPage}
-                     totalPages={pagination.totalPages}
-                     totalItems={sortedNotes.length}
-                     startIndex={pagination.startIndex}
-                     endIndex={pagination.endIndex}
-                     pageSize={pagination.pageSize}
-                     isFirstPage={pagination.isFirstPage}
-                     isLastPage={pagination.isLastPage}
-                     onFirstPage={pagination.firstPage}
-                     onPrevPage={pagination.prevPage}
-                     onNextPage={pagination.nextPage}
-                     onLastPage={pagination.lastPage}
-                     onPageSizeChange={pagination.setPageSize}
-                  />
+         <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto scrollbar-none px-6 py-6 @container">
+               {isLoading ? (
+                  <div className="grid gap-4 grid-cols-1 @2xl:grid-cols-2 @5xl:grid-cols-3">
+                     {Array.from({ length: 6 }).map((_, i) => (
+                        <div
+                           key={i}
+                           className="rounded-xl border-none bg-background shadow-flat-sm p-4 h-64"
+                        >
+                           <Skeleton className="mb-5 h-5 w-3/4" />
+                           <Skeleton className="h-20 w-full" />
+                        </div>
+                     ))}
+                  </div>
+               ) : sortedNotes.length === 0 ? (
+                  <Empty className="py-20">
+                     <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                           <FileText className="h-5 w-5" />
+                        </EmptyMedia>
+                        <EmptyTitle>
+                           {q || selectedTag
+                              ? m.notes_page_no_results()
+                              : view === 'archived'
+                                ? m.notes_page_no_notes_archived()
+                                : m.notes_page_no_notes()}
+                        </EmptyTitle>
+                        <EmptyDescription>
+                           {q || selectedTag
+                              ? ''
+                              : view === 'archived'
+                                ? m.notes_page_no_notes_archived_desc()
+                                : m.notes_page_no_notes_desc()}
+                        </EmptyDescription>
+                     </EmptyHeader>
+                     {!q && !selectedTag && view !== 'archived' && (
+                        <EmptyContent>
+                           <Button onClick={handleCreatePageOpen}>
+                              <Plus className="h-4 w-4" />
+                              {m.notes_page_create()}
+                           </Button>
+                        </EmptyContent>
+                     )}
+                  </Empty>
+               ) : (
+                  <div className="grid gap-4 grid-cols-1 @2xl:grid-cols-2 @5xl:grid-cols-3">
+                     {paginatedNotes.map((note) => (
+                        <NoteCard
+                           key={note.id}
+                           note={note}
+                           onEdit={openEdit}
+                           onDelete={(n) => {
+                              setDeleteTarget(n);
+                           }}
+                           onTogglePin={handleTogglePin}
+                           onArchive={handleArchive}
+                           onTagClick={handleTagClick}
+                           onOpenDetail={openDetailView}
+                           onChatWithNote={handleChatWithNote}
+                           isBatchMode={multiSelect.selectedCount > 0}
+                           isSelected={multiSelect.selectedIds.has(note.id)}
+                           onToggleSelect={multiSelect.toggleSelect}
+                        />
+                     ))}
+                  </div>
                )}
             </div>
+
+            <NotesPagination
+               currentPage={pagination.currentPage}
+               totalPages={pagination.totalPages}
+               isFirstPage={pagination.isFirstPage}
+               isLastPage={pagination.isLastPage}
+               onFirstPage={pagination.firstPage}
+               onPrevPage={pagination.prevPage}
+               onNextPage={pagination.nextPage}
+               onLastPage={pagination.lastPage}
+            />
          </div>
+
+         <Button
+            onClick={handleCreatePageOpen}
+            className="fixed bottom-6 right-6 z-50 size-12 rounded-full shadow-lg md:hidden cursor-pointer"
+            size="icon"
+         >
+            <Plus className="size-5" />
+         </Button>
+
+         {multiSelect.selectedCount > 0 && (
+            <NoteBatchActions
+               selectedIds={multiSelect.selectedIds}
+               onClearSelection={multiSelect.clearSelection}
+               onBatchUpdate={handleBatchUpdate}
+               allTags={allTags}
+               paginatedIds={paginatedNotes.map((n) => n.id)}
+               onSelectAllPage={multiSelect.selectAll}
+               allNotes={notes}
+            />
+         )}
 
          <CreateNoteDialog
             isOpen={isCreateOpen}

@@ -6,8 +6,6 @@ import { useSettingsStore } from '@/store/settings-store';
 
 import { useTheme } from '@/providers/theme-provider';
 
-import { setLocale } from '@/paraglide/runtime';
-
 import {
    Dialog,
    DialogContent,
@@ -20,11 +18,10 @@ import {
    PopoverContent,
    PopoverTrigger,
 } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Kbd } from '@/components/ui/kbd';
 
-import { Bot, MessageSquare, Sun, Moon, Globe, Keyboard } from 'lucide-react';
+import { Bot, MessageSquare, Sun, Moon, Keyboard } from 'lucide-react';
 
 const shortcutSections = [
    {
@@ -68,96 +65,51 @@ export function ConfigPopover({ children }: { children: ReactElement }) {
    return (
       <Popover>
          <PopoverTrigger render={children} />
-         <PopoverContent side="right" align="start" className="w-56 p-3">
-            <div className="space-y-3">
-               {/* Layout Mode */}
-               <div>
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
-                     Layout Mode
-                  </p>
-                  <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-muted/50">
-                     <div className="flex items-center gap-2.5">
-                        {layoutMode === 'servant' ? (
-                           <Bot className="h-4 w-4 shrink-0 text-primary" />
-                        ) : (
-                           <MessageSquare className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                        )}
-                        <div className="flex flex-col">
-                           <span className="text-xs font-medium text-foreground">
-                              {layoutMode === 'servant'
-                                 ? 'Servant Mode'
-                                 : 'Chat Mode'}
-                           </span>
-                           <span className="text-[10px] text-muted-foreground">
-                              {layoutMode === 'servant'
-                                 ? 'Main view + Chat'
-                                 : 'Full Chat interface'}
-                           </span>
-                        </div>
-                     </div>
-                     <Switch
-                        checked={layoutMode === 'chat'}
-                        onCheckedChange={(checked) =>
-                           setLayoutMode(checked ? 'chat' : 'servant')
-                        }
-                     />
-                  </div>
-               </div>
-
-               <div className="border-t border-border/50" />
-
-               {/* Theme */}
-               <div>
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
-                     Theme
-                  </p>
-                  <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-muted/50">
-                     <div className="flex items-center gap-2.5">
-                        {isDark ? (
-                           <Moon className="h-4 w-4 shrink-0 text-indigo-500" />
-                        ) : (
-                           <Sun className="h-4 w-4 shrink-0 text-amber-500" />
-                        )}
+         <PopoverContent side="right" align="end" className="w-64 p-3">
+            <div className="space-y-1">
+               <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2.5">
+                     {layoutMode === 'servant' ? (
+                        <Bot className="h-4 w-4 shrink-0 text-primary" />
+                     ) : (
+                        <MessageSquare className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                     )}
+                     <div className="flex flex-col">
                         <span className="text-xs font-medium text-foreground">
-                           {isDark ? 'Dark Theme' : 'Light Theme'}
+                           {layoutMode === 'servant'
+                              ? 'Servant Mode'
+                              : 'Chat Mode'}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                           {layoutMode === 'servant'
+                              ? 'Main view + Chat'
+                              : 'Full Chat interface'}
                         </span>
                      </div>
-                     <Switch
-                        checked={isDark}
-                        onCheckedChange={() =>
-                           setTheme(isDark ? 'light' : 'dark')
-                        }
-                     />
                   </div>
+                  <Switch
+                     checked={layoutMode === 'chat'}
+                     onCheckedChange={(checked) =>
+                        setLayoutMode(checked ? 'chat' : 'servant')
+                     }
+                  />
                </div>
 
-               <div className="border-t border-border/50" />
-
-               {/* Language */}
-               <div>
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
-                     Language
-                  </p>
-                  <div className="flex gap-1">
-                     <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setLocale('en')}
-                        className="flex-1 h-8 text-xs gap-1 cursor-pointer"
-                     >
-                        <Globe className="size-3.5" />
-                        English
-                     </Button>
-                     <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setLocale('vi')}
-                        className="flex-1 h-8 text-xs gap-1 cursor-pointer"
-                     >
-                        <Globe className="size-3.5" />
-                        Tiếng Việt
-                     </Button>
+               <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2.5">
+                     {isDark ? (
+                        <Moon className="h-4 w-4 shrink-0 text-indigo-500" />
+                     ) : (
+                        <Sun className="h-4 w-4 shrink-0 text-amber-500" />
+                     )}
+                     <span className="text-xs font-medium text-foreground">
+                        {isDark ? 'Dark Theme' : 'Light Theme'}
+                     </span>
                   </div>
+                  <Switch
+                     checked={isDark}
+                     onCheckedChange={() => setTheme(isDark ? 'light' : 'dark')}
+                  />
                </div>
             </div>
          </PopoverContent>

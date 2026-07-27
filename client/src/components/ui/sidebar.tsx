@@ -74,7 +74,13 @@ function SidebarProvider({
 
    // This is the internal state of the sidebar.
    // We use openProp and setOpenProp for control from outside the component.
-   const [_open, _setOpen] = React.useState(defaultOpen);
+   const [_open, _setOpen] = React.useState(() => {
+      if (typeof document === 'undefined') return defaultOpen;
+      const match = document.cookie.match(
+         new RegExp(`(^| )${SIDEBAR_COOKIE_NAME}=([^;]+)`),
+      );
+      return match ? match[2] === 'true' : defaultOpen;
+   });
    const open = openProp ?? _open;
    const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
@@ -111,7 +117,8 @@ function SidebarProvider({
 
          if (
             event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
-            (event.metaKey || event.ctrlKey)
+            (event.metaKey || event.ctrlKey) &&
+            !event.altKey
          ) {
             event.preventDefault();
             toggleSidebar();

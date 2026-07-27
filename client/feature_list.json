@@ -195,18 +195,18 @@
       {
          "id": "feat-025",
          "name": "Batch Note Actions",
-         "description": "Multi-select notes and perform batch tag/archive/delete operations (present in old, not yet integrated in current).",
+         "description": "Multi-select notes and perform batch tag/archive/delete operations.",
          "dependencies": ["feat-004"],
-         "status": "not-started",
-         "evidence": "Missing from current project. Present in old as src/features/notes/components/note-batch-actions.tsx"
+         "status": "done",
+         "evidence": "src/features/notes/components/list/note-batch-actions.tsx, src/features/notes/hooks/use-multi-select.ts"
       },
       {
          "id": "feat-026",
          "name": "Date Range Filter for Notes",
-         "description": "Filter notes by date range (present in old, not yet integrated in current).",
+         "description": "Filter notes by date range.",
          "dependencies": ["feat-004"],
-         "status": "not-started",
-         "evidence": "Missing from current project. Present in old as src/features/notes/components/note-date-filter.tsx"
+         "status": "done",
+         "evidence": "src/features/notes/components/list/note-date-filter.tsx, src/features/notes/constants.ts (notesSearchSchema)"
       },
       {
          "id": "feat-027",
@@ -227,10 +227,10 @@
       {
          "id": "feat-029",
          "name": "Keyboard Shortcuts Reference Modal",
-         "description": "Comprehensive keyboard shortcuts reference modal triggered by ? key (present in old, not yet integrated in current).",
+         "description": "Comprehensive keyboard shortcuts reference modal with 3 sections (Global, Editor, Navigation).",
          "dependencies": ["feat-002"],
-         "status": "not-started",
-         "evidence": "Missing from current project. Present in old as src/components/KeyboardShortcutsModal.tsx"
+         "status": "done",
+         "evidence": "src/components/common/sidebar-config.tsx (KeyboardShortcutsDialog)"
       }
    ]
 }

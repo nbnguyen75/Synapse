@@ -11,6 +11,8 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 
+import { DefaultLoaderPage } from '@/features/loader/components';
+
 import { env } from '@/config/env';
 
 import { CommandPalette } from '@/components/common/global-keybinds';
@@ -43,6 +45,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
          },
       ],
    }),
+   pendingComponent: () => <DefaultLoaderPage />,
    component: RootLayout,
 });
 

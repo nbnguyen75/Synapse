@@ -1,7 +1,6 @@
 import { ListPagination } from '@/components/common/list-pagination';
 
 interface NotesPaginationProps {
-   onPageSizeChange: (size: number) => void;
    onFirstPage: () => void;
    onPrevPage: () => void;
    onNextPage: () => void;
@@ -10,10 +9,6 @@ interface NotesPaginationProps {
    currentPage: number;
    isLastPage: boolean;
    totalPages: number;
-   totalItems: number;
-   startIndex: number;
-   endIndex: number;
-   pageSize: number;
 }
 
 export function NotesPagination(props: NotesPaginationProps) {

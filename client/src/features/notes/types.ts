@@ -1,12 +1,4 @@
-export interface NoteVersion {
-   updatedAt: string;
-   content: string;
-   title: string;
-   id: string;
-}
-
 export interface Note {
-   versions?: NoteVersion[];
    archived?: boolean;
    createdAt: string;
    updatedAt: string;

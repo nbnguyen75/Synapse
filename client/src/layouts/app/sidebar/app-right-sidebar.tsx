@@ -32,7 +32,7 @@ export default function AppRightSidebar({
          </SidebarHeader>
 
          <SidebarContent>
-            <ChatBot className="mb-10" />
+            <ChatBot />
          </SidebarContent>
       </Sidebar>
    );

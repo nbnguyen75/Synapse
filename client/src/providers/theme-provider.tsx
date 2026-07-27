@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
 
 type Theme = 'dark' | 'light' | 'system';
@@ -11,12 +11,14 @@ type ThemeProviderProps = {
 
 type ThemeProviderState = {
    setTheme: (theme: Theme) => void;
+   resolvedTheme: 'dark' | 'light';
    toggleTheme: () => void;
    theme: Theme;
 };
 
 const initialState: ThemeProviderState = {
    toggleTheme: () => null,
+   resolvedTheme: 'light',
    setTheme: () => null,
    theme: 'system',
 };
@@ -33,23 +35,32 @@ export function ThemeProvider({
       () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
    );
 
+   const getSystemTheme = (): 'dark' | 'light' => {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      return mq.matches ? 'dark' : 'light';
+   };
+
+   const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>(
+      getSystemTheme,
+   );
+
+   useEffect(() => {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = (): void => setSystemTheme(getSystemTheme());
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
+   }, []);
+
+   const resolvedTheme: 'dark' | 'light' = useMemo(
+      () => (theme === 'system' ? systemTheme : theme),
+      [theme, systemTheme],
+   );
+
    useEffect(() => {
       const root = window.document.documentElement;
-
       root.classList.remove('light', 'dark');
-
-      if (theme === 'system') {
-         const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-            .matches
-            ? 'dark'
-            : 'light';
-
-         root.classList.add(systemTheme);
-         return;
-      }
-
-      root.classList.add(theme);
-   }, [theme]);
+      root.classList.add(resolvedTheme);
+   }, [resolvedTheme]);
 
    const setTheme = (newTheme: Theme) => {
       const hasAPI = !!document.startViewTransition;
@@ -57,14 +68,12 @@ export function ThemeProvider({
          '(prefers-reduced-motion: reduce)',
       ).matches;
 
-      // Fallback cho trình duyệt cũ hoặc người dùng bật "Reduce Motion"
       if (!hasAPI || reducedMotion) {
          localStorage.setItem(storageKey, newTheme);
          setThemeState(newTheme);
          return;
       }
 
-      // Kích hoạt Cross-Fade với View Transitions
       document.startViewTransition(() => {
          flushSync(() => {
             localStorage.setItem(storageKey, newTheme);
@@ -98,6 +107,7 @@ export function ThemeProvider({
    };
 
    const value = {
+      resolvedTheme,
       toggleTheme,
       setTheme,
       theme,

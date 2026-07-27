@@ -230,8 +230,7 @@
    "notes_page_ai_title": "AI Title Summary",
    "notes_page_ai_title_loading": "Generating title...",
    "notes_page_ai_title_success": "Title generated!",
-   "notes_page_view_active": "Active Notes",
-   "notes_page_view_archived": "Archived Notes",
+
    "notes_page_no_notes_archived": "No archived notes",
    "notes_page_no_notes_archived_desc": "Archive notes to keep your workspace clean.",
    "notes_page_template_heading": "Document Templates",
@@ -364,7 +363,6 @@
    "sidebar_config_dark": "Dark",
    "sidebar_config_system": "System",
    "sidebar_config_theme": "Theme",
-   "sidebar_config_language": "Language",
    "keyboard_shortcuts_title": "Keyboard Shortcuts",
    "keyboard_shortcuts_global": "Global",
    "keyboard_shortcuts_editor": "Editor",
@@ -380,5 +378,16 @@
    "keyboard_shortcuts_code": "Code",
    "keyboard_shortcuts_go_notes": "Go to Notes",
    "keyboard_shortcuts_go_chat": "Go to Chat",
-   "keyboard_shortcuts_go_settings": "Go to Settings"
+   "keyboard_shortcuts_go_settings": "Go to Settings",
+   "header_language_en": "English",
+   "header_language_vi": "Tiếng Việt",
+   "notes_batch_selected": "{count} selected",
+   "notes_batch_add_tag": "Add Tag",
+   "notes_batch_remove_tag": "Remove Tag",
+   "notes_batch_archive": "Archive",
+   "notes_batch_delete": "Delete",
+   "notes_batch_select_all": "Select All Page",
+   "notes_batch_clear": "Clear Selection",
+   "notes_batch_close": "Close",
+   "notes_date_filter_reset": "Reset Filters"
 }

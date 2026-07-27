@@ -8,6 +8,9 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 
 import { routeTree } from '@/routeTree.gen';
 
+import { DefaultLoaderPage } from '@/features/loader/components';
+import { ErrorPage } from '@/features/error/components';
+
 import { ThemeProvider } from '@/providers/theme-provider';
 
 import { useSession } from '@/lib/auth-client';
@@ -28,14 +31,20 @@ const queryClient = new QueryClient({
 
 // Create a new router instance
 const router = createRouter({
+   defaultErrorComponent: ({ error, reset }) => (
+      <ErrorPage error={error} reset={reset} />
+   ),
+   defaultNotFoundComponent: () => <ErrorPage statusCode={404} />,
    context: {
       auth: undefined!,
       queryClient,
    },
+   defaultPendingComponent: () => <DefaultLoaderPage />,
+   defaultPendingMinMs: 400,
+   defaultPendingMs: 250,
    routeTree,
 });
 
-// Register the router instance for type safety
 declare module '@tanstack/react-router' {
    interface Register {
       router: typeof router;
@@ -46,7 +55,7 @@ function InnerApp() {
    const { data: session, isPending } = useSession();
 
    if (isPending) {
-      return <LoadingScreen />;
+      return null;
    }
 
    const auth: AuthContext = session

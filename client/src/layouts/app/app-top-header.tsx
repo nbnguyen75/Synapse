@@ -4,14 +4,23 @@ import { useSettingsStore } from '@/store/settings-store';
 
 import { NOTE_SEARCH_SYNC_EVENT_NAME } from '@/config/events';
 
+import { getLocale, setLocale } from '@/paraglide/runtime';
+
 import { ThemeToggle } from '@/components/common/theme-toggle';
 
+import {
+   Select,
+   SelectContent,
+   SelectItem,
+   SelectTrigger,
+   SelectValue,
+} from '@/components/ui/select';
 import { SidebarManagerTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-import { PanelRightIcon, SearchIcon } from 'lucide-react';
+import { PanelRightIcon, SearchIcon, Globe } from 'lucide-react';
 
 export default function AppTopHeader() {
    const [searchVal, setSearchVal] = useState('');
@@ -60,12 +69,30 @@ export default function AppTopHeader() {
             </div>
          </div>
 
-         <div className="flex items-center gap-2">
+         <div className="flex items-center gap-1">
             <ThemeToggle />
+
+            <Select
+               value={getLocale()}
+               onValueChange={(v) => setLocale(v as 'en' | 'vi')}
+            >
+               <SelectTrigger className="h-8 w-fit gap-1 border-none bg-transparent px-2 text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer [&>svg]:hidden">
+                  <Globe className="size-3.5" />
+                  <SelectValue />
+               </SelectTrigger>
+               <SelectContent className="min-w-[120px]">
+                  <SelectItem value="en" className="text-xs cursor-pointer">
+                     English
+                  </SelectItem>
+                  <SelectItem value="vi" className="text-xs cursor-pointer">
+                     Tiếng Việt
+                  </SelectItem>
+               </SelectContent>
+            </Select>
 
             <Separator
                orientation="vertical"
-               className="ml-2 my-auto data-[orientation=vertical]:h-4"
+               className="ml-1 my-auto data-[orientation=vertical]:h-4"
             />
 
             {/* Right Sidebar toggle */}
