@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
   VALIDATION_ERROR("Invalid input data", HttpStatus.BAD_REQUEST),
+  INVALID_SORT_FIELD("Invalid sort field specified", HttpStatus.BAD_REQUEST),
   UNAUTHORIZED("Authentication required", HttpStatus.UNAUTHORIZED),
   FORBIDDEN("Access denied", HttpStatus.FORBIDDEN),
   NOT_FOUND("Resource not found", HttpStatus.NOT_FOUND),

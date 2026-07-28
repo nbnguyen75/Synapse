@@ -26,10 +26,12 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
       NativeWebRequest webRequest,
       @Nullable WebDataBinderFactory binderFactory)
       throws Exception {
-    var auth = SecurityContextHolder.getContext().getAuthentication();
+    final var auth = SecurityContextHolder.getContext().getAuthentication();
 
     if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
-      throw new ApiException(ErrorCode.UNAUTHORIZED);
+      throw new ApiException(
+          ErrorCode.UNAUTHORIZED,
+          "Who goes there? Show your JWT badge or step away from the API!");
     }
 
     return jwt.getSubject();
