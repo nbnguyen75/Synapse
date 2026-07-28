@@ -1,45 +1,63 @@
-import type { Note } from '@/features/notes/types';
+import type { EditableNoteData, Note } from '@/features/notes/types';
+import type { ApiResponse } from '@/types/shared';
 
-import { $fetch } from '@/lib/fetch-client';
+import { $fetch } from '@/lib/fetch';
 
-export async function getNotes(): Promise<Note[]> {
-   const res = await $fetch.get('/api/notes');
-   return (res.data || res) as Note[];
+export async function getNotes() {
+  try {
+    const result = await $fetch<ApiResponse<Note[]>>('/api/v1/notes');
+
+    if (!result.success) return [];
+
+    return result.data;
+  } catch {
+    return [];
+  }
 }
 
-export async function getNote(id: string): Promise<Note> {
-   const res = await $fetch.get(`/api/notes/${id}`);
-   return (res.data || res) as Note;
+export async function getNote(id: string) {
+  const result = await $fetch<ApiResponse<Note>>(`/api/v1/notes/${id}`);
+
+  if (!result.success) {
+    throw new Error(result.message);
+  }
+
+  return result.data;
 }
 
-export async function createNote(
-   title: string,
-   content: string,
-   userId: string,
-   tags?: string[],
-   pinned?: boolean,
-): Promise<Note> {
-   const res = await $fetch.post('/api/notes', {
-      body: { content, userId, pinned, title, tags },
-   });
-   return (res.data || res) as Note;
+export async function createNote(createNoteData: EditableNoteData) {
+  const result = await $fetch<ApiResponse<Note>>('/api/v1/notes', {
+    body: createNoteData,
+    method: 'POST',
+  });
+
+  if (!result.success) {
+    throw new Error(result.message);
+  }
+
+  return result.data;
 }
 
-export async function updateNote(
-   id: string,
-   updates: {
-      archived?: boolean;
-      content?: string;
-      pinned?: boolean;
-      tags?: string[];
-      title?: string;
-   },
-): Promise<Note> {
-   const res = await $fetch.put(`/api/notes/${id}`, { body: updates });
-   return (res.data || res) as Note;
+export async function updateNote(id: string, updateNoteData: EditableNoteData) {
+  const result = await $fetch<ApiResponse<Note>>(`/api/v1/notes/${id}`, {
+    body: updateNoteData,
+  });
+
+  if (!result.success) {
+    throw new Error(result.message);
+  }
+
+  return result.data;
 }
 
-export async function deleteNote(id: string): Promise<string> {
-   await $fetch.delete(`/api/notes/${id}`);
-   return id;
+export async function deleteNote(id: string) {
+  const result = await $fetch<ApiResponse<string>>(`/api/notes/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!result.success) {
+    throw new Error(result.message);
+  }
+
+  return id;
 }

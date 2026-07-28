@@ -13,77 +13,70 @@ import { ErrorPage } from '@/features/error/components';
 
 import { ThemeProvider } from '@/providers/theme-provider';
 
-import { useSession } from '@/lib/auth-client';
-
-import { LoadingScreen } from '@/components/common/loading-screen';
+import { useSession } from '@/lib/auth';
 
 import { Toaster } from '@/components/ui/sonner';
 
 const queryClient = new QueryClient({
-   defaultOptions: {
-      queries: {
-         refetchOnWindowFocus: false,
-         staleTime: 1000 * 60, // 1 minute
-         retry: 3,
-      },
-   },
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60, // 1 minute
+      retry: 3,
+    },
+  },
 });
 
 // Create a new router instance
 const router = createRouter({
-   defaultErrorComponent: ({ error, reset }) => (
-      <ErrorPage error={error} reset={reset} />
-   ),
-   defaultNotFoundComponent: () => <ErrorPage statusCode={404} />,
-   context: {
-      auth: undefined!,
-      queryClient,
-   },
-   defaultPendingComponent: () => <DefaultLoaderPage />,
-   defaultPendingMinMs: 400,
-   defaultPendingMs: 250,
-   routeTree,
+  defaultErrorComponent: ({ error, reset }) => (
+    <ErrorPage error={error} reset={reset} />
+  ),
+  defaultNotFoundComponent: () => <ErrorPage statusCode={404} />,
+  context: {
+    auth: undefined!,
+    queryClient,
+  },
+  defaultPendingComponent: () => <DefaultLoaderPage />,
+  defaultPendingMinMs: 400,
+  defaultPendingMs: 250,
+  routeTree,
 });
 
 declare module '@tanstack/react-router' {
-   interface Register {
-      router: typeof router;
-   }
+  interface Register {
+    router: typeof router;
+  }
 }
 
 function InnerApp() {
-   const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useSession();
 
-   if (isPending) {
-      return null;
-   }
+  if (isPending) {
+    return null;
+  }
 
-   const auth: AuthContext = session
-      ? { isAuthenticated: true, user: session.user }
-      : { isAuthenticated: false, user: null };
+  const auth: AuthContext = session
+    ? { isAuthenticated: true, user: session.user }
+    : { isAuthenticated: false, user: null };
 
-   return <RouterProvider router={router} context={{ queryClient, auth }} />;
+  return <RouterProvider router={router} context={{ queryClient, auth }} />;
 }
 
 // Render the app
 const rootElement = document.getElementById('root')!;
 if (!rootElement.innerHTML) {
-   const root = ReactDOM.createRoot(rootElement);
+  const root = ReactDOM.createRoot(rootElement);
 
-   root.render(
-      <StrictMode>
-         <ThemeProvider defaultTheme="system" storageKey="synapse-app-theme">
-            <QueryClientProvider client={queryClient}>
-               <InnerApp />
+  root.render(
+    <StrictMode>
+      <ThemeProvider defaultTheme="system" storageKey="synapse-app-theme">
+        <QueryClientProvider client={queryClient}>
+          <InnerApp />
 
-               <Toaster
-                  richColors
-                  theme="light"
-                  closeButton
-                  position="top-center"
-               />
-            </QueryClientProvider>
-         </ThemeProvider>
-      </StrictMode>,
-   );
+          <Toaster richColors theme="light" closeButton position="top-center" />
+        </QueryClientProvider>
+      </ThemeProvider>
+    </StrictMode>,
+  );
 }

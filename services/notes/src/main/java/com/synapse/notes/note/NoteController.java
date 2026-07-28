@@ -34,7 +34,7 @@ public class NoteController {
   }
 
   /**
-   * GET /?keyword=meeting&page=0&size=10&sort=createdAt,desc
+   * GET /?q=meeting&page=0&size=10&sort=createdAt,desc
    */
   @GetMapping("")
   public ApiResponse<PageResponse<Note>> getNotes(@CurrentUserId String userId,
@@ -42,8 +42,8 @@ public class NoteController {
     Pageable pageable = query.toPageable(ALLOWED_SORT_FIELDS);
     Page<Note> notesPage;
 
-    if (query.keyword() != null && !query.keyword().isBlank()) {
-      notesPage = noteRepository.findByUserIdAndTitleContainingIgnoreCase(userId, query.keyword().trim(), pageable);
+    if (query.q() != null && !query.q().isBlank()) {
+      notesPage = noteRepository.findByUserIdAndTitleContainingIgnoreCase(userId, query.q().trim(), pageable);
     } else {
       notesPage = noteRepository.findByUserId(userId, pageable);
     }

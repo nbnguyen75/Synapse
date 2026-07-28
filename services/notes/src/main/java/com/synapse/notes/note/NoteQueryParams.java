@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import com.synapse.notes.common.utils.SortSupport;
 
 public record NoteQueryParams(
-    String keyword,
+    String q,
     @Min(value = 0, message = "Page index must be >= 0") 
     Integer page,
     @Min(value = 1, message = "Page size must be at least 1") @Max(value = 100, message = "Page size must not exceed 100") Integer size,

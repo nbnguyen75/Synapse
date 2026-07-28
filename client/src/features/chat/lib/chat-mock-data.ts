@@ -3,50 +3,50 @@ import type { ToolUIPart } from 'ai';
 import { nanoid } from 'nanoid';
 
 export interface MessageType {
-   tools?: {
-      parameters: Record<string, unknown>;
-      status: ToolUIPart['state'];
-      result: string | undefined;
-      error: string | undefined;
-      description: string;
-      name: string;
-   }[];
-   reasoning?: {
-      duration: number;
-      content: string;
-   };
-   versions: {
-      content: string;
-      id: string;
-   }[];
-   sources?: { title: string; href: string }[];
-   from: 'user' | 'assistant';
-   key: string;
+  tools?: {
+    parameters: Record<string, unknown>;
+    status: ToolUIPart['state'];
+    result: string | undefined;
+    error: string | undefined;
+    description: string;
+    name: string;
+  }[];
+  reasoning?: {
+    duration: number;
+    content: string;
+  };
+  versions: {
+    content: string;
+    id: string;
+  }[];
+  sources?: { title: string; href: string }[];
+  from: 'user' | 'assistant';
+  key: string;
 }
 
 export interface Model {
-   providers: string[];
-   chefSlug: string;
-   chef: string;
-   name: string;
-   id: string;
+  providers: string[];
+  chefSlug: string;
+  chef: string;
+  name: string;
+  id: string;
 }
 
 export const initialMessages: MessageType[] = [
-   {
-      versions: [
-         {
-            content: 'Can you explain how to use React hooks effectively?',
-            id: nanoid(),
-         },
-      ],
-      key: nanoid(),
-      from: 'user',
-   },
-   {
-      tools: [
-         {
-            result: `{
+  {
+    versions: [
+      {
+        content: 'Can you explain how to use React hooks effectively?',
+        id: nanoid(),
+      },
+    ],
+    key: nanoid(),
+    from: 'user',
+  },
+  {
+    tools: [
+      {
+        result: `{
   "query": "React hooks best practices",
   "results": [
     {
@@ -66,19 +66,19 @@ export const initialMessages: MessageType[] = [
     }
   ]
 }`,
-            parameters: {
-               query: 'React hooks best practices',
-               source: 'react.dev',
-            },
-            description: 'Searching React documentation',
-            status: 'input-available',
-            error: undefined,
-            name: 'mcp',
-         },
-      ],
-      versions: [
-         {
-            content: `# React Hooks Best Practices
+        parameters: {
+          query: 'React hooks best practices',
+          source: 'react.dev',
+        },
+        description: 'Searching React documentation',
+        status: 'input-available',
+        error: undefined,
+        name: 'mcp',
+      },
+    ],
+    versions: [
+      {
+        content: `# React Hooks Best Practices
 
 React hooks are a powerful feature that let you use state and other React features without writing classes. Here are some tips for using them effectively:
 
@@ -114,47 +114,47 @@ function ProfilePage({ userId }) {
 \`\`\`
 
 Would you like me to explain any specific hook in more detail?`,
-            id: nanoid(),
-         },
-      ],
-      sources: [
-         {
-            href: 'https://react.dev/reference/react',
-            title: 'React Documentation',
-         },
-         {
-            href: 'https://react.dev/reference/react-dom',
-            title: 'React DOM Documentation',
-         },
-      ],
-      from: 'assistant',
-      key: nanoid(),
-   },
-   {
-      versions: [
-         {
-            content:
-               'Yes, could you explain useCallback and useMemo in more detail? When should I use one over the other?',
-            id: nanoid(),
-         },
-         {
-            content:
-               "I'm particularly interested in understanding the performance implications of useCallback and useMemo. Could you break down when each is most appropriate?",
-            id: nanoid(),
-         },
-         {
-            content:
-               'Thanks for the overview! Could you dive deeper into the specific use cases where useCallback and useMemo make the biggest difference in React applications?',
-            id: nanoid(),
-         },
-      ],
-      key: nanoid(),
-      from: 'user',
-   },
-   {
-      versions: [
-         {
-            content: `## useCallback vs useMemo
+        id: nanoid(),
+      },
+    ],
+    sources: [
+      {
+        href: 'https://react.dev/reference/react',
+        title: 'React Documentation',
+      },
+      {
+        href: 'https://react.dev/reference/react-dom',
+        title: 'React DOM Documentation',
+      },
+    ],
+    from: 'assistant',
+    key: nanoid(),
+  },
+  {
+    versions: [
+      {
+        content:
+          'Yes, could you explain useCallback and useMemo in more detail? When should I use one over the other?',
+        id: nanoid(),
+      },
+      {
+        content:
+          "I'm particularly interested in understanding the performance implications of useCallback and useMemo. Could you break down when each is most appropriate?",
+        id: nanoid(),
+      },
+      {
+        content:
+          'Thanks for the overview! Could you dive deeper into the specific use cases where useCallback and useMemo make the biggest difference in React applications?',
+        id: nanoid(),
+      },
+    ],
+    key: nanoid(),
+    from: 'user',
+  },
+  {
+    versions: [
+      {
+        content: `## useCallback vs useMemo
 
 Both hooks help with performance optimization, but they serve different purposes:
 
@@ -199,84 +199,84 @@ const sortedList = useMemo(() => expensiveSort(items), [items]);
 ### Performance Note
 
 Don't overuse these hooks! They come with their own overhead. Only use them when you have identified a genuine performance issue.`,
-            id: nanoid(),
-         },
-      ],
-      reasoning: {
-         content: `The user is asking for a detailed explanation of useCallback and useMemo. I should provide a clear and concise explanation of each hook's purpose and how they differ.
+        id: nanoid(),
+      },
+    ],
+    reasoning: {
+      content: `The user is asking for a detailed explanation of useCallback and useMemo. I should provide a clear and concise explanation of each hook's purpose and how they differ.
 
 The useCallback hook is used to memoize functions to prevent unnecessary re-renders of child components that receive functions as props.
 
 The useMemo hook is used to memoize values to avoid expensive recalculations on every render.
 
 Both hooks help with performance optimization, but they serve different purposes.`,
-         duration: 10,
-      },
-      from: 'assistant',
-      key: nanoid(),
-   },
+      duration: 10,
+    },
+    from: 'assistant',
+    key: nanoid(),
+  },
 ];
 
 export const models: Model[] = [
-   {
-      providers: ['openai', 'azure'],
-      chefSlug: 'openai',
-      chef: 'OpenAI',
-      name: 'GPT-4o',
-      id: 'gpt-4o',
-   },
-   {
-      providers: ['openai', 'azure'],
-      name: 'GPT-4o Mini',
-      chefSlug: 'openai',
-      id: 'gpt-4o-mini',
-      chef: 'OpenAI',
-   },
-   {
-      providers: ['anthropic', 'azure', 'google', 'amazon-bedrock'],
-      id: 'claude-opus-4-20250514',
-      chefSlug: 'anthropic',
-      name: 'Claude 4 Opus',
-      chef: 'Anthropic',
-   },
-   {
-      providers: ['anthropic', 'azure', 'google', 'amazon-bedrock'],
-      id: 'claude-sonnet-4-20250514',
-      name: 'Claude 4 Sonnet',
-      chefSlug: 'anthropic',
-      chef: 'Anthropic',
-   },
-   {
-      id: 'gemini-2.0-flash-exp',
-      name: 'Gemini 2.0 Flash',
-      providers: ['google'],
-      chefSlug: 'google',
-      chef: 'Google',
-   },
+  {
+    providers: ['openai', 'azure'],
+    chefSlug: 'openai',
+    chef: 'OpenAI',
+    name: 'GPT-4o',
+    id: 'gpt-4o',
+  },
+  {
+    providers: ['openai', 'azure'],
+    name: 'GPT-4o Mini',
+    chefSlug: 'openai',
+    id: 'gpt-4o-mini',
+    chef: 'OpenAI',
+  },
+  {
+    providers: ['anthropic', 'azure', 'google', 'amazon-bedrock'],
+    id: 'claude-opus-4-20250514',
+    chefSlug: 'anthropic',
+    name: 'Claude 4 Opus',
+    chef: 'Anthropic',
+  },
+  {
+    providers: ['anthropic', 'azure', 'google', 'amazon-bedrock'],
+    id: 'claude-sonnet-4-20250514',
+    name: 'Claude 4 Sonnet',
+    chefSlug: 'anthropic',
+    chef: 'Anthropic',
+  },
+  {
+    id: 'gemini-2.0-flash-exp',
+    name: 'Gemini 2.0 Flash',
+    providers: ['google'],
+    chefSlug: 'google',
+    chef: 'Google',
+  },
 ];
 
 export const suggestions = [
-   'What are the latest trends in AI?',
-   'How does machine learning work?',
-   'Explain quantum computing',
-   'Best practices for React development',
-   'Tell me about TypeScript benefits',
-   'How to optimize database queries?',
-   'What is the difference between SQL and NoSQL?',
-   'Explain cloud computing basics',
+  'What are the latest trends in AI?',
+  'How does machine learning work?',
+  'Explain quantum computing',
+  'Best practices for React development',
+  'Tell me about TypeScript benefits',
+  'How to optimize database queries?',
+  'What is the difference between SQL and NoSQL?',
+  'Explain cloud computing basics',
 ];
 
 export const mockResponses = [
-   "That's a great question! Let me help you understand this concept better. The key thing to remember is that proper implementation requires careful consideration of the underlying principles and best practices in the field.",
-   "I'd be happy to explain this topic in detail. From my understanding, there are several important factors to consider when approaching this problem. Let me break it down step by step for you.",
-   "This is an interesting topic that comes up frequently. The solution typically involves understanding the core concepts and applying them in the right context. Here's what I recommend...",
-   "Great choice of topic! This is something that many developers encounter. The approach I'd suggest is to start with the fundamentals and then build up to more complex scenarios.",
-   "That's definitely worth exploring. From what I can see, the best way to handle this is to consider both the theoretical aspects and practical implementation details.",
+  "That's a great question! Let me help you understand this concept better. The key thing to remember is that proper implementation requires careful consideration of the underlying principles and best practices in the field.",
+  "I'd be happy to explain this topic in detail. From my understanding, there are several important factors to consider when approaching this problem. Let me break it down step by step for you.",
+  "This is an interesting topic that comes up frequently. The solution typically involves understanding the core concepts and applying them in the right context. Here's what I recommend...",
+  "Great choice of topic! This is something that many developers encounter. The approach I'd suggest is to start with the fundamentals and then build up to more complex scenarios.",
+  "That's definitely worth exploring. From what I can see, the best way to handle this is to consider both the theoretical aspects and practical implementation details.",
 ];
 
 export const delay = (ms: number): Promise<void> =>
-   new Promise((resolve) => {
-      setTimeout(resolve, ms);
-   });
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
 export const chefs = ['OpenAI', 'Anthropic', 'Google'];

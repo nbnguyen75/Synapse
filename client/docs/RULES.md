@@ -142,16 +142,16 @@ component identity every render, resetting any internal state it holds.
 ```tsx
 // ❌ Bad — Icon is a new component reference every render
 function ExperienceCard({ exp }) {
-   const Icon = resolveLucideIcon(exp.icon);
-   return <span>{Icon ? <Icon className="w-4 h-4" /> : null}</span>;
+  const Icon = resolveLucideIcon(exp.icon);
+  return <span>{Icon ? <Icon className="w-4 h-4" /> : null}</span>;
 }
 
 // ✅ Good — resolve to a component reference, but do it as a stable value,
 // not by wrapping/creating a component inline. If resolution itself is cheap
 // and pure (a lookup, not a factory), memoize it so identity is stable:
 function ExperienceCard({ exp }) {
-   const Icon = useMemo(() => resolveLucideIcon(exp.icon), [exp.icon]);
-   return <span>{Icon ? <Icon className="w-4 h-4" /> : null}</span>;
+  const Icon = useMemo(() => resolveLucideIcon(exp.icon), [exp.icon]);
+  return <span>{Icon ? <Icon className="w-4 h-4" /> : null}</span>;
 }
 ```
 
@@ -169,20 +169,20 @@ invoked synchronously within the effect body — same tick, same problem.
 ```tsx
 // ❌ Bad — direct synchronous call
 useEffect(() => {
-   if (defaultExpandedId && expandedId === null) {
-      setExpandedId(defaultExpandedId);
-   }
+  if (defaultExpandedId && expandedId === null) {
+    setExpandedId(defaultExpandedId);
+  }
 }, [defaultExpandedId]);
 
 // ❌ Still bad — wrapping in a local function changes nothing;
 // sync() is still called synchronously in the same effect execution
 useEffect(() => {
-   function sync() {
-      if (defaultExpandedId && expandedId === null) {
-         setExpandedId(defaultExpandedId);
-      }
-   }
-   sync();
+  function sync() {
+    if (defaultExpandedId && expandedId === null) {
+      setExpandedId(defaultExpandedId);
+    }
+  }
+  sync();
 }, [defaultExpandedId]);
 ```
 
@@ -206,11 +206,11 @@ effect's own synchronous execution:
 ```tsx
 // ✅ Good — local function as an async callback, genuinely deferred
 useEffect(() => {
-   function handleChange(value) {
-      setExpandedId(value); // fires later, when the event happens
-   }
-   externalStore.subscribe(handleChange);
-   return () => externalStore.unsubscribe(handleChange);
+  function handleChange(value) {
+    setExpandedId(value); // fires later, when the event happens
+  }
+  externalStore.subscribe(handleChange);
+  return () => externalStore.unsubscribe(handleChange);
 }, []);
 ```
 
@@ -241,52 +241,52 @@ useEffect(() => {
   messages — a dynamic/indirect call breaks that analysis and can silently
   produce missing translations or dead-code-elimination bugs.
 
-   Instead, resolve the mapping through an explicit `switch`/lookup **function**
-   that calls each message function literally, the same pattern used for
-   `getTranslatedAuthErrorMessage` (auth error codes → messages):
+  Instead, resolve the mapping through an explicit `switch`/lookup **function**
+  that calls each message function literally, the same pattern used for
+  `getTranslatedAuthErrorMessage` (auth error codes → messages):
 
 ```ts
 // ❌ Bad — dynamic key, m[...] is not a static call site
 export const SORT_OPTIONS = [
-   { labelKey: 'notes_page_sort_updated' as const, value: 'updatedAt_desc' },
-   {
-      labelKey: 'notes_page_sort_created_new' as const,
-      value: 'createdAt_desc',
-   },
-   // ...
+  { labelKey: 'notes_page_sort_updated' as const, value: 'updatedAt_desc' },
+  {
+    labelKey: 'notes_page_sort_created_new' as const,
+    value: 'createdAt_desc',
+  },
+  // ...
 ] as const;
 
 // usage: m[option.labelKey]()  ← breaks static extraction
 
 // ✅ Good — config stays data-only (no message calls in it)...
 export const SORT_OPTIONS = [
-   { key: 'updated', value: 'updatedAt_desc' },
-   { key: 'createdNew', value: 'createdAt_desc' },
-   { key: 'createdOld', value: 'createdAt_asc' },
-   { key: 'titleAz', value: 'title_asc' },
-   { key: 'titleZa', value: 'title_desc' },
-   { key: 'readLong', value: 'readTime_desc' },
-   { key: 'readShort', value: 'readTime_asc' },
+  { key: 'updated', value: 'updatedAt_desc' },
+  { key: 'createdNew', value: 'createdAt_desc' },
+  { key: 'createdOld', value: 'createdAt_asc' },
+  { key: 'titleAz', value: 'title_asc' },
+  { key: 'titleZa', value: 'title_desc' },
+  { key: 'readLong', value: 'readTime_desc' },
+  { key: 'readShort', value: 'readTime_asc' },
 ] as const;
 
 // ...and a dedicated getter does the literal, static lookup
 export function getSortOptionLabel(key: (typeof SORT_OPTIONS)[number]['key']) {
-   switch (key) {
-      case 'updated':
-         return m.notes_page_sort_updated();
-      case 'createdNew':
-         return m.notes_page_sort_created_new();
-      case 'createdOld':
-         return m.notes_page_sort_created_old();
-      case 'titleAz':
-         return m.notes_page_sort_title_az();
-      case 'titleZa':
-         return m.notes_page_sort_title_za();
-      case 'readLong':
-         return m.notes_page_sort_read_long();
-      case 'readShort':
-         return m.notes_page_sort_read_short();
-   }
+  switch (key) {
+    case 'updated':
+      return m.notes_page_sort_updated();
+    case 'createdNew':
+      return m.notes_page_sort_created_new();
+    case 'createdOld':
+      return m.notes_page_sort_created_old();
+    case 'titleAz':
+      return m.notes_page_sort_title_az();
+    case 'titleZa':
+      return m.notes_page_sort_title_za();
+    case 'readLong':
+      return m.notes_page_sort_read_long();
+    case 'readShort':
+      return m.notes_page_sort_read_short();
+  }
 }
 ```
 

@@ -1,0 +1,84 @@
+@kong = http://localhost:8000
+@kongAdmin = http://localhost:8001
+
+### ============ AUTH SERVICE (qua Kong) ============
+
+### Sign up
+POST {{kong}}/api/v1/auth/sign-up/email
+Content-Type: application/json
+Origin: {{kong}}
+
+{
+  "email": "test@synapse.com",
+  "password": "12345678",
+  "name": "Test User"
+}
+
+### Sign in (email/password)
+# @name login
+POST {{kong}}/api/v1/auth/sign-in/email
+Content-Type: application/json
+Origin: {{kong}}
+
+{
+  "email": "test@synapse.com",
+  "password": "12345678"
+}
+
+### Lấy JWT token
+# @name getToken
+GET {{kong}}/api/v1/auth/token
+Origin: {{kong}}
+
+### Xem JWKS (public keys để verify JWT)
+GET {{kong}}/api/v1/auth/.well-known/jwks.json
+
+### Get session hiện tại
+GET {{kong}}/api/v1/auth/get-session
+Cookie: better-auth.session_token={{login.response.headers.set-cookie}}
+Origin: {{kong}}
+
+
+### ============ NOTES SERVICE (qua Kong) ============
+
+### Tạo note
+# @name createNote
+POST {{kong}}/api/v1/notes
+Content-Type: application/json
+Authorization: Bearer {{getToken.response.body.token}}
+
+{
+  "title": "Meeting Note",
+  "content": "Discuss UI UX"
+}
+
+### Danh sách note (phân trang)
+GET {{kong}}/api/v1/notes?page=0&size=100&sort=name
+Authorization: Bearer {{getToken.response.body.token}}
+
+### Lấy 1 note theo id
+GET {{kong}}/api/v1/notes/{{createNote.response.body.data.id}}
+Authorization: Bearer {{getToken.response.body.token}}
+
+### Update note
+PUT {{kong}}/api/v1/notes/{{createNote.response.body.data.id}}
+Content-Type: application/json
+Authorization: Bearer {{getToken.response.body.token}}
+
+{
+  "title": "Note đã sửa",
+  "content": "Nội dung mới"
+}
+
+### Xoá note
+DELETE {{kong}}/api/v1/notes/{{createNote.response.body.data.id}}
+Authorization: Bearer {{getToken.response.body.token}}
+
+
+### ============ HEALTH / ADMIN ============
+
+### Kong admin — xem service đã load
+GET {{kongAdmin}}/services
+
+### Kong admin — xem route đã load
+GET {{kongAdmin}}/routes

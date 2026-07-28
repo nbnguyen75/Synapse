@@ -1,9 +1,9 @@
 import { Loader2Icon } from 'lucide-react';
 
 export default function DefaultLoaderPage() {
-   return (
-      <div className="dlp-root">
-         <style>{`
+  return (
+    <div className="dlp-root">
+      <style>{`
             .dlp-root {
                display: flex;
                height: 100svh;
@@ -117,23 +117,23 @@ export default function DefaultLoaderPage() {
             .dlp-skeleton-line--md { width: 60%; }
          `}</style>
 
-         <div className="dlp-orb">
-            <div className="dlp-orb-glow" />
-            <div className="dlp-orb-ring-static" />
-            <div className="dlp-orb-ring-spin" />
-            <Loader2Icon className="dlp-orb-icon" />
-         </div>
-
-         <div className="dlp-text">
-            <p className="dlp-title">Đang tải dữ liệu</p>
-            <p className="dlp-subtitle">Vui lòng chờ trong giây lát...</p>
-         </div>
-
-         <div className="dlp-skeleton-wrap">
-            <div className="dlp-skeleton-line dlp-skeleton-line--full" />
-            <div className="dlp-skeleton-line dlp-skeleton-line--lg" />
-            <div className="dlp-skeleton-line dlp-skeleton-line--md" />
-         </div>
+      <div className="dlp-orb">
+        <div className="dlp-orb-glow" />
+        <div className="dlp-orb-ring-static" />
+        <div className="dlp-orb-ring-spin" />
+        <Loader2Icon className="dlp-orb-icon" />
       </div>
-   );
+
+      <div className="dlp-text">
+        <p className="dlp-title">Đang tải dữ liệu</p>
+        <p className="dlp-subtitle">Vui lòng chờ trong giây lát...</p>
+      </div>
+
+      <div className="dlp-skeleton-wrap">
+        <div className="dlp-skeleton-line dlp-skeleton-line--full" />
+        <div className="dlp-skeleton-line dlp-skeleton-line--lg" />
+        <div className="dlp-skeleton-line dlp-skeleton-line--md" />
+      </div>
+    </div>
+  );
 }

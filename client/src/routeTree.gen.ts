@@ -12,14 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AuthRouteImport } from './routes/_auth'
-import { Route as AppArchivedRouteImport } from './routes/_app/archived'
 import { Route as AppChatRouteImport } from './routes/_app/chat'
-import { Route as AppNotesRouteImport } from './routes/_app/notes'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppTagsRouteImport } from './routes/_app/tags'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
+import { Route as AppNotesIndexRouteImport } from './routes/_app/notes/index'
+import { Route as AppNotesNoteIdRouteImport } from './routes/_app/notes/$noteId'
+import { Route as AppNotesArchivedRouteImport } from './routes/_app/notes/archived'
+import { Route as AppNotesCreateRouteImport } from './routes/_app/notes/create'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,19 +36,9 @@ const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppArchivedRoute = AppArchivedRouteImport.update({
-  id: '/archived',
-  path: '/archived',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppChatRoute = AppChatRouteImport.update({
   id: '/chat',
   path: '/chat',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppNotesRoute = AppNotesRouteImport.update({
-  id: '/notes',
-  path: '/notes',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProfileRoute = AppProfileRouteImport.update({
@@ -74,79 +66,111 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => AuthRoute,
 } as any)
+const AppNotesIndexRoute = AppNotesIndexRouteImport.update({
+  id: '/notes/',
+  path: '/notes/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotesNoteIdRoute = AppNotesNoteIdRouteImport.update({
+  id: '/notes/$noteId',
+  path: '/notes/$noteId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotesArchivedRoute = AppNotesArchivedRouteImport.update({
+  id: '/notes/archived',
+  path: '/notes/archived',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotesCreateRoute = AppNotesCreateRouteImport.update({
+  id: '/notes/create',
+  path: '/notes/create',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/archived': typeof AppArchivedRoute
   '/chat': typeof AppChatRoute
-  '/notes': typeof AppNotesRoute
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/tags': typeof AppTagsRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/notes/$noteId': typeof AppNotesNoteIdRoute
+  '/notes/archived': typeof AppNotesArchivedRoute
+  '/notes/create': typeof AppNotesCreateRoute
+  '/notes/': typeof AppNotesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/archived': typeof AppArchivedRoute
   '/chat': typeof AppChatRoute
-  '/notes': typeof AppNotesRoute
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/tags': typeof AppTagsRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/notes/$noteId': typeof AppNotesNoteIdRoute
+  '/notes/archived': typeof AppNotesArchivedRoute
+  '/notes/create': typeof AppNotesCreateRoute
+  '/notes': typeof AppNotesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
-  '/_app/archived': typeof AppArchivedRoute
   '/_app/chat': typeof AppChatRoute
-  '/_app/notes': typeof AppNotesRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/tags': typeof AppTagsRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
+  '/_app/notes/$noteId': typeof AppNotesNoteIdRoute
+  '/_app/notes/archived': typeof AppNotesArchivedRoute
+  '/_app/notes/create': typeof AppNotesCreateRoute
+  '/_app/notes/': typeof AppNotesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/archived'
     | '/chat'
-    | '/notes'
     | '/profile'
     | '/settings'
     | '/tags'
     | '/login'
     | '/register'
+    | '/notes/$noteId'
+    | '/notes/archived'
+    | '/notes/create'
+    | '/notes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/archived'
     | '/chat'
-    | '/notes'
     | '/profile'
     | '/settings'
     | '/tags'
     | '/login'
     | '/register'
+    | '/notes/$noteId'
+    | '/notes/archived'
+    | '/notes/create'
+    | '/notes'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/_auth'
-    | '/_app/archived'
     | '/_app/chat'
-    | '/_app/notes'
     | '/_app/profile'
     | '/_app/settings'
     | '/_app/tags'
     | '/_auth/login'
     | '/_auth/register'
+    | '/_app/notes/$noteId'
+    | '/_app/notes/archived'
+    | '/_app/notes/create'
+    | '/_app/notes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -178,25 +202,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/archived': {
-      id: '/_app/archived'
-      path: '/archived'
-      fullPath: '/archived'
-      preLoaderRoute: typeof AppArchivedRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/chat': {
       id: '/_app/chat'
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof AppChatRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/notes': {
-      id: '/_app/notes'
-      path: '/notes'
-      fullPath: '/notes'
-      preLoaderRoute: typeof AppNotesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/profile': {
@@ -234,25 +244,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_app/notes/': {
+      id: '/_app/notes/'
+      path: '/notes'
+      fullPath: '/notes/'
+      preLoaderRoute: typeof AppNotesIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/notes/$noteId': {
+      id: '/_app/notes/$noteId'
+      path: '/notes/$noteId'
+      fullPath: '/notes/$noteId'
+      preLoaderRoute: typeof AppNotesNoteIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/notes/archived': {
+      id: '/_app/notes/archived'
+      path: '/notes/archived'
+      fullPath: '/notes/archived'
+      preLoaderRoute: typeof AppNotesArchivedRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/notes/create': {
+      id: '/_app/notes/create'
+      path: '/notes/create'
+      fullPath: '/notes/create'
+      preLoaderRoute: typeof AppNotesCreateRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
-  AppArchivedRoute: typeof AppArchivedRoute
   AppChatRoute: typeof AppChatRoute
-  AppNotesRoute: typeof AppNotesRoute
   AppProfileRoute: typeof AppProfileRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppTagsRoute: typeof AppTagsRoute
+  AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
+  AppNotesArchivedRoute: typeof AppNotesArchivedRoute
+  AppNotesCreateRoute: typeof AppNotesCreateRoute
+  AppNotesIndexRoute: typeof AppNotesIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppArchivedRoute: AppArchivedRoute,
   AppChatRoute: AppChatRoute,
-  AppNotesRoute: AppNotesRoute,
   AppProfileRoute: AppProfileRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppTagsRoute: AppTagsRoute,
+  AppNotesNoteIdRoute: AppNotesNoteIdRoute,
+  AppNotesArchivedRoute: AppNotesArchivedRoute,
+  AppNotesCreateRoute: AppNotesCreateRoute,
+  AppNotesIndexRoute: AppNotesIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
