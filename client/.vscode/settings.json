@@ -64,6 +64,6 @@
    "js/ts.updateImportsOnFileMove.enabled": "always",
    "workbench.tree.renderIndentGuides": "always",
    "workbench.tree.indent": 10,
-   "editor.tabSize": 3,
+   "editor.tabSize": 2,
    "chat.disableAIFeatures": true
 }

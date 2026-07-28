@@ -13,4 +13,5 @@ RUN bun install --frozen-lockfile --ignore-scripts
 COPY src ./src
 COPY drizzle ./drizzle
 COPY drizzle.config.ts ./
+COPY seed ./seed
 CMD ["bun", "--bun", "db:push"]

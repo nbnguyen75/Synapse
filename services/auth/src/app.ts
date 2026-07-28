@@ -7,7 +7,7 @@ import { env } from '@/env';
 const app = new Hono();
 
 app.use(
-	'/api/auth/*',
+	'/*',
 	cors({
 		allowHeaders: ['Content-Type', 'Authorization'],
 		allowMethods: ['POST', 'GET', 'OPTIONS'],
@@ -18,11 +18,7 @@ app.use(
 	})
 );
 
-app.get('/', (c) => {
-	return c.text('Hello Hono!');
-});
-
-app.on(['POST', 'GET'], '/api/auth/*', (c) => {
+app.on(['POST', 'GET'], '/*', (c) => {
 	return auth.handler(c.req.raw);
 });
 

@@ -2,7 +2,6 @@
   "files.readonlyInclude": {
     "**/bun.lock": true
   },
-  "js/ts.preferences.importModuleSpecifier": "non-relative",
   "js/ts.preferences.preferTypeOnlyAutoImports": true,
   "files.exclude": {
     "**/.git": true,
@@ -11,7 +10,10 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
     "**/node_modules": true,
-    "**/LICENSE": true
+    "**/LICENSE": true,
+    "**/README.md": true,
+    "**/bun.lock": false,
+    "**/.husky": true
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.prettier": "never",

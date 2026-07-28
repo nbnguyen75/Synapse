@@ -6,13 +6,13 @@ services:
     routes:
       - name: auth-route
         paths:
-          - /api/auth
-        strip_path: false
+          - /api/v1/auth
+        strip_path: true
 
   - name: notes-service
     url: http://notes:8082
     routes:
       - name: notes-route
         paths:
-          - /api/notes
-        strip_path: false
+          - /api/v1/notes
+        strip_path: true

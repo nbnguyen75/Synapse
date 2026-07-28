@@ -3,10 +3,8 @@ services:
     image: pgvector/pgvector:pg16
     container_name: synapse-postgres
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: synapse
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: postgres
+    env_file:
+      - ./infra/postgres/.env.docker
     ports:
       - "5432:5432"
     volumes:
@@ -20,42 +18,49 @@ services:
     networks:
       - synapse-net
 
-  auth:
+  auth-migrate:
     build:
       context: ./services/auth
-      target: app
-    container_name: synapse-auth
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://synapse:root@postgres:5432/auth_db
-      BETTER_AUTH_URL: http://auth:5001
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
-      BETTER_AUTH_TRUST_ORIGINS: ${BETTER_AUTH_TRUST_ORIGINS}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      PORT: 5001
-    ports:
-      - "5001:5001"
+      target: migrate
+    container_name: synapse-auth-migrate
+    command: [ "bun", "--bun", "db:push" ]
+    env_file:
+      - ./services/auth/.env.docker
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - synapse-net
 
-  auth-migrate:
+  auth-seed:
     build:
       context: ./services/auth
       target: migrate
-    container_name: synapse-auth-migrate
-    command: ["bun", "--bun", "db:push"]
+    container_name: synapse-auth-seed
+    command: [ "bun", "--bun", "run", "./seed/demo-account.ts" ]
+    env_file:
+      - ./services/auth/.env.docker
     environment:
-      DATABASE_URL: postgresql://synapse:root@postgres:5432/auth_db
-      BETTER_AUTH_URL: http://auth:5001
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
-      BETTER_AUTH_TRUST_ORIGINS: ${BETTER_AUTH_TRUST_ORIGINS}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      SEED_DEMO_ACCOUNT: "true"
     depends_on:
+      auth-migrate:
+        condition: service_completed_successfully
+    networks:
+      - synapse-net
+
+  auth:
+    build:
+      context: ./services/auth
+      target: app
+    container_name: synapse-auth
+    restart: unless-stopped
+    env_file:
+      - ./services/auth/.env.docker
+    ports:
+      - "5001:5001"
+    depends_on:
+      auth-seed:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
     networks:
@@ -66,11 +71,8 @@ services:
       context: ./services/notes
     container_name: synapse-notes
     restart: unless-stopped
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/notes_db
-      SPRING_DATASOURCE_USERNAME: synapse
-      SPRING_DATASOURCE_PASSWORD: root
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://auth:5001/api/auth/.well-known/jwks.json
+    env_file:
+      - ./services/notes/.env.docker
     ports:
       - "8082:8082"
     depends_on:
@@ -91,8 +93,8 @@ services:
     volumes:
       - ./infra/kong/kong.yml:/kong/declarative/kong.yml:ro
     ports:
-      - "8000:8000" # proxy — client gọi vào đây
-      - "8001:8001" # admin API — dùng để debug
+      - "8000:8000" # proxy
+      - "8001:8001" # admin API
     depends_on:
       - auth
       - notes

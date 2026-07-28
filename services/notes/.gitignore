@@ -33,3 +33,7 @@ out/
 /nbdist/
 /.nb-gradle/
 
+# dotenv environment variable files
+.env
+.env.*
+!.env.example.*

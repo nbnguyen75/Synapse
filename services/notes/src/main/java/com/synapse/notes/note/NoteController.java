@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/notes")
+@RequestMapping("")
 public class NoteController {
   private final NoteRepository noteRepository;
 

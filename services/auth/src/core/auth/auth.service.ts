@@ -68,5 +68,6 @@ export const auth = betterAuth({
 	}),
 	trustedOrigins: env.BETTER_AUTH_TRUST_ORIGINS,
 	appName: env.PUBLIC_APP_NAME,
-	baseURL: env.BETTER_AUTH_URL
+	baseURL: env.BETTER_AUTH_URL,
+	basePath: '/'
 });

@@ -1,0 +1,17 @@
+{
+  "name": "api-test",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/k6": "^2.0.1",
+    "dotenv-cli": "^11.0.0"
+  },
+  "scripts": {
+    "test:auth:local": "dotenv -e env/.env.local -- k6 run src/auth.smoke.ts",
+    "test:notes:local": "dotenv -e env/.env.local -- k6 run src/notes.smoke.ts",
+    "test:local": "dotenv -e env/.env.local -- k6 run src/kong.smoke.ts"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
