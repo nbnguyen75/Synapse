@@ -1,3 +1,14 @@
+export interface NotesSearchParams {
+  startDate?: string;
+  pageSize?: number;
+  endDate?: string;
+  sort?: string;
+  page?: number;
+  view?: string;
+  tag?: string;
+  q?: string;
+}
+
 export interface EditableNoteData {
   content?: string;
   title: string;

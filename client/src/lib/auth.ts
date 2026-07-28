@@ -1,3 +1,4 @@
+import { jwtClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 
 import { env } from '@/config/env';
@@ -5,6 +6,13 @@ import { env } from '@/config/env';
 import { m } from '@/paraglide/messages';
 
 export const authClient = createAuthClient({
+  plugins: [
+    jwtClient({
+      jwks: {
+        jwksPath: '/.well-known/jwks.json',
+      },
+    }),
+  ],
   baseURL: env.VITE_API_URL,
   basePath: '/api/v1/auth',
 });

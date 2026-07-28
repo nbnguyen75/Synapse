@@ -1,31 +1,26 @@
+import type { PaginatedData } from '@/types/shared';
+import type { Note } from '@/features/notes/types';
+
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import { z } from 'zod';
 
 import { m } from '@/paraglide/messages';
 
-export const DEFAULT_NOTES_SEARCH = {
-  sort: 'updatedAt_desc',
-  startDate: '',
+export const DEFAULT_NOTES_QUERY_PARAMS = {
+  sort: 'updateAt',
   pageSize: 10,
-  endDate: '',
-  tag: '',
   page: 1,
   q: '',
 };
 
-export const notesSearchSchema = z.object({
-  startDate: z.string().default(DEFAULT_NOTES_SEARCH.startDate),
-  pageSize: z.number().default(DEFAULT_NOTES_SEARCH.pageSize),
-  endDate: z.string().default(DEFAULT_NOTES_SEARCH.endDate),
-  sort: z.string().default(DEFAULT_NOTES_SEARCH.sort),
-  page: z.number().default(DEFAULT_NOTES_SEARCH.page),
-  tag: z.string().default(DEFAULT_NOTES_SEARCH.tag),
-  view: z.enum(['active', 'archived']).optional(),
-  q: z.string().default(DEFAULT_NOTES_SEARCH.q),
-});
-
-export type NotesSearch = z.infer<typeof notesSearchSchema>;
+export const EMPTY_PAGINATED: PaginatedData<Note> = {
+  totalElements: 0,
+  totalPages: 1,
+  isLast: true,
+  items: [],
+  size: 10,
+  page: 1,
+};
 
 export const TAG_COLORS = [
   'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800',

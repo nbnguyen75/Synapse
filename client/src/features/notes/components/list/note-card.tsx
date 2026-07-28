@@ -39,9 +39,9 @@ import {
 
 interface NoteCardProps {
   onToggleSelect?: (id: string) => void;
-  onChatWithNote: (note: Note) => void;
-  onOpenDetail: (note: Note) => void;
-  onDelete: (id: string) => void;
+  onChatWithNote?: (note: Note) => void;
+  onOpenDetail?: (note: Note) => void;
+  onDelete?: (id: string) => void;
   isBatchMode?: boolean;
   isSelected?: boolean;
   note: Note;
@@ -93,7 +93,6 @@ export function NoteCard({
               <Button
                 variant="ghost"
                 size="icon-xs"
-                onClick={handleTogglePin}
                 className={`shrink-0 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer ${
                   note.pinned
                     ? 'opacity-100! text-amber-500'
@@ -110,7 +109,7 @@ export function NoteCard({
             )}
             <CardTitle
               className="text-sm font-semibold leading-tight truncate cursor-pointer hover:text-primary transition-colors"
-              onClick={() => onOpenDetail(note)}
+              onClick={() => onOpenDetail?.(note)}
             >
               {note.title || 'Untitled'}
             </CardTitle>
@@ -124,16 +123,16 @@ export function NoteCard({
               <MoreVertical className="size-3.5" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuItem onClick={() => onOpenDetail(note)}>
+              <DropdownMenuItem onClick={() => onOpenDetail?.(note)}>
                 <FileText className="mr-2 size-3.5" />
                 {m.notes_page_card_open_doc()}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleTogglePin}>
+              {/* <DropdownMenuItem onClick={handleTogglePin}>
                 <Pin className="mr-2 size-3.5" />
                 {note.pinned
                   ? m.notes_page_pin_unpin()
                   : m.notes_page_pin_pin()}
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem
                 onClick={() => exportMarkdown(note.title, note.content || '')}
               >
@@ -141,19 +140,19 @@ export function NoteCard({
                 {m.notes_page_action_export()}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleArchive}>
+              {/* <DropdownMenuItem onClick={handleArchive}>
                 <Archive className="mr-2 size-3.5" />
                 {note.archived
                   ? m.notes_page_action_unarchive()
                   : m.notes_page_action_archive()}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onChatWithNote(note)}>
+              </DropdownMenuItem> */}
+              <DropdownMenuItem onClick={() => onChatWithNote?.(note)}>
                 <MessageSquare className="mr-2 size-3.5" />
                 {m.notes_page_card_chat_with_note()}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => onDelete(note.id)}
+                onClick={() => onDelete?.(note.id)}
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="mr-2 size-3.5" />
@@ -172,7 +171,7 @@ export function NoteCard({
 
       <CardContent
         className="cursor-pointer text-xs text-muted-foreground line-clamp-2"
-        onClick={() => onOpenDetail(note)}
+        onClick={() => onOpenDetail?.(note)}
       >
         {note.content?.replace(/[#*`[\]]/g, '').trim() || 'No content'}
       </CardContent>

@@ -1,15 +1,16 @@
 import type { Note } from '@/features/notes/types';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
 
 import { DeleteAlertDialog } from '@/features/notes/components/dialogs/delete-alert-dialog';
-import { NotesGridSkeleton } from '@/features/notes/components/view/notes-grid-skeleton';
-import { NotesEmptyState } from '@/features/notes/components/view/notes-empty-state';
+import {
+  NotesGridSkeleton,
+  NotesEmptyState,
+} from '@/features/notes/components/view';
+import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
 import { NoteCard } from '@/features/notes/components/list/note-card';
-import { getNotes } from '@/features/notes/api';
 
 import { m } from '@/paraglide/messages';
 
@@ -18,12 +19,9 @@ import { Archive as ArchiveIcon } from 'lucide-react';
 export default function ArchivedPage() {
   const navigate = useNavigate();
 
-  const { data: notes = [], isLoading } = useQuery<Note[]>({
-    queryKey: ['notes'],
-    queryFn: getNotes,
-  });
+  const { isLoading, data } = useGetNotesQuery();
 
-  const archivedNotes = useMemo(() => notes.filter((n) => n.archived), [notes]);
+  const archivedNotes = data?.items ?? [];
 
   const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
 
@@ -57,13 +55,6 @@ export default function ArchivedPage() {
                       to: '/chat',
                     })
                   }
-                  onTagClick={(tag) =>
-                    navigate({
-                      search: { tag },
-                      to: '/notes',
-                    })
-                  }
-                  onDelete={setDeleteTarget}
                 />
               ))}
             </div>

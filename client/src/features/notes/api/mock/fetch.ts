@@ -49,7 +49,7 @@ export async function createNote(
     pinned: pinned || false,
     content: content || '',
     title: title.trim(),
-    tags: tags || [],
+    // tags: tags || [],
     userId,
   };
   notes.unshift(newNote);
@@ -76,23 +76,23 @@ export async function updateNote(
   if (index === -1) throw new Error('Note not found');
 
   const existing = notes[index];
-  const hasTitleChanged =
-    updates.title !== undefined && updates.title.trim() !== existing.title;
-  const hasContentChanged =
-    updates.content !== undefined && updates.content !== existing.content;
+  // const hasTitleChanged =
+  //   updates.title !== undefined && updates.title.trim() !== existing.title;
+  // const hasContentChanged =
+  //   updates.content !== undefined && updates.content !== existing.content;
 
-  let updatedVersions = existing.versions || [];
-  if (hasTitleChanged || hasContentChanged) {
-    updatedVersions = [
-      {
-        id: `ver_${Math.random().toString(36).substring(2, 9)}`,
-        updatedAt: existing.updatedAt,
-        content: existing.content,
-        title: existing.title,
-      },
-      ...updatedVersions,
-    ].slice(0, 10);
-  }
+  // let updatedVersions = existing.versions || [];
+  // if (hasTitleChanged || hasContentChanged) {
+  //   updatedVersions = [
+  //     {
+  //       id: `ver_${Math.random().toString(36).substring(2, 9)}`,
+  //       updatedAt: existing.updatedAt,
+  //       content: existing.content,
+  //       title: existing.title,
+  //     },
+  //     ...updatedVersions,
+  //   ].slice(0, 10);
+  // }
 
   const updated: Note = {
     ...existing,
@@ -101,9 +101,9 @@ export async function updateNote(
     content: updates.content !== undefined ? updates.content : existing.content,
     title: updates.title !== undefined ? updates.title.trim() : existing.title,
     pinned: updates.pinned !== undefined ? updates.pinned : existing.pinned,
-    tags: updates.tags !== undefined ? updates.tags : existing.tags,
+    // tags: updates.tags !== undefined ? updates.tags : existing.tags,
     updatedAt: new Date().toISOString(),
-    versions: updatedVersions,
+    // versions: updatedVersions,
   };
   notes[index] = updated;
   saveNotes(notes);

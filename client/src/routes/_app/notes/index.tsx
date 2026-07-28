@@ -1,4 +1,3 @@
-import type { NotesSearch } from '@/features/notes/constants';
 import type { Note } from '@/features/notes/types';
 
 import { useCallback, useState } from 'react';
@@ -6,17 +5,18 @@ import { useCallback, useState } from 'react';
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import { useNavigate } from '@tanstack/react-router';
 
-import { DeleteAlertDialog } from '@/features/notes/components/dialogs/delete-alert-dialog';
 import {
-  DEFAULT_NOTES_SEARCH,
-  notesSearchSchema,
-} from '@/features/notes/constants';
+  notesQueryParamsSchema,
+  type NotesQueryParams,
+} from '@/features/notes/schema';
+import { DeleteAlertDialog } from '@/features/notes/components/dialogs/delete-alert-dialog';
 import { CreateNoteDialog } from '@/features/notes/components/dialogs/create-note-dialog';
 import { NoteBatchActions } from '@/features/notes/components/list/note-batch-actions';
 import { EditNoteDialog } from '@/features/notes/components/dialogs/edit-note-dialog';
 import { NotesHeader } from '@/features/notes/components/list/notes-header';
 import { useMultiSelect } from '@/features/notes/hooks/use-multi-select';
 import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
+import { DEFAULT_NOTES_QUERY_PARAMS } from '@/features/notes/constants';
 import { NotesList } from '@/features/notes/components/view';
 
 import { usePagination } from '@/hooks/use-pagination';
@@ -32,13 +32,13 @@ import { Button } from '@/components/ui/button';
 import { PlusIcon } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/notes/')({
+  search: {
+    middlewares: [stripSearchParams(DEFAULT_NOTES_QUERY_PARAMS)],
+  },
   head: () => ({
     meta: [{ title: createTitle(m.notes_page_title()) }],
   }),
-  search: {
-    middlewares: [stripSearchParams(DEFAULT_NOTES_SEARCH)],
-  },
-  validateSearch: notesSearchSchema,
+  validateSearch: notesQueryParamsSchema,
   component: NotesPage,
 });
 
@@ -47,30 +47,38 @@ function NotesPage() {
   const search = Route.useSearch();
   const multiSelect = useMultiSelect();
 
-  const { page: currentPage, sort: sortBy, pageSize, q } = search;
+  const { page, sort, q } = search;
 
   const updateSearchParam = useCallback(
     (key: string, value: string | number) => {
       void navigate({
-        search: (prev: NotesSearch) => ({ ...prev, [key]: value, page: 1 }),
+        search: (prev: NotesQueryParams) => ({
+          ...prev,
+          [key]: value,
+          page: 1,
+        }),
         to: '/notes',
       });
     },
     [navigate],
   );
 
-  const { data: notes = [], isLoading } = useGetNotesQuery();
+  const { isLoading, data } = useGetNotesQuery(search);
+  const notes = data?.items ?? [];
+
+  const sortBy = sort ?? DEFAULT_NOTES_QUERY_PARAMS.sort;
 
   const pagination = usePagination({
-    totalItems: notes.length,
-    initialPage: currentPage,
-    initialSize: pageSize,
+    onPageChange: (page: number) => {
+      void navigate({
+        search: (prev: NotesQueryParams) => ({ ...prev, page }),
+        to: '/notes',
+      });
+    },
+    currentPage: page ?? DEFAULT_NOTES_QUERY_PARAMS.page,
+    totalItems: data?.totalElements ?? 0,
+    totalPages: data?.totalPages ?? 1,
   });
-
-  const paginatedNotes = notes.slice(
-    pagination.startIndex,
-    pagination.endIndex,
-  );
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Note | null>(null);
@@ -89,7 +97,7 @@ function NotesPage() {
           <div className="flex-1 overflow-y-auto scrollbar-none px-6 py-6 @container">
             <NotesList
               isLoading={isLoading}
-              notes={paginatedNotes}
+              notes={notes}
               hasQuery={!!q}
               onCreateClick={() => setIsCreateOpen(true)}
               onDelete={(id) => {}}
@@ -132,7 +140,7 @@ function NotesPage() {
           <NoteBatchActions
             selectedIds={multiSelect.selectedIds}
             onClearSelection={multiSelect.clearSelection}
-            paginatedIds={paginatedNotes.map((n) => n.id)}
+            paginatedIds={notes.map((n) => n.id)}
             onSelectAllPage={multiSelect.selectAll}
           />
         )}

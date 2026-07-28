@@ -13,3 +13,19 @@ export type ApiResponse<T> =
       message: string;
       success: false;
     };
+
+export interface ValidationErrorItem {
+  message: string;
+  field: string;
+}
+
+export interface PaginatedData<T> {
+  totalElements: number;
+  totalPages: number;
+  isLast: boolean;
+  page: number;
+  size: number;
+  items: T[];
+}
+
+export type PaginatedApiResponse<T> = ApiResponse<PaginatedData<T>>;

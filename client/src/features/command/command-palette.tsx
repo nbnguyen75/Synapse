@@ -8,12 +8,13 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 
-import { getNotes, createNote } from '@/features/notes/api';
+import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
+import { createNote } from '@/features/notes/api';
 
 import { useTheme } from '@/providers/theme-provider';
 
@@ -60,15 +61,13 @@ export default function CommandPalette() {
   const resultsRef = useRef<HTMLDivElement>(null);
 
   // Fetch all notes
-  const { data: notes = [] } = useQuery<Note[]>({
-    queryKey: ['notes'],
-    queryFn: getNotes,
-    enabled: isOpen,
-  });
+  const { data } = useGetNotesQuery();
+
+  const notes = data?.items ?? [];
 
   const createNoteMutation = useMutation({
     mutationFn: ({ content, title }: { content: string; title: string }) =>
-      createNote(title, content, 'usr_01'),
+      createNote({ content, title }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['notes'] });
     },
@@ -146,19 +145,19 @@ export default function CommandPalette() {
       },
       {
         action: () => {
-          const active = notes.filter((n) => !n.archived).length;
-          const archived = notes.filter((n) => n.archived).length;
-          const pinned = notes.filter((n) => n.pinned).length;
+          // const active = notes.filter((n) => !n.archived).length;
+          // const archived = notes.filter((n) => n.archived).length;
+          // const pinned = notes.filter((n) => n.pinned).length;
           const tagsSet = new Set<string>();
 
           setCommandOutput({
             data: {
               tagsList: Array.from(tagsSet),
               tagsCount: tagsSet.size,
-              total: notes.length,
-              archived,
-              active,
-              pinned,
+              // total: notes.length,
+              // archived,
+              // active,
+              // pinned,
             },
             title: 'Workspace Diagnostics & Metrics',
             command: '/stats',
@@ -305,7 +304,7 @@ export default function CommandPalette() {
       .filter(
         (note) =>
           note.title.toLowerCase().includes(term.toLowerCase()) ||
-          note.content.toLowerCase().includes(term.toLowerCase()),
+          note.content?.toLowerCase().includes(term.toLowerCase()),
       )
       .map((note) => ({
         action: () => {
@@ -320,7 +319,8 @@ export default function CommandPalette() {
           }, 100);
         },
         subtitle:
-          note.content.slice(0, 80) + (note.content.length > 80 ? '...' : ''),
+          note.content?.slice(0, 80) +
+          (note.content?.length || 0 > 80 ? '...' : ''),
         id: `note_${note.id}`,
         title: note.title,
         icon: FileText,

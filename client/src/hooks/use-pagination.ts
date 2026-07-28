@@ -1,12 +1,15 @@
 import { useCallback, useState } from 'react';
 
 interface UsePaginationOptions {
+  onPageChange?: (page: number) => void;
   initialSize?: number;
   initialPage?: number;
+  currentPage?: number;
   totalItems?: number;
+  totalPages?: number;
 }
 
-interface UsePaginationReturn {
+export interface UsePaginationReturn {
   setPageSize: (size: number) => void;
   goToPage: (page: number) => void;
   firstPage: () => void;
@@ -24,36 +27,58 @@ interface UsePaginationReturn {
 }
 
 export function usePagination({
+  totalPages: controlledTotalPages,
+  currentPage: controlledPage,
   initialSize = 10,
   initialPage = 1,
   totalItems = 0,
+  onPageChange,
 }: UsePaginationOptions): UsePaginationReturn {
-  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [internalPage, setInternalPage] = useState(initialPage);
   const [pageSize, setPageSize] = useState(initialSize);
 
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const isControlled = controlledPage !== undefined;
+  const currentPage = isControlled ? controlledPage : internalPage;
+  const totalPages =
+    controlledTotalPages ?? Math.max(1, Math.ceil(totalItems / pageSize));
   const effectiveCurrentPage = Math.min(currentPage, totalPages);
+
   const startIndex = (effectiveCurrentPage - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, totalItems);
 
+  const navigateTo = useCallback(
+    (page: number) => {
+      const target = Math.max(1, Math.min(page, totalPages));
+      if (isControlled) {
+        onPageChange?.(target);
+      } else {
+        setInternalPage(target);
+      }
+    },
+    [isControlled, onPageChange, totalPages],
+  );
+
   const goToPage = useCallback(
-    (page: number) => setCurrentPage(Math.max(1, Math.min(page, totalPages))),
-    [totalPages],
+    (page: number) => navigateTo(page),
+    [navigateTo],
   );
 
   const nextPage = useCallback(
-    () => setCurrentPage((p) => Math.min(p + 1, totalPages)),
-    [totalPages],
+    () => navigateTo(currentPage + 1),
+    [navigateTo, currentPage],
   );
 
   const prevPage = useCallback(
-    () => setCurrentPage((p) => Math.max(p - 1, 1)),
-    [],
+    () => navigateTo(currentPage - 1),
+    [navigateTo, currentPage],
   );
 
-  const firstPage = useCallback(() => setCurrentPage(1), []);
+  const firstPage = useCallback(() => navigateTo(1), [navigateTo]);
 
-  const lastPage = useCallback(() => setCurrentPage(totalPages), [totalPages]);
+  const lastPage = useCallback(
+    () => navigateTo(totalPages),
+    [navigateTo, totalPages],
+  );
 
   return {
     isLastPage: effectiveCurrentPage === totalPages,

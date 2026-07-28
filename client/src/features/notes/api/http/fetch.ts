@@ -1,10 +1,23 @@
-import type { EditableNoteData, Note } from '@/features/notes/types';
-import type { ApiResponse } from '@/types/shared';
+import type {
+  EditableNoteData,
+  Note,
+  NotesSearchParams,
+} from '@/features/notes/types';
+import type { ApiResponse, PaginatedApiResponse } from '@/types/shared';
 
 import { $fetch } from '@/lib/fetch';
 
-export async function getNotes() {
+export async function getNotes(params?: NotesSearchParams): Promise<Note[]> {
   try {
+    if (params) {
+      const url = buildNotesUrl(params);
+      const result = await $fetch<PaginatedApiResponse<Note>>(url);
+
+      if (!result.success) return [];
+
+      return result.data.items;
+    }
+
     const result = await $fetch<ApiResponse<Note[]>>('/api/v1/notes');
 
     if (!result.success) return [];
@@ -13,6 +26,23 @@ export async function getNotes() {
   } catch {
     return [];
   }
+}
+
+function buildNotesUrl(params: NotesSearchParams): string {
+  const apiParams: Record<string, string> = {};
+
+  if (params.q) apiParams.q = params.q;
+  if (params.sort) apiParams.sort = params.sort.replace('_', ',');
+  if (params.page !== undefined)
+    apiParams.page = String(Math.max(0, params.page - 1));
+  if (params.pageSize) apiParams.size = String(params.pageSize);
+  if (params.tag) apiParams.tag = params.tag;
+  if (params.startDate) apiParams.startDate = params.startDate;
+  if (params.endDate) apiParams.endDate = params.endDate;
+  if (params.view) apiParams.view = params.view;
+
+  const qs = new URLSearchParams(apiParams).toString();
+  return qs ? `/api/v1/notes?${qs}` : '/api/v1/notes';
 }
 
 export async function getNote(id: string) {

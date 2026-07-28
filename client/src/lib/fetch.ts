@@ -6,7 +6,13 @@ import { authClient } from '@/lib/auth';
 
 export const $fetch = createFetch({
   auth: {
-    token: () => authClient.getSession().then((s) => s.data?.session.token),
+    token: async () => {
+      const { error, data } = await authClient.token();
+
+      if (error) return undefined;
+
+      return data?.token ?? undefined;
+    },
     type: 'Bearer',
   },
   baseURL: env.VITE_API_URL,

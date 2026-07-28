@@ -20,7 +20,6 @@ import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AppNotesIndexRouteImport } from './routes/_app/notes/index'
 import { Route as AppNotesNoteIdRouteImport } from './routes/_app/notes/$noteId'
-import { Route as AppNotesArchivedRouteImport } from './routes/_app/notes/archived'
 import { Route as AppNotesCreateRouteImport } from './routes/_app/notes/create'
 
 const IndexRoute = IndexRouteImport.update({
@@ -76,11 +75,6 @@ const AppNotesNoteIdRoute = AppNotesNoteIdRouteImport.update({
   path: '/notes/$noteId',
   getParentRoute: () => AppRoute,
 } as any)
-const AppNotesArchivedRoute = AppNotesArchivedRouteImport.update({
-  id: '/notes/archived',
-  path: '/notes/archived',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppNotesCreateRoute = AppNotesCreateRouteImport.update({
   id: '/notes/create',
   path: '/notes/create',
@@ -96,7 +90,6 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/notes/$noteId': typeof AppNotesNoteIdRoute
-  '/notes/archived': typeof AppNotesArchivedRoute
   '/notes/create': typeof AppNotesCreateRoute
   '/notes/': typeof AppNotesIndexRoute
 }
@@ -109,7 +102,6 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/notes/$noteId': typeof AppNotesNoteIdRoute
-  '/notes/archived': typeof AppNotesArchivedRoute
   '/notes/create': typeof AppNotesCreateRoute
   '/notes': typeof AppNotesIndexRoute
 }
@@ -125,7 +117,6 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_app/notes/$noteId': typeof AppNotesNoteIdRoute
-  '/_app/notes/archived': typeof AppNotesArchivedRoute
   '/_app/notes/create': typeof AppNotesCreateRoute
   '/_app/notes/': typeof AppNotesIndexRoute
 }
@@ -140,7 +131,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/notes/$noteId'
-    | '/notes/archived'
     | '/notes/create'
     | '/notes/'
   fileRoutesByTo: FileRoutesByTo
@@ -153,7 +143,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/notes/$noteId'
-    | '/notes/archived'
     | '/notes/create'
     | '/notes'
   id:
@@ -168,7 +157,6 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/register'
     | '/_app/notes/$noteId'
-    | '/_app/notes/archived'
     | '/_app/notes/create'
     | '/_app/notes/'
   fileRoutesById: FileRoutesById
@@ -258,13 +246,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotesNoteIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/notes/archived': {
-      id: '/_app/notes/archived'
-      path: '/notes/archived'
-      fullPath: '/notes/archived'
-      preLoaderRoute: typeof AppNotesArchivedRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_app/notes/create': {
       id: '/_app/notes/create'
       path: '/notes/create'
@@ -281,7 +262,6 @@ interface AppRouteChildren {
   AppSettingsRoute: typeof AppSettingsRoute
   AppTagsRoute: typeof AppTagsRoute
   AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
-  AppNotesArchivedRoute: typeof AppNotesArchivedRoute
   AppNotesCreateRoute: typeof AppNotesCreateRoute
   AppNotesIndexRoute: typeof AppNotesIndexRoute
 }
@@ -292,7 +272,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppSettingsRoute: AppSettingsRoute,
   AppTagsRoute: AppTagsRoute,
   AppNotesNoteIdRoute: AppNotesNoteIdRoute,
-  AppNotesArchivedRoute: AppNotesArchivedRoute,
   AppNotesCreateRoute: AppNotesCreateRoute,
   AppNotesIndexRoute: AppNotesIndexRoute,
 }
