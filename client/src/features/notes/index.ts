@@ -1,6 +1,4 @@
 export {
-  DEFAULT_NOTES_QUERY_PARAMS as DEFAULT_NOTES_SEARCH,
-  notesSearchSchema,
   TAG_COLORS,
   SORT_OPTIONS,
   getTagColor,

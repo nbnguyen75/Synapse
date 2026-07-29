@@ -13,6 +13,7 @@ import {
   cascadeDeleteTag,
   type TagMetadata,
 } from '@/features/tags/lib/tags';
+import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
 import { getNotes } from '@/features/notes/api';
 
 import { m } from '@/paraglide/messages';
@@ -43,10 +44,9 @@ export const TAG_COLOR_VALUES = [
 
 export function useTags() {
   const queryClient = useQueryClient();
-  const { data: notes = [] } = useQuery({
-    queryKey: ['notes'],
-    queryFn: getNotes,
-  });
+  const { data } = useGetNotesQuery();
+
+  const notes = data?.items ?? [];
 
   const [tagList, setTagList] = useState<TagMetadata[]>(() =>
     loadTagMetadata(),

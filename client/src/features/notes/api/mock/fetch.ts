@@ -35,7 +35,6 @@ export async function createNote(
   title: string,
   content: string,
   userId: string,
-  tags?: string[],
   pinned?: boolean,
 ): Promise<Note> {
   await delay(API_LATENCY_MS);

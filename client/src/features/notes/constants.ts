@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { m } from '@/paraglide/messages';
 
 export const DEFAULT_NOTES_QUERY_PARAMS = {
-  sort: 'updateAt',
+  sort: 'updatedAt',
   pageSize: 10,
   page: 1,
   q: '',

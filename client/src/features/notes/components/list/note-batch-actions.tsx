@@ -1,10 +1,10 @@
 import type { Note } from '@/features/notes/types';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { updateNote, deleteNote } from '@/features/notes/api';
+import { deleteNote } from '@/features/notes/api';
 
 import {
   DropdownMenu,

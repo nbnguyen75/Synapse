@@ -16,3 +16,22 @@ services:
         paths:
           - /api/v1/notes
         strip_path: true
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - http://localhost:5173
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Authorization
+            - Content-Type
+            - Origin
+          credentials: true
+          preflight_continue: false

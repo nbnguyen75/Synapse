@@ -84,7 +84,6 @@ export default function ErrorPage({
   // Helpers điều hướng
   const goToHome = () => {
     navigate({
-      search: () => ({ view: 'active' as const }),
       to: '/notes',
     });
   };

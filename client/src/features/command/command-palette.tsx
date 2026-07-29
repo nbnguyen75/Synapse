@@ -1,5 +1,3 @@
-import type { Note } from '@/features/notes';
-
 import {
   useState,
   useEffect,

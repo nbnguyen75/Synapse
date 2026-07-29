@@ -17,7 +17,7 @@ import { ArchiveIcon, FileTextIcon, TagIcon, Settings } from 'lucide-react';
 const navItems = [
   { icon: FileTextIcon, label: 'Notes', href: '/notes' },
   { label: 'Tags', href: '/tags', icon: TagIcon },
-  { href: '/archived', label: 'Archived', icon: ArchiveIcon },
+  // { href: '/archived', label: 'Archived', icon: ArchiveIcon },
   { href: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 

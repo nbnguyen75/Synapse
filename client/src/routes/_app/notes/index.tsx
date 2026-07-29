@@ -65,7 +65,6 @@ function NotesPage() {
 
   const { isLoading, data } = useGetNotesQuery(search);
   const notes = data?.items ?? [];
-
   const sortBy = sort ?? DEFAULT_NOTES_QUERY_PARAMS.sort;
 
   const pagination = usePagination({
@@ -100,7 +99,6 @@ function NotesPage() {
               notes={notes}
               hasQuery={!!q}
               onCreateClick={() => setIsCreateOpen(true)}
-              onDelete={(id) => {}}
               onOpenDetail={(n) =>
                 navigate({ params: { noteId: n.id }, to: '/notes/$noteId' })
               }

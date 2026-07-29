@@ -68,4 +68,5 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
   "chat.disableAIFeatures": true
+  // "js/ts.experimental.useTsgo": true,
 }

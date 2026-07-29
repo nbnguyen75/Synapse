@@ -18,11 +18,11 @@ import { Button } from '@/components/ui/button';
 import { FileTextIcon, PlusIcon } from 'lucide-react';
 
 interface NotesListProps {
-  onChatWithNote: (note: Note) => void;
-  onToggleSelect: (id: string) => void;
-  onOpenDetail: (note: Note) => void;
-  onDelete: (id: string) => void;
-  onCreateClick: () => void;
+  onChatWithNote?: (note: Note) => void;
+  onToggleSelect?: (id: string) => void;
+  onOpenDetail?: (note: Note) => void;
+  onDelete?: (id: string) => void;
+  onCreateClick?: () => void;
   selectedIds: Set<string>;
   isBatchMode: boolean;
   isLoading?: boolean;

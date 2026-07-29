@@ -19,6 +19,7 @@ export function useGetNotesQuery(
         const result = await $fetch<PaginatedApiResponse<Note>>(
           '/api/v1/notes',
           {
+            method: 'GET',
             query: params,
           },
         );
