@@ -5,6 +5,8 @@ import { NavSecondary } from '@/layouts/app/sidebar/nav/nav-secondary';
 
 import { env } from '@/config/env';
 
+import { m } from '@/paraglide/messages';
+
 import {
   SidebarHeader,
   SidebarContent,
@@ -37,7 +39,7 @@ export default function AppLeftSidebar({
                       {env.VITE_APP_NAME}
                     </span>
                     <span className="truncate text-xs">
-                      AI-powered Knowledge Hub
+                      {m.sidebar_knowledge_hub()}
                     </span>
                   </div>
                 </Link>

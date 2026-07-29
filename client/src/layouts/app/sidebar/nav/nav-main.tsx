@@ -4,6 +4,8 @@ import { Link, useMatchRoute } from '@tanstack/react-router';
 
 import { useCurrentPathname } from '@/hooks/use-pathname';
 
+import { m } from '@/paraglide/messages';
+
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -15,10 +17,10 @@ import {
 import { ArchiveIcon, FileTextIcon, TagIcon, Settings } from 'lucide-react';
 
 const navItems = [
-  { icon: FileTextIcon, label: 'Notes', href: '/notes' },
-  { label: 'Tags', href: '/tags', icon: TagIcon },
+  { label: () => m.sidebar_notes_short(), icon: FileTextIcon, href: '/notes' },
+  { label: () => m.sidebar_tags_short(), href: '/tags', icon: TagIcon },
   // { href: '/archived', label: 'Archived', icon: ArchiveIcon },
-  { href: '/settings', label: 'Settings', icon: Settings },
+  { label: () => m.sidebar_settings(), href: '/settings', icon: Settings },
 ] as const;
 
 export default function NavMain() {
@@ -34,7 +36,7 @@ export default function NavMain() {
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>{m.sidebar_platform()}</SidebarGroupLabel>
       <SidebarMenu>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -48,7 +50,7 @@ export default function NavMain() {
                     <Icon
                       className={`size-4 ${isActive ? 'text-violet-600 dark:text-violet-400' : ''}`}
                     />
-                    <span>{item.label}</span>
+                    <span>{item.label()}</span>
                   </Link>
                 }
               />

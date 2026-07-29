@@ -160,9 +160,9 @@ export function TemplateSelector({ onApplyTemplate }: TemplateSelectorProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsSaving(false)}>
-              Cancel
+              {m.tags_page_cancel()}
             </Button>
-            <Button onClick={handleSaveTemplate}>Save</Button>
+            <Button onClick={handleSaveTemplate}>{m.tags_page_save()}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

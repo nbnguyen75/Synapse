@@ -1,4 +1,5 @@
 import type { NotesQueryParams } from '@/features/notes/schemas';
+import type { Note } from '@/features/notes/types';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -11,9 +12,10 @@ export function useGetNotesQuery(params: NotesQueryParams) {
   });
 }
 
-export function useGetNoteQuery(id: string) {
+export function useGetNoteQuery(id: string, initialData?: Note) {
   return useQuery({
     queryFn: async () => getNote(id),
     queryKey: ['notes', id],
+    initialData,
   });
 }

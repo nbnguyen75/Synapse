@@ -64,7 +64,7 @@ export async function updateNote(id: string, updateNoteData: NoteFormValues) {
 }
 
 export async function deleteNote(id: string) {
-  const result = await $fetch<ApiResponse<string>>(`/api/notes/${id}`, {
+  const result = await $fetch<ApiResponse<string>>(`/api/v1/notes/${id}`, {
     method: 'DELETE',
   });
 

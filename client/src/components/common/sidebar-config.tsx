@@ -6,6 +6,8 @@ import { useSettingsStore } from '@/store/settings-store';
 
 import { useTheme } from '@/providers/theme-provider';
 
+import { m } from '@/paraglide/messages';
+
 import {
   Dialog,
   DialogContent,
@@ -26,30 +28,39 @@ import { Bot, MessageSquare, Sun, Moon, Keyboard } from 'lucide-react';
 const shortcutSections = [
   {
     shortcuts: [
-      { label: 'Open Command Palette', keys: ['Ctrl', 'K'] },
-      { label: 'Toggle Left Sidebar', keys: ['Ctrl', 'Shift', 'B'] },
-      { label: 'Toggle Right Sidebar', keys: ['Ctrl', 'Alt', 'B'] },
-      { label: 'Quick New Note', keys: ['N'] },
+      { label: () => m.keyboard_shortcuts_cmd_palette(), keys: ['Ctrl', 'K'] },
+      {
+        label: () => m.keyboard_shortcuts_toggle_left(),
+        keys: ['Ctrl', 'Shift', 'B'],
+      },
+      {
+        label: () => m.keyboard_shortcuts_toggle_right(),
+        keys: ['Ctrl', 'Alt', 'B'],
+      },
+      { label: () => m.keyboard_shortcuts_new_note(), keys: ['N'] },
     ],
-    heading: 'Global',
+    heading: () => m.keyboard_shortcuts_global(),
   },
   {
     shortcuts: [
-      { keys: ['Ctrl', 'B'], label: 'Bold' },
-      { keys: ['Ctrl', 'I'], label: 'Italic' },
-      { keys: ['Ctrl', 'U'], label: 'Underline' },
-      { keys: ['Ctrl', 'Shift', 'S'], label: 'Strikethrough' },
-      { keys: ['Ctrl', 'E'], label: 'Code' },
+      { label: () => m.keyboard_shortcuts_bold(), keys: ['Ctrl', 'B'] },
+      { label: () => m.keyboard_shortcuts_italic(), keys: ['Ctrl', 'I'] },
+      { label: () => m.keyboard_shortcuts_underline(), keys: ['Ctrl', 'U'] },
+      {
+        label: () => m.keyboard_shortcuts_strikethrough(),
+        keys: ['Ctrl', 'Shift', 'S'],
+      },
+      { label: () => m.keyboard_shortcuts_code(), keys: ['Ctrl', 'E'] },
     ],
-    heading: 'Editor',
+    heading: () => m.keyboard_shortcuts_editor(),
   },
   {
     shortcuts: [
-      { label: 'Go to Notes', keys: ['G', 'N'] },
-      { label: 'Go to Chat', keys: ['G', 'C'] },
-      { label: 'Go to Settings', keys: ['G', 'S'] },
+      { label: () => m.keyboard_shortcuts_go_notes(), keys: ['G', 'N'] },
+      { label: () => m.keyboard_shortcuts_go_chat(), keys: ['G', 'C'] },
+      { label: () => m.keyboard_shortcuts_go_settings(), keys: ['G', 'S'] },
     ],
-    heading: 'Navigation',
+    heading: () => m.keyboard_shortcuts_navigation(),
   },
 ];
 
@@ -76,12 +87,14 @@ export function ConfigPopover({ children }: { children: ReactElement }) {
               )}
               <div className="flex flex-col">
                 <span className="text-xs font-medium text-foreground">
-                  {layoutMode === 'servant' ? 'Servant Mode' : 'Chat Mode'}
+                  {layoutMode === 'servant'
+                    ? m.sidebar_mode_servant()
+                    : m.sidebar_mode_chat()}
                 </span>
                 <span className="text-[10px] text-muted-foreground">
                   {layoutMode === 'servant'
-                    ? 'Main view + Chat'
-                    : 'Full Chat interface'}
+                    ? m.sidebar_mode_servant_desc()
+                    : m.sidebar_mode_chat_desc()}
                 </span>
               </div>
             </div>
@@ -101,7 +114,7 @@ export function ConfigPopover({ children }: { children: ReactElement }) {
                 <Sun className="h-4 w-4 shrink-0 text-amber-500" />
               )}
               <span className="text-xs font-medium text-foreground">
-                {isDark ? 'Dark Theme' : 'Light Theme'}
+                {isDark ? m.sidebar_config_dark() : m.sidebar_config_light()}
               </span>
             </div>
             <Switch
@@ -129,7 +142,7 @@ export function KeyboardShortcutsDialog({
         <DialogHeader>
           <DialogTitle className="text-base font-semibold tracking-tight flex items-center gap-2 text-foreground">
             <Keyboard className="h-4 w-4 text-primary" />
-            <span>Keyboard Shortcuts</span>
+            <span>{m.keyboard_shortcuts_title()}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -137,7 +150,7 @@ export function KeyboardShortcutsDialog({
           {shortcutSections.map((section) => (
             <div key={section.heading}>
               <h4 className="font-semibold text-foreground text-xs mb-2 uppercase tracking-wider">
-                {section.heading}
+                {section.heading()}
               </h4>
               <div className="space-y-1">
                 {section.shortcuts.map((shortcut) => (
@@ -146,7 +159,7 @@ export function KeyboardShortcutsDialog({
                     className="flex items-center justify-between bg-muted/30 p-2 rounded-lg border border-border/50"
                   >
                     <span className="text-muted-foreground">
-                      {shortcut.label}
+                      {shortcut.label()}
                     </span>
                     <div className="flex items-center gap-1">
                       {shortcut.keys.map((key, i) => (

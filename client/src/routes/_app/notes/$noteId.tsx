@@ -1,6 +1,8 @@
 import type { NoteFormValues } from '@/features/notes/schemas';
+import type { Note } from '@/features/notes/types';
 
 import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useState } from 'react';
 
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 
@@ -12,7 +14,10 @@ import {
   getMarkdownReadTimeSync,
   exportMarkdown,
 } from '@/features/notes/services';
+import { useGetNoteQuery } from '@/features/notes/hooks/use-note-query';
 import { getNote } from '@/features/notes/api';
+
+import { useConfirm } from '@/providers/confirm-provider';
 
 import { createTitle } from '@/config/metadata';
 
@@ -40,7 +45,6 @@ import {
   MoreHorizontalIcon,
   SaveIcon,
   SparklesIcon,
-  TagIcon,
   Trash2Icon,
 } from 'lucide-react';
 
@@ -49,6 +53,7 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
     const { noteId } = params;
     try {
       const note = await getNote(noteId);
+
       return note;
     } catch (error) {
       console.error(`Note not found with id: ${noteId}`);
@@ -62,16 +67,20 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
 });
 
 function NoteDetailsPage() {
-  const note = Route.useLoaderData();
+  const initialData = Route.useLoaderData();
   const navigate = useNavigate();
+  const confirm = useConfirm();
 
-  const updateNoteMutation = useUpdateNoteMutation();
-  const deleteNoteMutation = useDeleteNoteMutation();
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('preview');
+
+  const { data: note } = useGetNoteQuery(initialData.id, initialData);
+  const { isPending: isUpdating, mutate: updateNote } = useUpdateNoteMutation();
+  const { isPending: isDeleting, mutate: deleteNote } = useDeleteNoteMutation();
 
   const form = useForm<NoteFormValues>({
     defaultValues: {
-      content: note.content ?? '',
-      title: note.title,
+      content: note?.content ?? '',
+      title: note?.title,
     },
   });
 
@@ -82,19 +91,34 @@ function NoteDetailsPage() {
     control,
   });
 
-  const onSave = (data: NoteFormValues) => {
-    updateNoteMutation.mutate({
-      data: {
-        ...data,
+  const handleOnUpdate = (id: string, data: NoteFormValues) => {
+    updateNote(
+      {
+        data,
+        id,
       },
-      id: note.id,
-    });
+      {
+        onSuccess: () => setActiveTab('preview'),
+      },
+    );
   };
 
-  const handleDelete = () => {
+  const handleOnDelete = async (note?: Note) => {
     if (!note) return;
 
-    deleteNoteMutation.mutate(
+    const ok = await confirm({
+      description: m.notes_page_delete_desc({
+        title: note.title,
+      }),
+      confirmText: m.notes_page_delete_confirm(),
+      cancelText: m.notes_page_delete_cancel(),
+      title: m.notes_page_delete_title(),
+      variant: 'destructive',
+    });
+
+    if (!ok) return;
+
+    deleteNote(
       { id: note.id },
       {
         onSuccess: () => navigate({ to: '/notes' }),
@@ -110,8 +134,19 @@ function NoteDetailsPage() {
   // };
 
   return (
-    <form onSubmit={handleSubmit(onSave)} className="h-full">
-      <Tabs defaultValue="preview" className="flex h-full flex-col">
+    <form
+      onSubmit={handleSubmit((data) => {
+        if (!note) return;
+        handleOnUpdate(note.id, data);
+      })}
+      className="h-full"
+    >
+      <Tabs
+        defaultValue="preview"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="flex h-full flex-col"
+      >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-border/40 bg-background/80 px-4 md:px-8 py-2.5 backdrop-blur-md sticky top-0 z-20">
             <div className="flex items-center gap-3">
@@ -128,11 +163,13 @@ function NoteDetailsPage() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={updateNoteMutation.isPending}
+                disabled={isUpdating || isDeleting}
                 className="h-8 gap-1.5 text-xs font-semibold rounded-md"
               >
                 <SaveIcon className="size-3.5" />
-                {updateNoteMutation.isPending ? 'Saving...' : 'Save'}
+                {isUpdating
+                  ? m.notes_page_edit_saving()
+                  : m.notes_page_edit_save_short()}
               </Button>
             </div>
 
@@ -146,16 +183,19 @@ function NoteDetailsPage() {
                 <TabsTrigger
                   value="edit"
                   className="h-7 text-xs px-3 gap-1.5 rounded-md font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs"
+                  disabled={isUpdating || isDeleting}
                 >
                   <Edit3Icon className="size-3.5" />
-                  Edit
+                  {m.notes_page_edit_tab_edit()}
                 </TabsTrigger>
+
                 <TabsTrigger
                   value="preview"
                   className="h-7 text-xs px-3 gap-1.5 rounded-md font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs"
+                  disabled={isUpdating || isDeleting}
                 >
                   <EyeIcon className="size-3.5" />
-                  Preview
+                  {m.notes_page_edit_preview()}
                 </TabsTrigger>
               </TabsList>
 
@@ -166,6 +206,7 @@ function NoteDetailsPage() {
                       variant="ghost"
                       size="icon-sm"
                       className="rounded-lg"
+                      disabled={isUpdating || isDeleting}
                     >
                       <MoreHorizontalIcon className="size-4" />
                     </Button>
@@ -175,7 +216,7 @@ function NoteDetailsPage() {
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem disabled className="cursor-pointer">
                     <SparklesIcon className="size-4 mr-2 text-violet-500" />
-                    <span>AI Generate Title</span>
+                    <span>{m.notes_page_ai_generate_title()}</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
@@ -190,18 +231,18 @@ function NoteDetailsPage() {
                     className="cursor-pointer"
                   >
                     <DownloadIcon className="size-4 mr-2" />
-                    <span>Export Markdown</span>
+                    <span>{m.notes_page_export_markdown()}</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem
-                    onClick={handleDelete}
+                    onClick={() => handleOnDelete(note)}
                     variant="destructive"
                     className="cursor-pointer"
                   >
                     <Trash2Icon className="size-4 mr-2" />
-                    <span>Delete Note</span>
+                    <span>{m.notes_page_delete_title()}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -217,21 +258,24 @@ function NoteDetailsPage() {
                   render={({ field }) => (
                     <Input
                       {...field}
-                      placeholder="Untitled Note..."
+                      placeholder={m.notes_page_untitled_placeholder()}
                       className="w-full resize-none bg-transparent text-3xl md:text-4xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7 px-0"
+                      disabled={isUpdating || isDeleting}
                     />
                   )}
                 />
 
-                <div className="flex flex-wrap items-center gap-1.5 pt-1 pb-3 text-xs text-muted-foreground/80">
+                {/* <div className="flex flex-wrap items-center gap-1.5 pt-1 pb-3 text-xs text-muted-foreground/80">
                   <TagIcon className="size-3.5 text-muted-foreground/60 mr-1" />
+
                   <Input
                     type="text"
-                    value={[]}
-                    placeholder="Add tags separated by comma..."
+                    value=""
+                    placeholder={m.notes_page_tags_placeholder()}
                     className="h-6 border-none shadow-none focus-visible:ring-0 p-0 text-xs bg-transparent max-w-70 placeholder:text-muted-foreground/40"
+                    disabled={isUpdating || isDeleting}
                   />
-                </div>
+                </div> */}
 
                 <TabsContent
                   value="edit"
@@ -244,9 +288,9 @@ function NoteDetailsPage() {
                       <LexicalEditor
                         value={field.value ?? ''}
                         onChange={field.onChange}
-                        id="details-note-content"
                         className="h-full max-h-120"
-                        placeholder="Type '/' for commands or start writing..."
+                        disabled={isUpdating || isDeleting}
+                        placeholder={m.notes_page_lexical_placeholder()}
                       />
                     )}
                   />
@@ -259,7 +303,9 @@ function NoteDetailsPage() {
                   <div className="border border-border/80 rounded-xl bg-background flex flex-col focus-within:border-primary/80 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-200 px-5 py-5 h-full max-h-120 overflow-y-auto">
                     <MarkdownRenderer
                       className="h-full"
-                      content={watchedContent || '_No content_'}
+                      content={
+                        watchedContent || m.notes_page_empty_preview_fallback()
+                      }
                     />
                   </div>
                 </TabsContent>

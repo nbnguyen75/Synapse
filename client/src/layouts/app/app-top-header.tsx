@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { SidebarManagerTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
+import { Kbd, KbdGroup } from '@/components/ui/kbd';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -60,8 +61,12 @@ export default function AppTopHeader() {
             value={searchVal}
             className="w-full h-9 pl-9 pr-8 text-xs bg-neutral-50 dark:bg-neutral-950 border border-border rounded-lg outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 placeholder:text-muted-foreground transition-all focus-visible:ring-0 cursor-pointer"
           />
-          <span className="absolute right-3 top-2.5 text-[9px] font-body text-muted-foreground bg-neutral-200/50 dark:bg-neutral-900/80 px-1.5 py-0.5 rounded pointer-events-none">
-            ⌘K
+          <span className="absolute right-2 top-1.5 text-sm font-body px-1.5 py-0.5 pointer-events-none">
+            <KbdGroup>
+              <Kbd>Ctrl (⌘)</Kbd>
+              <span>+</span>
+              <Kbd>K</Kbd>
+            </KbdGroup>
           </span>
         </div>
       </div>

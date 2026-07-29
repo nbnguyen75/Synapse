@@ -144,7 +144,7 @@ export function FilterSidebar({
             >
               <FileText className="size-3 shrink-0" />
               <span className="truncate flex-1">
-                {note.title || 'Untitled'}
+                {note.title || m.notes_page_untitled()}
               </span>
               {note.pinned && (
                 <Pin className="size-2.5 shrink-0 text-amber-500" />

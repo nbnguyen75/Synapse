@@ -1,3 +1,5 @@
+import { m } from '@/paraglide/messages';
+
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -9,15 +11,15 @@ import {
 import { MessageCirclePlus, History, Star } from 'lucide-react';
 
 const companionItems = [
-  { icon: MessageCirclePlus, label: 'New Chat', href: '/chat' },
-  { label: 'History', icon: History, href: '#' },
-  { label: 'Favourites', icon: Star, href: '#' },
+  { label: () => m.sidebar_new_chat(), icon: MessageCirclePlus, href: '/chat' },
+  { label: () => m.sidebar_history(), icon: History, href: '#' },
+  { label: () => m.sidebar_favourites(), icon: Star, href: '#' },
 ] as const;
 
 export default function NavCompanion() {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Companion</SidebarGroupLabel>
+      <SidebarGroupLabel>{m.sidebar_companion()}</SidebarGroupLabel>
       <SidebarMenu>
         {companionItems.map((item) => {
           const Icon = item.icon;
@@ -25,7 +27,7 @@ export default function NavCompanion() {
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton className="w-full">
                 <Icon className="size-4" />
-                <span>{item.label}</span>
+                <span>{item.label()}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           );

@@ -91,7 +91,9 @@ function CreateNotePage() {
                 className="h-8 gap-1.5 text-xs font-semibold rounded-md"
               >
                 <SaveIcon className="size-3.5" />
-                {createNoteMutation.isPending ? 'Saving...' : 'Save'}
+                {createNoteMutation.isPending
+                  ? m.notes_page_create_saving()
+                  : m.notes_page_create_create()}
               </Button>
             </div>
 
@@ -102,14 +104,14 @@ function CreateNotePage() {
                   className="h-7 text-xs px-3 gap-1.5 rounded-md font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs"
                 >
                   <Edit3Icon className="size-3.5" />
-                  Create
+                  {m.notes_page_create_tab_create()}
                 </TabsTrigger>
                 <TabsTrigger
                   value="preview"
                   className="h-7 text-xs px-3 gap-1.5 rounded-md font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs"
                 >
                   <EyeIcon className="size-3.5" />
-                  Preview
+                  {m.notes_page_create_preview()}
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -124,7 +126,7 @@ function CreateNotePage() {
                   render={({ field }) => (
                     <Input
                       {...field}
-                      placeholder="Untitled Note..."
+                      placeholder={m.notes_page_untitled_placeholder()}
                       className="w-full resize-none bg-transparent text-3xl md:text-4xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7 px-0"
                     />
                   )}
@@ -134,8 +136,8 @@ function CreateNotePage() {
                   <TagIcon className="size-3.5 text-muted-foreground/60 mr-1" />
                   <Input
                     type="text"
-                    value={[]}
-                    placeholder="Add tags separated by comma..."
+                    value=""
+                    placeholder={m.notes_page_tags_placeholder()}
                     className="h-6 border-none shadow-none focus-visible:ring-0 p-0 text-xs bg-transparent max-w-70 placeholder:text-muted-foreground/40"
                   />
                 </div>
@@ -153,7 +155,7 @@ function CreateNotePage() {
                         onChange={field.onChange}
                         id="details-note-content"
                         className="h-full max-h-120"
-                        placeholder="Type '/' for commands or start writing..."
+                        placeholder={m.notes_page_lexical_placeholder()}
                       />
                     )}
                   />
@@ -166,7 +168,9 @@ function CreateNotePage() {
                   <div className="border border-border/80 rounded-xl bg-background flex flex-col focus-within:border-primary/80 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-200 px-5 py-5 h-full max-h-120 overflow-y-auto">
                     <MarkdownRenderer
                       className="h-full"
-                      content={watchedContent || '_No content_'}
+                      content={
+                        watchedContent || m.notes_page_empty_preview_fallback()
+                      }
                     />
                   </div>
                 </TabsContent>

@@ -1,4 +1,6 @@
 // !Will be used later — date range picker
+import { m } from '@/paraglide/messages';
+
 import { Button } from '@/components/ui/button';
 
 import { Calendar } from 'lucide-react';
@@ -29,7 +31,7 @@ export function NoteDateFilter({
           value={startDate}
           onChange={(e) => onStartDateChange(e.target.value)}
           className="h-7 w-32 bg-transparent text-xs text-foreground outline-none border-none p-0 [color-scheme:dark]"
-          placeholder="From"
+          placeholder={m.notes_date_filter_from()}
         />
         <span className="text-xs text-muted-foreground">-</span>
         <input
@@ -37,7 +39,7 @@ export function NoteDateFilter({
           value={endDate}
           onChange={(e) => onEndDateChange(e.target.value)}
           className="h-7 w-32 bg-transparent text-xs text-foreground outline-none border-none p-0 [color-scheme:dark]"
-          placeholder="To"
+          placeholder={m.notes_date_filter_to()}
         />
       </div>
 
@@ -48,7 +50,7 @@ export function NoteDateFilter({
           onClick={onResetFilters}
           className="h-7 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20 rounded-lg cursor-pointer"
         >
-          Reset Filters
+          {m.notes_date_filter_reset()}
         </Button>
       )}
     </div>

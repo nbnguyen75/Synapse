@@ -7,6 +7,7 @@ import {
 import definition from '@dicebear/styles/identicon.json' with { type: 'json' };
 
 import { signOut, useSession } from '@/lib/auth';
+import { m } from '@/paraglide/messages';
 
 import {
   DropdownMenu,
@@ -131,7 +132,7 @@ export default function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <SparklesIcon />
-                Upgrade to Pro
+                {m.sidebar_upgrade_pro()}
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
@@ -140,11 +141,11 @@ export default function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheckIcon />
-                Account
+                {m.sidebar_account()}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <BellIcon />
-                Notifications
+                {m.sidebar_notifications()}
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
@@ -157,7 +158,7 @@ export default function NavUser() {
               disabled={isPending}
             >
               <LogOutIcon />
-              Log out
+              {m.sidebar_log_out()}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

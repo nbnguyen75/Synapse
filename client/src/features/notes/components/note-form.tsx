@@ -72,8 +72,12 @@ export default function NoteForm({
         render={({ fieldState, field }) => (
           <Tabs defaultValue="edit" className="w-full h-full">
             <TabsList variant="line">
-              <TabsTrigger value="edit">Content</TabsTrigger>
-              <TabsTrigger value="preview">Preview</TabsTrigger>
+              <TabsTrigger value="edit">
+                {m.notes_page_edit_tab_content()}
+              </TabsTrigger>
+              <TabsTrigger value="preview">
+                {m.notes_page_edit_preview()}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="edit">
@@ -96,7 +100,7 @@ export default function NoteForm({
             <TabsContent value="preview">
               <div className="p-4 border border-border rounded-md bg-background flex flex-col focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all duration-200">
                 <MarkdownRenderer
-                  content={field.value || '_No content_'}
+                  content={field.value || m.notes_page_edit_empty_preview()}
                   className="markdown-body"
                 />
               </div>

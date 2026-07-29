@@ -6,6 +6,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { deleteNote } from '@/features/notes/api';
 
+import { m } from '@/paraglide/messages';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -87,7 +89,7 @@ export function NoteBatchActions({
                 {selectedIds.size}
               </div>
               <span className="text-xs font-medium text-neutral-300">
-                selected
+                {m.notes_batch_selected({ count: selectedIds.size })}
               </span>
             </div>
           </div>
@@ -109,13 +111,15 @@ export function NoteBatchActions({
               }}
               className="text-xs text-neutral-300 hover:text-white hover:bg-neutral-800 cursor-pointer"
             >
-              {allSelectedOnPage ? 'Deselect Page' : 'Select All Page'}
+              {allSelectedOnPage
+                ? m.notes_batch_deselect_page()
+                : m.notes_batch_select_all()}
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-neutral-800 bg-neutral-900 px-2.5 text-xs font-semibold text-neutral-200 outline-none hover:bg-neutral-800">
                 <Plus className="size-3.5 text-emerald-400" />
-                <span>Add Tag</span>
+                <span>{m.notes_batch_add_tag()}</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
@@ -123,7 +127,7 @@ export function NoteBatchActions({
               >
                 <div className="border-b border-neutral-800 px-2 py-1.5">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
-                    Select or type new tag:
+                    {m.notes_batch_add_tag_label()}
                   </span>
                 </div>
                 {/* {allTags.map((tag) => (
@@ -138,7 +142,7 @@ export function NoteBatchActions({
                 ))} */}
                 <div className="flex items-center gap-1 border-t border-neutral-800 p-2">
                   <Input
-                    placeholder="New tag... (Enter)"
+                    placeholder={m.notes_batch_add_tag_placeholder()}
                     className="h-7 rounded-md border-neutral-800 bg-neutral-950 px-1.5 text-xs text-white focus-visible:ring-primary"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -157,7 +161,7 @@ export function NoteBatchActions({
             <DropdownMenu>
               <DropdownMenuTrigger className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-neutral-800 bg-neutral-900 px-2.5 text-xs font-semibold text-neutral-200 outline-none hover:bg-neutral-800">
                 <X className="size-3.5 text-rose-400" />
-                <span>Remove Tag</span>
+                <span>{m.notes_batch_remove_tag()}</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
@@ -165,7 +169,7 @@ export function NoteBatchActions({
               >
                 <div className="border-b border-neutral-800 px-2 py-1.5">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
-                    Select tag to remove:
+                    {m.notes_batch_remove_tag_label()}
                   </span>
                 </div>
                 {/* {allTags.length === 0 ? (
@@ -195,7 +199,7 @@ export function NoteBatchActions({
               className="text-xs text-neutral-300 hover:text-white hover:bg-neutral-800 cursor-pointer"
             >
               <Archive className="mr-1 size-3.5" />
-              Archive
+              {m.notes_batch_archive()}
             </Button>
 
             <Button
@@ -206,7 +210,7 @@ export function NoteBatchActions({
               className="text-xs text-rose-400 hover:text-rose-300 hover:bg-neutral-800 cursor-pointer"
             >
               <Trash2 className="mr-1 size-3.5" />
-              Delete
+              {m.notes_batch_delete()}
             </Button>
 
             <Button
@@ -215,7 +219,7 @@ export function NoteBatchActions({
               onClick={onClearSelection}
               className="ml-1 text-xs text-neutral-400 hover:text-white hover:bg-neutral-800 cursor-pointer"
             >
-              Close
+              {m.notes_batch_close()}
             </Button>
           </div>
         </div>
@@ -223,7 +227,7 @@ export function NoteBatchActions({
         {showDeleteConfirm && (
           <div className="mt-3 flex items-center gap-2 border-t border-neutral-800 pt-3">
             <span className="text-xs text-neutral-400">
-              Delete {selectedIds.size} note(s)?
+              {m.notes_batch_delete_confirm({ count: selectedIds.size })}
             </span>
             <Button
               size="xs"
@@ -232,7 +236,7 @@ export function NoteBatchActions({
               disabled={isDeleting}
               className="h-7 cursor-pointer text-xs"
             >
-              Confirm Delete
+              {m.notes_batch_delete_confirm_btn()}
             </Button>
             <Button
               variant="ghost"
@@ -240,7 +244,7 @@ export function NoteBatchActions({
               onClick={() => setShowDeleteConfirm(false)}
               className="h-7 cursor-pointer text-xs text-neutral-400"
             >
-              Cancel
+              {m.notes_batch_cancel()}
             </Button>
           </div>
         )}

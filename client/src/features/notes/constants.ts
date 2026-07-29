@@ -25,6 +25,12 @@ export const EMPTY_PAGINATED: PaginatedData<Note> = {
   page: 1,
 };
 
+export const sortItems = [
+  { label: 'Updated At', value: 'updatedAt' },
+  { label: 'Created At', value: 'createdAt' },
+  { label: 'Title', value: 'title' },
+] as const;
+
 export function formatDate(dateStr: string): string {
   return format(new Date(dateStr), 'MMM d, yyyy');
 }

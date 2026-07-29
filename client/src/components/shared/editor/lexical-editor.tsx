@@ -82,11 +82,11 @@ export default function LexicalEditor({
     >
       <LexicalComposer initialConfig={initialConfig}>
         <Toolbar />
-        <div className="relative flex-1 flex flex-col min-h-60">
+        <div className="relative min-h-60">
           <RichTextPlugin
             contentEditable={
               <ContentEditable
-                className="min-h-60 max-h-[500px] overflow-y-auto px-4 py-3.5 outline-none focus:ring-0 text-sm scrollbar-none"
+                className="min-h-60 max-h-125 overflow-y-auto px-4 py-3.5 outline-none focus:ring-0 text-sm scrollbar-none"
                 disabled={disabled}
               />
             }

@@ -9,6 +9,8 @@ import { CommandPalette } from '@/features/command';
 
 import { useSettingsStore } from '@/store/settings-store';
 
+import { ConfirmProvider } from '@/providers/confirm-provider';
+
 import {
   SidebarInset,
   SidebarManager,
@@ -98,7 +100,9 @@ function AppLayout() {
                   <AppTopHeader />
 
                   <main className="overflow-hidden flex-1 p-3">
-                    <Outlet />
+                    <ConfirmProvider>
+                      <Outlet />
+                    </ConfirmProvider>
                   </main>
                 </ResizablePanel>
 

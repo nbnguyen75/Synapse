@@ -50,12 +50,12 @@ interface NoteWithDetails extends Note {
 }
 
 interface NoteCardProps {
+  onDelete?: (note: Note) => void | Promise<void>;
   onToggleSelect?: (id: string) => void;
   onChatWithNote?: (note: Note) => void;
   onOpenDetail?: (note: Note) => void;
   onToggleStar?: (id: string) => void;
   onTogglePin?: (id: string) => void;
-  onDelete?: (id: string) => void;
   isBatchMode?: boolean;
   note: NoteWithDetails;
   isSelected?: boolean;
@@ -112,7 +112,7 @@ export function NoteCard({
               )}
 
               <CardTitle className="text-sm font-semibold leading-tight truncate text-foreground group-hover:text-primary transition-colors duration-200">
-                {note.title || 'Untitled'}
+                {note.title || m.notes_page_untitled()}
               </CardTitle>
             </div>
 
@@ -120,7 +120,11 @@ export function NoteCard({
               <Button
                 variant="ghost"
                 size="icon"
-                title={note.isPinned ? 'Bỏ ghim' : 'Ghim ghi chú'}
+                title={
+                  note.isPinned
+                    ? m.notes_page_pin_unpin()
+                    : m.notes_page_pin_pin()
+                }
                 onClick={(e) => {
                   e.stopPropagation();
                   onTogglePin?.(note.id);
@@ -143,7 +147,11 @@ export function NoteCard({
               <Button
                 variant="ghost"
                 size="icon"
-                title={note.isStarred ? 'Bỏ yêu thích' : 'Yêu thích'}
+                title={
+                  note.isStarred
+                    ? m.notes_page_favorite_off()
+                    : m.notes_page_favorite_on()
+                }
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleStar?.(note.id);
@@ -210,7 +218,7 @@ export function NoteCard({
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem
-                    onClick={() => onDelete?.(note.id)}
+                    onClick={() => onDelete?.(note)}
                     variant="destructive"
                   >
                     <Trash2Icon className="mr-2 size-3.5" />
@@ -280,7 +288,7 @@ export function NoteCard({
               variant="outline"
               className="font-normal text-[10px] px-2 py-0 h-5 border-border/40 text-muted-foreground/70"
             >
-              {wordCount} words
+              {m.notes_page_word_count({ count: wordCount })}
             </Badge>
           )}
         </div>

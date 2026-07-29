@@ -1,3 +1,5 @@
+import { m } from '@/paraglide/messages';
+
 import { Sparkles } from 'lucide-react';
 
 export function SidebarLogo() {
@@ -11,7 +13,7 @@ export function SidebarLogo() {
           {import.meta.env.VITE_APP_NAME}
         </div>
         <div className="truncate text-[10px] font-medium text-neutral-400 dark:text-neutral-500 leading-none">
-          Intelligence Hub
+          {m.sidebar_intelligence_hub()}
         </div>
       </div>
     </div>

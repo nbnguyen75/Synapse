@@ -32,8 +32,9 @@ export function useUpdateNoteMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<Note, Error, { data: NoteFormValues; id: string }>({
-    onSuccess: ({ title }) => {
+    onSuccess: ({ title }, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ['notes', id] });
 
       toast.success(m.notes_page_toast_updated(), {
         description: m.notes_page_toast_updated_desc({ title }),
@@ -51,8 +52,9 @@ export function useDeleteNoteMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<string, Error, { id: string }>({
-    onSuccess: () => {
+    onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ['notes', id] });
 
       toast.success(m.notes_page_toast_deleted(), {
         description: m.notes_page_toast_deleted_desc(),

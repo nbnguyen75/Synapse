@@ -44,7 +44,7 @@ export default defineConfig([
       'no-useless-assignment': 'warn',
       '@typescript-eslint/array-type': 'warn',
       '@typescript-eslint/require-await': 'warn',
-      '@typescript-eslint/no-unsafe-assignment': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'warn',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-misused-promises': 'off',

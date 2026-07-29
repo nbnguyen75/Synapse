@@ -6,29 +6,47 @@ import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import { useNavigate } from '@tanstack/react-router';
 
 import {
+  DEFAULT_NOTES_QUERY_PARAMS,
+  EMPTY_PAGINATED,
+  sortItems,
+} from '@/features/notes/constants';
+import {
   notesQueryParamsSchema,
   type NotesQueryParams,
 } from '@/features/notes/schemas';
-import {
-  QuickCreateNoteDialog,
-  QuickEditNoteDialog,
-} from '@/features/notes/components';
-import { DeleteAlertDialog } from '@/features/notes/components/dialogs/delete-alert-dialog';
 import { NoteBatchActions } from '@/features/notes/components/list/note-batch-actions';
+import { useDeleteNoteMutation } from '@/features/notes/hooks/use-note-mutation';
 import { NotesHeader } from '@/features/notes/components/list/notes-header';
 import { useMultiSelect } from '@/features/notes/hooks/use-multi-select';
 import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
-import { DEFAULT_NOTES_QUERY_PARAMS } from '@/features/notes/constants';
 import { NotesList } from '@/features/notes/components/view';
 
 import { usePagination } from '@/hooks/use-pagination';
+
+import { useConfirm } from '@/providers/confirm-provider';
 
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
 
+import {
+  PageHeader,
+  PageHeaderActions,
+  PageHeaderContent,
+  PageHeaderDescription,
+  PageHeaderRow,
+  PageHeaderTitle,
+  PageHeaderToolbar,
+} from '@/components/common/page-header';
 import { Paginator } from '@/components/shared';
 
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+  SelectItem,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 
 import { PlusIcon } from 'lucide-react';
@@ -48,8 +66,14 @@ function NotesPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const multiSelect = useMultiSelect();
+  const confirm = useConfirm();
+  const { mutate: deleteNote } = useDeleteNoteMutation();
 
-  const { page, sort, q } = search;
+  const {
+    sort: sortBy = DEFAULT_NOTES_QUERY_PARAMS.sort,
+    page = DEFAULT_NOTES_QUERY_PARAMS.page,
+    q,
+  } = search;
 
   const updateSearchParam = useCallback(
     (key: string, value: string | number) => {
@@ -65,9 +89,8 @@ function NotesPage() {
     [navigate],
   );
 
-  const { isLoading, data } = useGetNotesQuery(search);
-  const notes = data?.items ?? [];
-  const sortBy = sort ?? DEFAULT_NOTES_QUERY_PARAMS.sort;
+  const { data = EMPTY_PAGINATED, isLoading } = useGetNotesQuery(search);
+  const { totalElements, items: notes, totalPages } = data;
 
   const pagination = usePagination({
     onPageChange: (page: number) => {
@@ -76,23 +99,70 @@ function NotesPage() {
         to: '/notes',
       });
     },
-    currentPage: page ?? DEFAULT_NOTES_QUERY_PARAMS.page,
-    totalItems: data?.totalElements ?? 0,
-    totalPages: data?.totalPages ?? 1,
+    totalItems: totalElements,
+    totalPages: totalPages,
+    currentPage: page,
   });
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editNote, setEditNote] = useState<Note | undefined>();
-  const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
+
+  const handleOnDelete = async (note: Note) => {
+    const ok = await confirm({
+      description: m.notes_page_delete_desc({
+        title: note.title,
+      }),
+      confirmText: m.notes_page_delete_confirm(),
+      cancelText: m.notes_page_delete_cancel(),
+      title: m.notes_page_delete_title(),
+      variant: 'destructive',
+    });
+
+    if (!ok) return;
+
+    deleteNote({ id: note.id });
+  };
 
   return (
     <>
       <div className="flex h-full flex-col overflow-hidden">
-        <NotesHeader
+        {/* <NotesHeader
           sortBy={sortBy}
           onSortChange={(value) => updateSearchParam('sort', value)}
           onCreateClick={() => setIsCreateOpen(true)}
-        />
+          searchValue={q}
+          onSearchChange={(value) => updateSearchParam('q', value)}
+        /> */}
+
+        <PageHeader>
+          <PageHeaderRow>
+            <PageHeaderContent>
+              <PageHeaderTitle className="text-foreground">
+                📝 All Notes
+              </PageHeaderTitle>
+              <PageHeaderDescription>
+                {pagination.totalItems * pagination.totalPages} {'notes total'}
+              </PageHeaderDescription>
+            </PageHeaderContent>
+
+            <PageHeaderActions>
+              <PageHeaderToolbar>
+                <Select items={sortItems} defaultValue={sortBy}>
+                  <SelectTrigger className="w-36 h-9 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {sortItems.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </PageHeaderToolbar>
+            </PageHeaderActions>
+          </PageHeaderRow>
+        </PageHeader>
 
         <div className="flex flex-1 flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto scrollbar-none px-6 py-6 @container">
@@ -106,10 +176,11 @@ function NotesPage() {
               }
               onChatWithNote={(n) =>
                 navigate({
-                  search: { q: `Summarize my note "${n.title}"` },
+                  search: { q: m.notes_page_chat_prompt({ title: n.title }) },
                   to: '/chat',
                 })
               }
+              onDelete={handleOnDelete}
               isBatchMode={multiSelect.selectedCount > 0}
               selectedIds={multiSelect.selectedIds}
               onToggleSelect={multiSelect.toggleSelect}
@@ -145,24 +216,6 @@ function NotesPage() {
           />
         )}
       </div>
-
-      <QuickCreateNoteDialog
-        isOpen={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-      />
-
-      <QuickEditNoteDialog
-        note={editNote}
-        isOpen={!!editNote}
-        onOpenChange={(open) => {
-          if (!open) setEditNote(undefined);
-        }}
-      />
-
-      <DeleteAlertDialog
-        note={deleteTarget}
-        onOpenChange={() => setDeleteTarget(null)}
-      />
     </>
   );
 }

@@ -1,3 +1,5 @@
+import { m } from '@/paraglide/messages';
+
 import {
   ConfigPopover,
   KeyboardShortcutsDialog,
@@ -22,7 +24,7 @@ export function NavSecondary() {
             <ConfigPopover>
               <SidebarMenuButton size="sm" className="text-xs font-medium">
                 <Settings2 className="size-4" />
-                <span>Configuration</span>
+                <span>{m.sidebar_config()}</span>
               </SidebarMenuButton>
             </ConfigPopover>
           </SidebarMenuItem>
@@ -31,7 +33,7 @@ export function NavSecondary() {
             <KeyboardShortcutsDialog>
               <SidebarMenuButton size="sm" className="text-xs font-medium">
                 <Keyboard className="size-4" />
-                <span>Keyboard Shortcuts</span>
+                <span>{m.sidebar_keyboard_shortcuts()}</span>
               </SidebarMenuButton>
             </KeyboardShortcutsDialog>
           </SidebarMenuItem>

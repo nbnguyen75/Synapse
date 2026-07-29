@@ -1,3 +1,5 @@
+import { m } from '@/paraglide/messages';
+
 import { Loader2Icon } from 'lucide-react';
 
 export default function DefaultLoaderPage() {
@@ -125,8 +127,8 @@ export default function DefaultLoaderPage() {
       </div>
 
       <div className="dlp-text">
-        <p className="dlp-title">Đang tải dữ liệu</p>
-        <p className="dlp-subtitle">Vui lòng chờ trong giây lát...</p>
+        <p className="dlp-title">{m.loader_title()}</p>
+        <p className="dlp-subtitle">{m.loader_subtitle()}</p>
       </div>
 
       <div className="dlp-skeleton-wrap">

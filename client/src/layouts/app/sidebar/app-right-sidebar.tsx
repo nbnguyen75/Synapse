@@ -2,6 +2,8 @@ import ChatBot from '@/features/chat/components/chat-bot';
 
 import { useSettingsStore } from '@/store/settings-store';
 
+import { m } from '@/paraglide/messages';
+
 import {
   SidebarHeader,
   SidebarContent,
@@ -24,7 +26,7 @@ export default function AppRightSidebar({
           variant="ghost"
           size="icon-xs"
           className="h-7 w-7 ml-auto rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-900 text-muted-foreground hover:text-foreground cursor-pointer"
-          title="Close panel"
+          title={m.sidebar_close_panel()}
           onClick={() => setRightSidebarOpen(false)}
         >
           <XIcon className="h-4 w-4" />
