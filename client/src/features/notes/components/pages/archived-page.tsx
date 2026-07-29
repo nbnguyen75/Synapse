@@ -10,7 +10,7 @@ import {
   NotesEmptyState,
 } from '@/features/notes/components/view';
 import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
-import { NoteCard } from '@/features/notes/components/list/note-card';
+import { NoteCard } from '@/features/notes/components/note-card';
 
 import { m } from '@/paraglide/messages';
 

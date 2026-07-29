@@ -21,7 +21,7 @@ interface ListPaginationProps {
   totalPages: number;
 }
 
-export function Paginator({
+export default function Paginator({
   currentPage,
   isFirstPage,
   onFirstPage,

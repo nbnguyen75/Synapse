@@ -8,11 +8,13 @@ import { useNavigate } from '@tanstack/react-router';
 import {
   notesQueryParamsSchema,
   type NotesQueryParams,
-} from '@/features/notes/schema';
+} from '@/features/notes/schemas';
+import {
+  QuickCreateNoteDialog,
+  QuickEditNoteDialog,
+} from '@/features/notes/components';
 import { DeleteAlertDialog } from '@/features/notes/components/dialogs/delete-alert-dialog';
-import { CreateNoteDialog } from '@/features/notes/components/dialogs/create-note-dialog';
 import { NoteBatchActions } from '@/features/notes/components/list/note-batch-actions';
-import { EditNoteDialog } from '@/features/notes/components/dialogs/edit-note-dialog';
 import { NotesHeader } from '@/features/notes/components/list/notes-header';
 import { useMultiSelect } from '@/features/notes/hooks/use-multi-select';
 import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
@@ -25,7 +27,7 @@ import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
 
-import { Paginator } from '@/components/common/paginator';
+import { Paginator } from '@/components/shared';
 
 import { Button } from '@/components/ui/button';
 
@@ -80,7 +82,7 @@ function NotesPage() {
   });
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Note | null>(null);
+  const [editNote, setEditNote] = useState<Note | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
 
   return (
@@ -144,13 +146,16 @@ function NotesPage() {
         )}
       </div>
 
-      <CreateNoteDialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      <QuickCreateNoteDialog
+        isOpen={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+      />
 
-      <EditNoteDialog
-        note={editTarget}
-        isOpen={!!editTarget}
+      <QuickEditNoteDialog
+        note={editNote}
+        isOpen={!!editNote}
         onOpenChange={(open) => {
-          if (!open) setEditTarget(null);
+          if (!open) setEditNote(undefined);
         }}
       />
 

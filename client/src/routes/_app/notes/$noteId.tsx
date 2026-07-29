@@ -1,419 +1,273 @@
-import type { NoteTab } from '@/features/notes/types';
-import type { Note } from '@/features/notes/types';
+import type { NoteFormValues } from '@/features/notes/schemas';
 
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 
 import {
-  createFileRoute,
-  useNavigate,
-  useParams,
-} from '@tanstack/react-router';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+  useDeleteNoteMutation,
+  useUpdateNoteMutation,
+} from '@/features/notes/hooks/use-note-mutation';
+import {
+  getMarkdownReadTimeSync,
+  exportMarkdown,
+} from '@/features/notes/services';
+import { getNote } from '@/features/notes/api';
 
-import { toast } from 'sonner';
-
-import { TemplateSelector } from '@/features/notes/components/dialogs/template-selector';
-import { FullPageView } from '@/features/notes/components/pages/full-page-view';
-import { NoteEditor } from '@/features/notes/components/editor/note-editor';
-import { getReadTime, exportMarkdown } from '@/features/notes/constants';
-import { useGetNoteQuery } from '@/features/notes/hooks/use-note-query';
-import { generateAiTitle } from '@/features/notes/lib/ai-title';
-import { updateNote } from '@/features/notes/api';
+import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
 
-import MarkdownRenderer from '@/components/common/markdown-renderer';
+import { LexicalEditor, MarkdownRenderer } from '@/components/shared';
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
-import { ArrowLeft, Download, Save, Sparkles, Trash2 } from 'lucide-react';
+import {
+  ArrowLeftIcon,
+  ClockIcon,
+  DownloadIcon,
+  Edit3Icon,
+  EyeIcon,
+  MoreHorizontalIcon,
+  SaveIcon,
+  SparklesIcon,
+  TagIcon,
+  Trash2Icon,
+} from 'lucide-react';
 
 export const Route = createFileRoute('/_app/notes/$noteId')({
+  loader: async ({ params }) => {
+    const { noteId } = params;
+    try {
+      const note = await getNote(noteId);
+      return note;
+    } catch (error) {
+      console.error(`Note not found with id: ${noteId}`);
+      throw redirect({ to: '/notes' });
+    }
+  },
   head: () => ({
-    meta: [{ title: 'Note Details' }],
+    meta: [{ title: createTitle(m.notes_page_detail_title()) }],
   }),
   component: NoteDetailsPage,
 });
 
 function NoteDetailsPage() {
-  const { noteId } = useParams({ from: '/_app/notes/$noteId' });
+  const note = Route.useLoaderData();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
-  const { data: note } = useGetNoteQuery(noteId);
+  const updateNoteMutation = useUpdateNoteMutation();
+  const deleteNoteMutation = useDeleteNoteMutation();
 
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [tags, setTags] = useState('');
-  const [tab, setTab] = useState<NoteTab>('write');
-  const [isSplit, setIsSplit] = useState(false);
-  const [saveState, setSaveState] = useState<'saving' | null>(null);
-
-  useEffect(() => {
-    if (note) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTitle(note.title);
-      setContent(note.content ?? '');
-      // setTags(note.tags ? note.tags.join(', ') : '');
-    }
-  }, [note]);
-
-  const allExistingNotes = queryClient.getQueryData<Note[]>(['notes']) || [];
-  // const allTags = useMemo(
-  //   () => Array.from(new Set(allExistingNotes.flatMap((n) => n.tags || []))),
-  //   [allExistingNotes],
-  // );
-
-  const isUnsaved = useMemo(() => {
-    if (!note) return false;
-    const tagsArr = tags
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
-    return (
-      title !== note.title || content !== note.content
-      // JSON.stringify(tagsArr) !== JSON.stringify(note.tags || [])
-    );
-  }, [note, title, content, tags]);
-
-  const displayStatus: 'saved' | 'saving' | 'unsaved' = isUnsaved
-    ? 'unsaved'
-    : (saveState ?? 'saved');
-
-  const updateMutation = useMutation({
-    onMutate: async (vars) => {
-      await queryClient.cancelQueries({ queryKey: ['notes'] });
-      await queryClient.cancelQueries({ queryKey: ['notes', noteId] });
-      const prev = queryClient.getQueryData<Note[]>(['notes']);
-      queryClient.setQueryData<Note[]>(['notes'], (old) =>
-        (old || []).map((n) =>
-          n.id === vars.id
-            ? {
-                ...n,
-                updatedAt: new Date().toISOString(),
-                content: vars.content ?? n.content,
-                title: vars.title ?? n.title,
-                // tags: vars.tags ?? n.tags,
-              }
-            : n,
-        ),
-      );
-      queryClient.setQueryData<Note>(['notes', noteId], (old) =>
-        old
-          ? {
-              ...old,
-              content: vars.content ?? old.content,
-              updatedAt: new Date().toISOString(),
-              title: vars.title ?? old.title,
-              // tags: vars.tags ?? old.tags,
-            }
-          : old,
-      );
-      return { prev };
+  const form = useForm<NoteFormValues>({
+    defaultValues: {
+      content: note.content ?? '',
+      title: note.title,
     },
-    mutationFn: (vars: {
-      content?: string;
-      tags?: string[];
-      title?: string;
-      id: string;
-    }) => updateNote(vars.id, { content, title }),
-    onError: (_err, _v, ctx) => {
-      queryClient.setQueryData(['notes'], ctx?.prev);
-      setSaveState(null);
-    },
-    onSuccess: (data) => {
-      setSaveState(null);
-      queryClient.setQueryData(['notes', noteId], data);
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['notes'] }),
   });
 
-  const deleteMutation = useMutation({
-    onSuccess: () => {
-      toast.success(m.notes_page_toast_deleted(), {
-        description: m.notes_page_toast_deleted_desc(),
-      });
-      navigate({ to: '/notes' });
-    },
-    mutationFn: (id: string) =>
-      import('@/features/notes/api').then((m) => m.deleteNote(id)),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['notes'] }),
+  const { handleSubmit, control } = form;
+
+  const [watchedContent, watchedTitle] = useWatch({
+    name: ['content', 'title'],
+    control,
   });
 
-  const handleSaveNow = () => {
-    if (!note || !title.trim()) return;
-    setSaveState('saving');
-    const tagsArr = tags
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
-    updateMutation.mutate(
-      { tags: tagsArr, id: note.id, content, title },
-      { onSuccess: () => setSaveState(null) },
+  const onSave = (data: NoteFormValues) => {
+    updateNoteMutation.mutate({
+      data: {
+        ...data,
+      },
+      id: note.id,
+    });
+  };
+
+  const handleDelete = () => {
+    if (!note) return;
+
+    deleteNoteMutation.mutate(
+      { id: note.id },
+      {
+        onSuccess: () => navigate({ to: '/notes' }),
+      },
     );
   };
 
-  const handleAiTitle = () => {
-    if (!content) return;
-    const generated = generateAiTitle(content);
-    setTitle(generated);
-    toast.success(m.notes_page_ai_title_success());
-  };
-
-  const handleApplyTemplate = (
-    templateTitle: string,
-    templateContent: string,
-  ) => {
-    setTitle(templateTitle.replace('{date}', new Date().toLocaleDateString()));
-    setContent(templateContent);
-  };
-
-  useEffect(() => {
-    if (!note || !isUnsaved) return;
-    const timer = setTimeout(() => {
-      if (!title.trim()) return;
-      setSaveState('saving');
-      const tagsArr = tags
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
-      updateMutation.mutate(
-        { tags: tagsArr, id: note.id, content, title },
-        { onSuccess: () => setSaveState(null) },
-      );
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [isUnsaved, note, title, tags, content]);
+  // const handleAiTitle = () => {
+  //   if (!watchedContent) return;
+  //   const generated = generateAiTitle(watchedContent);
+  //   setValue('title', generated, { shouldDirty: true });
+  //   toast.success(m.notes_page_ai_title_success());
+  // };
 
   return (
-    <FullPageView
-      topBar={
-        <div className="flex items-center gap-3 border-b px-6 py-3">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => navigate({ to: '/notes' })}
-          >
-            <ArrowLeft className="size-4" />
-          </Button>
-          <span className="text-xs text-muted-foreground">
-            {m.notes_page_detail_title()}
-          </span>
-          <div className="flex-1" />
-          {content && (
-            <span className="text-[10px] text-muted-foreground">
-              {getReadTime(content)}
-            </span>
-          )}
-          <span
-            className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-              displayStatus === 'saved'
-                ? 'bg-emerald-500/10 text-emerald-600'
-                : displayStatus === 'saving'
-                  ? 'bg-amber-500/10 text-amber-600'
-                  : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            <span
-              className={`size-1.5 rounded-full ${
-                displayStatus === 'saved'
-                  ? 'bg-emerald-500'
-                  : displayStatus === 'saving'
-                    ? 'bg-amber-500 animate-pulse'
-                    : 'bg-muted-foreground/40'
-              }`}
-            />
-            {displayStatus === 'saved'
-              ? m.notes_page_edit_saved()
-              : displayStatus === 'saving'
-                ? m.notes_page_edit_saving()
-                : m.notes_page_edit_unsaved()}
-          </span>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={() => exportMarkdown(title, content || '')}
-          >
-            <Download className="size-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={() => {
-              if (note) deleteMutation.mutate(note.id);
-            }}
-          >
-            <Trash2 className="size-4" />
-          </Button>
-          <Button size="sm" onClick={handleSaveNow}>
-            <Save className="mr-1 size-4" />
-            {m.notes_page_detail_save_now()}
-          </Button>
-        </div>
-      }
-      sidebar={
-        <div className="space-y-6">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">
-              {m.notes_page_create_tags_label()}
-            </label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder={m.notes_page_create_tags_placeholder()}
-              className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-xs"
-            />
-            <div className="flex flex-wrap gap-1 mt-2">
-              {/* {allTags.map((tag) => {
-                const has = tags
-                  .split(',')
-                  .map((t) => t.trim())
-                  .filter(Boolean)
-                  .includes(tag);
-                return (
-                  <Badge
-                    key={tag}
-                    variant={has ? 'default' : 'outline'}
-                    className="cursor-pointer text-[10px]"
-                    onClick={() => {
-                      const current = tags
-                        .split(',')
-                        .map((t) => t.trim())
-                        .filter(Boolean);
-                      const next = has
-                        ? current.filter((t) => t !== tag)
-                        : [...current, tag];
-                      setTags(next.join(', '));
-                    }}
+    <form onSubmit={handleSubmit(onSave)} className="h-full">
+      <Tabs defaultValue="preview" className="flex h-full flex-col">
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between border-b border-border/40 bg-background/80 px-4 md:px-8 py-2.5 backdrop-blur-md sticky top-0 z-20">
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => navigate({ to: '/notes' })}
+                className="rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60"
+              >
+                <ArrowLeftIcon className="size-4" />
+              </Button>
+
+              <Button
+                type="submit"
+                size="sm"
+                disabled={updateNoteMutation.isPending}
+                className="h-8 gap-1.5 text-xs font-semibold rounded-md"
+              >
+                <SaveIcon className="size-3.5" />
+                {updateNoteMutation.isPending ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:flex text-[11px] font-medium text-muted-foreground items-center gap-1 px-2 py-1 rounded-md">
+                <ClockIcon className="size-3" />
+                {getMarkdownReadTimeSync(watchedContent || '')}
+              </span>
+
+              <TabsList className="h-8 p-0.5" variant="line">
+                <TabsTrigger
+                  value="edit"
+                  className="h-7 text-xs px-3 gap-1.5 rounded-md font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs"
+                >
+                  <Edit3Icon className="size-3.5" />
+                  Edit
+                </TabsTrigger>
+                <TabsTrigger
+                  value="preview"
+                  className="h-7 text-xs px-3 gap-1.5 rounded-md font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs"
+                >
+                  <EyeIcon className="size-3.5" />
+                  Preview
+                </TabsTrigger>
+              </TabsList>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="rounded-lg"
+                    >
+                      <MoreHorizontalIcon className="size-4" />
+                    </Button>
+                  }
+                />
+
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem disabled className="cursor-pointer">
+                    <SparklesIcon className="size-4 mr-2 text-violet-500" />
+                    <span>AI Generate Title</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() =>
+                      note &&
+                      exportMarkdown({
+                        ...note,
+                        content: watchedContent,
+                        title: watchedTitle,
+                      })
+                    }
+                    className="cursor-pointer"
                   >
-                    {tag}
-                  </Badge>
-                );
-              })} */}
+                    <DownloadIcon className="size-4 mr-2" />
+                    <span>Export Markdown</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={handleDelete}
+                    variant="destructive"
+                    className="cursor-pointer"
+                  >
+                    <Trash2Icon className="size-4 mr-2" />
+                    <span>Delete Note</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
-          <TemplateSelector onApplyTemplate={handleApplyTemplate} />
-        </div>
-      }
-    >
-      <div className="mx-auto max-w-3xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={m.notes_page_create_title_placeholder()}
-            className="flex-1 bg-transparent text-xl font-semibold outline-none"
-          />
-          {content && (
-            <Button variant="ghost" size="xs" onClick={handleAiTitle}>
-              <Sparkles className="mr-1 size-3" />
-              {m.notes_page_ai_title()}
-            </Button>
-          )}
-        </div>
-        <div className="mb-3 flex items-center gap-2 border-b">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setTab('write');
-              if (isSplit) setIsSplit(false);
-            }}
-            className={
-              tab === 'write' && !isSplit
-                ? 'border-b-2 border-primary text-primary rounded-none'
-                : 'text-muted-foreground rounded-none'
-            }
-          >
-            {m.notes_page_edit_write()}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setTab('preview');
-              if (isSplit) setIsSplit(false);
-            }}
-            className={
-              tab === 'preview' && !isSplit
-                ? 'border-b-2 border-primary text-primary rounded-none'
-                : 'text-muted-foreground rounded-none'
-            }
-          >
-            {m.notes_page_edit_preview()}
-          </Button>
-          <div className="flex-1" />
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={() => setIsSplit(!isSplit)}
-          >
-            {m.notes_page_create_split_view()}
-          </Button>
-        </div>
-        {isSplit ? (
-          <div className="grid grid-cols-2 gap-4">
-            <NoteEditor
-              title={title}
-              content={content}
-              tags={tags}
-              allTags={[]}
-              tab="write"
-              isSplit={false}
-              onTitleChange={setTitle}
-              onContentChange={setContent}
-              onTagsChange={setTags}
-              onTabChange={() => {}}
-              onSplitToggle={() => {}}
-              titleId="edit-page-title"
-              textareaId="details-note-content-split"
-              titlePlaceholder={m.notes_page_edit_title_placeholder()}
-              contentPlaceholder={m.notes_page_edit_content_placeholder()}
-            />
-          </div>
-        ) : tab === 'write' ? (
-          <LexicalEditorInline
-            value={content}
-            onChange={setContent}
-            id="details-note-content"
-          />
-        ) : (
-          <div className="rounded-lg border bg-muted/30 p-4 text-sm min-h-50">
-            <MarkdownRenderer content={content} />
-          </div>
-        )}
-      </div>
-    </FullPageView>
-  );
-}
 
-const LexicalEditorLazy = lazy(
-  () => import('@/features/notes/components/editor/lexical-editor'),
-);
-function LexicalEditorInline({
-  onChange,
-  value,
-  id,
-}: {
-  onChange: (v: string) => void;
-  value: string;
-  id?: string;
-}) {
-  return (
-    <Suspense
-      fallback={
-        <div className="h-50 rounded-lg border bg-muted/30 animate-pulse" />
-      }
-    >
-      <LexicalEditorLazy
-        value={value}
-        onChange={onChange}
-        id={id}
-        placeholder="Write your note here (Markdown supported)..."
-      />
-    </Suspense>
+          <div className="flex flex-1 overflow-hidden">
+            <div className="flex-1 overflow-y-auto">
+              <div className="mx-auto max-w-5xl px-6 py-8 md:py-12 space-y-4">
+                <Controller
+                  name="title"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Untitled Note..."
+                      className="w-full resize-none bg-transparent text-3xl md:text-4xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7 px-0"
+                    />
+                  )}
+                />
+
+                <div className="flex flex-wrap items-center gap-1.5 pt-1 pb-3 text-xs text-muted-foreground/80">
+                  <TagIcon className="size-3.5 text-muted-foreground/60 mr-1" />
+                  <Input
+                    type="text"
+                    value={[]}
+                    placeholder="Add tags separated by comma..."
+                    className="h-6 border-none shadow-none focus-visible:ring-0 p-0 text-xs bg-transparent max-w-70 placeholder:text-muted-foreground/40"
+                  />
+                </div>
+
+                <TabsContent
+                  value="edit"
+                  className="m-0 focus-visible:outline-none min-h-125"
+                >
+                  <Controller
+                    name="content"
+                    control={control}
+                    render={({ field }) => (
+                      <LexicalEditor
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                        id="details-note-content"
+                        className="h-full max-h-120"
+                        placeholder="Type '/' for commands or start writing..."
+                      />
+                    )}
+                  />
+                </TabsContent>
+
+                <TabsContent
+                  value="preview"
+                  className="m-0 focus-visible:outline-none min-h-125"
+                >
+                  <div className="border border-border/80 rounded-xl bg-background flex flex-col focus-within:border-primary/80 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-200 px-5 py-5 h-full max-h-120 overflow-y-auto">
+                    <MarkdownRenderer
+                      className="h-full"
+                      content={watchedContent || '_No content_'}
+                    />
+                  </div>
+                </TabsContent>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Tabs>
+    </form>
   );
 }

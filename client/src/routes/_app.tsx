@@ -84,25 +84,26 @@ function AppLayout() {
 
       <SidebarManagerProvider>
         <SidebarProvider className="h-svh overflow-hidden">
-          {/* Left sidebar */}
           <SidebarManager name="left">
             <AppLeftSidebar variant="inset" />
           </SidebarManager>
 
           <SidebarInset>
-            <SidebarProvider>
+            <SidebarProvider defaultOpen={false}>
               <ResizablePanelGroup
                 orientation="horizontal"
                 className="overflow-hidden max-h-svh"
               >
                 <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
                   <AppTopHeader />
+
                   <main className="overflow-hidden flex-1 p-3">
                     <Outlet />
                   </main>
                 </ResizablePanel>
 
                 <ResizableHandle withHandle />
+
                 <ResizablePanel
                   panelRef={rightPanelRef}
                   collapsible={true}

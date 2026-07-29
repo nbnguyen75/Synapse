@@ -1,7 +1,7 @@
 import type { Note } from '@/features/notes/types';
 
-import { NoteCard } from '@/features/notes/components/list/note-card';
 import { NotesGridSkeleton } from '@/features/notes/components/view';
+import { NoteCard } from '@/features/notes/components/note-card';
 
 import { m } from '@/paraglide/messages';
 
@@ -71,7 +71,7 @@ export default function NotesList({
     );
 
   return (
-    <div className="grid gap-4 grid-cols-1 @2xl:grid-cols-2 @5xl:grid-cols-3">
+    <div className="grid gap-4 grid-cols-1 @2xl:grid-cols-2 @7xl:grid-cols-3">
       {notes.map((note) => (
         <NoteCard
           key={note.id}

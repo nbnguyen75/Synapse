@@ -60,7 +60,7 @@ export default function AppTopHeader() {
             value={searchVal}
             className="w-full h-9 pl-9 pr-8 text-xs bg-neutral-50 dark:bg-neutral-950 border border-border rounded-lg outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 placeholder:text-muted-foreground transition-all focus-visible:ring-0 cursor-pointer"
           />
-          <span className="absolute right-3 top-2.5 text-[9px] font-mono text-muted-foreground bg-neutral-200/50 dark:bg-neutral-900/80 px-1.5 py-0.5 rounded pointer-events-none">
+          <span className="absolute right-3 top-2.5 text-[9px] font-body text-muted-foreground bg-neutral-200/50 dark:bg-neutral-900/80 px-1.5 py-0.5 rounded pointer-events-none">
             ⌘K
           </span>
         </div>
