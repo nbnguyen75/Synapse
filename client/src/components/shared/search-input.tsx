@@ -16,7 +16,7 @@ interface SearchInputProps {
   delay?: number;
 }
 
-export function SearchInput({
+export default function SearchInput({
   placeholder = 'Search...',
   defaultValue = '',
   delay = 300,

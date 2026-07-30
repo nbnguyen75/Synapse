@@ -241,7 +241,7 @@ export default function ErrorPage({
                     <span>{copied ? 'Đã chép' : 'Sao chép'}</span>
                   </button>
                 </div>
-                <div className="max-h-40 overflow-y-auto text-muted-foreground/90 whitespace-pre-wrap break-all text-[11px] leading-relaxed">
+                <div className="max-h-40 overflow-y-auto text-muted-foreground/90 whitespace-pre-wrap break-all text-sm leading-relaxed">
                   {error.message || String(error)}
                   {error.stack && (
                     <div className="mt-2 pt-2 border-t border-border/40 text-[10px] opacity-70">

@@ -10,6 +10,7 @@
         "@dicebear/styles": "^10.2.0",
         "@fontsource-variable/inter": "^5.3.0",
         "@hookform/resolvers": "^5.5.7",
+        "@iconify-react/circle-flags": "^1.0.2",
         "@iconify/react": "^6.0.2",
         "@lexical/markdown": "^0.48.0",
         "@lexical/react": "^0.48.0",
@@ -250,6 +251,10 @@
     "@humanwhocodes/module-importer": ["@humanwhocodes/module-importer@1.0.1", "", {}, "sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA=="],
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
+
+    "@iconify-react/circle-flags": ["@iconify-react/circle-flags@1.0.2", "", { "dependencies": { "@iconify/css-react": "^1.0.1" } }, "sha512-MfUqGflLeeXxZLHdGBAIG9Iu23RPllxkichWDXvJS0/+0Z0Gm3eFXfpCUT6/TquEdQ3lwsQn4+YIlFsKN6DgEA=="],
+
+    "@iconify/css-react": ["@iconify/css-react@1.0.2", "", { "dependencies": { "@iconify/types": "^2.0.0" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-k33FKG4jGgd8odos+1HdSwCKZOQ5F1heQxwl/zDrA53tLg5IseDPMqsmQbcCEZ6E0Zgcrmfo4ceFSBmbuEvGtw=="],
 
     "@iconify/react": ["@iconify/react@6.0.2", "", { "dependencies": { "@iconify/types": "^2.0.0" }, "peerDependencies": { "react": ">=16" } }, "sha512-SMmC2sactfpJD427WJEDN6PMyznTFMhByK9yLW0gOTtnjzzbsi/Ke/XqsumsavFPwNiXs8jSiYeZTmLCLwO+Fg=="],
 

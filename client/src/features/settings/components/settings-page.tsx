@@ -97,7 +97,7 @@ function SettingsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList variant="line">
           <TabsTrigger value="general">
             {m.settings_page_tab_general()}
           </TabsTrigger>

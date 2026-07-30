@@ -61,7 +61,7 @@ interface NoteCardProps {
   isSelected?: boolean;
 }
 
-export function NoteCard({
+export default function NoteCard({
   onChatWithNote,
   onToggleSelect,
   onOpenDetail,
@@ -93,7 +93,6 @@ export function NoteCard({
         }
       }}
     >
-      {/* Vạch kẻ Pin với hiệu ứng Gradient & Fade-in */}
       {note.isPinned && (
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-primary/30 via-primary to-primary/30 transition-all duration-500 animate-in fade-in" />
       )}
@@ -240,7 +239,6 @@ export function NoteCard({
           </div>
         </CardHeader>
 
-        {/* Nội dung Preview */}
         <CardContent className="px-4 py-1.5 flex-1 overflow-hidden">
           <div
             className={cn(
@@ -261,7 +259,6 @@ export function NoteCard({
         </CardContent>
       </div>
 
-      {/* FOOTER METADATA: Thêm hiệu ứng hover cho từng Tag Badge */}
       <CardFooter className="px-4 py-2 bg-muted/20 border-t border-border/30 flex items-center justify-between gap-2 mt-auto">
         <div className="flex items-center gap-1 min-w-0 overflow-hidden">
           {visibleTags.map((tag) => (

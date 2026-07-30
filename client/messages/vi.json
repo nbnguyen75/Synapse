@@ -424,7 +424,7 @@
   "loader_subtitle": "Vui lòng chờ trong giây lát...",
 
   "sidebar_intelligence_hub": "Trung tâm Tri thức",
-  "sidebar_knowledge_hub": "Trung tâm Kiến thức AI",
+  "sidebar_knowledge_hub": "Sử dụng AI",
   "sidebar_upgrade_pro": "Nâng cấp lên Pro",
   "sidebar_account": "Tài khoản",
   "sidebar_notifications": "Thông báo",
@@ -434,5 +434,23 @@
   "sidebar_mode_servant": "Chế độ Trợ lý",
   "sidebar_mode_chat": "Chế độ Trò chuyện",
   "sidebar_mode_servant_desc": "Xem chính + Trò chuyện",
-  "sidebar_mode_chat_desc": "Giao diện Trò chuyện đầy đủ"
+  "sidebar_mode_chat_desc": "Giao diện Trò chuyện đầy đủ",
+
+  "sidebar_starred": "Đã gắn sao",
+  "sidebar_trash": "Thùng rác",
+  "sidebar_knowledge": "Kiến thức",
+  "sidebar_ai_companion": "Trợ lý AI",
+
+  "header_new_note": "Ghi chú mới",
+  "header_search_tooltip": "Tìm kiếm (Ctrl+K)",
+
+  "notes_page_breadcrumb_notes": "Ghi chú",
+  "notes_page_tag_all": "Tất cả",
+  "notes_page_view_grid": "Lưới",
+  "notes_page_view_table": "Bảng",
+
+  "notes_bulk_pin": "Ghim",
+  "notes_bulk_tag": "Thẻ",
+  "notes_bulk_delete": "Xóa",
+  "notes_bulk_clear": "Bỏ chọn"
 }

@@ -60,6 +60,10 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
       throw redirect({ to: '/notes' });
     }
   },
+  staticData: {
+    breadcrumb: ({ loaderData, params }) =>
+      (loaderData as { title?: string })?.title || params.noteId,
+  },
   head: () => ({
     meta: [{ title: createTitle(m.notes_page_detail_title()) }],
   }),

@@ -231,6 +231,14 @@
          "dependencies": ["feat-002"],
          "status": "done",
          "evidence": "src/components/common/sidebar-config.tsx (KeyboardShortcutsDialog)"
+      },
+      {
+         "id": "feat-030",
+         "name": "Notes Page Layout Refresh",
+         "description": "Breadcrumb system (useBreadcrumb hook + AppBreadcrumb component), compact top header with search icon + '+ New' dropdown, sidebar content reorganization (Knowledge / AI Companion groups), NotesTagFilter (hardcoded chips), NotesViewToggle (Grid/Table), NotesBulkActions (fixed bottom bar), FAB auto-hide on mobile.",
+         "dependencies": ["feat-009", "feat-025"],
+         "status": "done",
+         "evidence": "src/types/breadcrumb.ts, src/hooks/use-breadcrumb.ts, src/components/common/app-breadcrumb.tsx, src/features/notes/components/list/notes-tag-filter.tsx, src/features/notes/components/list/notes-view-toggle.tsx, src/features/notes/components/list/notes-bulk-actions.tsx, src/routes/_app/notes/index.tsx, src/routes/_app/notes/$noteId.tsx, src/layouts/app/app-top-header.tsx, src/layouts/app/sidebar/nav/nav-main.tsx, src/layouts/app/sidebar/nav/nav-companion.tsx"
       }
    ]
 }

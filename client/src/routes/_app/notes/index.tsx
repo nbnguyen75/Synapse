@@ -1,3 +1,4 @@
+import type { ViewMode } from '@/features/notes/components/notes-view-toggle';
 import type { Note } from '@/features/notes/types';
 
 import { useState } from 'react';
@@ -5,6 +6,13 @@ import { useState } from 'react';
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import { useNavigate } from '@tanstack/react-router';
 
+import {
+  NotesList,
+  NotesTagFilter,
+  NoteCard,
+  NotesViewToggle,
+  NotesBulkActions,
+} from '@/features/notes/components';
 import {
   DEFAULT_NOTES_QUERY_PARAMS,
   EMPTY_PAGINATED,
@@ -14,10 +22,8 @@ import {
   notesQueryParamsSchema,
   type NotesQueryParams,
 } from '@/features/notes/schemas';
-import { NoteBatchActions } from '@/features/notes/components/list/note-batch-actions';
 import { useDeleteNoteMutation } from '@/features/notes/hooks/use-note-mutation';
 import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
-import { NotesList } from '@/features/notes/components/view';
 
 import { useMultiSelect } from '@/hooks/use-multi-select';
 import { usePagination } from '@/hooks/use-pagination';
@@ -27,6 +33,7 @@ import { useConfirm } from '@/providers/confirm-provider';
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
 import {
   PageHeader,
@@ -36,7 +43,7 @@ import {
   PageHeaderRow,
   PageHeaderTitle,
   PageHeaderToolbar,
-} from '@/components/common/page-header';
+} from '@/components/shared/page-header';
 import { Paginator } from '@/components/shared';
 
 import {
@@ -46,9 +53,10 @@ import {
   SelectValue,
   SelectItem,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 
-import { ArrowDown, ArrowUp, PlusIcon } from 'lucide-react';
+import { PlusIcon } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/notes/')({
   search: {
@@ -89,10 +97,7 @@ function NotesPage() {
     currentPage: page,
   });
 
-  const sortDir = sortBy.split(',')[1];
-  const SortIcon = sortDir === 'asc' ? ArrowUp : ArrowDown;
-
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   const handleOnDelete = async (note: Note) => {
     const ok = await confirm({
@@ -110,113 +115,117 @@ function NotesPage() {
     deleteNote({ id: note.id });
   };
 
+  const isBulkActive = multiSelect.selectedCount > 0;
+
   return (
-    <>
-      <div className="flex h-full flex-col overflow-hidden">
-        {/* <NotesHeader
-          sortBy={sortBy}
-          onSortChange={(value) => updateSearchParam('sort', value)}
-          onCreateClick={() => setIsCreateOpen(true)}
-          searchValue={q}
-          onSearchChange={(value) => updateSearchParam('q', value)}
-        /> */}
+    <div className="flex h-full flex-col overflow-hidden">
+      <PageHeader>
+        <PageHeaderRow>
+          <PageHeaderContent>
+            <PageHeaderTitle className="text-foreground">
+              📝 All Notes
+            </PageHeaderTitle>
+            <PageHeaderDescription>
+              {totalElements} notes &middot; Updated 2 mins ago
+            </PageHeaderDescription>
+          </PageHeaderContent>
 
-        <PageHeader>
-          <PageHeaderRow>
-            <PageHeaderContent>
-              <PageHeaderTitle className="text-foreground">
-                📝 All Notes
-              </PageHeaderTitle>
-              <PageHeaderDescription>
-                {pagination.totalItems * pagination.totalPages} {'notes total'}
-              </PageHeaderDescription>
-            </PageHeaderContent>
+          <PageHeaderActions>
+            <PageHeaderToolbar>
+              <Select
+                items={getSortItems()}
+                defaultValue={sortBy}
+                onValueChange={(value) => {
+                  void navigate({
+                    search: (prev: NotesQueryParams) => ({
+                      ...prev,
+                      sort: value ?? undefined,
+                      page: 1,
+                    }),
+                    to: '/notes',
+                  });
+                }}
+              >
+                <SelectTrigger className="w-48 h-9 text-sm gap-1">
+                  <SelectValue />
+                </SelectTrigger>
 
-            <PageHeaderActions>
-              <PageHeaderToolbar>
-                <Select
-                  items={getSortItems()}
-                  defaultValue={sortBy}
-                  onValueChange={(value) => {
-                    void navigate({
-                      search: (prev: NotesQueryParams) => ({
-                        ...prev,
-                        sort: value ?? undefined,
-                        page: 1,
-                      }),
-                      to: '/notes',
-                    });
-                  }}
-                >
-                  <SelectTrigger className="w-44 h-9 text-sm gap-1">
-                    <SortIcon className="size-3.5 text-muted-foreground" />
-                    <SelectValue />
-                  </SelectTrigger>
+                <SelectContent className="w-48" align="end">
+                  {getSortItems().map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                  <SelectContent>
-                    {getSortItems().map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </PageHeaderToolbar>
-            </PageHeaderActions>
-          </PageHeaderRow>
-        </PageHeader>
+              <Separator orientation="vertical" className="h-6" />
 
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <div className="flex-1 overflow-y-auto scrollbar-none px-6 py-6 @container">
-            <NotesList
-              isLoading={isLoading}
-              notes={notes}
-              hasQuery={!!q}
-              onOpenDetail={(n) =>
-                navigate({ params: { noteId: n.id }, to: '/notes/$noteId' })
-              }
-              onChatWithNote={(n) =>
-                navigate({
-                  search: { q: m.notes_page_chat_prompt({ title: n.title }) },
-                  to: '/chat',
-                })
-              }
-              onDelete={handleOnDelete}
-              isBatchMode={multiSelect.selectedCount > 0}
-              selectedIds={multiSelect.selectedIds}
-              onToggleSelect={multiSelect.toggleSelect}
-            />
-          </div>
+              <NotesViewToggle value={viewMode} onChange={setViewMode} />
+            </PageHeaderToolbar>
+          </PageHeaderActions>
+        </PageHeaderRow>
+      </PageHeader>
 
-          <Paginator
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            isFirstPage={pagination.isFirstPage}
-            isLastPage={pagination.isLastPage}
-            onFirstPage={pagination.firstPage}
-            onPrevPage={pagination.prevPage}
-            onNextPage={pagination.nextPage}
-            onLastPage={pagination.lastPage}
+      <NotesTagFilter />
+
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto scrollbar-none px-6 py-6 @container">
+          <NotesList
+            isLoading={isLoading}
+            notes={notes}
+            hasQuery={!!q}
+            renderItem={(note) => (
+              <NoteCard
+                note={note}
+                onOpenDetail={(n) =>
+                  navigate({ params: { noteId: n.id }, to: '/notes/$noteId' })
+                }
+                // onChatWithNote={(n) =>
+                //   navigate({
+                //     search: { q: m.notes_page_chat_prompt({ title: n.title }) },
+                //     to: '/chat',
+                //   })
+                // }
+                isSelected={multiSelect.selectedIds.has(note.id)}
+                onDelete={handleOnDelete}
+                isBatchMode={isBulkActive}
+                onToggleSelect={multiSelect.toggleSelect}
+              />
+            )}
           />
         </div>
 
-        <Button
-          onClick={() => setIsCreateOpen(true)}
-          className="fixed bottom-6 right-6 z-50 size-12 rounded-full shadow-lg md:hidden cursor-pointer"
-          size="icon"
-        >
-          <PlusIcon className="size-5" />
-        </Button>
-
-        {multiSelect.selectedCount > 0 && (
-          <NoteBatchActions
-            selectedIds={multiSelect.selectedIds}
-            onClearSelection={multiSelect.clearSelection}
-            paginatedIds={notes.map((n) => n.id)}
-            onSelectAllPage={multiSelect.selectAll}
-          />
-        )}
+        <Paginator
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          isFirstPage={pagination.isFirstPage}
+          isLastPage={pagination.isLastPage}
+          onFirstPage={pagination.firstPage}
+          onPrevPage={pagination.prevPage}
+          onNextPage={pagination.nextPage}
+          onLastPage={pagination.lastPage}
+        />
       </div>
-    </>
+
+      <Button
+        onClick={() => navigate({ to: '/notes/create' })}
+        className={cn(
+          'fixed bottom-6 right-6 z-40 size-12 rounded-full shadow-lg md:hidden cursor-pointer transition-all duration-300',
+          isBulkActive && 'scale-0 pointer-events-none opacity-0',
+        )}
+        size="icon"
+      >
+        <PlusIcon className="size-5" />
+      </Button>
+
+      <NotesBulkActions
+        selectedCount={multiSelect.selectedCount}
+        onClearSelection={multiSelect.clearSelection}
+        onDelete={() =>
+          multiSelect.selectedIds.forEach((id) => deleteNote({ id }))
+        }
+      />
+    </div>
   );
 }

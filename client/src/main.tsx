@@ -27,7 +27,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Create a new router instance
 const router = createRouter({
   defaultErrorComponent: ({ error, reset }) => (
     <ErrorPage error={error} reset={reset} />
@@ -38,8 +37,7 @@ const router = createRouter({
     queryClient,
   },
   defaultPendingComponent: () => <DefaultLoaderPage />,
-  defaultPendingMinMs: 400,
-  defaultPendingMs: 250,
+  defaultPendingMinMs: 1000,
   routeTree,
 });
 

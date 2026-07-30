@@ -15,7 +15,7 @@ import { DefaultLoaderPage } from '@/features/loader/components';
 
 import { env } from '@/config/env';
 
-import { CommandPalette } from '@/components/common/global-keybinds';
+import CommandPalette from '@/components/shared/global-keybinds';
 
 import appCss from '@/assets/styles.css?url';
 

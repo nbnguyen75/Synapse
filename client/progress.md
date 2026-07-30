@@ -2,26 +2,24 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-27
-**Session ID:** feat-implement-session-5
-**Active Feature:** API integration + batch actions + date filter + misc bugs/refactors
+**Last Updated:** 2026-07-30
+**Session ID:** notes-page-layout-refresh
+**Active Feature:** Notes page layout + breadcrumb system + sidebar content reorganization
 
 ## Status
 
 ### What's Done
 
-- [x] **Fix Ctrl+Alt+B left sidebar conflict** — Added `!event.altKey` guard to sidebar keyboard handler
-- [x] **Fix left sidebar cookie init on reload** — Sidebar state now initializes from cookie instead of hardcoded `defaultOpen = true`
-- [x] **Flatten config popover** — Removed headings ("Layout Mode", "Theme"), removed separators, removed language section
-- [x] **Move language selector to top bar** — Added `Select` dropdown with Globe icon between ThemeToggle and right sidebar button
-- [x] **Remove active/archived ViewToggle** — Removed `FilterBar.ViewToggle` subcomponent and usage in notes-header
-- [x] **Group Sort + CreateButton right** — Wrapped in `div.ml-auto.flex.gap-2` so they stay together on the right of search
-- [x] **API integration (Phase A)** — Created `http/fetch.ts` using `$fetch` (better-fetch), swapped barrel from mock to HTTP
-- [x] **Remove version history** — Deleted `NoteVersion` type, version-history.tsx, removed all version state/logic from use-notes and notes-page
-- [x] **Batch Note Actions (feat-025)** — `use-multi-select.ts` hook, `NotesBatchActions` floating bar, checkbox in `NoteCard`
-- [x] **Date Range Filter (feat-026)** — `NoteDateFilter` component with native `<input type="date">`, zod schema extension, client-side filter in use-notes
-- [x] **i18n cleanup** — Removed 3 old keys, added 11 new keys (EN + VI), regenerated translations
-- [x] **Verification** — `bun --bun check` passes (0 errors, only type-cast warnings in API layer)
+- [x] **Breadcrumb system** — `src/types/breadcrumb.ts` (route type augmentation), `src/hooks/use-breadcrumb.ts` (useMatches + staticData + aliases), `src/components/common/app-breadcrumb.tsx` (shadcn wiring)
+- [x] **i18n keys** — Added 16 new keys to both en.json and vi.json (sidebar, header, notes page)
+- [x] **Sidebar content reorganization** — NavMain: "Knowledge" group (Notes, Starred, Tags, Trash), NavCompanion: "AI Companion" group (New Chat, History, Servant Mode with Switch), NavSecondary: added Settings route link
+- [x] **Global top header** — Replaced wide search bar with compact search icon button (+ tooltip), added "+ New" dropdown (icon-only, navigates to /notes/create)
+- [x] **NotesTagFilter component** — Horizontal scrollable hardcoded filter chips (All, #work, #ideas, #personal, #design + add button)
+- [x] **NotesViewToggle component** — Grid/Table toggle buttons with tooltips
+- [x] **NotesBulkActions component** — New fixed bottom bar (replaces floating NoteBatchActions) with Pin/Tag/Delete/Clear
+- [x] **Notes page route** — Added staticData.breadcrumb, AppBreadcrumb, NotesTagFilter, NotesViewToggle, NotesBulkActions, FAB auto-hide (scale-0 + pointer-events-none) when bulk active
+- [x] **Note detail route** — Added staticData.breadcrumb with dynamic resolution from loaderData
+- [x] **Verification** — `bun --bun install`, `bun --bun check` (prettier + oxlint + eslint) pass
 
 ### What's In Progress
 
@@ -37,12 +35,11 @@ Remaining features from `feature_list.json` (not-started):
 
 ## Key Findings
 
-- Sidebar keyboard handler needed `!event.altKey` to prevent Ctrl+Alt+B (right sidebar) from also triggering left sidebar toggle
-- Sidebar cookie write (`sidebar_state`) was never read back on mount — required lazy initializer in `useState`
-- `$fetch` from `@better-fetch/fetch` is already configured with auth token and base URL — the HTTP adapter was trivial
-- `setLocale()` from Paraglide triggers page reload by default (cookie strategy) — perfect for the top-bar dropdown
-- `useMultiSelect` uses `Set<string>` for O(1) add/delete/has operations
-- Batch operations fan out with `Promise.all()` since BE has no batch endpoints
+- TanStack Router's `staticData` + `useMatches()` pattern provides clean breadcrumb resolution without extra context/providers
+- shadcn's base-ui Tooltip needs `TooltipProvider` wrapper and `render` prop instead of `asChild`
+- Paraglide message keys must be added to both en.json and vi.json simultaneously
+- FAB auto-hide via `scale-0 pointer-events-none opacity-0` is smoother than conditional rendering
+- View mode state is local (useState) for now; can promote to URL search param later
 
 ## Blockers / Risks
 
@@ -50,43 +47,37 @@ Remaining features from `feature_list.json` (not-started):
 
 ## Decisions Made
 
-- **Custom event removal**: Right sidebar toggle migrated fully to zustand store; `resizable-panels` ref retained in `_app.tsx` but synced to store via `useEffect`
-- **`useSettingsStore.getState()` in header**: Used instead of hook subscription to avoid re-rendering the header on every right sidebar state change
-- **`features/tags/`**: Mirrors notes structure (page + hook + lib) — consistent with feature-first convention
-- **notes components grouping**: 5 subdirectories (editor, list, dialogs, sidebar, pages) — avoids filename prefix clutter
+- **View mode state**: Local useState in notes page. Can be promoted to URL search param when view persistence is needed.
+- **Tag filter**: Hardcoded example data only. Backend integration will use the actual tag query when ready.
+- **FAB behavior**: Auto-hide (scale-0) on bulk select (Way 1 per user spec). FAB is md:hidden (mobile only).
+- **Bulk actions**: New simplified `NotesBulkActions` replaces `NoteBatchActions`. Old component kept in tree but no longer imported.
 
-## Files Modified This Session
+## Files Changed This Session
 
-- `src/components/ui/sidebar.tsx` — Added `!event.altKey` guard, lazy state init from cookie
-- `src/components/common/sidebar-config.tsx` — Flattened (no headings), removed language section
-- `src/components/common/filter-bar.tsx` — Removed ViewToggle subcomponent
-- `src/layouts/app/app-top-header.tsx` — Added language Select dropdown
-- `src/features/notes/components/list/notes-header.tsx` — Removed ViewToggle, reordered children
-- `src/features/notes/components/list/note-card.tsx` — Added checkbox for batch mode
-- `src/features/notes/components/list/note-batch-actions.tsx` — New (floating batch bar)
-- `src/features/notes/components/list/note-date-filter.tsx` — New (date range inputs)
-- `src/features/notes/components/pages/notes-page.tsx` — Wired batch + date filter + removed version history
-- `src/features/notes/hooks/use-multi-select.ts` — New (Set-based multi-select hook)
-- `src/features/notes/hooks/use-notes.ts` — Added date filter logic, removed version state
-- `src/features/notes/api/http/fetch.ts` — New (HTTP adapter using $fetch)
-- `src/features/notes/api/index.ts` — Swapped barrel to HTTP
-- `src/features/notes/types.ts` — Removed NoteVersion
-- `src/features/notes/constants.ts` — Added startDate/endDate to zod schema
-- `src/features/notes/components/dialogs/version-history.tsx` — Deleted
-- `messages/en.json` — Removed 3 keys, added 11 keys
-- `messages/vi.json` — Removed 3 keys, added 11 keys
-- `feature_list.json` — feat-025/026/029 → done
+- `messages/en.json` — Added 16 new keys
+- `messages/vi.json` — Added 16 new keys
+- `src/types/breadcrumb.ts` — New (route type augmentation)
+- `src/hooks/use-breadcrumb.ts` — New (breadcrumb hook)
+- `src/components/common/app-breadcrumb.tsx` — New (shared component)
+- `src/layouts/app/sidebar/nav/nav-main.tsx` — Knowledge group with Starred/Trash, removed Settings
+- `src/layouts/app/sidebar/nav/nav-companion.tsx` — AI Companion group with Servant Mode Switch
+- `src/layouts/app/sidebar/nav/nav-secondary.tsx` — Added Settings route link
+- `src/layouts/app/app-top-header.tsx` — Compact search icon + "+ New" dropdown
+- `src/features/notes/components/list/notes-tag-filter.tsx` — New (hardcoded filter chips)
+- `src/features/notes/components/list/notes-view-toggle.tsx` — New (Grid/Table toggle)
+- `src/features/notes/components/list/notes-bulk-actions.tsx` — New (fixed bottom bar)
+- `src/routes/_app/notes/index.tsx` — Added breadcrumb, tag filter, view toggle, bulk actions, FAB auto-hide
+- `src/routes/_app/notes/$noteId.tsx` — Added staticData.breadcrumb with dynamic resolution
 
 ## Evidence of Completion
 
-- [x] All refactoring tasks implemented and verified
-- [x] `bun --bun check` passes (0 errors, only type-cast warnings in API layer)
+- [x] All 14 tasks implemented
+- [x] `bun --bun install` passes
+- [x] `bun --bun check` passes (prettier + oxlint + eslint --fix)
 - [x] Repository restartable from `./init.sh`
 
 ## Notes for Next Session
 
 - Remaining features: AI Tab Completion (feat-023), Voice-to-Text (feat-024), PDF Export (feat-027), Quick Note Dialog (feat-028)
-- `Fuse.js` not installed — search uses simple `includes()`
-- Old prototype at `C:\Users\Nguyen\Downloads\synapse 1` has reference implementations for pending features
-- API integration is live — notes now hit `http://localhost:8000/api/notes` (Kong gateway) via `$fetch`
-- Batch operations use fan-out pattern (no BE batch endpoints yet)
+- Tag filter is hardcoded — wire to real tag data when tags API is ready
+- View toggle state is local — promote to URL search param if persistence needed

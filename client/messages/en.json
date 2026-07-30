@@ -424,7 +424,7 @@
   "loader_subtitle": "Please wait a moment...",
 
   "sidebar_intelligence_hub": "Intelligence Hub",
-  "sidebar_knowledge_hub": "AI-powered Knowledge Hub",
+  "sidebar_knowledge_hub": "Powered by AI",
   "sidebar_upgrade_pro": "Upgrade to Pro",
   "sidebar_account": "Account",
   "sidebar_notifications": "Notifications",
@@ -434,5 +434,23 @@
   "sidebar_mode_servant": "Servant Mode",
   "sidebar_mode_chat": "Chat Mode",
   "sidebar_mode_servant_desc": "Main view + Chat",
-  "sidebar_mode_chat_desc": "Full Chat interface"
+  "sidebar_mode_chat_desc": "Full Chat interface",
+
+  "sidebar_starred": "Starred",
+  "sidebar_trash": "Trash",
+  "sidebar_knowledge": "Knowledge",
+  "sidebar_ai_companion": "AI Companion",
+
+  "header_new_note": "New Note",
+  "header_search_tooltip": "Search (Ctrl+K)",
+
+  "notes_page_breadcrumb_notes": "Notes",
+  "notes_page_tag_all": "All",
+  "notes_page_view_grid": "Grid",
+  "notes_page_view_table": "Table",
+
+  "notes_bulk_pin": "Pin",
+  "notes_bulk_tag": "Tag",
+  "notes_bulk_delete": "Delete",
+  "notes_bulk_clear": "Clear"
 }
