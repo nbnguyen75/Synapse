@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 
-import { Link, useMatchRoute } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 
 import { useCurrentPathname } from '@/hooks/use-pathname';
 
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
 import {
   SidebarGroup,
@@ -14,33 +15,46 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-import { FileTextIcon, StarIcon, TagIcon, Trash2Icon } from 'lucide-react';
+import { FileTextIcon, StarIcon, ArchiveIcon, Trash2Icon } from 'lucide-react';
 
 const navItems = [
-  { label: () => m.sidebar_notes_short(), icon: FileTextIcon, href: '/notes' },
   {
-    label: () => m.sidebar_starred(),
-    href: '/notes?starred=true',
+    activeColor: 'text-sky-600 dark:text-sky-400',
+    label: () => m.sidebar_notes_short(),
+    icon: FileTextIcon,
+    href: '/notes',
+  },
+  {
+    // Icon Ngôi sao thêm hiệu ứng fill khi active
+    activeColor:
+      'text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400',
+    label: () => m.sidebar_favorites(),
+    href: '/favorites',
     icon: StarIcon,
   },
-  { label: () => m.sidebar_tags_short(), href: '/tags', icon: TagIcon },
   {
+    activeColor: 'text-purple-600 dark:text-purple-400',
+    label: () => m.sidebar_archive(),
+    icon: ArchiveIcon,
+    href: '/archive',
+  },
+  {
+    activeColor: 'text-rose-600 dark:text-rose-400',
     label: () => m.sidebar_trash(),
-    href: '/notes?archived=true',
     icon: Trash2Icon,
+    href: '/trash',
   },
 ] as const;
 
 export default function NavMain() {
   const currentPath = useCurrentPathname();
-  const matchRoute = useMatchRoute();
 
   const activeMap = useMemo(() => {
     return navItems.reduce<Record<string, boolean>>((acc, item) => {
-      acc[item.href] = !!matchRoute({ to: item.href, fuzzy: true });
+      acc[item.href] = currentPath === item.href;
       return acc;
     }, {});
-  }, [currentPath, matchRoute]);
+  }, [currentPath]);
 
   return (
     <SidebarGroup>
@@ -49,6 +63,7 @@ export default function NavMain() {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeMap[item.href];
+
           return (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
@@ -56,7 +71,10 @@ export default function NavMain() {
                 render={
                   <Link to={item.href}>
                     <Icon
-                      className={`size-4 ${isActive ? 'text-violet-600 dark:text-violet-400' : ''}`}
+                      className={cn(
+                        'size-4 transition-colors',
+                        isActive && item.activeColor,
+                      )}
                     />
                     <span>{item.label()}</span>
                   </Link>

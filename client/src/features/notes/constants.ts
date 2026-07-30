@@ -18,18 +18,25 @@ export const MAX_VISIBLE_TAGS = 3;
 
 export const DEFAULT_NOTES_QUERY_PARAMS = {
   sort: 'updatedAt,desc' as const,
-  pageSize: 10,
+  pageSize: 20,
   page: 1,
   q: '',
 };
+
+export const VIEW_FILTERS = {
+  favorites: { archived: false, trashed: false, favorite: true },
+  active: { archived: false, trashed: false },
+  archive: { archived: true, trashed: false },
+  trash: { trashed: true },
+} as const;
 
 export const EMPTY_PAGINATED: PaginatedData<Note> = {
   totalElements: 0,
   totalPages: 1,
   isLast: true,
   items: [],
-  size: 10,
-  page: 1,
+  size: 20,
+  page: 0,
 };
 
 export function getSortItems(): {

@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { m } from '@/paraglide/messages';
 
 import KeyboardShortcutsDialog from '@/components/shared/sidebar-keyboard-shortcuts-dialog';
-import ConfigPopover from '@/components/old/sidebar-config-popover';
+import ConfigPopover from '@/components/deprecated/sidebar-config-popover';
 
 import {
   SidebarGroup,

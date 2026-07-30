@@ -8,7 +8,6 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 
 import { useUpdateNoteMutation } from '@/features/notes/hooks/use-note-mutation';
 import { noteFormSchema, type NoteFormValues } from '@/features/notes/schemas';
-import { NoteForm } from '@/features/notes/components';
 
 import { m } from '@/paraglide/messages';
 
@@ -22,6 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import NoteForm from '@/features/notes/components/deprecated/note-form';
 
 interface QuickEditNoteDialogProps {
   onOpenChange: (open: boolean) => void;

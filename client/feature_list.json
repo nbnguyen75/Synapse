@@ -239,6 +239,14 @@
          "dependencies": ["feat-009", "feat-025"],
          "status": "done",
          "evidence": "src/types/breadcrumb.ts, src/hooks/use-breadcrumb.ts, src/components/common/app-breadcrumb.tsx, src/features/notes/components/list/notes-tag-filter.tsx, src/features/notes/components/list/notes-view-toggle.tsx, src/features/notes/components/list/notes-bulk-actions.tsx, src/routes/_app/notes/index.tsx, src/routes/_app/notes/$noteId.tsx, src/layouts/app/app-top-header.tsx, src/layouts/app/sidebar/nav/nav-main.tsx, src/layouts/app/sidebar/nav/nav-companion.tsx"
+      },
+      {
+         "id": "feat-031",
+         "name": "URL-Driven View Architecture",
+         "description": "Four dedicated view routes (/notes, /favorites, /archive, /trash) driven by URL search params. Pagination aligned to BE 0-indexed defaults (pageSize: 20, page: 0). View-specific note card actions, bulk actions, and empty states. Backend note action bindings (PATCH/DELETE + bulk variants). 30+ new i18n keys in EN and VI.",
+         "dependencies": ["feat-030"],
+         "status": "done",
+         "evidence": "src/features/notes/schemas.ts (NoteViewMode + filter types), src/features/notes/types.ts (trashedAt), src/features/notes/constants.ts (view-specific query params, pagination), src/features/notes/api.ts (page conversion + 13 new action/bulk functions), src/features/notes/hooks/use-note-mutation.ts (8 new mutation hooks), src/features/notes/components/notes-view-page.tsx (shared view component), src/features/notes/components/note-card.tsx (viewMode-aware actions), src/features/notes/components/notes-bulk-actions.tsx (viewMode-aware bulk bar), src/features/notes/components/notes-empty-state.tsx (trash variant), src/routes/_app/favorites.tsx (NEW), src/routes/_app/archive.tsx (NEW), src/routes/_app/trash.tsx (NEW), src/routes/_app/notes/index.tsx (thinned wrapper), src/routes/_app/notes/$noteId.tsx (from param back-nav), src/components/layouts/app-sidebar/nav-main.tsx (updated links), messages/en.json, messages/vi.json"
       }
    ]
 }

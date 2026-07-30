@@ -1,11 +1,11 @@
-import type { NotesQueryParams } from '@/features/notes/schemas';
+import type { NotesApiParams } from '@/features/notes/schemas';
 import type { Note } from '@/features/notes/types';
 
 import { useQuery } from '@tanstack/react-query';
 
 import { getNote, getNotes } from '@/features/notes/api';
 
-export function useGetNotesQuery(params: NotesQueryParams) {
+export function useGetNotesQuery(params?: NotesApiParams) {
   return useQuery({
     queryFn: async () => getNotes(params),
     queryKey: ['notes', params],

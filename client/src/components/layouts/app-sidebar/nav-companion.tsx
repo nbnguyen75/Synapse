@@ -42,7 +42,7 @@ export default function NavCompanion() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   {layoutMode === 'servant' ? (
-                    <BotIcon className="h-4 w-4 shrink-0 text-primary" />
+                    <BotIcon className="h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
                   ) : (
                     <MessageSquareIcon className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                   )}

@@ -4,7 +4,14 @@ import type { Note } from '@/features/notes/types';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useState } from 'react';
 
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  redirect,
+  useNavigate,
+  useSearch,
+} from '@tanstack/react-router';
+
+import { z } from 'zod/v4';
 
 import {
   useDeleteNoteMutation,
@@ -57,6 +64,7 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
       return note;
     } catch (error) {
       console.error(`Note not found with id: ${noteId}`);
+
       throw redirect({ to: '/notes' });
     }
   },
@@ -64,6 +72,9 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
     breadcrumb: ({ loaderData, params }) =>
       (loaderData as { title?: string })?.title || params.noteId,
   },
+  validateSearch: z.object({
+    from: z.enum(['favorites', 'archive', 'trash']).optional(),
+  }),
   head: () => ({
     meta: [{ title: createTitle(m.notes_page_detail_title()) }],
   }),
@@ -73,6 +84,7 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
 function NoteDetailsPage() {
   const initialData = Route.useLoaderData();
   const navigate = useNavigate();
+  const search = useSearch({ from: '/_app/notes/$noteId' });
   const confirm = useConfirm();
 
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('preview');
@@ -158,7 +170,10 @@ function NoteDetailsPage() {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                onClick={() => navigate({ to: '/notes' })}
+                onClick={() => {
+                  const to = search.from ? `/${search.from}` : '/notes';
+                  void navigate({ to });
+                }}
                 className="rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60"
               >
                 <ArrowLeftIcon className="size-4" />

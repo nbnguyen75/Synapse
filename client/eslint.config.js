@@ -27,7 +27,7 @@ export default defineConfig([
     'init.sh',
     'progress.md',
     'session-handoff.md',
-    '**/old/**',
+    '**/deprecated/**',
   ]),
   {
     files: ['**/*.{ts,tsx,js,jsx}'],

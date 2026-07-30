@@ -1,33 +1,38 @@
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 
-import { DEFAULT_NOTES_QUERY_PARAMS } from '@/features/notes/constants';
+import {
+  DEFAULT_NOTES_QUERY_PARAMS,
+  VIEW_FILTERS,
+} from '@/features/notes/constants';
 import { notesQueryParamsSchema } from '@/features/notes/schemas';
 import { NotesViewPage } from '@/features/notes/components';
-import { VIEW_FILTERS } from '@/features/notes/constants';
 
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
 
-export const Route = createFileRoute('/_app/notes/')({
+export const Route = createFileRoute('/_app/favorites')({
+  head: () => ({
+    meta: [{ title: createTitle(m.favorites_page_title()) }],
+  }),
   search: {
     middlewares: [stripSearchParams(DEFAULT_NOTES_QUERY_PARAMS)],
   },
-  head: () => ({
-    meta: [{ title: createTitle(m.notes_page_title()) }],
-  }),
+  staticData: {
+    breadcrumb: () => m.sidebar_favorites(),
+  },
   validateSearch: notesQueryParamsSchema,
-  component: NotesPage,
+  component: FavoritesPage,
 });
 
-function NotesPage() {
+function FavoritesPage() {
   const search = Route.useSearch();
 
   return (
     <NotesViewPage
-      viewMode="active"
+      viewMode="favorites"
       search={search}
-      apiFilters={VIEW_FILTERS.active}
+      apiFilters={VIEW_FILTERS.favorites}
     />
   );
 }

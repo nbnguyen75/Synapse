@@ -30,8 +30,7 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
 
     if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
       throw new ApiException(
-          ErrorCode.UNAUTHORIZED,
-          "Who goes there? Show your JWT badge or step away from the API!");
+          ErrorCode.UNAUTHORIZED, "Who goes there? Show your JWT badge or step away from the API!");
     }
 
     return jwt.getSubject();

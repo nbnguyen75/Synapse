@@ -28,9 +28,10 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException ex) {
-    List<ApiResponse.FieldError> details = ex.getBindingResult().getFieldErrors().stream()
-        .map(f -> new ApiResponse.FieldError(f.getField(), f.getDefaultMessage()))
-        .toList();
+    List<ApiResponse.FieldError> details =
+        ex.getBindingResult().getFieldErrors().stream()
+            .map(f -> new ApiResponse.FieldError(f.getField(), f.getDefaultMessage()))
+            .toList();
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.validationError(details));
   }
@@ -38,9 +39,10 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(
       MethodArgumentTypeMismatchException ex) {
-    String message = String.format(
-        "Tried putting a square peg in a round hole? Parameter '%s' got '%s' and is totally confused.",
-        ex.getName(), ex.getValue());
+    String message =
+        String.format(
+            "Tried putting a square peg in a round hole? Parameter '%s' got '%s' and is totally confused.",
+            ex.getName(), ex.getValue());
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(ApiResponse.error(ErrorCode.VALIDATION_ERROR, message));
@@ -49,18 +51,20 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(
       ConstraintViolationException ex) {
-    List<ApiResponse.FieldError> details = ex.getConstraintViolations().stream()
-        .map(v -> new ApiResponse.FieldError(v.getPropertyPath().toString(), v.getMessage()))
-        .toList();
+    List<ApiResponse.FieldError> details =
+        ex.getConstraintViolations().stream()
+            .map(v -> new ApiResponse.FieldError(v.getPropertyPath().toString(), v.getMessage()))
+            .toList();
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.validationError(details));
   }
 
   @ExceptionHandler(NoHandlerFoundException.class)
   public ResponseEntity<ApiResponse<Void>> handleNotFound(NoHandlerFoundException ex) {
-    String message = String.format(
-        "We searched high and low, but %s %s doesn't exist in this dimension.",
-        ex.getHttpMethod(), ex.getRequestURL());
+    String message =
+        String.format(
+            "We searched high and low, but %s %s doesn't exist in this dimension.",
+            ex.getHttpMethod(), ex.getRequestURL());
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ApiResponse.error(ErrorCode.ROUTE_NOT_FOUND, message));
@@ -69,9 +73,10 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   public ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed(
       HttpRequestMethodNotSupportedException ex) {
-    String message = String.format(
-        "You can't %s here! Try knocking on this endpoint with a different HTTP verb.",
-        ex.getMethod());
+    String message =
+        String.format(
+            "You can't %s here! Try knocking on this endpoint with a different HTTP verb.",
+            ex.getMethod());
 
     return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
         .body(ApiResponse.error(ErrorCode.METHOD_NOT_ALLOWED, message));

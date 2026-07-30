@@ -5,6 +5,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { StatusCodes } from 'http-status-codes';
 import { toast } from 'sonner';
 
+import { m } from '@/paraglide/messages';
+
 import { Button } from '@/components/ui/button';
 
 import {
@@ -28,39 +30,35 @@ export interface ErrorPageProps {
   error?: Error;
 }
 
-// 1. Cấu hình loại lỗi
 type ErrorCategory = 'unauthorized' | 'not_found' | 'server_error';
 
 interface ErrorDetail {
+  description: () => string;
   category: ErrorCategory;
-  description: string;
-  title: string;
+  title: () => string;
 }
 
-// 2. Dictionary cấu hình các mã lỗi (Dễ dàng thêm 403, 502, 503... tại đây)
 const ERROR_CONFIG: Partial<Record<StatusCodes, ErrorDetail>> = {
   [StatusCodes.UNAUTHORIZED]: {
-    description: 'Bạn cần đăng nhập hoặc được cấp quyền để truy cập trang này.',
-    title: 'Cần xác thực tài khoản',
+    description: () => m.error_page_desc_401(),
+    title: () => m.error_page_title_401(),
     category: 'unauthorized',
   },
   [StatusCodes.FORBIDDEN]: {
-    description: 'Tài khoản của bạn không đủ thẩm quyền để vào trang này.',
-    title: 'Không có quyền truy cập',
+    description: () => m.error_page_desc_403(),
+    title: () => m.error_page_title_403(),
     category: 'unauthorized',
   },
   [StatusCodes.NOT_FOUND]: {
-    description: 'Trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.',
-    title: 'Trang không tồn tại',
+    description: () => m.error_page_desc_404(),
+    title: () => m.error_page_title_404(),
     category: 'not_found',
   },
 };
 
-// Cấu hình mặc định cho các lỗi hệ thống (500, 502,...)
 const DEFAULT_ERROR_CONFIG: ErrorDetail = {
-  description:
-    'Hệ thống gặp sự cố ngoài dự kiến trong quá trình xử lý yêu cầu.',
-  title: 'Đã có lỗi xảy ra',
+  description: () => m.error_page_desc_default(),
+  title: () => m.error_page_title_default(),
   category: 'server_error',
 };
 
@@ -78,8 +76,8 @@ export default function ErrorPage({
   // Lấy config theo statusCode, nếu không có thì lấy DEFAULT_ERROR_CONFIG
   const activeConfig = ERROR_CONFIG[statusCode] ?? DEFAULT_ERROR_CONFIG;
 
-  const title = customTitle || activeConfig.title;
-  const description = customMessage || activeConfig.description;
+  const title = customTitle || activeConfig.title();
+  const description = customMessage || activeConfig.description();
 
   // Helpers điều hướng
   const goToHome = () => {
@@ -104,10 +102,10 @@ export default function ErrorPage({
     try {
       await navigator.clipboard.writeText(errorText);
       setCopied(true);
-      toast.success('Đã sao chép chi tiết lỗi!');
+      toast.success(m.error_page_toast_copy_success());
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Không thể sao chép chi tiết lỗi.');
+      toast.error(m.error_page_toast_copy_failed());
     }
   };
 
@@ -137,7 +135,7 @@ export default function ErrorPage({
                 className="h-9 px-4 text-xs font-medium gap-2 cursor-pointer"
               >
                 <LogIn className="h-3.5 w-3.5" />
-                <span>Đăng nhập ngay</span>
+                <span>{m.error_page_btn_login()}</span>
               </Button>
               <Button
                 variant="outline"
@@ -146,7 +144,7 @@ export default function ErrorPage({
                 className="h-9 px-4 text-xs font-medium gap-2 cursor-pointer border-border/80"
               >
                 <Home className="h-3.5 w-3.5" />
-                <span>Về Trang chủ</span>
+                <span>{m.error_page_btn_home()}</span>
               </Button>
             </>
           )}
@@ -159,7 +157,7 @@ export default function ErrorPage({
                 className="h-9 px-4 text-xs font-medium gap-2 cursor-pointer"
               >
                 <Home className="h-3.5 w-3.5" />
-                <span>Trang chủ</span>
+                <span>{m.error_page_btn_home_short()}</span>
               </Button>
               <Button
                 variant="outline"
@@ -168,7 +166,7 @@ export default function ErrorPage({
                 className="h-9 px-4 text-xs font-medium gap-2 cursor-pointer border-border/80"
               >
                 <Bot className="h-3.5 w-3.5" />
-                <span>Hỏi AI Copilot</span>
+                <span>{m.error_page_btn_copilot()}</span>
               </Button>
               <Button
                 variant="ghost"
@@ -177,7 +175,7 @@ export default function ErrorPage({
                 className="h-9 px-3 text-xs font-medium gap-1.5 cursor-pointer text-muted-foreground hover:text-foreground"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
-                <span>Quay lại</span>
+                <span>{m.error_page_btn_back()}</span>
               </Button>
             </>
           )}
@@ -190,7 +188,7 @@ export default function ErrorPage({
                 className="h-9 px-4 text-xs font-medium gap-2 cursor-pointer"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
-                <span>Thử lại</span>
+                <span>{m.error_page_btn_retry()}</span>
               </Button>
               <Button
                 variant="outline"
@@ -199,13 +197,12 @@ export default function ErrorPage({
                 className="h-9 px-4 text-xs font-medium gap-2 cursor-pointer border-border/80"
               >
                 <Home className="h-3.5 w-3.5" />
-                <span>Quay về Trang chủ</span>
+                <span>{m.error_page_btn_back_home()}</span>
               </Button>
             </>
           )}
         </div>
 
-        {/* Technical Error Drawer (chỉ hiện khi có error object) */}
         {activeConfig.category === 'server_error' && error && (
           <div className="w-full pt-2">
             <button
@@ -214,7 +211,7 @@ export default function ErrorPage({
               className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               <Terminal className="h-3.5 w-3.5" />
-              <span>Chi tiết kỹ thuật</span>
+              <span>{m.error_page_tech_details()}</span>
               {showDetails ? (
                 <ChevronUp className="h-3 w-3" />
               ) : (
@@ -238,7 +235,9 @@ export default function ErrorPage({
                     ) : (
                       <Copy className="h-3 w-3" />
                     )}
-                    <span>{copied ? 'Đã chép' : 'Sao chép'}</span>
+                    <span>
+                      {copied ? m.error_page_copied() : m.error_page_copy()}
+                    </span>
                   </button>
                 </div>
                 <div className="max-h-40 overflow-y-auto text-muted-foreground/90 whitespace-pre-wrap break-all text-sm leading-relaxed">

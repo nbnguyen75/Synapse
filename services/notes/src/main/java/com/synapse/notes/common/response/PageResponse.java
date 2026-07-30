@@ -4,12 +4,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 public record PageResponse<T>(
-    List<T> items,
-    int page,
-    int size,
-    long totalElements,
-    int totalPages,
-    boolean isLast) {
+    List<T> items, int page, int size, long totalElements, int totalPages, boolean isLast) {
   public static <T> PageResponse<T> from(Page<T> page) {
     return new PageResponse<>(
         page.getContent(),

@@ -1,4 +1,7 @@
+import type { NoteViewMode } from '@/features/notes/schemas';
 import type { Note } from '@/features/notes/types';
+
+import { useCallback, useRef } from 'react';
 
 import {
   countWordsMarkdownSync,
@@ -36,40 +39,52 @@ import {
   ArchiveIcon,
   DownloadIcon,
   FileTextIcon,
-  MessageSquareIcon,
   StarIcon,
   PinIcon,
   CalendarIcon,
   BookOpenIcon,
+  Undo2Icon,
+  RotateCcwIcon,
+  XCircleIcon,
 } from 'lucide-react';
 
 interface NoteWithDetails extends Note {
-  isStarred?: boolean;
-  isPinned?: boolean;
   tags?: string[];
 }
 
 interface NoteCardProps {
   onDelete?: (note: Note) => void | Promise<void>;
+  onPermanentDelete?: (id: string) => void;
   onToggleSelect?: (id: string) => void;
-  onChatWithNote?: (note: Note) => void;
+  onSelectRange?: (id: string) => void;
   onOpenDetail?: (note: Note) => void;
   onToggleStar?: (id: string) => void;
   onTogglePin?: (id: string) => void;
+  onUnarchive?: (id: string) => void;
+  onArchive?: (id: string) => void;
+  onRestore?: (id: string) => void;
+  onTrash?: (id: string) => void;
+  viewMode?: NoteViewMode;
   isBatchMode?: boolean;
   note: NoteWithDetails;
   isSelected?: boolean;
 }
 
 export default function NoteCard({
-  onChatWithNote,
+  isBatchMode: _isBatchMode,
+  onDelete: _onDelete,
+  onPermanentDelete,
   onToggleSelect,
+  onSelectRange,
   onOpenDetail,
   onToggleStar,
-  isBatchMode,
   onTogglePin,
+  onUnarchive,
   isSelected,
-  onDelete,
+  onArchive,
+  onRestore,
+  viewMode,
+  onTrash,
   note,
 }: NoteCardProps) {
   const tags = note.tags || [];
@@ -77,23 +92,47 @@ export default function NoteCard({
   const remainingTagsCount = tags.length - MAX_VISIBLE_TAGS;
   const wordCount = countWordsMarkdownSync(note.content);
 
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleTouchStart = useCallback(() => {
+    longPressTimer.current = setTimeout(() => {
+      onToggleSelect?.(note.id);
+    }, 500);
+  }, [note.id, onToggleSelect]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const handleCardClick = useCallback(
+    (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest('[data-slot="checkbox"]')) return;
+      if (e.shiftKey) {
+        onSelectRange?.(note.id);
+      } else {
+        onToggleSelect?.(note.id);
+      }
+    },
+    [note.id, onSelectRange, onToggleSelect],
+  );
+
   return (
     <Card
       className={cn(
         'group relative flex flex-col justify-between h-72 overflow-hidden rounded-xl transition-all duration-300 ease-out',
         'border border-border/60 bg-card hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 cursor-pointer',
-        note.isPinned && 'border-primary/30 bg-primary/1.5',
+        note.pinned && 'border-primary/30 bg-primary/1.5',
         isSelected && 'border-primary bg-primary/5 ring-1 ring-primary',
       )}
-      onClick={() => {
-        if (isBatchMode) {
-          onToggleSelect?.(note.id);
-        } else {
-          onOpenDetail?.(note);
-        }
-      }}
+      onClick={handleCardClick}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchEnd}
     >
-      {note.isPinned && (
+      {note.pinned && (
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-primary/30 via-primary to-primary/30 transition-all duration-500 animate-in fade-in" />
       )}
 
@@ -101,14 +140,17 @@ export default function NoteCard({
         <CardHeader className="p-4 pb-1.5 space-y-1.5">
           <div className="flex items-start justify-between gap-1.5">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              {isBatchMode && (
-                <Checkbox
-                  checked={isSelected}
-                  onCheckedChange={() => onToggleSelect?.(note.id)}
-                  onClick={(e) => e.stopPropagation()}
-                  className="mr-0.5 shrink-0 transition-transform duration-200 active:scale-90"
-                />
-              )}
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={() => onToggleSelect?.(note.id)}
+                onClick={(e) => e.stopPropagation()}
+                className={cn(
+                  'mr-0.5 shrink-0 transition-all duration-200 active:scale-90',
+                  isSelected
+                    ? 'opacity-100'
+                    : 'opacity-0 group-hover:opacity-100',
+                )}
+              />
 
               <CardTitle className="text-sm font-semibold leading-tight truncate text-foreground group-hover:text-primary transition-colors duration-200">
                 {note.title || m.notes_page_untitled()}
@@ -116,59 +158,63 @@ export default function NoteCard({
             </div>
 
             <div className="flex items-center gap-0.5 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity duration-200">
-              <Button
-                variant="ghost"
-                size="icon"
-                title={
-                  note.isPinned
-                    ? m.notes_page_pin_unpin()
-                    : m.notes_page_pin_pin()
-                }
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTogglePin?.(note.id);
-                }}
-                className={cn(
-                  'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
-                  note.isPinned && 'text-primary hover:text-primary',
-                )}
-              >
-                <PinIcon
+              {viewMode !== 'archive' && viewMode !== 'trash' && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title={
+                    note.pinned
+                      ? m.notes_page_pin_unpin()
+                      : m.notes_page_pin_pin()
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTogglePin?.(note.id);
+                  }}
                   className={cn(
-                    'size-3.5 transition-transform duration-300 ease-out',
-                    note.isPinned
-                      ? 'fill-primary rotate-45 scale-110'
-                      : 'hover:-rotate-12',
+                    'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
+                    note.pinned && 'text-primary hover:text-primary',
                   )}
-                />
-              </Button>
+                >
+                  <PinIcon
+                    className={cn(
+                      'size-3.5 transition-transform duration-300 ease-out',
+                      note.pinned
+                        ? 'fill-primary rotate-45 scale-110'
+                        : 'hover:-rotate-12',
+                    )}
+                  />
+                </Button>
+              )}
 
-              <Button
-                variant="ghost"
-                size="icon"
-                title={
-                  note.isStarred
-                    ? m.notes_page_favorite_off()
-                    : m.notes_page_favorite_on()
-                }
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleStar?.(note.id);
-                }}
-                className={cn(
-                  'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-amber-500 hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
-                  note.isStarred && 'text-amber-400 hover:text-amber-500',
-                )}
-              >
-                <StarIcon
+              {viewMode !== 'archive' && viewMode !== 'trash' && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title={
+                    note.favorite
+                      ? m.notes_page_favorite_off()
+                      : m.notes_page_favorite_on()
+                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleStar?.(note.id);
+                  }}
                   className={cn(
-                    'size-3.5 transition-all duration-300 ease-out',
-                    note.isStarred
-                      ? 'fill-amber-400 text-amber-400 scale-110 drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]'
-                      : 'hover:scale-125 hover:rotate-12',
+                    'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-amber-500 hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
+                    note.favorite && 'text-amber-400 hover:text-amber-500',
                   )}
-                />
-              </Button>
+                >
+                  <StarIcon
+                    className={cn(
+                      'size-3.5 transition-all duration-300 ease-out',
+                      note.favorite
+                        ? 'fill-amber-400 text-amber-400 scale-110 drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]'
+                        : 'hover:scale-125 hover:rotate-12',
+                    )}
+                  />
+                </Button>
+              )}
 
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -200,29 +246,52 @@ export default function NoteCard({
 
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuItem disabled className="cursor-not-allowed">
-                    <ArchiveIcon className="mr-2 size-3.5" />
-                    {m.notes_page_action_unarchive()}
-                  </DropdownMenuItem>
+                  {viewMode === 'trash' ? (
+                    <>
+                      <DropdownMenuItem onClick={() => onRestore?.(note.id)}>
+                        <RotateCcwIcon className="mr-2 size-3.5" />
+                        {m.notes_card_restore()}
+                      </DropdownMenuItem>
 
-                  <DropdownMenuItem
-                    onClick={() => onChatWithNote?.(note)}
-                    disabled
-                    className="cursor-not-allowed"
-                  >
-                    <MessageSquareIcon className="mr-2 size-3.5" />
-                    {m.notes_page_card_chat_with_note()}
-                  </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onPermanentDelete?.(note.id)}
+                        variant="destructive"
+                      >
+                        <XCircleIcon className="mr-2 size-3.5" />
+                        {m.notes_card_delete_permanent()}
+                      </DropdownMenuItem>
+                    </>
+                  ) : viewMode === 'archive' ? (
+                    <>
+                      <DropdownMenuItem onClick={() => onUnarchive?.(note.id)}>
+                        <Undo2Icon className="mr-2 size-3.5" />
+                        {m.notes_card_unarchive()}
+                      </DropdownMenuItem>
 
-                  <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => onTrash?.(note.id)}
+                        variant="destructive"
+                      >
+                        <Trash2Icon className="mr-2 size-3.5" />
+                        {m.notes_page_action_delete()}
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem onClick={() => onArchive?.(note.id)}>
+                        <ArchiveIcon className="mr-2 size-3.5" />
+                        {m.notes_page_action_archive()}
+                      </DropdownMenuItem>
 
-                  <DropdownMenuItem
-                    onClick={() => onDelete?.(note)}
-                    variant="destructive"
-                  >
-                    <Trash2Icon className="mr-2 size-3.5" />
-                    {m.notes_page_action_delete()}
-                  </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onTrash?.(note.id)}
+                        variant="destructive"
+                      >
+                        <Trash2Icon className="mr-2 size-3.5" />
+                        {m.notes_page_action_delete()}
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

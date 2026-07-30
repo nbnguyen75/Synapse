@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
-import { CommandPalette } from '@/features/command';
+import { CommandPalette } from '@/features/command-palette/components';
 
 import { useSettingsStore } from '@/store/settings-store';
 
