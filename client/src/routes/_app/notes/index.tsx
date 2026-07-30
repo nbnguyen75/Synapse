@@ -1,6 +1,6 @@
 import type { Note } from '@/features/notes/types';
 
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import { useNavigate } from '@tanstack/react-router';
@@ -8,7 +8,7 @@ import { useNavigate } from '@tanstack/react-router';
 import {
   DEFAULT_NOTES_QUERY_PARAMS,
   EMPTY_PAGINATED,
-  sortItems,
+  getSortItems,
 } from '@/features/notes/constants';
 import {
   notesQueryParamsSchema,
@@ -16,11 +16,10 @@ import {
 } from '@/features/notes/schemas';
 import { NoteBatchActions } from '@/features/notes/components/list/note-batch-actions';
 import { useDeleteNoteMutation } from '@/features/notes/hooks/use-note-mutation';
-import { NotesHeader } from '@/features/notes/components/list/notes-header';
-import { useMultiSelect } from '@/features/notes/hooks/use-multi-select';
 import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
 import { NotesList } from '@/features/notes/components/view';
 
+import { useMultiSelect } from '@/hooks/use-multi-select';
 import { usePagination } from '@/hooks/use-pagination';
 
 import { useConfirm } from '@/providers/confirm-provider';
@@ -49,7 +48,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 
-import { PlusIcon } from 'lucide-react';
+import { ArrowDown, ArrowUp, PlusIcon } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/notes/')({
   search: {
@@ -75,20 +74,6 @@ function NotesPage() {
     q,
   } = search;
 
-  const updateSearchParam = useCallback(
-    (key: string, value: string | number) => {
-      void navigate({
-        search: (prev: NotesQueryParams) => ({
-          ...prev,
-          [key]: value,
-          page: 1,
-        }),
-        to: '/notes',
-      });
-    },
-    [navigate],
-  );
-
   const { data = EMPTY_PAGINATED, isLoading } = useGetNotesQuery(search);
   const { totalElements, items: notes, totalPages } = data;
 
@@ -103,6 +88,9 @@ function NotesPage() {
     totalPages: totalPages,
     currentPage: page,
   });
+
+  const sortDir = sortBy.split(',')[1];
+  const SortIcon = sortDir === 'asc' ? ArrowUp : ArrowDown;
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -146,13 +134,27 @@ function NotesPage() {
 
             <PageHeaderActions>
               <PageHeaderToolbar>
-                <Select items={sortItems} defaultValue={sortBy}>
-                  <SelectTrigger className="w-36 h-9 text-sm">
+                <Select
+                  items={getSortItems()}
+                  defaultValue={sortBy}
+                  onValueChange={(value) => {
+                    void navigate({
+                      search: (prev: NotesQueryParams) => ({
+                        ...prev,
+                        sort: value ?? undefined,
+                        page: 1,
+                      }),
+                      to: '/notes',
+                    });
+                  }}
+                >
+                  <SelectTrigger className="w-44 h-9 text-sm gap-1">
+                    <SortIcon className="size-3.5 text-muted-foreground" />
                     <SelectValue />
                   </SelectTrigger>
 
                   <SelectContent>
-                    {sortItems.map((item) => (
+                    {getSortItems().map((item) => (
                       <SelectItem key={item.value} value={item.value}>
                         {item.label}
                       </SelectItem>
@@ -170,7 +172,6 @@ function NotesPage() {
               isLoading={isLoading}
               notes={notes}
               hasQuery={!!q}
-              onCreateClick={() => setIsCreateOpen(true)}
               onOpenDetail={(n) =>
                 navigate({ params: { noteId: n.id }, to: '/notes/$noteId' })
               }

@@ -405,6 +405,7 @@
   "notes_page_chat_prompt": "Summarize my note \"{title}\"",
   "notes_page_untitled": "Untitled",
   "notes_page_word_count": "{count} words",
+  "notes_page_sort_updated_asc": "Updated (Oldest)",
   "notes_page_favorite_on": "Favorite",
   "notes_page_favorite_off": "Unfavorite",
 

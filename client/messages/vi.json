@@ -405,6 +405,7 @@
   "notes_page_chat_prompt": "Tóm tắt ghi chú \"{title}\"",
   "notes_page_untitled": "Chưa có tiêu đề",
   "notes_page_word_count": "{count} từ",
+  "notes_page_sort_updated_asc": "Cập nhật (cũ nhất)",
   "notes_page_favorite_on": "Yêu thích",
   "notes_page_favorite_off": "Bỏ yêu thích",
 
