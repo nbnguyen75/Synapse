@@ -32,7 +32,7 @@ export default function CommandPaletteOutput({
   notes,
 }: CommandPaletteOutputProps) {
   return (
-    <div className="flex flex-col bg-background max-h-115">
+    <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-background max-h-200">
       <div className="flex items-center justify-between border-b border-border/50 px-4 py-3 bg-muted/20">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary font-mono border border-primary/20">
@@ -53,7 +53,7 @@ export default function CommandPaletteOutput({
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 text-sm">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 text-sm">
         {commandOutput.type === 'help' && (
           <CommandPaletteHelpView slashCommands={slashCommands} />
         )}

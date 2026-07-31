@@ -25,7 +25,7 @@ export default function CommandPaletteNotesView({
           {m.command_palette_notes_empty()}
         </div>
       ) : (
-        <div className="space-y-1.5 max-h-[260px] overflow-y-auto pr-1">
+        <div className="space-y-1.5 max-h-65 overflow-y-auto pr-1">
           {notes.map((note) => (
             <button
               key={note.id}

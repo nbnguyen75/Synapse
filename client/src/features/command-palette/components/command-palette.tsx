@@ -4,16 +4,9 @@ import type {
   NoteItem,
 } from '@/features/command-palette/types';
 
-import {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  type KeyboardEvent as ReactKeyboardEvent,
-} from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useRouter } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 
@@ -23,9 +16,12 @@ import {
   CommandPaletteSearchResults,
 } from '@/features/command-palette/components';
 import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
-import { createNote } from '@/features/notes/api';
+
+import { useKeyBinding, useKeyboardShortcut } from '@/hooks/use-key-binding';
 
 import { useTheme } from '@/providers/theme-provider';
+
+import { getShortcut } from '@/config/keyboard-shortcuts';
 
 import { m } from '@/paraglide/messages';
 import { signOut } from '@/lib/auth';
@@ -41,6 +37,7 @@ import {
   LogOutIcon,
   HelpCircleIcon,
   BarChart2Icon,
+  ArrowRightIcon,
 } from 'lucide-react';
 
 export default function CommandPalette() {
@@ -51,8 +48,8 @@ export default function CommandPalette() {
     null,
   );
 
+  const router = useRouter();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { toggleTheme, theme } = useTheme();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -63,14 +60,6 @@ export default function CommandPalette() {
     () => (data?.items as NoteItem[]) ?? [],
     [data?.items],
   );
-
-  const createNoteMutation = useMutation({
-    mutationFn: ({ content, title }: { content: string; title: string }) =>
-      createNote({ content, title }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['notes'] });
-    },
-  });
 
   const focusInput = () => {
     setTimeout(() => inputRef.current?.focus(), 10);
@@ -104,23 +93,22 @@ export default function CommandPalette() {
     };
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setIsOpen((prev) => {
-          const next = !prev;
-          if (next) focusInput();
-          return next;
-        });
-        setSearch('');
-        setSelectedIndex(0);
-        setCommandOutput(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  useKeyboardShortcut(
+    getShortcut('command-palette').combos,
+    () => {
+      setIsOpen((prev) => {
+        const next = !prev;
+        if (next) focusInput();
+        return next;
+      });
+      setSearch('');
+      setSelectedIndex(0);
+      setCommandOutput(null);
+    },
+    { ignoreWhenTyping: false },
+  );
+
+  const titlePart = search.replace(/^\/create\s*/i, '').trim();
 
   const slashCommands = useMemo<CommandItem[]>(
     () => [
@@ -209,60 +197,29 @@ export default function CommandPalette() {
         title: '/notes',
       },
       {
-        action: async () => {
-          const titlePart = search.replace(/^\/create\s*/i, '').trim();
-          const finalTitle =
-            titlePart || m.command_palette_create_fallback_title();
-          try {
-            const res = await createNoteMutation.mutateAsync({
-              content: m.command_palette_note_body({
-                date: new Date().toLocaleString(),
-              }),
-              title: finalTitle,
-            });
-            toast.success(
-              m.command_palette_toast_create_success({ title: finalTitle }),
-            );
-            setIsOpen(false);
-            navigate({ to: '/notes' });
-            setTimeout(() => {
-              window.dispatchEvent(
-                new CustomEvent('open-edit-note', { detail: res }),
-              );
-            }, 150);
-          } catch (err: unknown) {
-            const message =
-              err instanceof Error
-                ? err.message
-                : m.command_palette_unknown_error();
-            toast.error(m.command_palette_toast_create_error({ message }));
-          }
+        action: () => {
+          setIsOpen(false);
+          navigate({
+            search: titlePart ? { title: titlePart } : undefined,
+            to: '/notes/create',
+          });
         },
-        subtitle: m.command_palette_subtitle_create(),
-        title: '/create [title]',
+        title: titlePart
+          ? m.command_palette_create_title_with_title({ title: titlePart })
+          : m.command_palette_title_create_note(),
+        subtitle: titlePart
+          ? m.command_palette_create_subtitle_with_title()
+          : m.command_palette_create_subtitle_empty(),
         command: '/create',
         id: 'cmd_create',
         icon: PlusIcon,
       },
     ],
-    [theme, notes, search, navigate, createNoteMutation, toggleTheme],
+    [theme, notes, search, navigate, toggleTheme, titlePart],
   );
 
   const staticCommands = useMemo<CommandItem[]>(
     () => [
-      {
-        action: () => {
-          setIsOpen(false);
-          navigate({ to: '/notes' });
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('open-new-note-modal'));
-          }, 100);
-        },
-        subtitle: m.command_palette_subtitle_create_note(),
-        title: m.command_palette_title_create_note(),
-        id: 'create_note',
-        icon: PlusIcon,
-      },
       {
         action: () => {
           setIsOpen(false);
@@ -304,7 +261,15 @@ export default function CommandPalette() {
         action: async () => {
           if (window.confirm(m.command_palette_confirm_logout())) {
             setIsOpen(false);
-            await signOut();
+            await signOut({
+              fetchOptions: {
+                onSuccess: async () => {
+                  await router.invalidate();
+
+                  window.location.reload();
+                },
+              },
+            });
           }
         },
         subtitle: m.command_palette_subtitle_logout(),
@@ -334,28 +299,32 @@ export default function CommandPalette() {
     }
 
     if (term === '') {
-      return staticCommands;
+      const createCmd = slashCommands.find((cmd) => cmd.id === 'cmd_create');
+      return createCmd ? [createCmd, ...staticCommands] : staticCommands;
     }
 
-    const notesResults: CommandItem[] = notes
-      .filter(
-        (note) =>
-          note.title.toLowerCase().includes(term.toLowerCase()) ||
-          note.content?.toLowerCase().includes(term.toLowerCase()),
-      )
-      .map((note) => {
-        const content = note.content ?? '';
-        const preview =
-          content.length > 70 ? `${content.slice(0, 70)}...` : content;
+    const matchingNotes = notes.filter(
+      (note) =>
+        note.title.toLowerCase().includes(term.toLowerCase()) ||
+        note.content?.toLowerCase().includes(term.toLowerCase()),
+    );
 
-        return {
-          subtitle: preview || m.command_palette_note_no_content(),
-          title: note.title || m.command_palette_note_untitled(),
-          action: () => handleOpenNote(note),
-          id: `note_${note.id}`,
-          icon: FileTextIcon,
-        };
-      });
+    const MAX_DISPLAY_NOTES = 10;
+    const topNotes = matchingNotes.slice(0, MAX_DISPLAY_NOTES);
+
+    const notesResults: CommandItem[] = topNotes.map((note) => {
+      const content = note.content ?? '';
+      const preview =
+        content.length > 70 ? `${content.slice(0, 70)}...` : content;
+
+      return {
+        subtitle: preview || m.command_palette_note_no_content(),
+        title: note.title || m.command_palette_note_untitled(),
+        action: () => handleOpenNote(note),
+        id: `note_${note.id}`,
+        icon: FileTextIcon,
+      };
+    });
 
     const filteredCommands = staticCommands.filter(
       (cmd) =>
@@ -363,8 +332,32 @@ export default function CommandPalette() {
         cmd.subtitle.toLowerCase().includes(term.toLowerCase()),
     );
 
-    return [...notesResults, ...filteredCommands];
-  }, [search, notes, staticCommands, slashCommands]);
+    const combinedResults: CommandItem[] = [
+      ...notesResults,
+      ...filteredCommands,
+    ];
+
+    if (matchingNotes.length > MAX_DISPLAY_NOTES) {
+      combinedResults.push({
+        action: () => {
+          setIsOpen(false);
+          navigate({
+            search: { q: term },
+            to: '/notes',
+          });
+        },
+        title: m.command_palette_view_all_title({
+          count: matchingNotes.length,
+          term,
+        }),
+        subtitle: m.command_palette_view_all_subtitle(),
+        id: 'view_all_results',
+        icon: ArrowRightIcon,
+      });
+    }
+
+    return combinedResults;
+  }, [search, notes, staticCommands, slashCommands, navigate]);
 
   const boundedSelectedIndex =
     searchResults.length > 0
@@ -386,38 +379,49 @@ export default function CommandPalette() {
     setSelectedIndex(0);
   };
 
-  const handleKeyDown = (e: ReactKeyboardEvent) => {
-    if (commandOutput) {
-      if (e.key === 'Escape' || (e.key === 'Backspace' && search === '')) {
-        e.preventDefault();
+  useKeyBinding(
+    {
+      arrowup: () =>
+        setSelectedIndex(
+          (prev) =>
+            (prev - 1 + searchResults.length) % (searchResults.length || 1),
+        ),
+      enter: () => {
+        if (searchResults[boundedSelectedIndex]) {
+          void searchResults[boundedSelectedIndex].action();
+        }
+      },
+      arrowdown: () =>
+        setSelectedIndex((prev) => (prev + 1) % (searchResults.length || 1)),
+    },
+    { enabled: isOpen && !commandOutput, ignoreWhenTyping: false },
+  );
+
+  useKeyBinding(
+    {
+      backspace: (e) => {
+        e.stopPropagation();
         setCommandOutput(null);
         focusInput();
-      }
-      return;
-    }
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedIndex((prev) => (prev + 1) % (searchResults.length || 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex(
-        (prev) =>
-          (prev - 1 + searchResults.length) % (searchResults.length || 1),
-      );
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (searchResults[boundedSelectedIndex]) {
-        void searchResults[boundedSelectedIndex].action();
-      }
-    }
-  };
+      },
+      escape: (e) => {
+        e.stopPropagation();
+        setCommandOutput(null);
+        focusInput();
+      },
+    },
+    {
+      enabled: isOpen && !!commandOutput,
+      ignoreWhenTyping: false,
+      capture: true,
+    },
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent
         showCloseButton={false}
-        className="sm:max-w-xl bg-popover/95 backdrop-blur-md rounded-2xl border border-border/60 shadow-2xl p-0 overflow-hidden gap-0"
+        className="sm:max-w-2xl max-h-120 h-full bg-popover/95 backdrop-blur-md rounded-2xl border border-border/60 shadow-2xl p-0 overflow-hidden gap-0 flex flex-col"
       >
         {commandOutput ? (
           <CommandPaletteOutput
@@ -436,8 +440,8 @@ export default function CommandPalette() {
               inputRef={inputRef}
               search={search}
               onSearchChange={handleSearchChange}
-              onKeyDown={handleKeyDown}
             />
+
             <CommandPaletteSearchResults
               resultsRef={resultsRef}
               searchResults={searchResults}

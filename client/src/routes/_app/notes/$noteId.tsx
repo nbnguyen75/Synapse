@@ -24,8 +24,11 @@ import {
 import { useGetNoteQuery } from '@/features/notes/hooks/use-note-query';
 import { getNote } from '@/features/notes/api';
 
+import { useKeyboardShortcut } from '@/hooks/use-key-binding';
+
 import { useConfirm } from '@/providers/confirm-provider';
 
+import { getShortcut } from '@/config/keyboard-shortcuts';
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
@@ -118,6 +121,15 @@ function NoteDetailsPage() {
       },
     );
   };
+
+  useKeyboardShortcut(
+    getShortcut('save-note').combos,
+    () => {
+      if (isUpdating || isDeleting || !note) return;
+      void form.handleSubmit((data) => handleOnUpdate(note.id, data))();
+    },
+    { allowWhenTyping: ['ctrl+s', 'meta+s'] },
+  );
 
   const handleOnDelete = async (note?: Note) => {
     if (!note) return;

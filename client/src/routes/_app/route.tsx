@@ -6,15 +6,20 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import { CommandPalette } from '@/features/command-palette/components';
 
+import { useKeyboardShortcut } from '@/hooks/use-key-binding';
+
 import { useSettingsStore } from '@/store/settings-store';
 
 import { ConfirmProvider } from '@/providers/confirm-provider';
+
+import { getShortcut } from '@/config/keyboard-shortcuts';
 
 import {
   AppLeftSidebar,
   AppRightSidebar,
   AppTopHeader,
 } from '@/components/layouts';
+import { AppGlobalKeybinds } from '@/components/shared';
 
 import {
   SidebarInset,
@@ -70,21 +75,15 @@ function AppLayout() {
     }
   }, [rightSidebar.open]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.altKey && e.key.toLowerCase() === 'b') {
-        e.preventDefault();
-        toggleRightSidebar();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleRightSidebar]);
+  useKeyboardShortcut(getShortcut('toggle-right-sidebar').combos, () => {
+    toggleRightSidebar();
+  });
 
   return (
     <>
       <CommandPalette />
+
+      <AppGlobalKeybinds />
 
       <SidebarManagerProvider>
         <SidebarProvider className="h-svh overflow-hidden">

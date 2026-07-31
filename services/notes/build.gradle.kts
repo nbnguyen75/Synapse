@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.synapse"
-version = "0.0.1"
+version = "0.1.0"
 
 java {
 	toolchain {
@@ -22,14 +22,6 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
     }
-}
-
-tasks.named("compileJava") {
-    dependsOn(tasks.named("spotlessApply"))
-}
-
-tasks.named("spotlessCheck") {
-    enabled = false
 }
 
 repositories {

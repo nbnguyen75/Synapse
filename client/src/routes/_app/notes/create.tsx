@@ -5,8 +5,13 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { createFileRoute } from '@tanstack/react-router';
 import { useNavigate } from '@tanstack/react-router';
 
+import { z } from 'zod/v4';
+
 import { useCreateNoteMutation } from '@/features/notes/hooks/use-note-mutation';
 
+import { useKeyboardShortcut } from '@/hooks/use-key-binding';
+
+import { getShortcut } from '@/config/keyboard-shortcuts';
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
@@ -29,18 +34,22 @@ export const Route = createFileRoute('/_app/notes/create')({
   head: () => ({
     meta: [{ title: createTitle(m.notes_page_create_page_title()) }],
   }),
+  validateSearch: z.object({
+    title: z.string().optional(),
+  }),
   component: CreateNotePage,
 });
 
 function CreateNotePage() {
   const navigate = useNavigate();
+  const { title } = Route.useSearch();
 
   const createNoteMutation = useCreateNoteMutation();
 
   const form = useForm<NoteFormValues>({
     defaultValues: {
       content: undefined,
-      title: '',
+      title: title ?? '',
     },
   });
 
@@ -60,6 +69,15 @@ function CreateNotePage() {
 
     navigate({ replace: true, to: '/notes' });
   };
+
+  useKeyboardShortcut(
+    getShortcut('save-note').combos,
+    () => {
+      if (createNoteMutation.isPending) return;
+      void form.handleSubmit(onSave)();
+    },
+    { allowWhenTyping: ['ctrl+s', 'meta+s'] },
+  );
 
   // const handleAiTitle = () => {
   //   if (!watchedContent) return;

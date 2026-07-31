@@ -16,10 +16,10 @@ import {
   LogIn,
   ChevronDown,
   ChevronUp,
-  Copy,
-  Check,
   Bot,
   Terminal,
+  CopyIcon,
+  CheckIcon,
 } from 'lucide-react';
 
 export interface ErrorPageProps {
@@ -73,13 +73,11 @@ export default function ErrorPage({
   const [showDetails, setShowDetails] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Lấy config theo statusCode, nếu không có thì lấy DEFAULT_ERROR_CONFIG
   const activeConfig = ERROR_CONFIG[statusCode] ?? DEFAULT_ERROR_CONFIG;
 
   const title = customTitle || activeConfig.title();
   const description = customMessage || activeConfig.description();
 
-  // Helpers điều hướng
   const goToHome = () => {
     navigate({
       to: '/notes',
@@ -110,7 +108,7 @@ export default function ErrorPage({
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center p-6 bg-background text-foreground select-none">
-      <div className="w-full max-w-md mx-auto flex flex-col items-center text-center space-y-8 animate-in fade-in duration-300">
+      <div className="w-full max-w-3xl mx-auto flex flex-col items-center text-center space-y-8 animate-in fade-in duration-300">
         {/* Status Code Typography */}
         <div className="space-y-2">
           <span className="font-mono text-7xl font-light tracking-tighter text-muted-foreground/30">
@@ -219,7 +217,7 @@ export default function ErrorPage({
             </button>
 
             {showDetails && (
-              <div className="mt-3 text-left bg-muted/50 rounded-lg p-3.5 border border-border/60 space-y-2 text-xs font-mono animate-in fade-in duration-200">
+              <div className="mt-3 text-left bg-muted/50 rounded-lg p-3.5 border border-border/60 space-y-2 text-sm font-body animate-in fade-in duration-200">
                 <div className="flex items-center justify-between text-muted-foreground border-b border-border/40 pb-2">
                   <span className="font-medium text-destructive">
                     {error.name || m.error_page_error_fallback()}
@@ -230,19 +228,21 @@ export default function ErrorPage({
                     className="flex items-center gap-1 text-[11px] hover:text-foreground cursor-pointer transition-colors"
                   >
                     {copied ? (
-                      <Check className="h-3 w-3 text-emerald-500" />
+                      <CheckIcon className="h-3 w-3 text-emerald-500" />
                     ) : (
-                      <Copy className="h-3 w-3" />
+                      <CopyIcon className="h-3 w-3" />
                     )}
                     <span>
                       {copied ? m.error_page_copied() : m.error_page_copy()}
                     </span>
                   </button>
                 </div>
-                <div className="max-h-40 overflow-y-auto text-muted-foreground/90 whitespace-pre-wrap break-all text-sm leading-relaxed">
-                  {error.message || String(error)}
+                <div className="max-h-64 overflow-y-auto text-muted-foreground/90 whitespace-pre-wrap break-all text-md leading-relaxed">
+                  <span className="font-bold">
+                    {error.message || String(error)}
+                  </span>
                   {error.stack && (
-                    <div className="mt-2 pt-2 border-t border-border/40 text-[10px] opacity-70">
+                    <div className="mt-2 pt-2 border-t border-border/40 text-md opacity-70">
                       {error.stack}
                     </div>
                   )}

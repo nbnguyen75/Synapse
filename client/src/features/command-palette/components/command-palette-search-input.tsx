@@ -1,4 +1,4 @@
-import type { RefObject, KeyboardEvent as ReactKeyboardEvent } from 'react';
+import type { RefObject } from 'react';
 
 import { m } from '@/paraglide/messages';
 
@@ -9,14 +9,12 @@ import { SearchIcon } from 'lucide-react';
 
 interface CommandPaletteSearchInputProps {
   inputRef: RefObject<HTMLInputElement | null>;
-  onKeyDown: (e: ReactKeyboardEvent) => void;
   onSearchChange: (value: string) => void;
   search: string;
 }
 
 export default function CommandPaletteSearchInput({
   onSearchChange,
-  onKeyDown,
   inputRef,
   search,
 }: CommandPaletteSearchInputProps) {
@@ -29,7 +27,6 @@ export default function CommandPaletteSearchInput({
         placeholder={m.command_palette_placeholder()}
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
-        onKeyDown={onKeyDown}
         className="w-full text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto bg-transparent placeholder:text-muted-foreground/70 text-foreground"
         autoFocus
       />

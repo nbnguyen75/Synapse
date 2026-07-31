@@ -13,10 +13,11 @@ export const notesQueryParamsSchema = z.object({
 
 export type NotesQueryParams = z.infer<typeof notesQueryParamsSchema>;
 
-export interface NotesApiParams extends NotesQueryParams {
+export interface NotesApiParams extends Omit<NotesQueryParams, 'sort'> {
   archived?: boolean;
   favorite?: boolean;
   trashed?: boolean;
+  sort?: string[];
 }
 
 export const noteFormSchema = z.object({

@@ -247,6 +247,14 @@
          "dependencies": ["feat-030"],
          "status": "done",
          "evidence": "src/features/notes/schemas.ts (NoteViewMode + filter types), src/features/notes/types.ts (trashedAt), src/features/notes/constants.ts (view-specific query params, pagination), src/features/notes/api.ts (page conversion + 13 new action/bulk functions), src/features/notes/hooks/use-note-mutation.ts (8 new mutation hooks), src/features/notes/components/notes-view-page.tsx (shared view component), src/features/notes/components/note-card.tsx (viewMode-aware actions), src/features/notes/components/notes-bulk-actions.tsx (viewMode-aware bulk bar), src/features/notes/components/notes-empty-state.tsx (trash variant), src/routes/_app/favorites.tsx (NEW), src/routes/_app/archive.tsx (NEW), src/routes/_app/trash.tsx (NEW), src/routes/_app/notes/index.tsx (thinned wrapper), src/routes/_app/notes/$noteId.tsx (from param back-nav), src/components/layouts/app-sidebar/nav-main.tsx (updated links), messages/en.json, messages/vi.json"
+      },
+      {
+         "id": "feat-032",
+         "name": "Unified Key Binding Hook & Command Palette Refinements",
+         "description": "useKeyBinding/useKeyboardShortcut hooks + keyboard-shortcuts config registry power all global and editor shortcuts. Command palette: onKeyDown replaced with hook bindings (arrows/enter in search view; Escape/Backspace back-navigation in output view via capture-phase + stopPropagation), 5 hardcoded strings migrated to i18n, 9 stale command_palette_* keys removed (en/vi parity restored), and /notes/create?title=... prefills the title form.",
+         "dependencies": ["feat-012", "feat-029"],
+         "status": "done",
+         "evidence": "src/hooks/use-key-binding.ts (useKeyBinding + capture option, useKeyboardShortcut, expandModKey), src/config/keyboard-shortcuts.ts (registry), src/components/shared/keyboard-shortcuts-list.tsx, src/components/shared/app-global-keybinds.tsx (N, /, Ctrl+Alt+B, Ctrl+/ events), src/components/shared/sidebar-keyboard-shortcuts-dialog.tsx, src/components/shared/editor/lexical-shortcuts-dialog.tsx, src/features/command-palette/components/command-palette.tsx (hook bindings + i18n), src/features/command-palette/components/command-palette-search-input.tsx (onKeyDown removed), src/routes/_app/notes/create.tsx (validateSearch title prefill), src/routes/_app/notes/$noteId.tsx (Ctrl+S), src/routes/_app/route.tsx (Ctrl+Alt+B), messages/en.json, messages/vi.json"
       }
    ]
 }

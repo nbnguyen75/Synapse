@@ -3,10 +3,22 @@
 ## Current State
 
 **Last Updated:** 2026-07-31
-**Session ID:** i18n-command-palette-restyle
-**Active Feature:** Reapply Paraglide i18n to restyled command palette
+**Session ID:** command-palette-keyboard-i18n-prefill
+**Active Feature:** Command palette keyboard handling + i18n cleanup + /notes/create title prefill
 
 ## Status
+
+### What's Done (command palette refinements)
+
+- [x] **`useKeyBinding` capture option** — `UseKeyBindingOptions.capture?: boolean` passed to `addEventListener`/`removeEventListener`; enables capture-phase interception (needed to beat base-ui's document-level Escape listener)
+- [x] **Command palette `onKeyDown` → hook** — deleted `handleKeyDown` in `command-palette.tsx`; replaced with two `useKeyBinding` calls: (A) `arrowdown`/`arrowup`/`enter` with `{ enabled: isOpen && !commandOutput, ignoreWhenTyping: false }`; (B) `escape`/`backspace` with `{ enabled: isOpen && !!commandOutput, capture: true }` calling `e.stopPropagation()` to go back from output view without closing the dialog
+- [x] **Escape/Backspace back-navigation restored** — verified base-ui `useDismiss.js` `closeOnEscapeKeyDown` does NOT check `defaultPrevented`; window-capture + `stopPropagation` prevents dialog close while returning to search. Restores behavior promised by `command_palette_help_esc_tip_*`
+- [x] **Search input cleaned** — removed `onKeyDown` prop + `ReactKeyboardEvent` import from `command-palette-search-input.tsx`
+- [x] **Hardcoded strings → i18n** — 5 strings replaced: create-with-title / create-empty subtitles, `"Create note {title}"`, view-all title/subtitle. Empty-title case reuses existing `command_palette_title_create_note`
+- [x] **Stale key cleanup** — removed 9 keys from en.json (`title_create`, `subtitle_create`, `toast_create_success`, `toast_create_error`, `unknown_error`, `note_body`, `create_fallback_title`, `subtitle_create_note`, `title_go_copilot_short`) and 8 from vi.json (title_go_copilot_short never existed there); added 5 new keys (`create_title_with_title`, `create_subtitle_with_title`, `create_subtitle_empty`, `view_all_title`, `view_all_subtitle`) to BOTH files → en/vi parity verified programmatically
+- [x] **`/notes/create?title=...` prefill** — added `validateSearch: z.object({ title: z.string().optional() })` to `create.tsx` Route + `defaultValues.title: Route.useSearch().title ?? ''`
+- [x] **Verification** — `bun --bun install` (auto `generate-translation`) ✓, `bun --bun check` ✓ (0 errors, pre-existing warnings only), `tsc -b` ✓ (exit 0), en/vi key parity ✓
+- [x] **Scope guard** — reverted prettier's auto-fix of `error-page.tsx` (pre-existing non-conforming file, not part of this work); `resizable.tsx` working-tree change is prior uncommitted work, left untouched
 
 ### What's Done (i18n reapplication after command palette restyle)
 
@@ -81,6 +93,7 @@ Remaining features from `feature_list.json` (not-started):
 - URL-driven views work well with TanStack Router's `validateSearch` + `stripSearchParams` pattern
 - Backend uses 0-indexed pagination; FE stores 1-indexed in URL with page - 1 conversion in the API layer
 - Bulk Pin/Tag remain no-ops (no BE endpoint exists)
+- base-ui `useDismiss` Escape handler (`closeOnEscapeKeyDown`) does NOT check `event.defaultPrevented` — it closes the dialog unconditionally via a document-level bubble listener. To override it (e.g. Escape = "go back" inside command output), bind in the capture phase on window and call `stopPropagation()`
 
 ## Blockers / Risks
 
@@ -93,6 +106,8 @@ Remaining features from `feature_list.json` (not-started):
 - **ViewMode**: `NoteViewMode` type (`'active' | 'favorites' | 'archive' | 'trash'`) maps to specific query param sets
 - **Bulk Pin/Tag**: No-op buttons (no backend endpoint), kept in UI for future implementation
 - **Confirm dialogs**: Added for destructive bulk actions (delete permanent, trash)
+- **Command palette keyboard**: two mutually-exclusive `useKeyBinding` calls (search-view arrows/enter; output-view escape/backspace) instead of one `onKeyDown` — no guard branches needed, arrows no longer blocked in output view
+- **Escape override**: window-capture + `stopPropagation()` (preventDefault alone is ignored by base-ui's dialog Escape handling)
 
 ## Evidence of Completion (feat-031)
 

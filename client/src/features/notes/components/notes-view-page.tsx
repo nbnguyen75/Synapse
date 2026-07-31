@@ -1,4 +1,8 @@
-import type { NoteViewMode, NotesQueryParams } from '@/features/notes/schemas';
+import type {
+  NoteViewMode,
+  NotesApiParams,
+  NotesQueryParams,
+} from '@/features/notes/schemas';
 import type { ViewMode } from '@/features/notes/components/notes-view-toggle';
 
 import { useState } from 'react';
@@ -112,10 +116,20 @@ export default function NotesViewPage({
     q,
   } = search;
 
-  const { data = EMPTY_PAGINATED, isLoading } = useGetNotesQuery({
-    ...search,
+  const { sort, ...searchParams } = search;
+
+  const apiParams: NotesApiParams = {
+    ...searchParams,
     ...apiFilters,
-  });
+    sort:
+      viewMode === 'active'
+        ? ['pinned,desc', sort ?? DEFAULT_NOTES_QUERY_PARAMS.sort]
+        : sort !== undefined
+          ? [sort]
+          : undefined,
+  };
+
+  const { data = EMPTY_PAGINATED, isLoading } = useGetNotesQuery(apiParams);
   const { totalElements, items: notes, totalPages } = data;
 
   const pagination = usePagination({
