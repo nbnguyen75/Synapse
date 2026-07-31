@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+﻿import { useState, useCallback, useEffect } from 'react';
 
 import {
   $getSelection,
@@ -16,6 +16,8 @@ import {
 } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
+
+import { m } from '@/paraglide/messages';
 
 import { Button } from '@/components/ui/button';
 
@@ -117,7 +119,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isBold ? activeBtnClass : inactiveBtnClass}`}
-          title="Bold (Ctrl+B)"
+          title={m.lexical_tooltip_bold()}
         >
           <Bold className="h-3.5 w-3.5" />
         </Button>
@@ -127,7 +129,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isItalic ? activeBtnClass : inactiveBtnClass}`}
-          title="Italic (Ctrl+I)"
+          title={m.lexical_tooltip_italic()}
         >
           <Italic className="h-3.5 w-3.5" />
         </Button>
@@ -139,7 +141,7 @@ export default function Toolbar() {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')
           }
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isUnderline ? activeBtnClass : inactiveBtnClass}`}
-          title="Underline (Ctrl+U)"
+          title={m.lexical_tooltip_underline()}
         >
           <Underline className="h-3.5 w-3.5" />
         </Button>
@@ -151,7 +153,7 @@ export default function Toolbar() {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
           }
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isStrikethrough ? activeBtnClass : inactiveBtnClass}`}
-          title="Strikethrough (Ctrl+Shift+X)"
+          title={m.lexical_tooltip_strikethrough()}
         >
           <Strikethrough className="h-3.5 w-3.5" />
         </Button>
@@ -161,7 +163,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isCode ? activeBtnClass : inactiveBtnClass}`}
-          title="Inline Code (Ctrl+E)"
+          title={m.lexical_tooltip_code()}
         >
           <Code className="h-3.5 w-3.5" />
         </Button>
@@ -177,7 +179,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatParagraphBlock(editor)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'paragraph' ? activeBtnClass : inactiveBtnClass}`}
-          title="Normal Paragraph (Ctrl+Alt+0)"
+          title={m.lexical_tooltip_paragraph()}
         >
           <Text className="h-3.5 w-3.5" />
         </Button>
@@ -187,7 +189,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatHeadingBlock(editor, 'h1')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'h1' ? activeBtnClass : inactiveBtnClass}`}
-          title="Heading 1 (Ctrl+Alt+1)"
+          title={m.lexical_tooltip_heading1()}
         >
           <Heading1 className="h-3.5 w-3.5" />
         </Button>
@@ -197,7 +199,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatHeadingBlock(editor, 'h2')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'h2' ? activeBtnClass : inactiveBtnClass}`}
-          title="Heading 2 (Ctrl+Alt+2)"
+          title={m.lexical_tooltip_heading2()}
         >
           <Heading2 className="h-3.5 w-3.5" />
         </Button>
@@ -207,7 +209,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatHeadingBlock(editor, 'h3')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'h3' ? activeBtnClass : inactiveBtnClass}`}
-          title="Heading 3 (Ctrl+Alt+3)"
+          title={m.lexical_tooltip_heading3()}
         >
           <Heading3 className="h-3.5 w-3.5" />
         </Button>
@@ -225,7 +227,7 @@ export default function Toolbar() {
             editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
           }
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'ul' ? activeBtnClass : inactiveBtnClass}`}
-          title="Bullet List (Ctrl+Shift+8)"
+          title={m.lexical_tooltip_bullet_list()}
         >
           <List className="h-3.5 w-3.5" />
         </Button>
@@ -237,7 +239,7 @@ export default function Toolbar() {
             editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
           }
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'ol' ? activeBtnClass : inactiveBtnClass}`}
-          title="Numbered List (Ctrl+Shift+7)"
+          title={m.lexical_tooltip_numbered_list()}
         >
           <ListOrdered className="h-3.5 w-3.5" />
         </Button>
@@ -247,7 +249,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatQuoteBlock(editor)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'quote' ? activeBtnClass : inactiveBtnClass}`}
-          title="Quote Block (Ctrl+Shift+Q)"
+          title={m.lexical_tooltip_quote()}
         >
           <Quote className="h-3.5 w-3.5" />
         </Button>
@@ -263,7 +265,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(UNDO_COMMAND, undefined)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${inactiveBtnClass}`}
-          title="Undo (Ctrl+Z)"
+          title={m.lexical_tooltip_undo()}
         >
           <Undo2 className="h-3.5 w-3.5" />
         </Button>
@@ -273,7 +275,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(REDO_COMMAND, undefined)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${inactiveBtnClass}`}
-          title="Redo (Ctrl+Y)"
+          title={m.lexical_tooltip_redo()}
         >
           <Redo2 className="h-3.5 w-3.5" />
         </Button>

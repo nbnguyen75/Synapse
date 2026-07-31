@@ -2,11 +2,12 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 
 import { useDebounce } from '@/hooks/use-debounce';
 
+import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
 
 import { Input } from '@/components/ui/input';
 
-import { Search, X } from 'lucide-react';
+import { SearchIcon, XIcon } from 'lucide-react';
 
 interface SearchInputProps {
   onSearch: (value: string) => void;
@@ -17,7 +18,7 @@ interface SearchInputProps {
 }
 
 export default function SearchInput({
-  placeholder = 'Search...',
+  placeholder = m.search_input_placeholder(),
   defaultValue = '',
   delay = 300,
   className,
@@ -50,7 +51,7 @@ export default function SearchInput({
 
   return (
     <div className={cn('relative', className)}>
-      <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={value}
         onChange={handleChange}
@@ -63,7 +64,7 @@ export default function SearchInput({
           onClick={handleClear}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
         >
-          <X className="size-4" />
+          <XIcon className="size-4" />
         </button>
       )}
     </div>

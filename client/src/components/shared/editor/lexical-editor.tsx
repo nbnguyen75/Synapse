@@ -8,6 +8,7 @@ import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
 
+import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
 
 import {
@@ -46,7 +47,7 @@ const editorTheme = {
 };
 
 export default function LexicalEditor({
-  placeholder = 'Write your note content here (Markdown supported)...',
+  placeholder = m.lexical_placeholder_default(),
   disabled = false,
   className = '',
   onChange,

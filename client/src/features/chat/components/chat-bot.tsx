@@ -17,6 +17,7 @@ import { PromptInputAttachmentsDisplay } from '@/features/chat/components/chat-a
 import { SuggestionItem } from '@/features/chat/components/chat-suggestion';
 import { ModelItem } from '@/features/chat/components/chat-model-item';
 
+import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
 
 import {
@@ -185,12 +186,14 @@ export default function ChatBot({ className }: ChatBotProps) {
       setStatus('submitted');
 
       if (message.files?.length) {
-        toast.success('Files attached', {
-          description: `${message.files.length} file(s) attached to message`,
+        toast.success(m.chat_files_attached(), {
+          description: m.chat_files_attached_desc({
+            count: message.files.length,
+          }),
         });
       }
 
-      addUserMessage(message.text || 'Sent with attachments');
+      addUserMessage(message.text || m.chat_sent_with_attachments());
       setText('');
     },
     [addUserMessage],
@@ -325,7 +328,7 @@ export default function ChatBot({ className }: ChatBotProps) {
                   variant={useWebSearch ? 'default' : 'ghost'}
                 >
                   <GlobeIcon size={16} />
-                  <span>Search</span>
+                  <span>{m.chat_search_toggle()}</span>
                 </PromptInputButton>
                 <ModelSelector
                   onOpenChange={setModelSelectorOpen}
@@ -349,10 +352,14 @@ export default function ChatBot({ className }: ChatBotProps) {
                   />
 
                   <ModelSelectorContent showCloseButton={false}>
-                    <ModelSelectorInput placeholder="Search models..." />
+                    <ModelSelectorInput
+                      placeholder={m.chat_search_models_placeholder()}
+                    />
 
                     <ModelSelectorList>
-                      <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+                      <ModelSelectorEmpty>
+                        {m.chat_search_models_empty()}
+                      </ModelSelectorEmpty>
                       {chefs.map((chef) => (
                         <ModelSelectorGroup heading={chef} key={chef}>
                           {models

@@ -75,9 +75,9 @@
       {
          "id": "feat-010",
          "name": "Pomodoro Timer (Focus)",
-         "description": "Pomodoro timer with work/short break/long break cycles, SVG ring indicator, session counter.",
+         "description": "Pomodoro timer with work/short break/long break cycles, SVG ring indicator, session counter. DEPRECATED (2026-07-31): excluded from i18n sweep and future work.",
          "dependencies": [],
-         "status": "done",
+         "status": "deprecated",
          "evidence": "src/features/focus/components/pomodoro-timer.tsx"
       },
       {

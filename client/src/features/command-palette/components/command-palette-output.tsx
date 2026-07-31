@@ -14,7 +14,7 @@ import { m } from '@/paraglide/messages';
 
 import { Button } from '@/components/ui/button';
 
-import { TerminalIcon, ArrowLeftIcon } from 'lucide-react';
+import { ArrowLeftIcon } from 'lucide-react';
 
 interface CommandPaletteOutputProps {
   onOpenNote: (note: NoteItem) => void;
@@ -32,33 +32,28 @@ export default function CommandPaletteOutput({
   notes,
 }: CommandPaletteOutputProps) {
   return (
-    <div className="flex flex-col bg-background max-h-115 select-text">
-      <div className="flex items-center justify-between border-b border-border px-5 py-4 bg-muted/20">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
-            <TerminalIcon className="h-4.5 w-4.5" />
-          </div>
-          <div>
-            <h3 className="text-xs font-bold font-mono text-emerald-500 tracking-wider">
-              {commandOutput.command}
-            </h3>
-            <p className="text-[10px] text-neutral-400 font-medium">
-              {commandOutput.title}
-            </p>
-          </div>
+    <div className="flex flex-col bg-background max-h-115">
+      <div className="flex items-center justify-between border-b border-border/50 px-4 py-3 bg-muted/20">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary font-mono border border-primary/20">
+            {commandOutput.command}
+          </span>
+          <span className="text-xs font-medium text-foreground">
+            {commandOutput.title}
+          </span>
         </div>
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           onClick={onBack}
-          className="h-7 text-[10px] font-mono gap-1 cursor-pointer"
+          className="h-7 text-xs gap-1.5 px-2 text-muted-foreground hover:text-foreground cursor-pointer"
         >
-          <ArrowLeftIcon className="h-3 w-3" />
+          <ArrowLeftIcon className="h-3.5 w-3.5" />
           <span>{m.command_palette_output_back()}</span>
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-5 font-mono text-xs text-muted-foreground space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 text-sm">
         {commandOutput.type === 'help' && (
           <CommandPaletteHelpView slashCommands={slashCommands} />
         )}

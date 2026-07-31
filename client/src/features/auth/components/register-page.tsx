@@ -154,7 +154,7 @@ function RegisterPage() {
                 {...field}
                 id="register-email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder={m.auth_placeholder_email()}
                 aria-invalid={fieldState.invalid}
                 className="w-full bg-zinc-900/40 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-zinc-700 focus-visible:border-zinc-700 h-9.5 rounded-lg text-xs"
                 disabled={isSubmitting}
@@ -181,7 +181,7 @@ function RegisterPage() {
                   {...field}
                   id="register-password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
+                  placeholder={m.auth_placeholder_password()}
                   aria-invalid={fieldState.invalid}
                   className="w-full bg-zinc-900/40 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-zinc-700 focus-visible:border-zinc-700 h-9.5 rounded-lg pr-9 text-xs"
                   disabled={isSubmitting}
@@ -225,7 +225,7 @@ function RegisterPage() {
                 {...field}
                 id="register-confirm-password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
+                placeholder={m.auth_placeholder_password()}
                 aria-invalid={fieldState.invalid}
                 className="w-full bg-zinc-900/40 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-zinc-700 focus-visible:border-zinc-700 h-9.5 rounded-lg text-xs"
                 disabled={isSubmitting}
@@ -270,7 +270,7 @@ function RegisterPage() {
           className="flex items-center justify-center gap-2 px-3 h-9 rounded-lg border-zinc-800/80 bg-zinc-900/20 hover:bg-zinc-900/50 hover:border-zinc-700 text-zinc-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
         >
           <Icon icon="simple-icons:github" className="h-4 w-4" />
-          <span>GitHub</span>
+          <span>{m.auth_oauth_github()}</span>
         </Button>
         <Button
           variant="outline"
@@ -279,7 +279,7 @@ function RegisterPage() {
           className="flex items-center justify-center gap-2 px-3 h-9 rounded-lg border-zinc-800/80 bg-zinc-900/20 hover:bg-zinc-900/50 hover:border-zinc-700 text-zinc-200 text-xs font-medium transition-all cursor-pointer disabled:opacity-50"
         >
           <Icon icon="simple-icons:google" className="h-4 w-4" />
-          <span>Google</span>
+          <span>{m.auth_oauth_google()}</span>
         </Button>
       </div>
 

@@ -8,14 +8,13 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 
 import { routeTree } from '@/routeTree.gen';
 
-import { DefaultLoaderPage } from '@/features/loader/components';
-import { ErrorPage } from '@/features/error/components';
-
-import { ThemeProvider } from '@/providers/theme-provider';
-
 import { useSession } from '@/lib/auth';
 
+import { DefaultLoaderPage, ErrorPage } from '@/components/app/pages';
+
 import { Toaster } from '@/components/ui/sonner';
+
+import { ThemeProvider } from '@/providers';
 
 const queryClient = new QueryClient({
   defaultOptions: {

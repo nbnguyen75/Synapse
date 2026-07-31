@@ -1,5 +1,7 @@
 import ChatBot from '@/features/chat/components/chat-bot';
 
+import { m } from '@/paraglide/messages';
+
 import {
   Item,
   ItemMedia,
@@ -18,8 +20,8 @@ export default function ChatPage() {
           <SparklesIcon />
         </ItemMedia>
         <ItemContent>
-          <ItemTitle>Sebastian</ItemTitle>
-          <ItemDescription>I am your servant</ItemDescription>
+          <ItemTitle>{m.chat_agent_name()}</ItemTitle>
+          <ItemDescription>{m.chat_agent_desc()}</ItemDescription>
         </ItemContent>
       </Item>
       <ChatBot />

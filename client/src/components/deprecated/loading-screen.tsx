@@ -1,3 +1,4 @@
+// ! Not used, reference only
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function LoadingScreen() {

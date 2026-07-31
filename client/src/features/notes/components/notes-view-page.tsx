@@ -86,7 +86,7 @@ const descMap: Record<NoteViewMode, (count: string) => string> = {
   favorites: (count) => m.favorites_page_title_desc({ count }),
   archive: (count) => m.archive_page_title_desc({ count }),
   trash: (count) => m.trash_page_title_desc({ count }),
-  active: (count) => `${count} notes`,
+  active: (count) => m.notes_page_view_desc({ count }),
 };
 
 export default function NotesViewPage({

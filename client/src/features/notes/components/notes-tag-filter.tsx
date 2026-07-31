@@ -8,10 +8,10 @@ import { PlusIcon } from 'lucide-react';
 
 const HARDCODED_TAGS = [
   { label: () => m.notes_page_tag_all(), active: true, count: null },
-  { label: () => '#work', active: false, count: 12 },
-  { label: () => '#ideas', active: false, count: 8 },
-  { label: () => '#personal', active: false, count: 5 },
-  { label: () => '#design', active: false, count: 3 },
+  { label: () => m.notes_tag_mock_work(), active: false, count: 12 },
+  { label: () => m.notes_tag_mock_ideas(), active: false, count: 8 },
+  { label: () => m.notes_tag_mock_personal(), active: false, count: 5 },
+  { label: () => m.notes_tag_mock_design(), active: false, count: 3 },
 ] as const;
 
 export default function NotesTagFilter() {
@@ -41,7 +41,7 @@ export default function NotesTagFilter() {
         variant="outline"
         size="icon"
         className="shrink-0 size-8 rounded-full cursor-pointer"
-        title="Add filter"
+        title={m.notes_tag_filter_add()}
       >
         <PlusIcon className="size-3.5" />
       </Button>

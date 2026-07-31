@@ -8,13 +8,12 @@ export {
   PageHeaderToolbar,
 } from './page-header';
 export { default as KeyboardShortcutsDialog } from './sidebar-keyboard-shortcuts-dialog';
-export { default as LexicalEditor } from './editor/lexical-editor';
+export { default as LoadingScreen } from '../deprecated/loading-screen';
 
+export { default as LexicalEditor } from './editor/lexical-editor';
 export { default as MarkdownRenderer } from './markdown-renderer';
 export { default as CommandPalette } from './global-keybinds';
 export { default as AppBreadcrumb } from './app-breadcrumb';
-export { default as LoadingScreen } from './loading-screen';
 export { default as SearchInput } from './search-input';
 
 export { default as Paginator } from './paginator';
-export { FilterBar } from './filter-bar';

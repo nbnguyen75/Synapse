@@ -56,7 +56,7 @@ const locales = [
     label: (
       <Fragment>
         <LangViIcon />
-        <span className="locale-text">Tiếng Việt</span>
+        <span className="locale-text">{m.header_language_vi()}</span>
       </Fragment>
     ),
     value: 'vi',
@@ -65,7 +65,7 @@ const locales = [
     label: (
       <Fragment>
         <LangEnIcon />
-        <span className="locale-text">English</span>
+        <span className="locale-text">{m.header_language_en()}</span>
       </Fragment>
     ),
     value: 'en',
@@ -107,7 +107,7 @@ export default function AppTopHeader() {
           <SearchIcon className="size-4" />
           {!isMobile && (
             <>
-              Search or type a command...
+              {m.header_search_placeholder()}
               <KbdGroup className="ml-3">
                 <Kbd>{isMac ? '⌘' : 'Ctrl'}</Kbd>
                 <span>+</span>
@@ -135,7 +135,9 @@ export default function AppTopHeader() {
                   />
                 }
               />
-              <TooltipContent side="bottom">{'New'}</TooltipContent>
+              <TooltipContent side="bottom">
+                {m.header_new_tooltip()}
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -158,7 +160,7 @@ export default function AppTopHeader() {
                   variant="ghost"
                   size="icon-sm"
                   onClick={cycle}
-                  aria-label="Toggle theme"
+                  aria-label={m.header_toggle_theme_aria()}
                   className="cursor-pointer"
                 >
                   {theme === 'light' && <SunIcon className="size-4" />}
@@ -167,7 +169,9 @@ export default function AppTopHeader() {
                 </Button>
               }
             />
-            <TooltipContent side="bottom">{`Current theme: ${theme}`}</TooltipContent>
+            <TooltipContent side="bottom">
+              {m.header_current_theme({ theme })}
+            </TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
@@ -215,7 +219,7 @@ export default function AppTopHeader() {
           }
         >
           <PanelRightIcon />
-          <span className="sr-only">Toggle right Sidebar</span>
+          <span className="sr-only">{m.header_toggle_right_sidebar()}</span>
         </Button>
       </div>
     </header>

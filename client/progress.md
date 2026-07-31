@@ -2,12 +2,42 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-30
-**Session ID:** feat-031-url-driven-views
-**Active Feature:** URL-driven view architecture (feat-031)
+**Last Updated:** 2026-07-31
+**Session ID:** i18n-command-palette-restyle
+**Active Feature:** Reapply Paraglide i18n to restyled command palette
 
 ## Status
 
+### What's Done (i18n reapplication after command palette restyle)
+
+- [x] **Restyle reverted i18n** — the palette UI restyle removed `m` imports and re-hardcoded English strings in all 7 component files
+- [x] **command-palette.tsx** — restored `m` import; all slash command subtitles, output titles, theme toasts, create-note fallback title/body/toasts, static command titles/subtitles, logout confirm now via `m.*()`; new `command_palette_subtitle_toggle_theme` key for static "Switch to {mode} mode" (distinct from slash `/theme` subtitle)
+- [x] **Views re-i18n-ified** — help-view (cheatsheet title, split Esc-tip prefix/suffix keeping `<Kbd>` styling), stats-view (title, 4 stat labels, tags count, no-tags fallback), notes-view (title with count, empty state, untitled fallback, new `command_palette_notes_updated` "Updated {date}")
+- [x] **Sub-components** — output (Back button), search-input (placeholder), search-results (split no-results prefix preserving highlighted search term span, split `/help` hint preserving `<code>` styling, CMD badge, Select label)
+- [x] **Message cleanup** — updated 25+ existing key values to match new restyled wording; removed 16 dead keys (`command_palette_tip_back`, `_notes_id`, `_notes_open`, `_notes_untitled`, legacy plain keys `help/theme/stats/notes/create/tips/cmd_mode/cheat_sheet/navigate/no_results/type_help`, `_title_go_copilot_short` kept in EN); added new keys (prefix/suffix splits, `_subtitle_toggle_theme`, `_notes_updated`, `_cmd_badge`, `_select`) in BOTH en.json and vi.json
+- [x] **Pomodoro timer deprecated** — user confirmed deprecated; excluded permanently (see feature_list.json feat-010)
+- [x] **Verification** — `bun run generate-translation` ✓, `bun --bun check` ✓ (0 errors, pre-existing warnings only), `bun run build` (tsc -b + vite) ✓
+
+### What's Done (previous session — i18n-hardcoded-cleanup)
+
+- [x] **Audit** — scanned `src/routes/`, `src/features/` (excluding deprecated/focus), `src/components/shared/`, `src/components/layouts/` for hardcoded user-facing text
+- [x] **~130 strings migrated** across 20+ files; all new keys added to both `messages/en.json` and `messages/vi.json`
+- [x] **error-page.tsx** — full Vietnamese → i18n (ERROR_CONFIG now returns message functions, toasts, buttons, tech-details copy)
+- [x] **command-palette/** — 7 files i18n-ified (superseded by this session's reapplication)
+- [x] **lexical editor** — `lexical-toolbar.tsx` (14 tooltips), `lexical-shortcuts-dialog.tsx` (20+ strings), `lexical-editor.tsx` default placeholder
+- [x] **app-top-header.tsx** — locale labels now use `header_language_*` keys, search placeholder, tooltips, aria-labels, sr-only
+- [x] **Small files** — auth placeholders/OAuth labels, chat (agent name/desc, web-search toggle, model selector, file-attach toasts), settings tabs, tags sort options, notes view desc + mock tag chips, search-input placeholder, nav-user fallbacks, profile-page fallbacks
+- [x] **Bonus** — `confirm-provider.tsx` Vietnamese fallbacks, `notes/schemas.ts` Zod message, `notes/services.ts` export fallback title
+- [x] **Pomodoro timer excluded** per user request (still hardcoded English: Focus/Play/Pause/Reset)
+- [x] **Verification** — `bun --bun install` ✓, `bun --bun check` ✓ (0 errors, pre-existing warnings only), `bun run build` (tsc -b + vite) ✓
+
+### What's In Progress
+
+- (none)
+
+### What's Next
+
+Remaining features from `feature_list.json` (not-started):
 ### What's Done (feat-030 — Layout Refresh)
 
 - [x] **Breadcrumb system** — `src/types/breadcrumb.ts` (route type augmentation), `src/hooks/use-breadcrumb.ts` (useMatches + staticData + aliases), `src/components/common/app-breadcrumb.tsx` (shadcn wiring)

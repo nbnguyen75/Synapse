@@ -97,8 +97,7 @@ export default function ErrorPage({
   const handleCopyError = async () => {
     if (!error) return;
 
-    const errorText = `${error.name || 'Error'}: ${error.message || String(error)}\n${error.stack || ''}`;
-
+    const errorText = `${error.name || m.error_page_error_fallback()}: ${error.message || String(error)}\n${error.stack || ''}`;
     try {
       await navigator.clipboard.writeText(errorText);
       setCopied(true);
@@ -223,7 +222,7 @@ export default function ErrorPage({
               <div className="mt-3 text-left bg-muted/50 rounded-lg p-3.5 border border-border/60 space-y-2 text-xs font-mono animate-in fade-in duration-200">
                 <div className="flex items-center justify-between text-muted-foreground border-b border-border/40 pb-2">
                   <span className="font-medium text-destructive">
-                    {error.name || 'Error'}
+                    {error.name || m.error_page_error_fallback()}
                   </span>
                   <button
                     type="button"

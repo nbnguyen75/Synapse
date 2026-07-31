@@ -1,6 +1,6 @@
 import { m } from '@/paraglide/messages';
 
-import { BarChart2Icon } from 'lucide-react';
+import { BarChart3Icon, HashIcon } from 'lucide-react';
 
 interface CommandPaletteStatsViewProps {
   data: {
@@ -18,64 +18,49 @@ export default function CommandPaletteStatsView({
 }: CommandPaletteStatsViewProps) {
   return (
     <div className="space-y-4">
-      <div className="text-emerald-500 font-bold border-b border-border pb-1.5 flex items-center gap-1.5">
-        <BarChart2Icon className="h-4 w-4" />
+      <div className="flex items-center gap-2 text-xs font-semibold text-foreground tracking-wide uppercase">
+        <BarChart3Icon className="h-3.5 w-3.5 text-primary" />
         <span>{m.command_palette_stats_title()}</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {[
-          {
-            label: m.command_palette_stats_total(),
-            color: 'text-foreground',
-            value: data.total,
-          },
-          {
-            label: m.command_palette_stats_pinned(),
-            color: 'text-amber-500',
-            value: data.pinned,
-          },
-          {
-            label: m.command_palette_stats_active(),
-            color: 'text-emerald-500',
-            value: data.active,
-          },
-          {
-            label: m.command_palette_stats_drafts(),
-            color: 'text-blue-500',
-            value: data.drafts,
-          },
+          { label: m.command_palette_stats_total(), value: data.total },
+          { label: m.command_palette_stats_pinned(), value: data.pinned },
+          { label: m.command_palette_stats_active(), value: data.active },
+          { label: m.command_palette_stats_drafts(), value: data.drafts },
         ].map((stat) => (
           <div
             key={stat.label}
-            className="bg-muted/30 border border-border/80 rounded-xl p-3.5 flex flex-col justify-center"
+            className="rounded-xl border border-border/50 bg-card/50 p-3 flex flex-col"
           >
-            <span className="text-[10px] text-muted-foreground font-semibold uppercase">
+            <span className="text-[10px] text-muted-foreground font-medium">
               {stat.label}
             </span>
-            <span className={`text-2xl font-extrabold ${stat.color}`}>
+            <span className="text-xl font-bold text-foreground mt-1">
               {stat.value}
             </span>
           </div>
         ))}
       </div>
 
-      <div className="bg-muted/20 border border-border p-3.5 rounded-xl space-y-1.5">
-        <span className="text-[10px] text-muted-foreground font-bold uppercase block">
-          {m.command_palette_stats_tags({ count: data.tagsCount })}
-        </span>
+      <div className="rounded-xl border border-border/50 bg-card/50 p-3.5 space-y-2">
+        <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+          <HashIcon className="h-3.5 w-3.5 text-muted-foreground" />
+          <span>{m.command_palette_stats_tags({ count: data.tagsCount })}</span>
+        </div>
         <div className="flex flex-wrap gap-1.5 pt-1">
           {data.tagsList.length > 0 ? (
-            data.tagsList.map((t) => (
+            data.tagsList.map((tag) => (
               <span
-                key={t}
-                className="px-2 py-0.5 text-[10px] bg-muted/50 border border-border text-muted-foreground rounded font-semibold"
+                key={tag}
+                className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-muted/70 text-muted-foreground border border-border/40"
               >
-                #{t}
+                #{tag}
               </span>
             ))
           ) : (
-            <span className="text-muted-foreground text-[10px]">
+            <span className="text-xs text-muted-foreground/70 italic">
               {m.command_palette_stats_no_tags()}
             </span>
           )}

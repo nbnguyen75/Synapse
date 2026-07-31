@@ -1,3 +1,5 @@
+import { m } from '@/paraglide/messages';
+
 import {
   Dialog,
   DialogContent,
@@ -25,19 +27,19 @@ export default function ShortcutsHelpDialog() {
             variant="ghost"
             size="xs"
             className="h-7 px-2 flex items-center gap-1 rounded text-neutral-400 hover:text-foreground hover:bg-neutral-200/50 dark:hover:bg-neutral-800 transition-colors text-[10px] font-mono cursor-pointer ml-auto"
-            title="Keyboard Shortcuts & Markdown Syntax"
+            title={m.lexical_shortcuts_title_button()}
           />
         }
       >
         <Keyboard className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">Shortcuts</span>
+        <span className="hidden sm:inline">{m.lexical_shortcuts_button()}</span>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-200 bg-background border border-border shadow-flat-lg rounded-2xl p-6">
         <DialogHeader>
           <DialogTitle className="text-base font-semibold tracking-tight flex items-center gap-2 text-foreground">
             <Keyboard className="h-4 w-4 text-primary" />
-            <span>Editor Shortcuts & Markdown Guide</span>
+            <span>{m.lexical_shortcuts_dialog_title()}</span>
 
             <Tooltip>
               <TooltipTrigger
@@ -51,7 +53,9 @@ export default function ShortcutsHelpDialog() {
                   </a>
                 }
               />
-              <TooltipContent>Markdown syntax information</TooltipContent>
+              <TooltipContent>
+                {m.lexical_shortcuts_tooltip_info()}
+              </TooltipContent>
             </Tooltip>
           </DialogTitle>
         </DialogHeader>
@@ -59,11 +63,13 @@ export default function ShortcutsHelpDialog() {
         <div className="space-y-4 pt-2 text-xs">
           <div>
             <h4 className="font-semibold text-foreground text-xs mb-2">
-              Text Formatting
+              {m.lexical_shortcuts_section_text()}
             </h4>
             <div className="grid grid-cols-2 gap-2 text-muted-foreground">
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Bold</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_bold()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -72,7 +78,9 @@ export default function ShortcutsHelpDialog() {
                 </KbdGroup>
               </div>
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Italic</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_italic()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -81,7 +89,9 @@ export default function ShortcutsHelpDialog() {
                 </KbdGroup>
               </div>
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Underline</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_underline()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -90,7 +100,9 @@ export default function ShortcutsHelpDialog() {
                 </KbdGroup>
               </div>
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Strikethrough</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_strikethrough()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -101,7 +113,9 @@ export default function ShortcutsHelpDialog() {
                 </KbdGroup>
               </div>
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50 col-span-2">
-                <span className="font-extrabold">Inline Code</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_inline_code()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -114,11 +128,13 @@ export default function ShortcutsHelpDialog() {
 
           <div>
             <h4 className="font-semibold text-foreground text-xs mb-2">
-              Structure & Headings
+              {m.lexical_shortcuts_section_structure()}
             </h4>
             <div className="grid grid-cols-2 gap-2 text-muted-foreground">
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Heading 1</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_heading1()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -129,7 +145,9 @@ export default function ShortcutsHelpDialog() {
                 </KbdGroup>
               </div>
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Heading 2</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_heading2()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -140,7 +158,9 @@ export default function ShortcutsHelpDialog() {
                 </KbdGroup>
               </div>
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Heading 3</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_heading3()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -151,7 +171,9 @@ export default function ShortcutsHelpDialog() {
                 </KbdGroup>
               </div>
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Normal Text</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_normal_text()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -166,11 +188,13 @@ export default function ShortcutsHelpDialog() {
 
           <div>
             <h4 className="font-semibold text-foreground text-xs mb-2">
-              Lists & Blockquotes
+              {m.lexical_shortcuts_section_lists()}
             </h4>
             <div className="grid grid-cols-2 gap-2 text-muted-foreground">
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Bullet List</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_bullet_list()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -181,7 +205,9 @@ export default function ShortcutsHelpDialog() {
                 </KbdGroup>
               </div>
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50">
-                <span className="font-extrabold">Numbered List</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_numbered_list()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>
@@ -192,7 +218,9 @@ export default function ShortcutsHelpDialog() {
                 </KbdGroup>
               </div>
               <div className="flex items-center justify-between bg-neutral-50 dark:bg-neutral-800 p-2 rounded-lg border border-border/50 col-span-2">
-                <span className="font-extrabold">Block Quote</span>
+                <span className="font-extrabold">
+                  {m.lexical_shortcuts_block_quote()}
+                </span>
 
                 <KbdGroup>
                   <Kbd>Ctrl</Kbd>

@@ -1,7 +1,8 @@
 import type { CommandItem } from '@/features/command-palette/types';
 import type { RefObject } from 'react';
 
-import { Button } from '@/components/ui/button';
+import { m } from '@/paraglide/messages';
+
 import { Kbd } from '@/components/ui/kbd';
 
 import { CornerDownLeftIcon } from 'lucide-react';
@@ -24,17 +25,21 @@ export default function CommandPaletteSearchResults({
   return (
     <div
       ref={resultsRef}
-      className="max-h-85 overflow-y-auto p-3 space-y-1.5 bg-background/30"
+      className="max-h-[340px] overflow-y-auto p-2 space-y-1 bg-background/20"
     >
       {searchResults.length === 0 ? (
-        <div className="py-12 px-4 text-center rounded-xl bg-background/50 shadow-flat-inset border border-border/10">
-          <p className="text-xs text-neutral-400">
-            No results found for "{search}"
+        <div className="py-12 px-4 text-center">
+          <p className="text-sm font-medium text-muted-foreground">
+            {m.command_palette_no_results_prefix()}
+            <span className="text-foreground">{search}</span>"
           </p>
           {search.startsWith('/') && (
-            <p className="text-[10px] text-neutral-500 mt-1">
-              Type <span className="font-mono text-emerald-500">/help</span> to
-              see the full list of slash commands
+            <p className="text-xs text-muted-foreground/70 mt-1.5">
+              {m.command_palette_type_help_prefix()}{' '}
+              <code className="px-1.5 py-0.5 rounded bg-muted text-foreground font-mono text-[11px]">
+                /help
+              </code>{' '}
+              {m.command_palette_type_help_suffix()}
             </p>
           )}
         </div>
@@ -45,68 +50,57 @@ export default function CommandPaletteSearchResults({
           const isSlashCmd = 'command' in item;
 
           return (
-            <Button
+            <div
               key={item.id}
               data-index={idx}
               onClick={item.action}
               onMouseEnter={() => onSelectIndex(idx)}
-              variant="ghost"
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all border border-transparent h-auto ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all ${
                 isSelected
-                  ? isSlashCmd
-                    ? 'bg-emerald-500/10 border-emerald-500/20 shadow-flat-inset text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-500'
-                    : 'bg-primary/10 border-primary/20 shadow-flat-inset text-primary hover:bg-primary/10 hover:text-primary'
-                  : 'hover:shadow-flat-sm hover:bg-background/40 text-neutral-700 dark:text-neutral-300'
+                  ? 'bg-accent text-accent-foreground shadow-sm'
+                  : 'hover:bg-muted/50 text-muted-foreground hover:text-foreground'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-all ${
+                  className={`flex h-7 w-7 items-center justify-center rounded-md border transition-colors ${
                     isSelected
-                      ? isSlashCmd
-                        ? 'border-emerald-500/25 bg-emerald-500/20'
-                        : 'border-primary/25 bg-primary/20'
-                      : 'border-border/10 bg-background shadow-flat-inset'
+                      ? 'border-foreground/10 bg-background/80 text-foreground shadow-xs'
+                      : 'border-border/40 bg-muted/40 text-muted-foreground'
                   }`}
                 >
-                  <IconComponent
-                    className={`h-4 w-4 shrink-0 transition-colors ${
-                      isSelected
-                        ? isSlashCmd
-                          ? 'text-emerald-500'
-                          : 'text-primary'
-                        : 'text-neutral-400'
-                    }`}
-                  />
+                  <IconComponent className="h-3.5 w-3.5 shrink-0" />
                 </div>
                 <div className="min-w-0">
-                  <p
-                    className={`text-xs font-semibold truncate leading-none mb-1 transition-colors ${
-                      isSelected
-                        ? isSlashCmd
-                          ? 'text-emerald-500'
-                          : 'text-primary'
-                        : 'text-foreground'
-                    }`}
-                  >
-                    {item.title}
-                  </p>
-                  <p className="text-[10px] text-neutral-400 truncate leading-none">
+                  <div className="flex items-center gap-2">
+                    <p
+                      className={`text-xs font-medium truncate ${isSelected ? 'text-foreground' : ''}`}
+                    >
+                      {item.title}
+                    </p>
+                    {isSlashCmd && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-primary/10 text-primary border border-primary/20">
+                        {m.command_palette_cmd_badge()}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground/80 truncate mt-0.5">
                     {item.subtitle}
                   </p>
                 </div>
               </div>
+
               {isSelected && (
-                <div
-                  className={`flex items-center gap-1 text-[10px] font-mono ${
-                    isSlashCmd ? 'text-emerald-500' : 'text-primary'
-                  }`}
-                >
-                  <Kbd>Enter</Kbd>
-                  <CornerDownLeftIcon className="h-3 w-3" />
+                <div className="flex items-center gap-1.5 text-muted-foreground pl-2 shrink-0">
+                  <span className="text-[10px] font-medium hidden sm:inline">
+                    {m.command_palette_select()}
+                  </span>
+                  <Kbd className="h-5 px-1.5 text-[10px] bg-background border border-border/60">
+                    <CornerDownLeftIcon className="h-3 w-3" />
+                  </Kbd>
                 </div>
               )}
-            </Button>
+            </div>
           );
         })
       )}

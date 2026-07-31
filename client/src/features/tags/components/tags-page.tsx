@@ -170,10 +170,18 @@ function TagsPage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="name_asc">Name A-Z</SelectItem>
-              <SelectItem value="name_desc">Name Z-A</SelectItem>
-              <SelectItem value="usage_desc">Most Used</SelectItem>
-              <SelectItem value="usage_asc">Least Used</SelectItem>
+              <SelectItem value="name_asc">
+                {m.tags_page_sort_name_az()}
+              </SelectItem>
+              <SelectItem value="name_desc">
+                {m.tags_page_sort_name_za()}
+              </SelectItem>
+              <SelectItem value="usage_desc">
+                {m.tags_page_sort_most_used()}
+              </SelectItem>
+              <SelectItem value="usage_asc">
+                {m.tags_page_sort_least_used()}
+              </SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={openCreate}>{m.tags_page_create()}</Button>

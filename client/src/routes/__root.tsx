@@ -5,17 +5,14 @@ import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
-  useNavigate,
 } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';
 import { TanStackDevtools } from '@tanstack/react-devtools';
 
-import { DefaultLoaderPage } from '@/features/loader/components';
-
 import { env } from '@/config/env';
 
-import CommandPalette from '@/components/shared/global-keybinds';
+import { DefaultLoaderPage } from '@/components/app/pages';
 
 import appCss from '@/assets/styles.css?url';
 
@@ -50,17 +47,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootLayout() {
-  const navigate = useNavigate();
-
   return (
     <>
       <HeadContent />
       <Outlet />
-
-      <CommandPalette
-        onNewNote={() => navigate({ to: '/notes' })}
-        onFocusSearch={() => navigate({ to: '/notes' })}
-      />
 
       <TanStackDevtools
         config={{

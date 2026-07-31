@@ -1,3 +1,5 @@
+// ! Not used, reference only
+
 import { useState } from 'react';
 
 import { formatTime } from 'media-chrome/dist/utils/time.js';

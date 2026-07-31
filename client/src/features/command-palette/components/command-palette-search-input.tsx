@@ -1,5 +1,7 @@
 import type { RefObject, KeyboardEvent as ReactKeyboardEvent } from 'react';
 
+import { m } from '@/paraglide/messages';
+
 import { Input } from '@/components/ui/input';
 import { Kbd } from '@/components/ui/kbd';
 
@@ -19,19 +21,21 @@ export default function CommandPaletteSearchInput({
   search,
 }: CommandPaletteSearchInputProps) {
   return (
-    <div className="flex items-center border-b border-border px-4 py-3 gap-2.5 bg-background/50">
-      <SearchIcon className="h-4.5 w-4.5 text-neutral-400 shrink-0" />
+    <div className="flex items-center gap-3 border-b border-border/50 px-4 py-3 bg-background/50">
+      <SearchIcon className="h-4 w-4 text-muted-foreground shrink-0" />
       <Input
         ref={inputRef}
         type="text"
-        placeholder="Type a command (e.g., /theme, /stats) or search notes..."
+        placeholder={m.command_palette_placeholder()}
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
         onKeyDown={onKeyDown}
-        className="w-full text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-2 h-auto bg-transparent placeholder-neutral-400 text-foreground"
+        className="w-full text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto bg-transparent placeholder:text-muted-foreground/70 text-foreground"
         autoFocus
       />
-      <Kbd className="hidden sm:inline-flex">ESC</Kbd>
+      <Kbd className="hidden sm:inline-flex text-[10px] font-medium opacity-60">
+        ESC
+      </Kbd>
     </div>
   );
 }

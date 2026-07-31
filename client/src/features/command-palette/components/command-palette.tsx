@@ -42,6 +42,7 @@ import {
   HelpCircleIcon,
   BarChart2Icon,
 } from 'lucide-react';
+
 export default function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -143,7 +144,7 @@ export default function CommandPalette() {
           toggleTheme();
           toast.success(
             m.command_palette_toast_theme({
-              mode: theme === 'dark' ? 'LIGHT' : 'DARK',
+              mode: theme === 'dark' ? 'Light' : 'Dark',
             }),
           );
           setIsOpen(false);
@@ -214,7 +215,9 @@ export default function CommandPalette() {
             titlePart || m.command_palette_create_fallback_title();
           try {
             const res = await createNoteMutation.mutateAsync({
-              content: `Document initiated via command shortcut on ${new Date().toLocaleString()}.\n\nTags: #command-created`,
+              content: m.command_palette_note_body({
+                date: new Date().toLocaleString(),
+              }),
               title: finalTitle,
             });
             toast.success(
@@ -229,7 +232,9 @@ export default function CommandPalette() {
             }, 150);
           } catch (err: unknown) {
             const message =
-              err instanceof Error ? err.message : 'Unknown error';
+              err instanceof Error
+                ? err.message
+                : m.command_palette_unknown_error();
             toast.error(m.command_palette_toast_create_error({ message }));
           }
         },
@@ -283,13 +288,13 @@ export default function CommandPalette() {
           toggleTheme();
           toast.success(
             m.command_palette_toast_theme({
-              mode: theme === 'dark' ? 'LIGHT' : 'DARK',
+              mode: theme === 'dark' ? 'Light' : 'Dark',
             }),
           );
           setIsOpen(false);
         },
-        subtitle: m.command_palette_subtitle_theme({
-          theme: theme.toUpperCase(),
+        subtitle: m.command_palette_subtitle_toggle_theme({
+          mode: theme === 'dark' ? 'Light' : 'Dark',
         }),
         icon: theme === 'dark' ? SunIcon : MoonIcon,
         title: m.command_palette_title_theme(),
@@ -341,7 +346,7 @@ export default function CommandPalette() {
       .map((note) => {
         const content = note.content ?? '';
         const preview =
-          content.length > 80 ? `${content.slice(0, 80)}...` : content;
+          content.length > 70 ? `${content.slice(0, 70)}...` : content;
 
         return {
           subtitle: preview || m.command_palette_note_no_content(),
@@ -361,7 +366,6 @@ export default function CommandPalette() {
     return [...notesResults, ...filteredCommands];
   }, [search, notes, staticCommands, slashCommands]);
 
-  // Derive bounded selection index during render safely without state side-effects
   const boundedSelectedIndex =
     searchResults.length > 0
       ? Math.min(selectedIndex, searchResults.length - 1)
@@ -413,7 +417,7 @@ export default function CommandPalette() {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent
         showCloseButton={false}
-        className="sm:max-w-lg bg-background rounded-2xl border border-border shadow-flat-lg p-0 overflow-hidden gap-0"
+        className="sm:max-w-xl bg-popover/95 backdrop-blur-md rounded-2xl border border-border/60 shadow-2xl p-0 overflow-hidden gap-0"
       >
         {commandOutput ? (
           <CommandPaletteOutput

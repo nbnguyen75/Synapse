@@ -6,6 +6,8 @@ import {
   useRef,
 } from 'react';
 
+import { m } from '@/paraglide/messages';
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,15 +56,15 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {options.title ?? 'Bạn có chắc chắn không?'}
+              {options.title ?? m.confirm_default_title()}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {options.description ?? 'Hành động này không thể hoàn tác.'}
+              {options.description ?? m.confirm_default_desc()}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => handleClose(false)}>
-              {options.cancelText ?? 'Hủy'}
+              {options.cancelText ?? m.confirm_default_cancel()}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => handleClose(true)}
@@ -72,7 +74,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                   : undefined
               }
             >
-              {options.confirmText ?? 'Xác nhận'}
+              {options.confirmText ?? m.confirm_default_confirm()}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

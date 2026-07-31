@@ -111,8 +111,12 @@ export default function CopilotTab({
                 }
               >
                 <TabsList>
-                  <TabsTrigger value="preset">Preset</TabsTrigger>
-                  <TabsTrigger value="url">URL</TabsTrigger>
+                  <TabsTrigger value="preset">
+                    {m.settings_copilot_tab_preset()}
+                  </TabsTrigger>
+                  <TabsTrigger value="url">
+                    {m.settings_copilot_tab_url()}
+                  </TabsTrigger>
                   <TabsTrigger value="upload">
                     {m.settings_page_copilot_import_image()}
                   </TabsTrigger>
@@ -135,7 +139,7 @@ export default function CopilotTab({
                   <Input
                     value={customAvatarUrl}
                     onChange={(e) => setCustomAvatarUrl(e.target.value)}
-                    placeholder="https://example.com/avatar.png"
+                    placeholder={m.settings_copilot_avatar_url_placeholder()}
                   />
                   <Button
                     size="sm"
@@ -147,7 +151,7 @@ export default function CopilotTab({
                         });
                     }}
                   >
-                    Set URL
+                    {m.settings_copilot_set_url()}
                   </Button>
                 </TabsContent>
                 <TabsContent value="upload" className="mt-2">
@@ -191,7 +195,7 @@ export default function CopilotTab({
         {config.persona === 'custom' && (
           <div className="mt-4 space-y-4">
             <div>
-              <Label>Persona Name</Label>
+              <Label>{m.settings_copilot_persona_name()}</Label>
               <Input
                 value={config.customPersonaName || ''}
                 onChange={(e) =>
@@ -203,7 +207,7 @@ export default function CopilotTab({
               />
             </div>
             <div>
-              <Label>Persona Instructions</Label>
+              <Label>{m.settings_copilot_persona_instructions()}</Label>
               <Textarea
                 value={config.customPersonaInstructions || ''}
                 onChange={(e) =>
@@ -249,7 +253,7 @@ export default function CopilotTab({
               : m.settings_page_copilot_save()}
         </Button>
         <Button variant="outline" onClick={onResetDefaults}>
-          Reset to Default
+          {m.settings_copilot_reset_default()}
         </Button>
       </div>
     </div>

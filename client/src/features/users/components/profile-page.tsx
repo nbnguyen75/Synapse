@@ -27,11 +27,14 @@ export default function ProfilePage() {
             <Avatar size="lg">
               {user?.image && <AvatarImage src={user.image} />}
               <AvatarFallback className="text-lg">
-                {user?.name?.charAt(0)?.toUpperCase() || '?'}
+                {user?.name?.charAt(0)?.toUpperCase() ||
+                  m.profile_page_fallback_avatar()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <CardTitle>{user?.name || 'User'}</CardTitle>
+              <CardTitle>
+                {user?.name || m.profile_page_fallback_name()}
+              </CardTitle>
             </div>
           </div>
         </CardHeader>

@@ -128,7 +128,7 @@ export default function TemplatesTab({
               <p className="text-xs text-muted-foreground">{t.description}</p>
             </div>
             <span className="text-[10px] text-muted-foreground">
-              Predefined
+              {m.settings_templates_predefined()}
             </span>
           </div>
         ))}
@@ -176,7 +176,7 @@ export default function TemplatesTab({
           <DialogHeader>
             <DialogTitle>
               {editingTmplName
-                ? 'Edit Template'
+                ? m.settings_templates_edit_title()
                 : m.settings_page_template_create()}
             </DialogTitle>
           </DialogHeader>
@@ -216,9 +216,11 @@ export default function TemplatesTab({
               variant="outline"
               onClick={() => setTemplateEditorOpen(false)}
             >
-              Cancel
+              {m.settings_templates_cancel()}
             </Button>
-            <Button onClick={handleSaveTemplate}>Save</Button>
+            <Button onClick={handleSaveTemplate}>
+              {m.settings_templates_save()}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -241,9 +243,11 @@ export default function TemplatesTab({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              {m.settings_templates_cancel()}
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteTemplate}>
-              Delete
+              {m.settings_templates_delete()}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

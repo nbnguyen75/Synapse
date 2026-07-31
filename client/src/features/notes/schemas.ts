@@ -2,6 +2,8 @@ import { z } from 'zod/v4';
 
 import { SORTABLE_FIELDS } from '@/features/notes/constants';
 
+import { m } from '@/paraglide/messages';
+
 export const notesQueryParamsSchema = z.object({
   pageSize: z.coerce.number().int().positive().max(100).optional(),
   page: z.coerce.number().int().positive().optional(),
@@ -18,7 +20,7 @@ export interface NotesApiParams extends NotesQueryParams {
 }
 
 export const noteFormSchema = z.object({
-  title: z.string().min(1, { message: 'Title is required' }),
+  title: z.string().min(1, { message: m.notes_page_toast_title_required() }),
   content: z.string().optional(),
 });
 

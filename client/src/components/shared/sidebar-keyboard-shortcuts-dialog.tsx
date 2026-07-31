@@ -74,14 +74,14 @@ export default function KeyboardShortcutsDialog({
 
         <div className="space-y-5 pt-2 text-xs max-h-96 overflow-y-auto pr-1">
           {shortcutSections.map((section) => (
-            <div key={section.heading}>
+            <div key={section.heading as unknown as string}>
               <h4 className="font-semibold text-foreground text-xs mb-2 uppercase tracking-wider">
                 {section.heading()}
               </h4>
               <div className="space-y-1">
                 {section.shortcuts.map((shortcut) => (
                   <div
-                    key={shortcut.label}
+                    key={shortcut.label as unknown as string}
                     className="flex items-center justify-between bg-muted/30 p-2 rounded-lg border border-border/50"
                   >
                     <span className="text-muted-foreground">

@@ -60,10 +60,10 @@ export default function NavUser() {
   });
 
   const user = {
+    email: session?.user?.email || m.nav_user_fallback_email(),
     avatar: session?.user?.image ?? defaultAvatar.toDataUri(),
-    email: session?.user?.email || 'unknown@example.com',
-    name: session?.user?.name || 'Unknown User',
-    fallbackName: 'UU',
+    name: session?.user?.name || m.nav_user_fallback_name(),
+    fallbackName: m.nav_user_fallback_initials(),
   };
 
   const handleSignOut = async () => {

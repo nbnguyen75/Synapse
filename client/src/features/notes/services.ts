@@ -32,7 +32,7 @@ export function getMarkdownReadTimeSync(content?: string | null, wpm = 200) {
 }
 
 export function exportMarkdown({ content, title }: Note): void {
-  const safeTitle = title?.trim() || 'Untitled';
+  const safeTitle = title?.trim() || m.notes_page_untitled();
   const filename = deriveFilename(safeTitle);
   const fileContent = `# ${safeTitle}\n\n${content?.trim() || ''}`;
 
