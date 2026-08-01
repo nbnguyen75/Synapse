@@ -33,6 +33,5 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 COPY src ./src
 COPY drizzle ./drizzle
 COPY drizzle.config.ts ./
-COPY seed ./seed
 
 CMD ["bun", "run", "db:push"]
