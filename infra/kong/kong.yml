@@ -16,6 +16,15 @@ services:
         paths:
           - /api/v1/notes
         strip_path: true
+
+  - name: ai-service
+    url: http://ai:5002
+    routes:
+      - name: ai-route
+        paths:
+          - /api/v1/ai
+        strip_path: true
+
     plugins:
       - name: cors
         config:
