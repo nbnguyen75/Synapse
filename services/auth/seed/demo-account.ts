@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { eq } from 'drizzle-orm';
 
-import { auth } from '../src/core/auth/auth.service';
 import { user } from '../src/database/schema';
+import { auth } from '../src/auth/service';
 import { db } from '../src/database';
 
 const DEMO_EMAIL = process.env.DEMO_EMAIL ?? 'demo@synapse.dev';
