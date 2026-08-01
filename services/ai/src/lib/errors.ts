@@ -14,25 +14,40 @@ export class AppError extends Error {
 
 export class NotFoundError extends AppError {
 	constructor(resource: string, id?: string) {
-		super('NOT_FOUND', `${resource}${id ? ` (${id})` : ''} not found`, StatusCodes.NOT_FOUND);
+		super(
+			'NOT_FOUND',
+			`${resource}${id ? ` (${id})` : ''} ghosted us — 404, it's not here.`,
+			StatusCodes.NOT_FOUND
+		);
 	}
 }
 
 export class UnauthorizedError extends AppError {
-	constructor(message = 'Unauthorized') {
+	constructor(message = "Bring your token, we're not letting strangers in.") {
 		super('UNAUTHORIZED', message, StatusCodes.UNAUTHORIZED);
 	}
 }
 
 export class ForbiddenError extends AppError {
-	constructor(message = 'Forbidden') {
+	constructor(message = 'Nice try, but this door needs a different key. (403)') {
 		super('FORBIDDEN', message, StatusCodes.FORBIDDEN);
 	}
 }
 
 export class ValidationError extends AppError {
 	constructor(details: unknown) {
-		super('VALIDATION_ERROR', 'Invalid request', StatusCodes.BAD_REQUEST, details);
+		super(
+			'VALIDATION_ERROR',
+			'Your payload and our schema had a disagreement.',
+			StatusCodes.BAD_REQUEST,
+			details
+		);
+	}
+}
+
+export class ConflictError extends AppError {
+	constructor(message: string) {
+		super('CONFLICT', message, StatusCodes.CONFLICT);
 	}
 }
 

@@ -40,22 +40,22 @@
          "status": "done",
          "evidence": "src/features/notes/hooks/use-tags.ts, src/features/notes/components/tags-page.tsx, src/features/notes/components/tag-filter-bar.tsx"
       },
-      {
-         "id": "feat-006",
-         "name": "AI Chat / Copilot",
-         "description": "AI chat with Vercel AI SDK components, model selector, streaming responses, web search toggle, speech input, file attachments, suggestion chips, sources & reasoning display.",
-         "dependencies": ["feat-003"],
-         "status": "done",
-         "evidence": "src/features/chat/components/chat-bot.tsx, src/features/chat/components/chat-page.tsx, src/components/ai-elements/"
-      },
-      {
-         "id": "feat-007",
-         "name": "Settings (General, Copilot, Templates)",
-         "description": "Settings with 3 tabs: General (autosave, email digests, copilot alerts), Copilot (name, temperature, avatar, persona, prompt, welcome message), Templates (CRUD custom templates).",
-         "dependencies": ["feat-003"],
-         "status": "done",
-         "evidence": "src/features/settings/components/settings-page.tsx, src/features/settings/components/general-tab.tsx, src/features/settings/components/copilot-tab.tsx, src/features/settings/components/templates-tab.tsx"
-      },
+       {
+          "id": "feat-006",
+          "name": "AI Chat / Copilot",
+          "description": "Real AI chat wired to the AI service via Kong (/api/v1/ai). AI SDK v7 useChat + DefaultChatTransport (custom SynapseChatTransport reads X-Conversation-Id, sends Bearer token + last user message), streaming responses, conversation history rail (left of the /chat workspace), suggestions, sources & reasoning display. Model selector, web search toggle, speech input kept as UI; attachments blocked (server text-only).",
+          "dependencies": ["feat-003"],
+          "status": "done",
+          "evidence": "src/features/chat/lib/chat-transport.ts, src/features/chat/lib/chat-api.ts, src/features/chat/hooks/use-chat-session.ts, src/features/chat/hooks/use-conversations.ts, src/features/chat/components/chat-bot.tsx, src/features/chat/components/chat-page.tsx, src/components/ai-elements/ (2026-08-01: mock logic replaced)"
+       },
+       {
+          "id": "feat-007",
+          "name": "Settings (General, Copilot, Templates)",
+          "description": "Settings with 3 tabs: General (autosave, email digests, copilot alerts), Copilot (backend-backed: personality preset incl. custom instructions, response length, language, emoji toggle — GET/PUT /api/v1/ai/settings), Templates (CRUD custom templates).",
+          "dependencies": ["feat-003"],
+          "status": "done",
+          "evidence": "src/features/settings/components/settings-page.tsx, src/features/settings/components/general-tab.tsx, src/features/settings/components/copilot-tab.tsx, src/features/settings/components/templates-tab.tsx, src/features/settings/hooks/use-ai-settings.ts"
+       },
       {
          "id": "feat-008",
          "name": "i18n (English & Vietnamese)",
@@ -160,14 +160,14 @@
          "status": "done",
          "evidence": "src/features/settings/components/templates-tab.tsx"
       },
-      {
-         "id": "feat-021",
-         "name": "Copilot Config Persistence",
-         "description": "Persistent copilot configuration (name, temperature, avatar, persona, custom instructions, prompt, welcome message) via localStorage.",
-         "dependencies": ["feat-007"],
-         "status": "done",
-         "evidence": "src/features/chat/lib/copilot-config.ts"
-      },
+       {
+          "id": "feat-021",
+          "name": "Copilot Config Persistence",
+          "description": "DEPRECATED (2026-08-01): localStorage CopilotConfig (name, temperature, avatar, persona, prompt, welcome message) removed. Replaced by server-backed AI settings (feat-033) — see src/features/settings/hooks/use-ai-settings.ts + /api/v1/ai/settings.",
+          "dependencies": ["feat-007"],
+          "status": "deprecated",
+          "evidence": "src/features/chat/lib/copilot-config.ts (trimmed to NoteTemplate helpers only)"
+       },
       {
          "id": "feat-022",
          "name": "Keyboard Shortcut Guard",
@@ -254,7 +254,15 @@
          "description": "useKeyBinding/useKeyboardShortcut hooks + keyboard-shortcuts config registry power all global and editor shortcuts. Command palette: onKeyDown replaced with hook bindings (arrows/enter in search view; Escape/Backspace back-navigation in output view via capture-phase + stopPropagation), 5 hardcoded strings migrated to i18n, 9 stale command_palette_* keys removed (en/vi parity restored), and /notes/create?title=... prefills the title form.",
          "dependencies": ["feat-012", "feat-029"],
          "status": "done",
-         "evidence": "src/hooks/use-key-binding.ts (useKeyBinding + capture option, useKeyboardShortcut, expandModKey), src/config/keyboard-shortcuts.ts (registry), src/components/shared/keyboard-shortcuts-list.tsx, src/components/shared/app-global-keybinds.tsx (N, /, Ctrl+Alt+B, Ctrl+/ events), src/components/shared/sidebar-keyboard-shortcuts-dialog.tsx, src/components/shared/editor/lexical-shortcuts-dialog.tsx, src/features/command-palette/components/command-palette.tsx (hook bindings + i18n), src/features/command-palette/components/command-palette-search-input.tsx (onKeyDown removed), src/routes/_app/notes/create.tsx (validateSearch title prefill), src/routes/_app/notes/$noteId.tsx (Ctrl+S), src/routes/_app/route.tsx (Ctrl+Alt+B), messages/en.json, messages/vi.json"
-      }
-   ]
+          "evidence": "src/hooks/use-key-binding.ts (useKeyBinding + capture option, useKeyboardShortcut, expandModKey), src/config/keyboard-shortcuts.ts (registry), src/components/shared/keyboard-shortcuts-list.tsx, src/components/shared/app-global-keybinds.tsx (N, /, Ctrl+Alt+B, Ctrl+/ events), src/components/shared/sidebar-keyboard-shortcuts-dialog.tsx, src/components/shared/editor/lexical-shortcuts-dialog.tsx, src/features/command-palette/components/command-palette.tsx (hook bindings + i18n), src/features/command-palette/components/command-palette-search-input.tsx (onKeyDown removed), src/routes/_app/notes/create.tsx (validateSearch title prefill), src/routes/_app/notes/$noteId.tsx (Ctrl+S), src/routes/_app/route.tsx (Ctrl+Alt+B), messages/en.json, messages/vi.json"
+       },
+       {
+          "id": "feat-033",
+          "name": "AI Chat Backend Integration & Conversation History",
+          "description": "Wired mock chat to the real AI service (Kong /api/v1/ai) via AI SDK v7 useChat + custom DefaultChatTransport (X-Conversation-Id capture, Bearer auth, send-last-message protocol). Added Gemini/Claude-style conversation history left rail inside /chat (new chat, load history, active highlight, auto-refresh after first turn). Migrated Settings > Copilot tab to backend /api/v1/ai/settings (useAiSettings hook; localStorage CopilotConfig removed). CORS expose of X-Conversation-Id in Kong + ai service. Removed dead i18n keys, added chat/settings keys, en/vi parity.",
+          "dependencies": ["feat-006", "feat-007"],
+          "status": "done",
+          "evidence": "src/features/chat/lib/chat-transport.ts, src/features/chat/lib/chat-api.ts, src/features/chat/hooks/use-chat-session.ts, src/features/chat/hooks/use-conversations.ts, src/features/chat/components/chat-page.tsx, src/features/chat/components/chat-bot.tsx, src/features/settings/hooks/use-ai-settings.ts, src/features/settings/components/copilot-tab.tsx, src/features/settings/components/settings-page.tsx, infra/kong/kong.yml, services/ai/src/app.ts, messages/en.json, messages/vi.json"
+       }
+    ]
 }

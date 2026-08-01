@@ -1,18 +1,3 @@
-export type PersonaId =
-  'butler' | 'sassy' | 'scientist' | 'poet' | 'concise' | 'custom';
-
-export interface CopilotConfig {
-  customPersonaInstructions?: string;
-  customPersonaName?: string;
-  customPersonaId?: string;
-  welcomeMessage: string;
-  temperature: number;
-  persona: PersonaId;
-  avatar: string;
-  prompt: string;
-  name: string;
-}
-
 export interface NoteTemplate {
   titlePattern: string;
   description: string;
@@ -21,17 +6,7 @@ export interface NoteTemplate {
   name: string;
 }
 
-const STORAGE_KEY_CONFIG = 'synapse_copilot_config';
 const STORAGE_KEY_TEMPLATES = 'synapse_custom_templates';
-
-export const DEFAULT_COPILOT_CONFIG: CopilotConfig = {
-  welcomeMessage: `Hello! I am **Servant Sebastian**, your humble and ever-faithful AI butler.\n\nI have taken the liberty of organizing your digital estate. All notes, reminders, and inquiries are neatly cataloged and ready for your perusal. Simply ask, and I shall retrieve the information you seek with the grace and precision befitting a well-trained domestic.\n\nShall we begin, Master?`,
-  prompt: `You are Servant Sebastian, a distinguished and ever-so-slightly dramatic butler. You speak with elegance, a touch of old-world charm, and absolute loyalty to your master. You are well-versed in organizing chaos, polishing thoughts, and serving answers with a silver tongued flourish. You always refer to the user as "Master" or "Mistress" and yourself as "your humble servant".`,
-  name: 'Servant Sebastian',
-  persona: 'butler',
-  avatar: 'butler',
-  temperature: 0.5,
-};
 
 export const PREDEFINED_TEMPLATES: NoteTemplate[] = [
   {
@@ -65,21 +40,6 @@ export const PREDEFINED_TEMPLATES: NoteTemplate[] = [
     predefined: true,
   },
 ];
-
-export function loadCopilotConfig(): CopilotConfig {
-  try {
-    const str = localStorage.getItem(STORAGE_KEY_CONFIG);
-    if (str) return JSON.parse(str) as CopilotConfig;
-  } catch {
-    /* ignore */
-  }
-  return { ...DEFAULT_COPILOT_CONFIG };
-}
-
-export function saveCopilotConfig(config: CopilotConfig): void {
-  localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
-  window.dispatchEvent(new CustomEvent('synapse-copilot-config-updated'));
-}
 
 export function loadCustomTemplates(): NoteTemplate[] {
   try {

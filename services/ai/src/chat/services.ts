@@ -1,9 +1,9 @@
 import { safeValidateUIMessages, type UIMessage } from 'ai';
 
 import { appendMessage, getOrCreateConversation, loadHistory } from '@/conversation';
-import { RAG_SIMILARITY_THRESHOLD, RAG_TOP_K } from '@/chat/constants';
+import { MAX_NOTE_CONTENT_LENGTH, RAG_SIMILARITY_THRESHOLD, RAG_TOP_K } from '@/chat/constants';
 import { dataPartSchema, messageMetadataSchema } from '@/chat/schemas';
-import { buildSystemInstruction, getUserSettings } from '@/settings';
+import { buildSystemInstruction, getUserSettings, type UserAiSettings } from '@/settings';
 import { findTopKSimilarNotes } from '@/chat/repository';
 import { embedText } from '@/lib/ai';
 
@@ -29,13 +29,12 @@ export async function retrieveRelevantNotes(userId: string, question: string) {
 }
 
 export async function buildSystemPrompt(
-	userId: string,
-	contextNotes: { content: string; title: string }[]
+	settings: UserAiSettings,
+	contextNotes: { title: string; content: string }[]
 ) {
 	const context = contextNotes
-		.map((n, i) => `[Note ${i + 1}: ${n.title}]\n${n.content}`)
+		.map((n, i) => `[Note ${i + 1}: ${n.title}]\n${n.content.slice(0, MAX_NOTE_CONTENT_LENGTH)}`)
 		.join('\n\n');
-	const settings = await getUserSettings(userId);
 
 	return `Bạn là trợ lý ghi chú cá nhân (Synapse). Trả lời dựa trên các note dưới đây. Nếu không đủ thông tin, nói rõ không tìm thấy trong ghi chú, không bịa.
 

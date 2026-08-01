@@ -2,11 +2,26 @@
 
 ## Current State
 
-**Last Updated:** 2026-07-31
-**Session ID:** command-palette-keyboard-i18n-prefill
-**Active Feature:** Command palette keyboard handling + i18n cleanup + /notes/create title prefill
+**Last Updated:** 2026-08-01
+**Session ID:** ai-chat-backend-integration
+**Active Feature:** Real AI chat integration (AI SDK v7 `useChat` + conversation history rail + backend AI settings)
 
 ## Status
+
+### What's Done (AI chat backend integration + conversation history + settings migration)
+
+- [x] **Infra/backend CORS** — `infra/kong/kong.yml` ai-service plugin adds `exposed_headers: [X-Conversation-Id]`; `services/ai/src/app.ts` adds `exposeHeaders: ['Content-Length', 'X-Conversation-Id']`. (Pre-existing unstaged rate-limiting plugin in kong.yml left as-is.)
+- [x] **Dependency** — `@ai-sdk/react@4.0.50` installed (pairs with `ai@7.0.47`; `@ai-sdk/react@^7` does not exist). Verified v7 API from `node_modules` runtime: `useChat` only recreates the Chat when `id` changes; callbacks (`onError`, `transport`, etc.) flow through a per-render `latestRef`, so fresh identities are fine; `messages` option seeds state at construction only; no `persistMessages` in v7; status = `'submitted'|'streaming'|'ready'|'error'`.
+- [x] **`src/features/chat/lib/chat-transport.ts`** — `SynapseChatTransport extends DefaultChatTransport<UIMessage>`: wraps native `fetch` to read the `X-Conversation-Id` response header (updates its own `conversationId` + fires `onConversationId`); `prepareSendMessagesRequest` sends `{ conversationId, message: lastUserMessage }` (server is source of truth — DB persists full history) + `Authorization: Bearer` from `authClient.token()`. `credentials: 'include'` + native fetch (streaming response — `$fetch`/`ApiResponse` envelope NOT used here).
+- [x] **`src/features/chat/hooks/use-chat-session.ts`** — `useChat({ id: <stable per mount>, messages: initialMessages, transport, onError })`. Transport created once via `useState` initializer (seeded with the initial conversation id so loaded conversations continue, not fork). `id` derived from `initialConversationId ?? 'new-chat'`.
+- [x] **`src/features/chat/hooks/use-conversations.ts`** — lists conversations via `GET /api/v1/ai/conversations` (desc `updatedAt`); refresh() after first response.
+- [x] **`src/features/chat/lib/chat-api.ts`** — typed API fns: `listConversations`, `getConversationMessages` (`GET /api/v1/ai/conversations/:id/messages`), `getAiSettings`, `updateAiSettings` (types mirror backend `settingsSchema` + `PERSONALITY_PRESETS`).
+- [x] **`chat-page.tsx`** — left rail (Claude/Gemini-style) inside `/chat`: header + new-chat button, scrollable conversation list (skeleton while loading, empty state, active highlight). Right = `ChatBot` remounted via `sessionKey` only on explicit new-chat/select (NOT on conversationId capture, so streaming isn't reset); loaded history seeded via `initialMessages`; title falls back to `chat_conversation_untitled`.
+- [x] **`chat-bot.tsx`** — rewired to `useChatSession`; renders UIMessage parts: `text` → `Message`/`MessageContent`/`MessageResponse` (Streamdown), `reasoning` → `Reasoning` (streaming-aware), `source-url`/`source-document` → `Sources`/`Source`, other parts skipped. Empty state shows agent name + suggestion chips (click → `sendMessage`). Stop button → `chat.stop()`. Attachments blocked with `chat_attachments_not_supported` toast (server is text-only). Web-search toggle + model selector remain visual-only per plan. Works standalone in `app-right-sidebar` (no rail props).
+- [x] **Mock cleanup** — `lib/chat.ts` (personas/mock history) deleted; `chat-mock-data.ts` trimmed to `Model`, `models`, `suggestions`, `chefs`; `copilot-config.ts` trimmed to `NoteTemplate`/`PREDEFINED_TEMPLATES`/custom-template localStorage helpers (still used by `templates-tab.tsx` + `features/notes/components/deprecated/template-selector.tsx`).
+- [x] **Settings migration** — `src/features/settings/hooks/use-ai-settings.ts` (GET/PUT `/api/v1/ai/settings`, `DEFAULT_AI_SETTINGS`, `resetToDefaults`); `copilot-tab.tsx` rewritten to backend fields (preset buttons incl. custom → custom instructions textarea, response length + language selects, emoji switch, debounced auto-save + manual save + reset, skeletons while loading); `settings-page.tsx` no longer owns CopilotConfig (CopilotTab self-contained; general-tab localStorage toggles unchanged). `PersonaId`/`CopilotConfig`/`DEFAULT_COPILOT_CONFIG`/`loadCopilotConfig`/`saveCopilotConfig` removed.
+- [x] **i18n** — updated `chat_agent_name`→"Synapse"/desc; added `chat_conversations`, `chat_new_chat`, `chat_conversation_untitled`, `chat_conversations_empty`, `chat_conversation_load_failed`, `chat_attachments_not_supported`, `chat_error_send`; added 10 `settings_copilot_*` keys; removed dead `chat_page_*` (12), `chat_files_attached*`, `chat_sent_with_attachments`, and 12 obsolete `settings_page_copilot_*`/`settings_copilot_*` keys from en.json AND vi.json. `bun --bun generate-translation` ✓; en/vi key parity verified programmatically (0/0).
+- [x] **Verification** — `bun --bun install` ✓, `bun --bun check` ✓ (0 errors; pre-existing warnings only), `bun --bun run build` (tsc -b + vite) ✓ exit 0.
 
 ### What's Done (command palette refinements)
 
@@ -97,10 +112,15 @@ Remaining features from `feature_list.json` (not-started):
 
 ## Blockers / Risks
 
-- None
+- Kong rate-limiting plugin (minute: 5, limit_by: credential) on the ai-service may 429 heavy local testing — pre-existing, out of scope.
+- ChatBot's transport captures `onConversationId` at mount; safe because ChatPage passes a stable `useCallback` and ChatBot remounts per session.
 
 ## Decisions Made
 
+- **Chat transport**: custom `DefaultChatTransport` subclass with native `fetch` wrapper reading `X-Conversation-Id`; DB is source of truth (send only last user message; backend persists full conversation).
+- **Session lifecycle**: `ChatBot` remounts via `sessionKey` only on explicit new-chat / select-conversation; captured conversation id updates state without remount so streaming continues.
+- **Attachments / web search / model selector**: UI kept, non-functional (attachments blocked by client toast; server is text-only).
+- **Settings**: Copilot tab now server-backed (`/api/v1/ai/settings`); localStorage CopilotConfig persona identity removed entirely (feat-021 deprecated).
 - **View state**: URL search params (archived, trashed, favorite) rather than local state
 - **Page conversion**: FE stores 1-indexed page in URL, converts to 0-indexed at API call time
 - **ViewMode**: `NoteViewMode` type (`'active' | 'favorites' | 'archive' | 'trash'`) maps to specific query param sets

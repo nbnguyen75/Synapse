@@ -16,7 +16,7 @@ app.use(
 	cors({
 		allowHeaders: ['Content-Type', 'Authorization'],
 		allowMethods: ['POST', 'GET', 'OPTIONS'],
-		exposeHeaders: ['Content-Length'],
+		exposeHeaders: ['Content-Length', 'X-Conversation-Id'],
 		origin: env.ORIGINS,
 		credentials: true,
 		maxAge: 600

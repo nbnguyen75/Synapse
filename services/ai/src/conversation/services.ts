@@ -26,8 +26,9 @@ export async function getOrCreateConversation(userId: string, conversationId?: s
 export async function checkConversationOwnership(userId: string, conversationId: string) {
 	const conversation = await findById(conversationId);
 
-	if (!conversation) return { success: false as const, reason: 'not_found' };
-	if (conversation.userId !== userId) return { success: false as const, reason: 'forbidden' };
+	if (!conversation) return { reason: 'not_found' as const, success: false as const };
+	if (conversation.userId !== userId)
+		return { reason: 'forbidden' as const, success: false as const };
 
 	return { success: true as const, data: conversation };
 }

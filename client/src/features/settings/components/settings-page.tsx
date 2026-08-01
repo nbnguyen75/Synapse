@@ -1,14 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-
-import { toast } from 'sonner';
+import { useState, useEffect, useCallback } from 'react';
 
 import {
-  loadCopilotConfig,
-  saveCopilotConfig,
   loadCustomTemplates,
   saveCustomTemplates,
-  DEFAULT_COPILOT_CONFIG,
-  type CopilotConfig,
   type NoteTemplate,
 } from '@/features/chat/lib/copilot-config';
 
@@ -24,14 +18,8 @@ import { Bot, FileText } from 'lucide-react';
 
 function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general');
-  const [copilotConfig, setCopilotConfig] = useState<CopilotConfig>(() =>
-    loadCopilotConfig(),
-  );
   const [customTemplates, setCustomTemplates] = useState<NoteTemplate[]>(() =>
     loadCustomTemplates(),
-  );
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>(
-    'idle',
   );
   const [autosave, setAutosave] = useState(
     () => localStorage.getItem('synapse_autosave_enabled') !== 'false',
@@ -42,46 +30,29 @@ function SettingsPage() {
   const [copilotAlerts, setCopilotAlerts] = useState(
     () => localStorage.getItem('synapse_copilot_alerts') === 'true',
   );
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const persistSetting = useCallback((key: string, value: boolean) => {
     localStorage.setItem(key, String(value));
     window.dispatchEvent(new CustomEvent('synapse-settings-updated'));
   }, []);
 
-  const debouncedSave = useCallback((config: CopilotConfig) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    setSaveStatus('saving');
-    debounceRef.current = setTimeout(() => {
-      saveCopilotConfig(config);
-      setSaveStatus('saved');
-    }, 400);
-  }, []);
-
-  function updateConfig(updates: Partial<CopilotConfig>) {
-    const next = { ...copilotConfig, ...updates };
-    setCopilotConfig(next);
-    debouncedSave(next);
-  }
-
   useEffect(() => {
+    const handleSettingsUpdated = () => {
+      setAutosave(localStorage.getItem('synapse_autosave_enabled') !== 'false');
+      setEmailDigests(localStorage.getItem('synapse_email_digests') === 'true');
+      setCopilotAlerts(
+        localStorage.getItem('synapse_copilot_alerts') === 'true',
+      );
+    };
+
+    window.addEventListener('synapse-settings-updated', handleSettingsUpdated);
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
+      window.removeEventListener(
+        'synapse-settings-updated',
+        handleSettingsUpdated,
+      );
     };
   }, []);
-
-  function handleManualSave() {
-    saveCopilotConfig(copilotConfig);
-    setSaveStatus('saved');
-    toast.success(m.settings_page_toast_saved());
-  }
-
-  function handleResetDefaults() {
-    setCopilotConfig({ ...DEFAULT_COPILOT_CONFIG });
-    saveCopilotConfig(DEFAULT_COPILOT_CONFIG);
-    setSaveStatus('saved');
-    toast.success(m.settings_page_toast_saved());
-  }
 
   function handleTemplatesChange(templates: NoteTemplate[]) {
     setCustomTemplates(templates);
@@ -132,13 +103,7 @@ function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="copilot">
-          <CopilotTab
-            config={copilotConfig}
-            onConfigChange={updateConfig}
-            saveStatus={saveStatus}
-            onManualSave={handleManualSave}
-            onResetDefaults={handleResetDefaults}
-          />
+          <CopilotTab />
         </TabsContent>
 
         <TabsContent value="templates">

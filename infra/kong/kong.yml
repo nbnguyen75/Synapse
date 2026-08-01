@@ -26,6 +26,12 @@ services:
         strip_path: true
 
     plugins:
+      - name: rate-limiting
+        route: ai-route
+        config:
+          minute: 5          # mỗi user tối đa 5 request/phút qua chat
+          policy: local
+          limit_by: credential 
       - name: cors
         config:
           origins:
@@ -42,5 +48,7 @@ services:
             - Authorization
             - Content-Type
             - Origin
+          exposed_headers:
+            - X-Conversation-Id
           credentials: true
           preflight_continue: false

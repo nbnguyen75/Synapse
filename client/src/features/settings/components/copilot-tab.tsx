@@ -1,258 +1,215 @@
 import type {
-  CopilotConfig,
-  PersonaId,
-} from '@/features/chat/lib/copilot-config';
+  AiLanguage,
+  AiResponseLength,
+  AiSettings,
+  AiSettingsPreset,
+} from '@/features/chat/lib/chat-api';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { toast } from 'sonner';
 
+import {
+  DEFAULT_AI_SETTINGS,
+  useAiSettings,
+} from '@/features/settings/hooks/use-ai-settings';
+
 import { m } from '@/paraglide/messages';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/components/ui/native-select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
-import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
-import { Save, Sparkles } from 'lucide-react';
+import { Save } from 'lucide-react';
 
-const PRESET_AVATARS = [
-  'bot',
-  'sparkles',
-  'brain',
-  'heart',
-  'star',
-  'zap',
-  'flame',
-  'droplets',
-  'feather',
-  'gem',
-  'compass',
-  'crown',
+const PRESETS: AiSettingsPreset[] = [
+  'socratic',
+  'friendly',
+  'professional',
+  'concise',
+  'custom',
 ];
 
-interface CopilotTabProps {
-  onConfigChange: (updates: Partial<CopilotConfig>) => void;
-  onResetDefaults: () => void;
-  onManualSave: () => void;
-  config: CopilotConfig;
-  saveStatus: string;
-}
+const PRESET_LABELS: Record<AiSettingsPreset, () => string> = {
+  professional: () => m.settings_copilot_preset_professional(),
+  socratic: () => m.settings_copilot_preset_socratic(),
+  friendly: () => m.settings_copilot_preset_friendly(),
+  concise: () => m.settings_copilot_preset_concise(),
+  custom: () => m.settings_copilot_preset_custom(),
+};
 
-export default function CopilotTab({
-  onResetDefaults,
-  onConfigChange,
-  onManualSave,
-  saveStatus,
-  config,
-}: CopilotTabProps) {
-  const [avatarTab, setAvatarTab] = useState<'preset' | 'url' | 'upload'>(
-    'preset',
+const RESPONSE_LENGTHS: AiResponseLength[] = ['short', 'balanced', 'detailed'];
+
+const LANGUAGES: AiLanguage[] = ['vi', 'en', 'auto'];
+
+export default function CopilotTab() {
+  const { resetToDefaults, isLoading, isSaving, settings, update } =
+    useAiSettings();
+  const [draft, setDraft] = useState<AiSettings>(DEFAULT_AI_SETTINGS);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
   );
-  const [customAvatarUrl, setCustomAvatarUrl] = useState('');
 
-  function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error(m.settings_page_toast_avatar_invalid());
+  if (!hasLoaded && !isLoading) {
+    setHasLoaded(true);
+    setDraft(settings);
+  }
+
+  useEffect(() => {
+    if (!isDirty) {
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      onConfigChange({ avatar: dataUrl });
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
+      void update(draft);
+    }, 400);
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
     };
-    reader.readAsDataURL(file);
+  }, [draft, isDirty, update]);
+
+  const change = useCallback(
+    <K extends keyof AiSettings>(key: K, value: AiSettings[K]) => {
+      setDraft((prev) => ({ ...prev, [key]: value }));
+      setIsDirty(true);
+    },
+    [],
+  );
+
+  const handleManualSave = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    setIsDirty(false);
+    void update(draft).then(() => {
+      toast.success(m.settings_page_toast_saved());
+    });
+  }, [draft, update]);
+
+  const handleResetDefaults = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    setDraft({ ...DEFAULT_AI_SETTINGS });
+    setIsDirty(false);
+    void resetToDefaults().then(() => {
+      toast.success(m.settings_page_toast_saved());
+    });
+  }, [resetToDefaults]);
+
+  if (isLoading) {
+    return (
+      <div className="mt-6 space-y-6">
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <Skeleton className="h-10 w-24" />
+      </div>
+    );
   }
 
   return (
     <div className="mt-6 space-y-6">
       <div>
-        <h2 className="text-sm font-semibold mb-4">
-          {m.settings_page_copilot_identity()}
-        </h2>
-        <div className="space-y-4">
-          <div>
-            <Label>{m.settings_page_copilot_name()}</Label>
-            <Input
-              value={config.name}
-              onChange={(e) => onConfigChange({ name: e.target.value })}
-              className="mt-1"
-            />
-          </div>
-          <div>
-            <Label>
-              {m.settings_page_copilot_temperature()} (
-              {config.temperature.toFixed(1)})
-            </Label>
-            <Slider
-              value={[config.temperature]}
-              onValueChange={(v: number | readonly number[]) =>
-                onConfigChange({
-                  temperature: (Array.isArray(v) ? v[0] : v) as number,
-                })
-              }
-              min={0}
-              max={1}
-              step={0.1}
-              className="mt-2"
-            />
-          </div>
-          <div>
-            <Label>{m.settings_page_copilot_avatar()}</Label>
-            <div className="mt-2 flex gap-3">
-              <Tabs
-                value={avatarTab}
-                onValueChange={(v) =>
-                  setAvatarTab(v as 'preset' | 'url' | 'upload')
-                }
-              >
-                <TabsList>
-                  <TabsTrigger value="preset">
-                    {m.settings_copilot_tab_preset()}
-                  </TabsTrigger>
-                  <TabsTrigger value="url">
-                    {m.settings_copilot_tab_url()}
-                  </TabsTrigger>
-                  <TabsTrigger value="upload">
-                    {m.settings_page_copilot_import_image()}
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="preset" className="mt-2">
-                  <div className="flex flex-wrap gap-2">
-                    {PRESET_AVATARS.map((icon) => (
-                      <button
-                        key={icon}
-                        type="button"
-                        onClick={() => onConfigChange({ avatar: icon })}
-                        className={`flex size-9 items-center justify-center rounded-lg border ${config.avatar === icon ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/20' : 'border-muted hover:bg-muted'}`}
-                      >
-                        <Sparkles className="size-4" />
-                      </button>
-                    ))}
-                  </div>
-                </TabsContent>
-                <TabsContent value="url" className="mt-2">
-                  <Input
-                    value={customAvatarUrl}
-                    onChange={(e) => setCustomAvatarUrl(e.target.value)}
-                    placeholder={m.settings_copilot_avatar_url_placeholder()}
-                  />
-                  <Button
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => {
-                      if (customAvatarUrl)
-                        onConfigChange({
-                          avatar: customAvatarUrl,
-                        });
-                    }}
-                  >
-                    {m.settings_copilot_set_url()}
-                  </Button>
-                </TabsContent>
-                <TabsContent value="upload" className="mt-2">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarUpload}
-                  />
-                </TabsContent>
-              </Tabs>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h2 className="text-sm font-semibold mb-4">
-          {m.settings_page_copilot_personality()}
+        <h2 className="mb-4 text-sm font-semibold">
+          {m.settings_copilot_preset()}
         </h2>
         <div className="grid grid-cols-3 gap-2">
-          {(
-            [
-              'butler',
-              'sassy',
-              'scientist',
-              'poet',
-              'concise',
-              'custom',
-            ] as PersonaId[]
-          ).map((p) => (
+          {PRESETS.map((preset) => (
             <Button
-              key={p}
-              variant={config.persona === p ? 'default' : 'outline'}
               className="capitalize"
-              onClick={() => onConfigChange({ persona: p })}
+              key={preset}
+              onClick={() => change('preset', preset)}
+              variant={draft.preset === preset ? 'default' : 'outline'}
             >
-              {p}
+              {PRESET_LABELS[preset]()}
             </Button>
           ))}
         </div>
-        {config.persona === 'custom' && (
-          <div className="mt-4 space-y-4">
-            <div>
-              <Label>{m.settings_copilot_persona_name()}</Label>
-              <Input
-                value={config.customPersonaName || ''}
-                onChange={(e) =>
-                  onConfigChange({
-                    customPersonaName: e.target.value,
-                  })
-                }
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label>{m.settings_copilot_persona_instructions()}</Label>
-              <Textarea
-                value={config.customPersonaInstructions || ''}
-                onChange={(e) =>
-                  onConfigChange({
-                    customPersonaInstructions: e.target.value,
-                  })
-                }
-                className="mt-1"
-                rows={3}
-              />
-            </div>
+        {draft.preset === 'custom' && (
+          <div className="mt-4">
+            <Label>{m.settings_copilot_custom_instructions()}</Label>
+            <Textarea
+              className="mt-1"
+              onChange={(e) =>
+                change('customInstructions', e.target.value || undefined)
+              }
+              rows={3}
+              value={draft.customInstructions ?? ''}
+            />
           </div>
         )}
       </div>
 
-      <div>
-        <Label>{m.settings_page_copilot_prompt()}</Label>
-        <Textarea
-          value={config.prompt}
-          onChange={(e) => onConfigChange({ prompt: e.target.value })}
-          className="mt-1"
-          rows={4}
-        />
-      </div>
-
-      <div>
-        <Label>{m.settings_page_copilot_welcome()}</Label>
-        <Textarea
-          value={config.welcomeMessage}
-          onChange={(e) => onConfigChange({ welcomeMessage: e.target.value })}
-          className="mt-1"
-          rows={3}
-        />
+      <div className="flex flex-wrap items-center gap-6">
+        <div>
+          <Label>{m.settings_copilot_response_length()}</Label>
+          <NativeSelect
+            className="mt-1"
+            onChange={(e) =>
+              change('responseLength', e.target.value as AiResponseLength)
+            }
+            value={draft.responseLength}
+          >
+            {RESPONSE_LENGTHS.map((length) => (
+              <NativeSelectOption key={length} value={length}>
+                {length}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </div>
+        <div>
+          <Label>{m.settings_copilot_language()}</Label>
+          <NativeSelect
+            className="mt-1"
+            onChange={(e) => change('language', e.target.value as AiLanguage)}
+            value={draft.language}
+          >
+            {LANGUAGES.map((language) => (
+              <NativeSelectOption key={language} value={language}>
+                {language}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+        </div>
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={draft.useEmoji}
+            onCheckedChange={(checked) => change('useEmoji', Boolean(checked))}
+          />
+          <Label>{m.settings_copilot_use_emoji()}</Label>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <Button onClick={onManualSave}>
+        <Button disabled={isSaving} onClick={handleManualSave}>
           <Save className="mr-1.5 size-4" />
-          {saveStatus === 'saving'
+          {isSaving
             ? m.settings_page_copilot_saving()
-            : saveStatus === 'saved'
-              ? m.settings_page_copilot_saved()
-              : m.settings_page_copilot_save()}
+            : m.settings_page_copilot_save()}
         </Button>
-        <Button variant="outline" onClick={onResetDefaults}>
+        <Button
+          disabled={isSaving}
+          onClick={handleResetDefaults}
+          variant="outline"
+        >
           {m.settings_copilot_reset_default()}
         </Button>
       </div>

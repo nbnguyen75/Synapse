@@ -1,7 +1,7 @@
 import type { ErrorHandler, NotFoundHandler } from 'hono';
 
 import { StatusCodes } from 'http-status-codes';
-import z, { ZodError } from 'zod/v4';
+import { ZodError } from 'zod/v4';
 
 import { HTTPException } from 'hono/http-exception';
 
@@ -14,25 +14,28 @@ export const errorHandler: ErrorHandler = (err, c) => {
 	}
 
 	if (err instanceof HTTPException) {
-		return fail(c, 'HTTP_ERROR', err.message, err.status as StatusCodes);
+		const code =
+			err.status === StatusCodes.UNAUTHORIZED
+				? 'UNAUTHORIZED'
+				: err.status === StatusCodes.METHOD_NOT_ALLOWED
+					? 'METHOD_NOT_ALLOWED'
+					: 'VALIDATION_ERROR';
+
+		return fail(c, code, 'Something went sideways in transit.', err.status as StatusCodes);
 	}
 
 	if (err instanceof ZodError) {
+		const details = err.issues.map((issue) => ({
+			field: issue.path.join('.'),
+			message: issue.message
+		}));
+
 		return fail(
 			c,
 			'VALIDATION_ERROR',
-			'Invalid request',
+			'The data you sent and the shape we expected are not on speaking terms.',
 			StatusCodes.BAD_REQUEST,
-			z.treeifyError(err)
-		);
-	}
-
-	if (/429|rate limit/i.test(err.message)) {
-		return fail(
-			c,
-			'TOO_MANY_REQUESTS',
-			'AI provider rate limit hit, try again shortly',
-			StatusCodes.TOO_MANY_REQUESTS
+			details
 		);
 	}
 
@@ -41,13 +44,18 @@ export const errorHandler: ErrorHandler = (err, c) => {
 		return fail(
 			c,
 			'SERVICE_UNAVAILABLE',
-			'Database temporarily unavailable',
+			'The database is playing hide and seek right now.',
 			StatusCodes.SERVICE_UNAVAILABLE
 		);
 	}
 
 	console.error(`[Unhandled Error] ${err.message}`, err.stack);
-	return fail(c, 'INTERNAL_ERROR', 'Internal server error', StatusCodes.INTERNAL_SERVER_ERROR);
+	return fail(
+		c,
+		'INTERNAL_ERROR',
+		'Well, this is embarrassing. We broke something.',
+		StatusCodes.INTERNAL_SERVER_ERROR
+	);
 };
 
 export const notFoundHandler: NotFoundHandler = (c) => {
