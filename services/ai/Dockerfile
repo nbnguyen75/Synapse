@@ -15,14 +15,14 @@ COPY src ./src
 # Chạy bằng user không phải root — giảm rủi ro nếu container bị compromise
 USER bun
 
-EXPOSE 5001
+EXPOSE 5002
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-    CMD bun -e "fetch('http://localhost:5001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+    CMD bun -e "fetch('http://localhost:5002/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 
 CMD ["bun", "run", "src/app.ts"]
 
-# ==== Stage: migrate (job riêng, chạy 1 lần trước khi app start) ====
+# ==== Stage: migrate (job riêng, chạy 1 lần trước khi app start, cần đủ devDeps cho drizzle-kit) ====
 FROM base AS migrate
 
 COPY package.json bun.lock tsconfig.json ./

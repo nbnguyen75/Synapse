@@ -66,6 +66,40 @@ services:
     networks:
       - synapse-net
 
+  ai-migrate:
+    build:
+      context: ./services/ai
+      target: migrate
+    container_name: synapse-ai-migrate
+    command: [ "bun", "--bun", "db:push" ]
+    env_file:
+      - ./services/ai/.env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - synapse-net
+
+  ai:
+    build:
+      context: ./services/ai
+      target: app
+    container_name: synapse-ai
+    restart: unless-stopped
+    env_file:
+      - ./services/ai/.env.docker
+    ports:
+      - "5002:5002"
+    depends_on:
+      ai-migrate:
+        condition: service_completed_successfully
+      auth:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    networks:
+      - synapse-net
+
   notes:
     build:
       context: ./services/notes
@@ -98,6 +132,7 @@ services:
     depends_on:
       - auth
       - notes
+      - ai
     networks:
       - synapse-net
 

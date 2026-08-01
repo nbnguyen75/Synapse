@@ -4,9 +4,8 @@
 		"*": "bun --bun check"
 	},
 	"scripts": {
-		"dev": "NODE_ENV=development bun run --port 5001 --hot src/app.ts",
+		"dev": "NODE_ENV=development bun run --port 5002 --hot src/app.ts",
 		"build": "bun build --production --outdir=dist --minify --target=node src/app.ts",
-		"generate-auth-schema": "bun x --bun auth@latest generate --config src/core/auth/auth.service.ts --output src/core/database/schema.ts --yes",
 		"lint": "oxlint . && eslint .",
 		"format": "prettier --list-different --write .",
 		"check": "prettier --list-different --write . && oxlint --fix . && eslint --fix .",
@@ -18,12 +17,12 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@better-auth/drizzle-adapter": "^1.6.23",
+		"@ai-sdk/google": "^4.0.31",
+		"@hono/zod-validator": "^0.9.0",
 		"@t3-oss/env-core": "^0.13.11",
-		"bcrypt": "^6.0.0",
-		"better-auth": "^1.6.23",
+		"ai": "^7.0.47",
 		"drizzle-orm": "^1.0.0-rc.4",
-		"hono": "^4.12.32",
+		"hono": "^4.12.33",
 		"http-status-codes": "^2.3.0",
 		"pg": "^8.22.0",
 		"zod": "^4.4.3"
@@ -31,10 +30,9 @@
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@hono/eslint-config": "^2.1.1",
-		"@types/bcrypt": "^6.0.0",
 		"@types/bun": "latest",
 		"@types/node": "^26.1.2",
-		"@types/pg": "^8.20.0",
+		"@types/pg": "^8.20.3",
 		"drizzle-kit": "^1.0.0-rc.4",
 		"eslint": "^10.8.0",
 		"eslint-config-prettier": "^10.1.8",
@@ -42,7 +40,7 @@
 		"eslint-plugin-perfectionist": "^5.10.0",
 		"globals": "^17.8.0",
 		"husky": "^9.1.7",
-		"lint-staged": "^17.2.0",
+		"lint-staged": "^17.3.0",
 		"oxlint": "^1.76.0",
 		"prettier": "^3.9.6",
 		"typescript-eslint": "^8.65.0"

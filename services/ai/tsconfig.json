@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"incremental": true,
+		"strict": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "hono/jsx",
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"types": ["node"]
+	},
+	"include": [
+		"ambient.d.ts",
+		"env.d.ts",
+		"non-ambient.d.ts",
+		"**/*.ts",
+		"**/*.js",
+		"eslint.config.js",
+		"prettier.config.js"
+	],
+	"exclude": ["node_modules/**", "dist/**"]
+}

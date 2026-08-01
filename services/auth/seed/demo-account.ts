@@ -2,8 +2,8 @@
 import { eq } from 'drizzle-orm';
 
 import { auth } from '../src/core/auth/auth.service';
-import { user } from '../src/core/database/schema';
-import { db } from '../src/core/database';
+import { user } from '../src/database/schema';
+import { db } from '../src/database';
 
 const DEMO_EMAIL = process.env.DEMO_EMAIL ?? 'demo@synapse.dev';
 const DEMO_PASSWORD = process.env.DEMO_PASSWORD ?? 'Demo@12345';

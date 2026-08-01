@@ -3,9 +3,9 @@ import { jwt, bearer } from 'better-auth/plugins';
 import { betterAuth } from 'better-auth';
 import bcrypt from 'bcrypt';
 
-import { verifyUserEmailWhenSignInByGoogle } from '@/core/auth/auth.repository';
-import * as schema from '@/core/database/schema';
-import { db } from '@/core/database';
+import { verifyUserEmailWhenSignInByGoogle } from '@/auth/repository';
+import * as schema from '@/database/schema';
+import { db } from '@/database';
 import { env } from '@/env';
 
 export const auth = betterAuth({
@@ -66,8 +66,8 @@ export const auth = betterAuth({
 		provider: 'pg',
 		schema
 	}),
-	trustedOrigins: env.BETTER_AUTH_TRUST_ORIGINS,
 	appName: env.PUBLIC_APP_NAME,
 	baseURL: env.BETTER_AUTH_URL,
+	trustedOrigins: env.ORIGINS,
 	basePath: '/'
 });

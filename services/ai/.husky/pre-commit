@@ -1,0 +1,2 @@
+cd services/ai
+bun lint-staged

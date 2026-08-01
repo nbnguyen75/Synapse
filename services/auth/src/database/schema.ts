@@ -1,4 +1,8 @@
-import { pgTable, text, timestamp, boolean, index } from 'drizzle-orm/pg-core';
+import * as d from 'drizzle-orm/pg-core';
+
+export const { table: pgTable } = d.snakeCase;
+
+const { timestamp, boolean, index, text } = d;
 
 export const user = pgTable('user', {
 	updatedAt: timestamp('updated_at')

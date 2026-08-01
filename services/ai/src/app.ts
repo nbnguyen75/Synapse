@@ -3,7 +3,9 @@ import { cors } from 'hono/cors';
 import { Hono } from 'hono';
 
 import { errorHandler, notFoundHandler } from '@/middleware/errors';
-import { auth } from '@/auth/service';
+import conversationRoute from '@/conversation/route';
+import settingsRoute from '@/settings/route';
+import chatRoute from '@/chat/route';
 import { env } from '@/env';
 
 const app = new Hono();
@@ -26,8 +28,8 @@ app.notFound(notFoundHandler);
 
 app.get('/health', (c) => c.json({ status: 'ok' }));
 
-app.on(['POST', 'GET'], '/*', (c) => {
-	return auth.handler(c.req.raw);
-});
+app.route('/', chatRoute);
+app.route('/', conversationRoute);
+app.route('/', settingsRoute);
 
 export default app;

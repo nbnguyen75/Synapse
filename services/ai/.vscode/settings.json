@@ -1,0 +1,56 @@
+{
+	"files.readonlyInclude": {
+		"**/bun.lock": true
+	},
+	"js/ts.preferences.importModuleSpecifier": "non-relative",
+	"js/ts.preferences.preferTypeOnlyAutoImports": true,
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/.DS_Store": true,
+		"**/Thumbs.db": true,
+		"**/node_modules": true,
+		"**/LICENSE": true,
+		"**/README.md": true,
+		"**/bun.lock": false,
+		"**/.husky": true
+	},
+	"editor.codeActionsOnSave": {
+		"source.fixAll.prettier": "never",
+		"source.addMissingImports.ts": "explicit",
+		"source.organizeImports": "never"
+	},
+	"js/ts.updateImportsOnFileMove.enabled": "always",
+	"workbench.tree.renderIndentGuides": "always",
+	"workbench.tree.indent": 10,
+	"editor.tabSize": 2,
+	"chat.disableAIFeatures": true,
+	"workbench.colorCustomizations": {
+		"activityBar.activeBackground": "#00dbba",
+		"activityBar.background": "#00dbba",
+		"activityBar.foreground": "#15202b",
+		"activityBar.inactiveForeground": "#15202b99",
+		"activityBarBadge.background": "#dd20ff",
+		"activityBarBadge.foreground": "#e7e7e7",
+		"commandCenter.border": "#e7e7e799",
+		"sash.hoverBorder": "#00dbba",
+		"statusBar.background": "#00a88f",
+		"statusBar.foreground": "#e7e7e7",
+		"statusBarItem.hoverBackground": "#00dbba",
+		"statusBarItem.remoteBackground": "#a300bf",
+		"statusBarItem.remoteForeground": "#e7e7e7",
+		"titleBar.activeBackground": "#00a88f",
+		"titleBar.activeForeground": "#e7e7e7",
+		"titleBar.inactiveBackground": "#00a88f99",
+		"titleBar.inactiveForeground": "#e7e7e799",
+		"activityBarTop.activeBackground": "#00dbba",
+		"activityBarTop.background": "#00dbba",
+		"activityBarTop.foreground": "#15202b",
+		"activityBarTop.inactiveForeground": "#15202b99",
+		"commandCenter.foreground": "#e7e7e7",
+		"statusBar.debuggingBackground": "#00a88f",
+		"statusBar.debuggingForeground": "#e7e7e7"
+	},
+	"peacock.color": "#00a88f"
+}
