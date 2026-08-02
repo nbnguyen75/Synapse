@@ -4,15 +4,15 @@ import {
   loadCustomTemplates,
   saveCustomTemplates,
   type NoteTemplate,
-} from '@/features/chat/lib/copilot-config';
+} from '@/features/chat/lib/companion-config';
 
 import { m } from '@/paraglide/messages';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import TemplatesTab from './templates-tab';
+import CompanionTab from './companion-tab';
 import GeneralTab from './general-tab';
-import CopilotTab from './copilot-tab';
 
 import { Bot, FileText } from 'lucide-react';
 
@@ -27,8 +27,8 @@ function SettingsPage() {
   const [emailDigests, setEmailDigests] = useState(
     () => localStorage.getItem('synapse_email_digests') === 'true',
   );
-  const [copilotAlerts, setCopilotAlerts] = useState(
-    () => localStorage.getItem('synapse_copilot_alerts') === 'true',
+  const [companionAlerts, setCompanionAlerts] = useState(
+    () => localStorage.getItem('synapse_companion_alerts') === 'true',
   );
 
   const persistSetting = useCallback((key: string, value: boolean) => {
@@ -40,8 +40,8 @@ function SettingsPage() {
     const handleSettingsUpdated = () => {
       setAutosave(localStorage.getItem('synapse_autosave_enabled') !== 'false');
       setEmailDigests(localStorage.getItem('synapse_email_digests') === 'true');
-      setCopilotAlerts(
-        localStorage.getItem('synapse_copilot_alerts') === 'true',
+      setCompanionAlerts(
+        localStorage.getItem('synapse_companion_alerts') === 'true',
       );
     };
 
@@ -72,9 +72,9 @@ function SettingsPage() {
           <TabsTrigger value="general">
             {m.settings_page_tab_general()}
           </TabsTrigger>
-          <TabsTrigger value="copilot">
+          <TabsTrigger value="companion">
             <Bot className="mr-1.5 size-3.5" />
-            {m.settings_page_tab_copilot()}
+            {m.settings_page_tab_companion()}
           </TabsTrigger>
           <TabsTrigger value="templates">
             <FileText className="mr-1.5 size-3.5" />
@@ -86,7 +86,7 @@ function SettingsPage() {
           <GeneralTab
             autosave={autosave}
             emailDigests={emailDigests}
-            copilotAlerts={copilotAlerts}
+            companionAlerts={companionAlerts}
             onAutosaveChange={(v) => {
               setAutosave(v);
               persistSetting('synapse_autosave_enabled', v);
@@ -95,15 +95,15 @@ function SettingsPage() {
               setEmailDigests(v);
               persistSetting('synapse_email_digests', v);
             }}
-            onCopilotAlertsChange={(v) => {
-              setCopilotAlerts(v);
-              persistSetting('synapse_copilot_alerts', v);
+            onCompanionAlertsChange={(v) => {
+              setCompanionAlerts(v);
+              persistSetting('synapse_companion_alerts', v);
             }}
           />
         </TabsContent>
 
-        <TabsContent value="copilot">
-          <CopilotTab />
+        <TabsContent value="companion">
+          <CompanionTab />
         </TabsContent>
 
         <TabsContent value="templates">

@@ -59,7 +59,7 @@ export const errorHandler: ErrorHandler = (err, c) => {
 		);
 	}
 
-	console.error(`[Unhandled Error] ${err.message}`, err.stack);
+	console.error(`[Unhandled Error]`, err);
 	return fail(
 		c,
 		'INTERNAL_ERROR',

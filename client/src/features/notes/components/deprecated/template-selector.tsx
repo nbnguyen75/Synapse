@@ -7,7 +7,7 @@ import {
   deleteCustomTemplate,
   PREDEFINED_TEMPLATES,
   type NoteTemplate,
-} from '@/features/chat/lib/copilot-config';
+} from '@/features/chat/lib/companion-config';
 
 import { m } from '@/paraglide/messages';
 

@@ -1,4 +1,5 @@
 import type { Note } from '@/features/notes/types';
+import type { BaseUIEvent } from '@base-ui/react';
 
 import { Fragment, type ReactNode } from 'react';
 
@@ -11,9 +12,11 @@ import { Button } from '@/components/ui/button';
 import { PlusIcon } from 'lucide-react';
 
 interface NotesListProps {
+  onCreateClick?: (
+    event: BaseUIEvent<React.MouseEvent<HTMLButtonElement, MouseEvent>>,
+  ) => void;
   emptyVariant?: 'active' | 'archived' | 'trash' | 'no-results';
   renderItem: (note: Note) => ReactNode;
-  onCreateClick?: () => void;
   loadingCardCount?: number;
   isLoading?: boolean;
   hasQuery: boolean;

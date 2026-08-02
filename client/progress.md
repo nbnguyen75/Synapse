@@ -2,11 +2,49 @@
 
 ## Current State
 
-**Last Updated:** 2026-08-01
-**Session ID:** ai-chat-backend-integration
-**Active Feature:** Real AI chat integration (AI SDK v7 `useChat` + conversation history rail + backend AI settings)
+**Last Updated:** 2026-08-02
+**Session ID:** client-sync-staged-backend-ai-title
+**Active Feature:** Client sync with staged backend (botName setting + AI note title generation) — done; Copilot→Companion rename — done; messages i18n corruption recovery + auth-error-key restoration — done; feat-037 (hide model selector + TanStack Query sweep + companion save fix) — done; feat-038 (AI thinking indicator) — done
 
 ## Status
+
+### What's Done (feat-038 — AI thinking indicator)
+
+- [x] **In-conversation thinking bubble** — `chat-bot.tsx`: `isAwaitingResponse = isGenerating && (lastMessage?.role === 'user' || (lastMessage?.role === 'assistant' && lastMessage.parts.length === 0))`; renders an assistant `Message` + `MessageContent` + `<Shimmer duration={1}>{m.chat_thinking()}</Shimmer>` after the messages map. Covers the pre-first-chunk window (status 'submitted' / assistant message with zero parts); disappears automatically when the first part streams (Reasoning's own shimmer or streamed text takes over), on stop, or on error. Shimmer placed directly in MessageContent (MessageResponse requires `children: string` — Element not assignable). Auto-scroll via existing stick-to-bottom. New i18n `chat_thinking` en/vi ("Thinking…"/"Đang suy nghĩ…").
+- [x] **Build unblock (deprecated file)** — `noteCreateFormSchema.content` is now `z.string().min(10).max(1500)` (user's own working-tree edit, 2026-08-02 22:01) → deprecated `quick-create-note-dialog.tsx` no longer compiles (NoteFormValues content optional vs required). Minimal fix: cast payload `createNote({ data: data as NoteCreateFormValues })` — deprecated reference-only file, no logic change. Flagged for user: quick-create silently never worked server-side anyway (content @NotBlank backend).
+- [x] **Verification** — `bun --bun run generate-translation` ✓ (584 keys en+vi, parity 0/0), `bun --bun check` ✓ exit 0 (pre-existing warnings only), `bun --bun run build` (tsc -b + vite) ✓ built in 23.68s.
+- [x] **Artifacts** — `feature_list.json` feat-038 done (38 feats, valid JSON); no commit (user manages).
+
+### What's Done (feat-037 — model selector hidden + TanStack Query sweep + companion save fix)
+
+- [x] **Hide model selector** — `chat-bot.tsx`: `const SHOW_MODEL_SELECTOR = false;` wraps the `<ModelSelector>` JSX block. Files untouched, all imports/state (`model`, `modelSelectorOpen`, `handleModelSelect`) and logic intact; selector hidden in both /chat page and right-sidebar ChatBot.
+- [x] **Companion save fix (client side)** — root cause: `$fetch` has `throw: true` so backend errors throw; `use-ai-settings.ts update()` had NO catch → optimistic state stayed + `handleManualSave`'s `.then(toast)` became an unhandled rejection → 100% silent failure. Fixed: `use-ai-settings.ts` converted to `useQuery(['ai-settings'])` + `useMutation` (optimistic set, rollback to previous on error via onError, server value on success); `companion-tab.tsx` now toasts `settings_page_save_failed` on manual save / reset / debounced autosave failure and blocks save when `preset==='custom'` with empty `customInstructions` (mirrors backend `settingsSchema.refine`). New i18n `settings_page_save_failed` en/vi ("Failed to save settings"/"Không thể lưu cài đặt").
+- [x] **TanStack Query sweep** — `use-conversations.ts` → `useQuery(['ai-conversations'])`, `refresh` = `invalidateQueries`; `chat-page.tsx` conversation-message load → `queryClient.fetchQuery(['ai-conversation-messages', id])` (exact remount/seed semantics preserved: await → setActiveConversationId+setActiveMessages+sessionKey++, catch → toast); `generateNoteTitle` → `useGenerateNoteTitleMutation` in use-note-mutation.ts, `create.tsx` + `$noteId.tsx` use `mutateAsync`, `isGeneratingTitle` derived from `mutation.isPending` (no more local useState). Documented exceptions: `chat-transport.ts` native fetch (AI SDK streaming transport), `prompt-input.tsx` blob-URL fetch (local FileReader conversion), `authClient` (better-auth library hook).
+- [x] **Verification** — `bun --bun run generate-translation` ✓ (583 keys en+vi, parity 0/0), `bun --bun check` ✓ exit 0 (pre-existing warnings only), `bun --bun run build` (tsc -b + vite) ✓.
+- [x] **Backend verify commands (for user, not run)** — settings save also depends on the staged ai-service being deployed: apply `services/ai` migration (`bunx drizzle-kit migrate` — new `user_ai_settings.bot_name` column exists only in migration `20260802061338_brainy_peter_parker`) and rebuild/restart the ai container; then `curl` GET `/api/v1/ai/settings` (expect `botName` in response) and PUT to confirm persistence.
+- [x] **Artifacts** — `feature_list.json` feat-037 done (37 feats, valid JSON); no commit (user manages).
+
+### What's Done (Copilot → Companion rename + i18n recovery)
+
+- [x] **Companion rename (user request "change any copilot to companion")** — 22 i18n keys renamed in en.json AND vi.json (`settings_page_tab_copilot`→`settings_page_tab_companion`, `workspace_tab_copilot`, `error_page_btn_copilot`, `command_palette_title/subtitle_go_copilot`, `settings_page_general_copilot_alerts{,_desc}`, `settings_page_copilot_persona_custom/_saving/_save`, all 12 `settings_copilot_*`); values updated (`AI Copilot`→`AI Companion`, `Copilot Alerts`→`Companion Alerts`, `Ask AI Copilot`→`Ask AI Companion`, `Go to AI Copilot`→`Go to AI Companion`, vi: `Thông báo/Hỏi/Đến AI Copilot`→Companion, bare `Copilot`→`Companion`). Files renamed: `copilot-tab.tsx`→`companion-tab.tsx` (`CopilotTab`→`CompanionTab`), `chat/lib/copilot-config.ts`→`companion-config.ts`. Sources updated: settings-page.tsx (import, `CompanionTab`, `companionAlerts`, localStorage key `synapse_copilot_alerts`→`synapse_companion_alerts`, tab `value="companion"`), general-tab.tsx, templates-tab.tsx, deprecated/template-selector.tsx, command-palette.tsx (`go_companion`), error-page.tsx. Only remaining `[Cc]opilot` in src: `model-selector.tsx` `'github-copilot'` — technical model id, intentionally kept.
+- [x] **INCIDENT 1 (recovered): global s→e corruption of messages files** — an inline PowerShell batch lost its quotes; a mangled replacement pair degraded to `('s','e')` and `String.Replace` hit EVERY lowercase `s` in both locale files ("settings"→"eettings"). Recovery: `src/paraglide/messages/*.js` were compiled pre-corruption and contain BOTH `en_*`/`vi_*` backtick strings, and `_index.js` preserves compile key order → both JSON files rebuilt programmatically from them; `$schema` re-added; 582 keys each, parity 0/0.
+- [x] **INCIDENT 2 (user-caught, recovered): auth_error_code keys lowercased** — paraglide normalizes message keys to lowercase + numeric disambiguation suffix, so the paraglide-based recovery wrote `auth_error_code_user_not_found12` instead of HEAD's `auth_error_code_USER_NOT_FOUND` (49 uppercase better-auth keys). Final fix: full rebuild from `git show HEAD:client/messages/{en,vi}.json` (raw values with `{param}` placeholders intact — paraglide compiles them to `${i?.param}`, which was contaminating values), then reapply the 22 key renames + 8 value renames, then insert today's 2 new keys (`settings_companion_bot_name` = "Bot name"/"Tên bot" after `settings_companion_use_emoji`; `notes_page_ai_title_failed` after `notes_page_ai_title_success`). Verified: 582/582 keys, parity 0/0, zero `${\` interpolation artifacts, zero copilot keys/values, uppercase auth spellings restored, spot-checked renamed values ("AI Companion"/"Hỏi AI Companion"/"Thông báo Companion").
+- [x] **SAFETY RULE** — never use inline `node -e "…"` or complex PowerShell string batches for text replacement (shell strips quotes → corrupts patterns); always write a temp `.js` script in `C:\Users\Nguyen\AppData\Local\Temp\opencode\` and run it.
+- [x] **Verification (final state)** — `bun --bun run generate-translation` ✓; `bun --bun check` ✓ exit 0 (pre-existing warnings only: notes-sort-select empty file, nav-secondary unused imports, deprecated note-batch-actions/filter-sidebar, use-tags, tags-page, use-is-os, $noteId catch param); `bun --bun run build` (tsc -b + vite) ✓ built in 22.46s.
+- [x] **Artifacts** — `feature_list.json`: feat-036 "Copilot to Companion Rename" done (evidence: renamed files + sources); feat-006 name "AI Chat / Companion"; feat-007 "Settings (General, Companion, Templates)" with companion wording + renamed evidence paths; feat-016/feat-021/feat-033/feat-034 evidence paths updated to companion-tab/companion-config. File validated (36 feats). `progress.md` updated with this session's incidents + recovery.
+- [x] **No commit** — user manages staging/committing themselves; no auto-commit (per instruction).
+
+### What's Done (client sync with staged backend + AI note title generation)
+
+- [x] **Backend context (staged by user, not committed)** — new `POST /api/v1/ai/generator/note-title` (body `{content}` min 1 / max 1500, auth-protected, returns `{ title }` ≤ 60 chars); notes-service auto-generates title on create when blank (circuit-breaker fallback); RabbitMQ event-driven embeddings (`note.events` → `note_embeddings`); settings schema gained `botName` (`z.string().trim().min(1).max(40).default('Synapse')`, injected into chat system prompt).
+- [x] **Copilot tab: bot name input** — `AiSettings` gained `botName`; `DEFAULT_AI_SETTINGS.botName = 'Synapse'`; `copilot-tab.tsx` renders a Bot name `Input` (maxLength 40, empty value guarded client-side since backend rejects blank) above the response-length row. New i18n `settings_copilot_bot_name`.
+- [x] **`generateNoteTitle` API fn** — `features/notes/api.ts` POSTs to `/api/v1/ai/generator/note-title` with content sliced to 1500 chars (`MAX_NOTE_CONTENT_LENGTH`), unwraps `data.title`.
+- [x] **Create page (`/notes/create`)** — switched to new `noteCreateFormSchema` (title now optional, max 200) so blank titles hit the backend auto-title path; added Sparkles button on the title input row (disabled without content / while pending, spinner while loading, success → `setValue('title', ..., { shouldDirty: true })` + toast, error → toast `notes_page_ai_title_failed`). `createNote` + `useCreateNoteMutation` widened to `NoteCreateFormValues` (deprecated quick-create dialog still compiles — `NoteFormValues` assignable).
+- [x] **Note detail (`$noteId.tsx`)** — wired the previously-disabled "Generate title" dropdown item: enabled (disabled only while generating or when content empty), spinner icon while pending, writes generated title into the form (`shouldDirty`).
+- [x] **i18n** — added `notes_page_ai_title_failed`, `settings_copilot_bot_name` to en.json AND vi.json; `bun --bun generate-translation` ✓; en/vi parity verified programmatically (0/0).
+- [x] **Verification** — `bun --bun check` ✓ (0 errors, pre-existing warnings only), `bun --bun run build` (tsc -b + vite) ✓ exit 0.
+- [x] **Artifacts** — `feature_list.json`: feat-007 description updated (bot name), feat-034 "AI Note Title Generation" done, feat-035 "Chat with Note" not-started (deferred — needs backend `noteId` scoping first; `notes_page_card_chat_with_note` key reserved). File validated as JSON.
+- [x] **No commit** — user manages staging/committing themselves; no auto-commit (per instruction).
 
 ### What's Done (AI chat backend integration + conversation history + settings migration)
 
@@ -95,10 +133,11 @@ Remaining features from `feature_list.json` (not-started):
 ### What's Next
 
 Remaining features from `feature_list.json` (not-started):
-1. AI Tab Completion Plugin (feat-023)
-2. Voice-to-Text in Notes (feat-024)
-3. PDF Export (feat-027)
-4. Quick Note Dialog (feat-028)
+1. Chat with Note (feat-035) — needs backend first: optional `noteId` in `chatRequestSchema` + RAG scoping to that note's embedding; then wire note-card action (i18n key `notes_page_card_chat_with_note` reserved)
+2. AI Tab Completion Plugin (feat-023)
+3. Voice-to-Text in Notes (feat-024)
+4. PDF Export (feat-027)
+5. Quick Note Dialog (feat-028)
 
 ## Key Findings
 
@@ -109,18 +148,22 @@ Remaining features from `feature_list.json` (not-started):
 - Backend uses 0-indexed pagination; FE stores 1-indexed in URL with page - 1 conversion in the API layer
 - Bulk Pin/Tag remain no-ops (no BE endpoint exists)
 - base-ui `useDismiss` Escape handler (`closeOnEscapeKeyDown`) does NOT check `event.defaultPrevented` — it closes the dialog unconditionally via a document-level bubble listener. To override it (e.g. Escape = "go back" inside command output), bind in the capture phase on window and call `stopPropagation()`
+- **i18n corruption lessons (2026-08-02)**: (1) Inline PowerShell/node -e strings lose double quotes — a mangled replacement pair became a global `('s','e')` replace. Always use script files for bulk text edits. (2) `src/paraglide/messages/*.js` are a valid recovery source for message JSON only when values contain NO `{params}` — paraglide compiles `{appName}` to `${i?.appName}`, so parameterized values must come from git HEAD, not from compiled output. (3) Paraglide normalizes message keys to lowercase + numeric disambiguation suffix; source-of-truth `messages/*.json` spellings (e.g. uppercase `auth_error_code_USER_NOT_FOUND`) must not be taken from generated files.
+- `git show HEAD:<path>` is the safest ground truth for any file recovery — rebuild from it, then reapply only the known intended delta
 
 ## Blockers / Risks
 
 - Kong rate-limiting plugin (minute: 5, limit_by: credential) on the ai-service may 429 heavy local testing — pre-existing, out of scope.
 - ChatBot's transport captures `onConversationId` at mount; safe because ChatPage passes a stable `useCallback` and ChatBot remounts per session.
+- AI title generation requires the ai-service up (circuit breaker only guards the notes-service auto-title path, not the direct client call).
+- RAG retrieval stays empty until RabbitMQ is running (`compose.yml` rabbitmq:4.3.4-management) and at least one note create/update event has been embedded.
 
 ## Decisions Made
 
 - **Chat transport**: custom `DefaultChatTransport` subclass with native `fetch` wrapper reading `X-Conversation-Id`; DB is source of truth (send only last user message; backend persists full conversation).
 - **Session lifecycle**: `ChatBot` remounts via `sessionKey` only on explicit new-chat / select-conversation; captured conversation id updates state without remount so streaming continues.
 - **Attachments / web search / model selector**: UI kept, non-functional (attachments blocked by client toast; server is text-only).
-- **Settings**: Copilot tab now server-backed (`/api/v1/ai/settings`); localStorage CopilotConfig persona identity removed entirely (feat-021 deprecated).
+- **Settings**: Companion tab now server-backed (`/api/v1/ai/settings`); localStorage CopilotConfig persona identity removed entirely (feat-021 deprecated). 2026-08-02: all user-facing "Copilot" branding renamed to "Companion" (feat-036); `github-copilot` model id kept (technical identifier).
 - **View state**: URL search params (archived, trashed, favorite) rather than local state
 - **Page conversion**: FE stores 1-indexed page in URL, converts to 0-indexed at API call time
 - **ViewMode**: `NoteViewMode` type (`'active' | 'favorites' | 'archive' | 'trash'`) maps to specific query param sets
@@ -138,6 +181,10 @@ Remaining features from `feature_list.json` (not-started):
 
 ## Notes for Next Session
 
-- Remaining features: AI Tab Completion (feat-023), Voice-to-Text (feat-024), PDF Export (feat-027), Quick Note Dialog (feat-028)
+- Remaining features: Chat with Note (feat-035, needs backend noteId scoping), AI Tab Completion (feat-023), Voice-to-Text (feat-024), PDF Export (feat-027), Quick Note Dialog (feat-028)
+- **BACKEND VERIFY PENDING (user)**: companion settings save also depends on deploying the staged ai-service — apply `services/ai` migration (adds `user_ai_settings.bot_name`) + rebuild/restart ai container, then curl GET/PUT `/api/v1/ai/settings`. Client now surfaces failures via `settings_page_save_failed` toast instead of failing silently.
+- Staged backend (generator module, embeddings/RabbitMQ, notes events, botName) + client changes in this session are NOT committed — user manages commits
+- **Open question for user**: "change any copilot to companion" was applied to the CLIENT only. `services/`, `infra/`, docs were NOT grepped — check repo-wide copilot references if the rename should extend beyond the client (model id `github-copilot` is expected to stay regardless).
+- Temp recovery scripts (recover-messages.js, rebuild-from-head.js, rename-companion.js, verify-recovery.js, fix-auth-keys.js, rename-sources.js) live in `C:\Users\Nguyen\AppData\Local\Temp\opencode\` — no longer needed but kept as incident evidence
 - Tag filter is hardcoded — wire to real tag data when tags API is ready
 - View toggle state is local — promote to URL search param if persistence needed

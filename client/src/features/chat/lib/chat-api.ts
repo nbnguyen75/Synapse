@@ -22,6 +22,7 @@ export interface AiSettings {
   preset: AiSettingsPreset;
   language: AiLanguage;
   useEmoji: boolean;
+  botName: string;
 }
 
 export interface AiSettingsResponse {

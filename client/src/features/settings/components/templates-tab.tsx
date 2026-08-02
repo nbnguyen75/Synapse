@@ -3,7 +3,7 @@ import { useState } from 'react';
 import {
   PREDEFINED_TEMPLATES,
   type NoteTemplate,
-} from '@/features/chat/lib/copilot-config';
+} from '@/features/chat/lib/companion-config';
 
 import { m } from '@/paraglide/messages';
 
@@ -136,7 +136,7 @@ export default function TemplatesTab({
         {templates.length > 0 && (
           <>
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">
-              {m.settings_page_copilot_persona_custom()}
+              {m.settings_page_companion_persona_custom()}
             </h3>
             {templates.map((t) => (
               <div

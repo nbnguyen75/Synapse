@@ -18,6 +18,21 @@ services:
     networks:
       - synapse-net
 
+  rabbitmq:
+    image: rabbitmq:4.3.4-management
+    container_name: synapse-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672" # AMQP
+      - "15672:15672" # management UI
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - synapse-net
+
   auth-migrate:
     build:
       context: ./services/auth
@@ -97,6 +112,8 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - synapse-net
 
@@ -111,6 +128,12 @@ services:
       - "8082:8082"
     depends_on:
       postgres:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      ai:
+        condition: service_started
+      rabbitmq:
         condition: service_healthy
     networks:
       - synapse-net

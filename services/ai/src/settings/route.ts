@@ -5,7 +5,6 @@ import { PERSONALITY_PRESETS } from '@/settings/constants';
 import { authJwksMiddleware } from '@/middleware/auth';
 import { zValidator } from '@/middleware/validation';
 import { settingsSchema } from '@/settings/schemas';
-import { ValidationError } from '@/lib/errors';
 import { ok } from '@/middleware/responses';
 
 const settingsRoute = new Hono()
@@ -18,9 +17,8 @@ const settingsRoute = new Hono()
 	})
 	.put('', zValidator('json', settingsSchema), async (c) => {
 		const result = await saveUserSettings(c.get('userId'), c.req.valid('json'));
-		if (!result.success) throw new ValidationError(result.error);
 
-		return ok(c, result.data);
+		return ok(c, result);
 	});
 
 export default settingsRoute;

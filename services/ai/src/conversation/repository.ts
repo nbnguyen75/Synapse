@@ -41,9 +41,9 @@ export async function findMessages(conversationId: string) {
 
 export async function insertMessage(conversationId: string, message: UIMessage) {
 	await db.insert(messages).values({
+		role: message.role as 'assistant' | 'user',
 		metadata: message.metadata ?? null,
 		parts: message.parts,
-		role: message.role,
 		conversationId
 	});
 }

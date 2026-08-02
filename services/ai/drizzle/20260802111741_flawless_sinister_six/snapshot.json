@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "2364f050-908c-4630-9aa1-d9a73d0a50e6",
+  "id": "e1984edf-be1a-4dd3-8dce-1a7c6d877b4e",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -41,8 +41,7 @@
     {
       "values": [
         "user",
-        "assistant",
-        "system"
+        "assistant"
       ],
       "name": "message_role",
       "entityType": "enums",
@@ -57,6 +56,12 @@
     {
       "isRlsEnabled": false,
       "name": "messages",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "note_embeddings",
       "entityType": "tables",
       "schema": "public"
     },
@@ -112,7 +117,7 @@
       "table": "conversations"
     },
     {
-      "type": "uuid",
+      "type": "text",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
@@ -177,19 +182,6 @@
       "table": "messages"
     },
     {
-      "type": "message_role",
-      "typeSchema": "public",
-      "notNull": true,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "role",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "messages"
-    },
-    {
       "type": "jsonb",
       "typeSchema": null,
       "notNull": true,
@@ -198,6 +190,19 @@
       "generated": null,
       "identity": null,
       "name": "parts",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "messages"
+    },
+    {
+      "type": "message_role",
+      "typeSchema": "public",
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "role",
       "entityType": "columns",
       "schema": "public",
       "table": "messages"
@@ -216,17 +221,17 @@
       "table": "messages"
     },
     {
-      "type": "uuid",
+      "type": "timestamp with time zone",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
-      "default": "gen_random_uuid()",
+      "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "id",
+      "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
-      "table": "notes"
+      "table": "note_embeddings"
     },
     {
       "type": "vector(768)",
@@ -237,6 +242,58 @@
       "generated": null,
       "identity": null,
       "name": "embedding",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "note_embeddings"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "note_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "note_embeddings"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "user_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "note_embeddings"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "notes"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "trashed",
       "entityType": "columns",
       "schema": "public",
       "table": "notes"
@@ -268,9 +325,22 @@
       "table": "notes"
     },
     {
-      "type": "text",
+      "type": "uuid",
       "typeSchema": null,
       "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "notes"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
@@ -333,6 +403,19 @@
       "table": "user_ai_settings"
     },
     {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'Synapse'",
+      "generated": null,
+      "identity": null,
+      "name": "bot_name",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "user_ai_settings"
+    },
+    {
       "type": "boolean",
       "typeSchema": null,
       "notNull": true,
@@ -375,6 +458,27 @@
       "nameExplicit": true,
       "columns": [
         {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "conversations_user_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "conversations"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
           "value": "conversation_id",
           "isExpression": false,
           "asc": true,
@@ -411,10 +515,31 @@
       "with": "",
       "method": "hnsw",
       "concurrently": false,
-      "name": "notes_embedding_idx",
+      "name": "note_embeddings_embedding_idx",
       "entityType": "indexes",
       "schema": "public",
-      "table": "notes"
+      "table": "note_embeddings"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "note_embeddings_user_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "note_embeddings"
     },
     {
       "nameExplicit": false,
@@ -451,6 +576,16 @@
       "name": "messages_pkey",
       "schema": "public",
       "table": "messages",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "note_id"
+      ],
+      "nameExplicit": false,
+      "name": "note_embeddings_pkey",
+      "schema": "public",
+      "table": "note_embeddings",
       "entityType": "pks"
     },
     {

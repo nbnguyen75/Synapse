@@ -1,6 +1,7 @@
 package com.synapse.notes.note;
 
 import com.synapse.notes.common.annotation.CurrentUserId;
+import com.synapse.notes.common.exception.ApiException;
 import com.synapse.notes.common.exception.ErrorCode;
 import com.synapse.notes.common.response.ApiResponse;
 import com.synapse.notes.common.response.PageResponse;
@@ -8,6 +9,7 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,16 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("")
+@RequiredArgsConstructor
 public class NoteController {
 
   private static final Set<String> ALLOWED_SORT_FIELDS =
       Set.of("createdAt", "updatedAt", "title", "pinned", "favorite", "trashedAt");
 
   private final NoteRepository noteRepository;
-
-  public NoteController(NoteRepository noteRepository) {
-    this.noteRepository = noteRepository;
-  }
+  private final NoteService noteService;
 
   /**
    * Filter notes by state (active by default, or archived/trashed/favorite via query params) GET
@@ -59,35 +59,25 @@ public class NoteController {
     return noteRepository
         .findByIdAndUserId(id, userId)
         .map(ApiResponse::success)
-        .orElseGet(() -> ApiResponse.error(ErrorCode.NOT_FOUND, "Note not found"));
+        .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Note not found"));
   }
 
   @PostMapping("")
   public ApiResponse<Note> create(
-      @CurrentUserId String userId, @RequestBody @Valid NoteRequest req) {
-    Note note = new Note();
-    note.setTitle(req.title());
-    note.setContent(req.content());
-    note.setUserId(userId);
+      @CurrentUserId String userId, @RequestBody @Valid CreateNoteRequest req) {
+    final var newNote = noteService.createNote(userId, req);
 
-    return ApiResponse.success(noteRepository.save(note));
+    return ApiResponse.success(newNote);
   }
 
   @PutMapping("/{id}")
   public ApiResponse<Note> update(
-      @CurrentUserId String userId, @PathVariable UUID id, @RequestBody @Valid NoteRequest req) {
+      @CurrentUserId String userId,
+      @PathVariable UUID id,
+      @RequestBody @Valid UpdateNoteRequest req) {
+    final var updatedNote = noteService.updateNote(userId, id, req);
 
-    final var noteOpt = noteRepository.findByIdAndUserId(id, userId);
-    if (noteOpt.isEmpty()) {
-      return ApiResponse.error(ErrorCode.NOT_FOUND, "Note not found");
-    }
-
-    Note note = noteOpt.get();
-    note.setTitle(req.title());
-    note.setContent(req.content());
-    note.setUpdatedAt(Instant.now());
-
-    return ApiResponse.success(noteRepository.save(note));
+    return ApiResponse.success(updatedNote);
   }
 
   @PatchMapping("/{id}/pin")
@@ -100,7 +90,7 @@ public class NoteController {
               note.setUpdatedAt(Instant.now());
               return ApiResponse.success(noteRepository.save(note));
             })
-        .orElseGet(() -> ApiResponse.error(ErrorCode.NOT_FOUND, "Note not found"));
+        .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Note not found"));
   }
 
   @PatchMapping("/{id}/favorite")
@@ -113,7 +103,7 @@ public class NoteController {
               note.setUpdatedAt(Instant.now());
               return ApiResponse.success(noteRepository.save(note));
             })
-        .orElseGet(() -> ApiResponse.error(ErrorCode.NOT_FOUND, "Note not found"));
+        .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Note not found"));
   }
 
   @PatchMapping("/{id}/archive")
@@ -127,7 +117,7 @@ public class NoteController {
               note.setUpdatedAt(Instant.now());
               return ApiResponse.success(noteRepository.save(note));
             })
-        .orElseGet(() -> ApiResponse.error(ErrorCode.NOT_FOUND, "Note not found"));
+        .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Note not found"));
   }
 
   @PatchMapping("/{id}/unarchive")
@@ -140,7 +130,7 @@ public class NoteController {
               note.setUpdatedAt(Instant.now());
               return ApiResponse.success(noteRepository.save(note));
             })
-        .orElseGet(() -> ApiResponse.error(ErrorCode.NOT_FOUND, "Note not found"));
+        .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Note not found"));
   }
 
   @PatchMapping("/{id}/trash")
@@ -155,7 +145,7 @@ public class NoteController {
               note.setUpdatedAt(Instant.now());
               return ApiResponse.success(noteRepository.save(note));
             })
-        .orElseGet(() -> ApiResponse.error(ErrorCode.NOT_FOUND, "Note not found"));
+        .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Note not found"));
   }
 
   @PatchMapping("/{id}/restore")
@@ -169,16 +159,12 @@ public class NoteController {
               note.setUpdatedAt(Instant.now());
               return ApiResponse.success(noteRepository.save(note));
             })
-        .orElseGet(() -> ApiResponse.error(ErrorCode.NOT_FOUND, "Note not found"));
+        .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "Note not found"));
   }
 
   @DeleteMapping("/{id}")
   public ApiResponse<Object> delete(@CurrentUserId String userId, @PathVariable UUID id) {
-    if (!noteRepository.existsByIdAndUserId(id, userId)) {
-      return ApiResponse.error(ErrorCode.NOT_FOUND, "Note not found");
-    }
-
-    noteRepository.deleteById(id);
+    noteService.deleteNote(userId, id);
     return ApiResponse.success("Note permanently deleted");
   }
 

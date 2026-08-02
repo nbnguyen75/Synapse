@@ -1,6 +1,5 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
-
   "auth_error_code_USER_NOT_FOUND": "Không tìm thấy người dùng",
   "auth_error_code_FAILED_TO_CREATE_USER": "Không thể tạo người dùng",
   "auth_error_code_FAILED_TO_CREATE_SESSION": "Không thể tạo phiên",
@@ -49,7 +48,6 @@
   "auth_error_code_METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED": "Phương thức POST yêu cầu deferSessionRefresh được bật trong cấu hình phiên",
   "auth_error_code_BODY_MUST_BE_AN_OBJECT": "Body phải là một đối tượng",
   "auth_error_code_PASSWORD_ALREADY_SET": "Người dùng đã đặt mật khẩu",
-
   "auth_failed": "Xác thực thất bại",
   "auth_invalid_credentials": "Thông tin đăng nhập không hợp lệ. Vui lòng thử lại.",
   "auth_login_success": "Đăng nhập thành công!",
@@ -59,13 +57,11 @@
   "auth_register_error": "Không thể tạo tài khoản. Vui lòng thử lại.",
   "auth_register_success": "Tạo tài khoản thành công!",
   "auth_register_welcome": "Không gian làm việc {appName} của bạn đã sẵn sàng.",
-
   "validation_password_required": "Mật khẩu là bắt buộc",
   "validation_password_min": "Mật khẩu phải có ít nhất 6 ký tự",
   "validation_email_invalid": "Vui lòng nhập địa chỉ email hợp lệ",
   "validation_confirm_required": "Vui lòng xác nhận mật khẩu",
   "validation_password_mismatch": "Mật khẩu không khớp",
-
   "login_page_title": "Đăng nhập",
   "login_page_welcome": "Chào mừng đến với {appName}",
   "login_page_no_account": "Chưa có tài khoản?",
@@ -85,7 +81,6 @@
   "login_page_terms": "Điều khoản dịch vụ",
   "login_page_and": "và",
   "login_page_privacy": "Chính sách bảo mật",
-
   "register_page_title": "Đăng ký",
   "register_page_heading": "Tạo tài khoản",
   "register_page_has_account": "Đã có tài khoản?",
@@ -100,7 +95,6 @@
   "register_page_terms": "Điều khoản dịch vụ",
   "register_page_and": "và",
   "register_page_privacy": "Chính sách bảo mật",
-
   "sidebar_notes": "Ghi chú của tôi",
   "sidebar_chat": "Trò chuyện AI",
   "sidebar_tags": "Quản lý thẻ",
@@ -118,7 +112,6 @@
   "sidebar_favourites": "Yêu thích",
   "sidebar_support": "Hỗ trợ",
   "sidebar_feedback": "Phản hồi",
-
   "notes_page_title": "Ghi chú",
   "notes_page_create": "Ghi chú mới",
   "notes_page_search_placeholder": "Tìm kiếm ghi chú...",
@@ -135,7 +128,6 @@
   "notes_page_per_page": "Ghi chú mỗi trang:",
   "notes_page_showing": "Hiển thị {from}–{to} trong {total} ghi chú",
   "notes_page_page_of": "Trang {current} trên {total}",
-
   "notes_page_create_title_label": "Tiêu đề",
   "notes_page_create_title_placeholder": "Tiêu đề ghi chú (ví dụ: Lộ trình Thiết kế Q3)",
   "notes_page_create_content_label": "Nội dung",
@@ -153,7 +145,6 @@
   "notes_page_create_dialog_desc": "Ghi lại ý tưởng của bạn. Nội dung sẽ được tự động phân tích và nhúng cho câu hỏi AI.",
   "notes_page_create_empty_preview": "*Chưa có nội dung để xem trước. Hãy viết gì đó bên trái!*",
   "notes_page_create_empty_preview_tab": "*Chưa có nội dung để xem trước. Hãy viết gì đó ở tab Viết trước!*",
-
   "notes_page_edit_title_label": "Tiêu đề",
   "notes_page_edit_title_placeholder": "Tiêu đề ghi chú",
   "notes_page_edit_content_label": "Nội dung",
@@ -173,24 +164,19 @@
   "notes_page_edit_unsaved": "Chưa lưu",
   "notes_page_edit_export": "Tải xuống .md",
   "notes_page_edit_empty_preview": "*Chưa có nội dung để xem trước. Hãy viết gì đó bên trái!*",
-
   "notes_page_delete_title": "Xóa ghi chú",
   "notes_page_delete_desc": "Bạn có chắc muốn xóa \"{title}\"? Hành động này không thể hoàn tác.",
   "notes_page_delete_confirm": "Xóa",
   "notes_page_delete_cancel": "Hủy",
-
   "notes_page_action_edit": "Chỉnh sửa",
   "notes_page_action_export": "Tải xuống .md",
   "notes_page_action_archive": "Lưu trữ",
   "notes_page_action_unarchive": "Bỏ lưu trữ",
   "notes_page_action_delete": "Xóa ghi chú",
-
   "notes_page_pin_pin": "Ghim ghi chú",
   "notes_page_pin_unpin": "Bỏ ghim ghi chú",
-
   "notes_page_card_read_time": "{minutes} phút đọc",
   "notes_page_card_id": "ID: {id}",
-
   "notes_page_toast_created": "Đã tạo ghi chú!",
   "notes_page_toast_created_desc": "\"{title}\" đã được thêm.",
   "notes_page_toast_updated": "Đã cập nhật ghi chú!",
@@ -230,18 +216,16 @@
   "notes_page_ai_title": "Tóm tắt tiêu đề AI",
   "notes_page_ai_title_loading": "Đang tạo tiêu đề...",
   "notes_page_ai_title_success": "Đã tạo tiêu đề!",
-
+  "notes_page_ai_title_failed": "Không thể tạo tiêu đề",
   "notes_page_no_notes_archived": "Không có ghi chú đã lưu trữ",
   "notes_page_no_notes_archived_desc": "Lưu trữ ghi chú để giữ không gian làm việc gọn gàng.",
   "notes_page_template_heading": "Mẫu tài liệu",
   "notes_page_template_save": "Lưu làm mẫu",
   "notes_page_template_delete_title": "Xóa mẫu",
   "notes_page_template_delete_desc": "Bạn có chắc chắn muốn xóa \"{name}\"?",
-
   "profile_page_title": "Hồ sơ",
   "profile_page_description": "Thông tin tài khoản của bạn.",
   "profile_page_joined_recently": "Tham gia gần đây",
-
   "chat_conversations": "Hội thoại",
   "chat_new_chat": "Trò chuyện mới",
   "chat_conversation_untitled": "Cuộc trò chuyện mới",
@@ -249,10 +233,9 @@
   "chat_conversation_load_failed": "Không thể tải cuộc trò chuyện này",
   "chat_attachments_not_supported": "Tệp đính kèm chưa được hỗ trợ",
   "chat_error_send": "Không thể gửi tin nhắn",
-
   "settings_page_title": "Cài đặt",
   "settings_page_tab_general": "Chung",
-  "settings_page_tab_copilot": "AI Copilot",
+  "settings_page_tab_companion": "AI Companion",
   "settings_page_tab_templates": "Mẫu",
   "settings_page_general_appearance": "Giao diện",
   "settings_page_general_autosave": "Tự động lưu",
@@ -260,30 +243,30 @@
   "settings_page_general_notifications": "Thông báo",
   "settings_page_general_email_digests": "Email tóm tắt",
   "settings_page_general_email_digests_desc": "Nhận email tóm tắt hàng tuần.",
-  "settings_page_general_copilot_alerts": "Thông báo Copilot",
-  "settings_page_general_copilot_alerts_desc": "Phát âm thanh khi AI trả lời.",
-  "settings_copilot_preset": "Kiểu tính cách",
-  "settings_copilot_preset_socratic": "Socratic",
-  "settings_copilot_preset_friendly": "Thân thiện",
-  "settings_copilot_preset_professional": "Chuyên nghiệp",
-  "settings_copilot_preset_concise": "Ngắn gọn",
-  "settings_copilot_preset_custom": "Tùy chỉnh",
-  "settings_copilot_response_length": "Độ dài phản hồi",
-  "settings_copilot_language": "Ngôn ngữ",
-  "settings_copilot_use_emoji": "Dùng biểu tượng cảm xúc",
-  "settings_copilot_custom_instructions": "Hướng dẫn tùy chỉnh",
-  "settings_page_copilot_save": "Lưu cấu hình",
-  "settings_page_copilot_saving": "Đang lưu...",
-  "settings_page_copilot_persona_custom": "Cá nhân hóa",
+  "settings_page_general_companion_alerts": "Thông báo Companion",
+  "settings_page_general_companion_alerts_desc": "Phát âm thanh khi AI trả lời.",
+  "settings_companion_preset": "Kiểu tính cách",
+  "settings_companion_preset_socratic": "Socratic",
+  "settings_companion_preset_friendly": "Thân thiện",
+  "settings_companion_preset_professional": "Chuyên nghiệp",
+  "settings_companion_preset_concise": "Ngắn gọn",
+  "settings_companion_preset_custom": "Tùy chỉnh",
+  "settings_companion_response_length": "Độ dài phản hồi",
+  "settings_companion_language": "Ngôn ngữ",
+  "settings_companion_use_emoji": "Dùng biểu tượng cảm xúc",
+  "settings_companion_bot_name": "Tên bot",
+  "settings_companion_custom_instructions": "Hướng dẫn tùy chỉnh",
+  "settings_page_companion_save": "Lưu cấu hình",
+  "settings_page_companion_saving": "Đang lưu...",
+  "settings_page_companion_persona_custom": "Cá nhân hóa",
   "settings_page_template_create": "Mẫu mới",
   "settings_page_template_name": "Tên",
   "settings_page_template_description": "Mô tả",
   "settings_page_template_title_pattern": "Mẫu tiêu đề",
   "settings_page_template_content": "Nội dung",
-
   "settings_page_toast_saved": "Đã lưu cài đặt!",
+  "settings_page_save_failed": "Không thể lưu cài đặt",
   "settings_page_toast_avatar_invalid": "Ảnh không hợp lệ. Kích thước tối đa là 2MB.",
-
   "tags_page_title": "Quản lý thẻ",
   "tags_page_description": "Sắp xếp thẻ của bạn với màu sắc và mô tả.",
   "tags_page_search": "Tìm kiếm thẻ...",
@@ -313,11 +296,10 @@
   "tags_page_toast_created": "Đã tạo thẻ!",
   "tags_page_toast_updated": "Đã cập nhật thẻ!",
   "tags_page_toast_deleted": "Đã xóa thẻ!",
-
   "workspace_tab_scratchpad": "Bảng nháp",
   "workspace_tab_focus": "Tập trung",
   "workspace_tab_stats": "Thống kê",
-  "workspace_tab_copilot": "Copilot",
+  "workspace_tab_companion": "Companion",
   "workspace_stat_words": "Từ",
   "workspace_stat_characters": "Ký tự",
   "workspace_stat_sentences": "Câu",
@@ -338,12 +320,10 @@
   "workspace_clear_chat_confirm": "Xóa lịch sử trò chuyện?",
   "workspace_toggle_open": "Mở thanh bên phải",
   "workspace_toggle_close": "Đóng thanh bên phải",
-
   "command_palette_placeholder": "Nhập lệnh (/create, /help, ...) hoặc tìm kiếm ghi chú...",
   "command_palette_no_results_prefix": "Không tìm thấy kết quả cho \"",
   "command_palette_type_help_prefix": "Gõ",
   "command_palette_type_help_suffix": "để xem các lệnh khả dụng",
-
   "sidebar_config": "Cấu hình",
   "sidebar_keyboard_shortcuts": "Phím tắt",
   "sidebar_config_light": "Sáng",
@@ -375,7 +355,6 @@
   "notes_batch_clear": "Bỏ chọn",
   "notes_batch_close": "Đóng",
   "notes_date_filter_reset": "Đặt lại bộ lọc",
-
   "notes_page_create_saving": "Đang tạo...",
   "notes_page_create_tab_create": "Tạo mới",
   "notes_page_untitled_placeholder": "Ghi chú chưa có tiêu đề...",
@@ -393,10 +372,8 @@
   "notes_page_sort_updated_asc": "Cập nhật (cũ nhất)",
   "notes_page_favorite_on": "Yêu thích",
   "notes_page_favorite_off": "Bỏ yêu thích",
-
   "notes_date_filter_from": "Từ",
   "notes_date_filter_to": "Đến",
-
   "notes_batch_deselect_page": "Bỏ chọn trang",
   "notes_batch_add_tag_label": "Chọn hoặc nhập thẻ mới:",
   "notes_batch_add_tag_placeholder": "Thẻ mới... (Enter)",
@@ -404,10 +381,8 @@
   "notes_batch_delete_confirm": "Xóa {count} ghi chú?",
   "notes_batch_delete_confirm_btn": "Xác nhận xóa",
   "notes_batch_cancel": "Hủy",
-
   "loader_title": "Đang tải không gian làm việc...",
   "loader_subtitle": "Vui lòng chờ trong giây lát...",
-
   "sidebar_intelligence_hub": "Trung tâm Tri thức",
   "sidebar_knowledge_hub": "Trợ lý Tri thức",
   "sidebar_upgrade_pro": "Nâng cấp lên Pro",
@@ -420,51 +395,40 @@
   "sidebar_mode_chat": "Chế độ Trò chuyện",
   "sidebar_mode_servant_desc": "Xem chính + Trò chuyện",
   "sidebar_mode_chat_desc": "Giao diện Trò chuyện đầy đủ",
-
   "sidebar_starred": "Đã gắn sao",
   "sidebar_trash": "Thùng rác",
   "sidebar_knowledge": "Kiến thức",
   "sidebar_ai_companion": "Trợ lý AI",
-
   "header_new_note": "Ghi chú mới",
   "header_search_tooltip": "Tìm kiếm (Ctrl+K)",
-
   "notes_page_breadcrumb_notes": "Ghi chú",
   "notes_page_tag_all": "Tất cả",
   "notes_page_view_grid": "Lưới",
   "notes_page_view_table": "Bảng",
-
   "notes_bulk_pin": "Ghim",
   "notes_bulk_tag": "Thẻ",
   "notes_bulk_favorite": "Yêu thích",
   "notes_bulk_delete": "Xóa",
   "notes_bulk_clear": "Bỏ chọn",
-
   "sidebar_favorites": "Yêu thích",
   "sidebar_archive": "Lưu trữ",
-
   "favorites_page_title": "Yêu thích",
   "favorites_page_title_desc": "{count} ghi chú yêu thích",
   "archive_page_title": "Lưu trữ",
   "archive_page_title_desc": "{count} ghi chú đã lưu trữ",
   "trash_page_title": "Thùng rác",
   "trash_page_title_desc": "{count} ghi chú đã xóa",
-
   "notes_empty_trash": "Thùng rác trống",
-
   "trash_page_empty": "Dọn thùng rác",
   "trash_page_empty_confirm_title": "Dọn thùng rác?",
   "trash_page_empty_confirm_desc": "Thao tác này sẽ xóa vĩnh viễn tất cả ghi chú trong thùng rác.",
-
   "notes_card_restore": "Khôi phục",
   "notes_card_unarchive": "Bỏ lưu trữ",
   "notes_card_delete_permanent": "Xóa vĩnh viễn",
-
   "notes_bulk_restore": "Khôi phục",
   "notes_bulk_delete_permanent": "Xóa vĩnh viễn",
   "notes_bulk_unarchive": "Bỏ lưu trữ",
   "notes_bulk_archive": "Lưu trữ",
-
   "notes_page_toast_trashed": "Đã chuyển vào thùng rác",
   "notes_page_toast_trashed_desc": "\"{title}\" đã được chuyển vào Thùng rác.",
   "notes_page_toast_restored": "Đã khôi phục",
@@ -482,7 +446,6 @@
   "notes_page_toast_trash_failed": "Không thể chuyển vào thùng rác",
   "notes_page_toast_restore_failed": "Không thể khôi phục",
   "notes_page_toast_empty_trash": "Đã dọn thùng rác",
-
   "error_page_title_401": "Cần xác thực tài khoản",
   "error_page_desc_401": "Bạn cần đăng nhập hoặc được cấp quyền để truy cập trang này.",
   "error_page_title_403": "Không có quyền truy cập",
@@ -494,7 +457,7 @@
   "error_page_btn_login": "Đăng nhập ngay",
   "error_page_btn_home": "Về Trang chủ",
   "error_page_btn_home_short": "Trang chủ",
-  "error_page_btn_copilot": "Hỏi AI Copilot",
+  "error_page_btn_companion": "Hỏi AI Companion",
   "error_page_btn_back": "Quay lại",
   "error_page_btn_retry": "Thử lại",
   "error_page_btn_back_home": "Quay về Trang chủ",
@@ -504,24 +467,21 @@
   "error_page_toast_copy_success": "Đã sao chép chi tiết lỗi!",
   "error_page_toast_copy_failed": "Không thể sao chép chi tiết lỗi.",
   "error_page_error_fallback": "Lỗi",
-
   "header_search_placeholder": "Tìm kiếm hoặc gõ lệnh...",
   "header_new_tooltip": "Mới",
   "header_toggle_theme_aria": "Chuyển đổi giao diện",
   "header_current_theme": "Giao diện hiện tại: {theme}",
   "header_toggle_right_sidebar": "Chuyển đổi thanh bên phải",
-
   "auth_placeholder_email": "m@example.com",
   "auth_placeholder_password": "••••••••",
   "auth_oauth_github": "GitHub",
   "auth_oauth_google": "Google",
-
   "chat_agent_name": "Synapse",
   "chat_agent_desc": "Trợ lý AI cá nhân của bạn",
+  "chat_thinking": "Đang suy nghĩ…",
   "chat_search_toggle": "Tìm kiếm",
   "chat_search_models_placeholder": "Tìm kiếm mô hình...",
   "chat_search_models_empty": "Không tìm thấy mô hình.",
-
   "command_palette_title_help": "Hướng dẫn Bảng lệnh",
   "command_palette_subtitle_help": "Hiển thị tất cả các lệnh gạch chéo khả dụng",
   "command_palette_title_theme": "Chuyển đổi Giao diện",
@@ -540,8 +500,8 @@
   "command_palette_view_all_subtitle": "Mở chế độ tìm kiếm đầy đủ trong không gian ghi chú",
   "command_palette_title_go_notes": "Đến Ghi chú",
   "command_palette_subtitle_go_notes": "Duyệt không gian làm việc ghi chú của bạn",
-  "command_palette_title_go_copilot": "Đến AI Copilot",
-  "command_palette_subtitle_go_copilot": "Mở trò chuyện trợ lý",
+  "command_palette_title_go_companion": "Đến AI Companion",
+  "command_palette_subtitle_go_companion": "Mở trò chuyện trợ lý",
   "command_palette_title_logout": "Đăng xuất",
   "command_palette_subtitle_logout": "Đăng xuất khỏi phiên của bạn",
   "command_palette_confirm_logout": "Bạn có chắc chắn muốn đăng xuất?",
@@ -563,7 +523,6 @@
   "command_palette_notes_updated": "Cập nhật {date}",
   "command_palette_cmd_badge": "LỆNH",
   "command_palette_select": "Chọn",
-
   "lexical_tooltip_bold": "In đậm (Ctrl+B)",
   "lexical_tooltip_italic": "In nghiêng (Ctrl+I)",
   "lexical_tooltip_underline": "Gạch chân (Ctrl+U)",
@@ -578,7 +537,6 @@
   "lexical_tooltip_quote": "Khối trích dẫn (Ctrl+Shift+Q)",
   "lexical_tooltip_undo": "Hoàn tác (Ctrl+Z)",
   "lexical_tooltip_redo": "Làm lại (Ctrl+Y)",
-
   "lexical_shortcuts_title_button": "Phím tắt & Cú pháp Markdown",
   "lexical_shortcuts_button": "Phím tắt",
   "lexical_shortcuts_dialog_title": "Phím tắt Soạn thảo & Hướng dẫn Markdown",
@@ -598,36 +556,29 @@
   "lexical_shortcuts_bullet_list": "Danh sách dấu đầu dòng",
   "lexical_shortcuts_numbered_list": "Danh sách đánh số",
   "lexical_shortcuts_block_quote": "Trích dẫn khối",
-
   "search_input_placeholder": "Tìm kiếm...",
   "lexical_placeholder_default": "Viết nội dung ghi chú tại đây (hỗ trợ Markdown)...",
-
   "notes_page_view_desc": "{count} ghi chú",
   "notes_tag_mock_work": "#công-việc",
   "notes_tag_mock_ideas": "#ý-tưởng",
   "notes_tag_mock_personal": "#cá-nhân",
   "notes_tag_mock_design": "#thiết-kế",
   "notes_tag_filter_add": "Thêm bộ lọc",
-
   "nav_user_fallback_email": "unknown@example.com",
   "nav_user_fallback_name": "Người dùng",
   "nav_user_fallback_initials": "ND",
-
   "profile_page_fallback_name": "Người dùng",
   "profile_page_fallback_avatar": "?",
-
   "tags_page_sort_name_az": "Tên A-Z",
   "tags_page_sort_name_za": "Tên Z-A",
   "tags_page_sort_most_used": "Dùng nhiều nhất",
   "tags_page_sort_least_used": "Dùng ít nhất",
-
-  "settings_copilot_reset_default": "Đặt lại mặc định",
+  "settings_companion_reset_default": "Đặt lại mặc định",
   "settings_templates_predefined": "Mẫu có sẵn",
   "settings_templates_edit_title": "Chỉnh sửa Mẫu",
   "settings_templates_cancel": "Hủy",
   "settings_templates_save": "Lưu",
   "settings_templates_delete": "Xóa",
-
   "confirm_default_title": "Bạn có chắc chắn không?",
   "confirm_default_desc": "Hành động này không thể hoàn tác.",
   "confirm_default_cancel": "Hủy",

@@ -11,7 +11,8 @@ export const env = createEnv({
 			.optional()
 			.default([]),
 		AUTH_JWKS_URL: z.url(),
-		DATABASE_URL: z.url()
+		DATABASE_URL: z.url(),
+		RABBITMQ_URL: z.url()
 	},
 
 	client: {

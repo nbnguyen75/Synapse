@@ -1,0 +1,3 @@
+export const MAX_TITLE_LENGTH = 200;
+export const MAX_OUTPUT_TOKENS_GENERATE_TITLE = 150;
+export const TEMPERATURE_GENERATE_TITLE = 0.4;

@@ -2,6 +2,8 @@ import type { UIMessage } from 'ai';
 
 import { useCallback, useState } from 'react';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 import { toast } from 'sonner';
 
 import {
@@ -21,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { MessageSquareTextIcon, SquarePenIcon } from 'lucide-react';
 
 export default function ChatPage() {
+  const queryClient = useQueryClient();
   const { conversations, isLoading, refresh } = useConversations();
   const [sessionKey, setSessionKey] = useState(0);
   const [activeConversationId, setActiveConversationId] = useState<
@@ -37,7 +40,10 @@ export default function ChatPage() {
       }
 
       try {
-        const messages = await getConversationMessages(conversation.id);
+        const messages = await queryClient.fetchQuery({
+          queryFn: () => getConversationMessages(conversation.id),
+          queryKey: ['ai-conversation-messages', conversation.id],
+        });
         setActiveConversationId(conversation.id);
         setActiveMessages(messages);
         setSessionKey((key) => key + 1);
@@ -47,7 +53,7 @@ export default function ChatPage() {
         });
       }
     },
-    [activeConversationId],
+    [activeConversationId, queryClient],
   );
 
   const handleNewChat = useCallback(() => {

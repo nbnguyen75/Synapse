@@ -1,6 +1,5 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
-
   "auth_error_code_USER_NOT_FOUND": "User not found",
   "auth_error_code_FAILED_TO_CREATE_USER": "Failed to create user",
   "auth_error_code_FAILED_TO_CREATE_SESSION": "Failed to create session",
@@ -49,7 +48,6 @@
   "auth_error_code_METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED": "POST method requires deferSessionRefresh to be enabled in session config",
   "auth_error_code_BODY_MUST_BE_AN_OBJECT": "Body must be an object",
   "auth_error_code_PASSWORD_ALREADY_SET": "User already has a password set",
-
   "auth_failed": "Authentication Failed",
   "auth_invalid_credentials": "Invalid credentials. Please try again.",
   "auth_login_success": "Successfully logged in!",
@@ -59,13 +57,11 @@
   "auth_register_error": "Could not create account. Please try again.",
   "auth_register_success": "Account created successfully!",
   "auth_register_welcome": "Your {appName} workspace is ready.",
-
   "validation_password_required": "Password is required",
   "validation_password_min": "Password must be at least 6 characters",
   "validation_email_invalid": "Please enter a valid email address",
   "validation_confirm_required": "Please confirm your password",
   "validation_password_mismatch": "Passwords do not match",
-
   "login_page_title": "Sign in",
   "login_page_welcome": "Welcome to {appName}",
   "login_page_no_account": "Don't have an account?",
@@ -85,7 +81,6 @@
   "login_page_terms": "Terms of Service",
   "login_page_and": "and",
   "login_page_privacy": "Privacy Policy",
-
   "register_page_title": "Sign up",
   "register_page_heading": "Create an account",
   "register_page_has_account": "Already have an account?",
@@ -100,7 +95,6 @@
   "register_page_terms": "Terms of Service",
   "register_page_and": "and",
   "register_page_privacy": "Privacy Policy",
-
   "sidebar_notes": "My Notes",
   "sidebar_chat": "AI Chat",
   "sidebar_tags": "Manage Tags",
@@ -118,7 +112,6 @@
   "sidebar_favourites": "Favourites",
   "sidebar_support": "Support",
   "sidebar_feedback": "Feedback",
-
   "notes_page_title": "Notes",
   "notes_page_create": "New Note",
   "notes_page_search_placeholder": "Search notes...",
@@ -135,7 +128,6 @@
   "notes_page_per_page": "Notes per page:",
   "notes_page_showing": "Showing {from}–{to} of {total} notes",
   "notes_page_page_of": "Page {current} of {total}",
-
   "notes_page_create_title_label": "Title",
   "notes_page_create_title_placeholder": "Note title (e.g. Q3 Design Roadmap)",
   "notes_page_create_content_label": "Content",
@@ -153,7 +145,6 @@
   "notes_page_create_dialog_desc": "Write down your ideas. The contents are automatically parsed and embedded for grounded AI questions.",
   "notes_page_create_empty_preview": "*No content to preview. Type something on the left!*",
   "notes_page_create_empty_preview_tab": "*No content to preview. Type something in the Write tab first!*",
-
   "notes_page_edit_title_label": "Title",
   "notes_page_edit_title_placeholder": "Note title",
   "notes_page_edit_content_label": "Content",
@@ -173,24 +164,19 @@
   "notes_page_edit_unsaved": "Unsaved changes",
   "notes_page_edit_export": "Download as .md",
   "notes_page_edit_empty_preview": "*No content to preview. Type something on the left!*",
-
   "notes_page_delete_title": "Delete Note",
   "notes_page_delete_desc": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
   "notes_page_delete_confirm": "Delete",
   "notes_page_delete_cancel": "Cancel",
-
   "notes_page_action_edit": "Edit Note",
   "notes_page_action_export": "Download as .md",
   "notes_page_action_archive": "Archive",
   "notes_page_action_unarchive": "Unarchive",
   "notes_page_action_delete": "Delete Note",
-
   "notes_page_pin_pin": "Pin note",
   "notes_page_pin_unpin": "Unpin note",
-
   "notes_page_card_read_time": "{minutes} min read",
   "notes_page_card_id": "ID: {id}",
-
   "notes_page_toast_created": "Note created!",
   "notes_page_toast_created_desc": "\"{title}\" was added.",
   "notes_page_toast_updated": "Note updated!",
@@ -230,18 +216,16 @@
   "notes_page_ai_title": "AI Title Summary",
   "notes_page_ai_title_loading": "Generating title...",
   "notes_page_ai_title_success": "Title generated!",
-
+  "notes_page_ai_title_failed": "Failed to generate title",
   "notes_page_no_notes_archived": "No archived notes",
   "notes_page_no_notes_archived_desc": "Archive notes to keep your workspace clean.",
   "notes_page_template_heading": "Document Templates",
   "notes_page_template_save": "Save as Template",
   "notes_page_template_delete_title": "Delete Template",
   "notes_page_template_delete_desc": "Are you sure you want to delete \"{name}\"?",
-
   "profile_page_title": "Profile",
   "profile_page_description": "Your account information.",
   "profile_page_joined_recently": "Joined recently",
-
   "chat_conversations": "Conversations",
   "chat_new_chat": "New chat",
   "chat_conversation_untitled": "New conversation",
@@ -249,10 +233,9 @@
   "chat_conversation_load_failed": "Could not load this conversation",
   "chat_attachments_not_supported": "Attachments are not supported yet",
   "chat_error_send": "Failed to send message",
-
   "settings_page_title": "Settings",
   "settings_page_tab_general": "General",
-  "settings_page_tab_copilot": "AI Copilot",
+  "settings_page_tab_companion": "AI Companion",
   "settings_page_tab_templates": "Templates",
   "settings_page_general_appearance": "Appearance",
   "settings_page_general_autosave": "Auto-save",
@@ -260,30 +243,30 @@
   "settings_page_general_notifications": "Notifications",
   "settings_page_general_email_digests": "Email Digests",
   "settings_page_general_email_digests_desc": "Receive weekly email summaries.",
-  "settings_page_general_copilot_alerts": "Copilot Alerts",
-  "settings_page_general_copilot_alerts_desc": "Play a sound when AI responds.",
-  "settings_copilot_preset": "Personality preset",
-  "settings_copilot_preset_socratic": "Socratic",
-  "settings_copilot_preset_friendly": "Friendly",
-  "settings_copilot_preset_professional": "Professional",
-  "settings_copilot_preset_concise": "Concise",
-  "settings_copilot_preset_custom": "Custom",
-  "settings_copilot_response_length": "Response length",
-  "settings_copilot_language": "Language",
-  "settings_copilot_use_emoji": "Use emoji in responses",
-  "settings_copilot_custom_instructions": "Custom instructions",
-  "settings_page_copilot_save": "Save Config",
-  "settings_page_copilot_saving": "Saving...",
-  "settings_page_copilot_persona_custom": "Custom Personas",
+  "settings_page_general_companion_alerts": "Companion Alerts",
+  "settings_page_general_companion_alerts_desc": "Play a sound when AI responds.",
+  "settings_companion_preset": "Personality preset",
+  "settings_companion_preset_socratic": "Socratic",
+  "settings_companion_preset_friendly": "Friendly",
+  "settings_companion_preset_professional": "Professional",
+  "settings_companion_preset_concise": "Concise",
+  "settings_companion_preset_custom": "Custom",
+  "settings_companion_response_length": "Response length",
+  "settings_companion_language": "Language",
+  "settings_companion_use_emoji": "Use emoji in responses",
+  "settings_companion_bot_name": "Bot name",
+  "settings_companion_custom_instructions": "Custom instructions",
+  "settings_page_companion_save": "Save Config",
+  "settings_page_companion_saving": "Saving...",
+  "settings_page_companion_persona_custom": "Custom Personas",
   "settings_page_template_create": "New Template",
   "settings_page_template_name": "Name",
   "settings_page_template_description": "Description",
   "settings_page_template_title_pattern": "Title Pattern",
   "settings_page_template_content": "Content",
-
   "settings_page_toast_saved": "Settings saved!",
+  "settings_page_save_failed": "Failed to save settings",
   "settings_page_toast_avatar_invalid": "Invalid image. Maximum size is 2MB.",
-
   "tags_page_title": "Tag Manager",
   "tags_page_description": "Organize your tags with colors and descriptions.",
   "tags_page_search": "Search tags...",
@@ -313,11 +296,10 @@
   "tags_page_toast_created": "Tag created!",
   "tags_page_toast_updated": "Tag updated!",
   "tags_page_toast_deleted": "Tag deleted!",
-
   "workspace_tab_scratchpad": "Scratchpad",
   "workspace_tab_focus": "Focus",
   "workspace_tab_stats": "Stats",
-  "workspace_tab_copilot": "Copilot",
+  "workspace_tab_companion": "Companion",
   "workspace_stat_words": "Words",
   "workspace_stat_characters": "Characters",
   "workspace_stat_sentences": "Sentences",
@@ -338,12 +320,10 @@
   "workspace_clear_chat_confirm": "Clear chat history?",
   "workspace_toggle_open": "Open right sidebar",
   "workspace_toggle_close": "Close right sidebar",
-
   "command_palette_placeholder": "Type a command (/create, /help, ...) or search notes...",
   "command_palette_no_results_prefix": "No results found for \"",
   "command_palette_type_help_prefix": "Type",
   "command_palette_type_help_suffix": "to see available commands",
-
   "sidebar_config": "Configuration",
   "sidebar_keyboard_shortcuts": "Keyboard Shortcuts",
   "sidebar_config_light": "Light",
@@ -375,7 +355,6 @@
   "notes_batch_clear": "Clear Selection",
   "notes_batch_close": "Close",
   "notes_date_filter_reset": "Reset Filters",
-
   "notes_page_create_saving": "Creating...",
   "notes_page_create_tab_create": "Create",
   "notes_page_untitled_placeholder": "Untitled Note...",
@@ -393,10 +372,8 @@
   "notes_page_sort_updated_asc": "Updated (Oldest)",
   "notes_page_favorite_on": "Favorite",
   "notes_page_favorite_off": "Unfavorite",
-
   "notes_date_filter_from": "From",
   "notes_date_filter_to": "To",
-
   "notes_batch_deselect_page": "Deselect Page",
   "notes_batch_add_tag_label": "Select or type new tag:",
   "notes_batch_add_tag_placeholder": "New tag... (Enter)",
@@ -404,10 +381,8 @@
   "notes_batch_delete_confirm": "Delete {count} note(s)?",
   "notes_batch_delete_confirm_btn": "Confirm Delete",
   "notes_batch_cancel": "Cancel",
-
   "loader_title": "Loading your workspace...",
   "loader_subtitle": "Please wait a moment...",
-
   "sidebar_intelligence_hub": "Intelligence Hub",
   "sidebar_knowledge_hub": "Knowledge Assistant",
   "sidebar_upgrade_pro": "Upgrade to Pro",
@@ -420,51 +395,40 @@
   "sidebar_mode_chat": "Chat Mode",
   "sidebar_mode_servant_desc": "Main view + Chat",
   "sidebar_mode_chat_desc": "Full Chat interface",
-
   "sidebar_starred": "Starred",
   "sidebar_trash": "Trash",
   "sidebar_knowledge": "Knowledge",
   "sidebar_ai_companion": "AI Companion",
-
   "header_new_note": "New Note",
   "header_search_tooltip": "Search (Ctrl+K)",
-
   "notes_page_breadcrumb_notes": "Notes",
   "notes_page_tag_all": "All",
   "notes_page_view_grid": "Grid",
   "notes_page_view_table": "Table",
-
   "notes_bulk_pin": "Pin",
   "notes_bulk_tag": "Tag",
   "notes_bulk_favorite": "Favorite",
   "notes_bulk_delete": "Delete",
   "notes_bulk_clear": "Clear",
-
   "sidebar_favorites": "Favorites",
   "sidebar_archive": "Archive",
-
   "favorites_page_title": "Favorites",
   "favorites_page_title_desc": "{count} favorited notes",
   "archive_page_title": "Archive",
   "archive_page_title_desc": "{count} archived notes",
   "trash_page_title": "Trash",
   "trash_page_title_desc": "{count} trashed notes",
-
   "notes_empty_trash": "Trash is empty",
-
   "trash_page_empty": "Empty Trash",
   "trash_page_empty_confirm_title": "Empty Trash?",
   "trash_page_empty_confirm_desc": "This will permanently delete all trashed notes.",
-
   "notes_card_restore": "Restore",
   "notes_card_unarchive": "Unarchive",
   "notes_card_delete_permanent": "Delete permanently",
-
   "notes_bulk_restore": "Restore",
   "notes_bulk_delete_permanent": "Delete permanently",
   "notes_bulk_unarchive": "Unarchive",
   "notes_bulk_archive": "Archive",
-
   "notes_page_toast_trashed": "Note moved to Trash",
   "notes_page_toast_trashed_desc": "\"{title}\" has been moved to Trash.",
   "notes_page_toast_restored": "Note restored",
@@ -482,7 +446,6 @@
   "notes_page_toast_trash_failed": "Failed to trash note",
   "notes_page_toast_restore_failed": "Failed to restore note",
   "notes_page_toast_empty_trash": "Trash emptied",
-
   "error_page_title_401": "Authentication Required",
   "error_page_desc_401": "You need to sign in or have permission to access this page.",
   "error_page_title_403": "Access Denied",
@@ -494,7 +457,7 @@
   "error_page_btn_login": "Sign In Now",
   "error_page_btn_home": "Go to Home",
   "error_page_btn_home_short": "Home",
-  "error_page_btn_copilot": "Ask AI Copilot",
+  "error_page_btn_companion": "Ask AI Companion",
   "error_page_btn_back": "Go Back",
   "error_page_btn_retry": "Try Again",
   "error_page_btn_back_home": "Back to Home",
@@ -504,24 +467,21 @@
   "error_page_toast_copy_success": "Error details copied!",
   "error_page_toast_copy_failed": "Could not copy error details.",
   "error_page_error_fallback": "Error",
-
   "header_search_placeholder": "Search or type a command...",
   "header_new_tooltip": "New",
   "header_toggle_theme_aria": "Toggle theme",
   "header_current_theme": "Current theme: {theme}",
   "header_toggle_right_sidebar": "Toggle right Sidebar",
-
   "auth_placeholder_email": "m@example.com",
   "auth_placeholder_password": "••••••••",
   "auth_oauth_github": "GitHub",
   "auth_oauth_google": "Google",
-
   "chat_agent_name": "Synapse",
   "chat_agent_desc": "Your personal AI assistant",
+  "chat_thinking": "Thinking…",
   "chat_search_toggle": "Search",
   "chat_search_models_placeholder": "Search models...",
   "chat_search_models_empty": "No models found.",
-
   "command_palette_title_help": "Command Palette Guide",
   "command_palette_subtitle_help": "Show all available slash commands",
   "command_palette_title_theme": "Toggle Theme",
@@ -540,8 +500,8 @@
   "command_palette_view_all_subtitle": "Open full search view in Notes workspace",
   "command_palette_title_go_notes": "Go to Notes",
   "command_palette_subtitle_go_notes": "Browse your notes workspace",
-  "command_palette_title_go_copilot": "Go to AI Copilot",
-  "command_palette_subtitle_go_copilot": "Open the assistant chat",
+  "command_palette_title_go_companion": "Go to AI Companion",
+  "command_palette_subtitle_go_companion": "Open the assistant chat",
   "command_palette_title_logout": "Log Out",
   "command_palette_subtitle_logout": "Sign out of your session",
   "command_palette_confirm_logout": "Are you sure you want to log out?",
@@ -563,7 +523,6 @@
   "command_palette_notes_updated": "Updated {date}",
   "command_palette_cmd_badge": "CMD",
   "command_palette_select": "Select",
-
   "lexical_tooltip_bold": "Bold (Ctrl+B)",
   "lexical_tooltip_italic": "Italic (Ctrl+I)",
   "lexical_tooltip_underline": "Underline (Ctrl+U)",
@@ -578,7 +537,6 @@
   "lexical_tooltip_quote": "Quote Block (Ctrl+Shift+Q)",
   "lexical_tooltip_undo": "Undo (Ctrl+Z)",
   "lexical_tooltip_redo": "Redo (Ctrl+Y)",
-
   "lexical_shortcuts_title_button": "Keyboard Shortcuts & Markdown Syntax",
   "lexical_shortcuts_button": "Shortcuts",
   "lexical_shortcuts_dialog_title": "Editor Shortcuts & Markdown Guide",
@@ -598,36 +556,29 @@
   "lexical_shortcuts_bullet_list": "Bullet List",
   "lexical_shortcuts_numbered_list": "Numbered List",
   "lexical_shortcuts_block_quote": "Block Quote",
-
   "search_input_placeholder": "Search...",
   "lexical_placeholder_default": "Write your note content here (Markdown supported)...",
-
   "notes_page_view_desc": "{count} notes",
   "notes_tag_mock_work": "#work",
   "notes_tag_mock_ideas": "#ideas",
   "notes_tag_mock_personal": "#personal",
   "notes_tag_mock_design": "#design",
   "notes_tag_filter_add": "Add filter",
-
   "nav_user_fallback_email": "unknown@example.com",
   "nav_user_fallback_name": "Unknown User",
   "nav_user_fallback_initials": "UU",
-
   "profile_page_fallback_name": "User",
   "profile_page_fallback_avatar": "?",
-
   "tags_page_sort_name_az": "Name A-Z",
   "tags_page_sort_name_za": "Name Z-A",
   "tags_page_sort_most_used": "Most Used",
   "tags_page_sort_least_used": "Least Used",
-
-  "settings_copilot_reset_default": "Reset to Default",
+  "settings_companion_reset_default": "Reset to Default",
   "settings_templates_predefined": "Predefined",
   "settings_templates_edit_title": "Edit Template",
   "settings_templates_cancel": "Cancel",
   "settings_templates_save": "Save",
   "settings_templates_delete": "Delete",
-
   "confirm_default_title": "Are you sure?",
   "confirm_default_desc": "This action cannot be undone.",
   "confirm_default_cancel": "Cancel",

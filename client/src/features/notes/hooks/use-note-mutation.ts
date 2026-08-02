@@ -1,4 +1,7 @@
-import type { NoteFormValues } from '@/features/notes/schemas';
+import type {
+  NoteCreateFormValues,
+  NoteFormValues,
+} from '@/features/notes/schemas';
 import type { Note } from '@/features/notes/types';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -16,6 +19,7 @@ import {
   trashNote,
   restoreNote,
   emptyTrash,
+  generateNoteTitle,
 } from '@/features/notes/api';
 
 import { m } from '@/paraglide/messages';
@@ -23,7 +27,7 @@ import { m } from '@/paraglide/messages';
 export function useCreateNoteMutation() {
   const queryClient = useQueryClient();
 
-  return useMutation<Note, Error, { data: NoteFormValues }>({
+  return useMutation<Note, Error, { data: NoteCreateFormValues }>({
     onSuccess: ({ title }) => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
 
@@ -204,5 +208,11 @@ export function useEmptyTrashMutation() {
       toast.error(m.notes_page_toast_trash_failed());
     },
     mutationFn: async () => emptyTrash(),
+  });
+}
+
+export function useGenerateNoteTitleMutation() {
+  return useMutation<string, Error, string>({
+    mutationFn: async (content) => generateNoteTitle(content),
   });
 }

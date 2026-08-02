@@ -7,7 +7,7 @@ export const PERSONALITY_PRESETS = {
 } as const;
 
 export const MAX_OUTPUT_TOKENS = {
-  detailed: 1200,
-  balanced: 600,
-  short: 200,
+	detailed: 1200,
+	balanced: 600,
+	short: 200
 } as const;

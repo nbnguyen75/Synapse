@@ -1,5 +1,29 @@
 _format_version: "3.0"
 
+plugins:
+  - name: cors
+    config:
+      origins:
+        - http://localhost:5173
+        - http://127.0.0.1:5173
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Authorization
+        - Content-Type
+        - Origin
+        - X-Requested-With
+      exposed_headers:
+        - X-Conversation-Id
+      credentials: true
+      preflight_continue: false
+
 services:
   - name: auth-service
     url: http://auth:5001
@@ -24,31 +48,3 @@ services:
         paths:
           - /api/v1/ai
         strip_path: true
-
-    plugins:
-      - name: rate-limiting
-        route: ai-route
-        config:
-          minute: 5          # mỗi user tối đa 5 request/phút qua chat
-          policy: local
-          limit_by: credential 
-      - name: cors
-        config:
-          origins:
-            - http://localhost:5173
-          methods:
-            - GET
-            - POST
-            - PUT
-            - PATCH
-            - DELETE
-            - OPTIONS
-          headers:
-            - Accept
-            - Authorization
-            - Content-Type
-            - Origin
-          exposed_headers:
-            - X-Conversation-Id
-          credentials: true
-          preflight_continue: false

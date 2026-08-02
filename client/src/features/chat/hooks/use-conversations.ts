@@ -1,27 +1,24 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 
-import { listConversations, type AiConversation } from '../lib/chat-api';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { listConversations } from '../lib/chat-api';
 
 export function useConversations() {
-  const [conversations, setConversations] = useState<AiConversation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryFn: async () => listConversations(),
+    queryKey: ['ai-conversations'],
+  });
 
   const refresh = useCallback(async () => {
-    try {
-      const items = await listConversations();
-      setConversations(items);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    await queryClient.invalidateQueries({ queryKey: ['ai-conversations'] });
+  }, [queryClient]);
 
   return {
-    conversations,
-    isLoading,
+    conversations: query.data ?? [],
+    isLoading: query.isLoading,
     refresh,
   };
 }

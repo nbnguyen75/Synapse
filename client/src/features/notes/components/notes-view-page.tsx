@@ -289,6 +289,10 @@ export default function NotesViewPage({
             notes={notes}
             hasQuery={!!q}
             emptyVariant={emptyStateMap[viewMode]}
+            onCreateClick={(e) => {
+              e.preventDefault();
+              navigate({ to: '/notes/create' });
+            }}
             renderItem={(note) => (
               <NoteCard
                 note={note}

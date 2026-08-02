@@ -235,10 +235,10 @@ export default function CommandPalette() {
           setIsOpen(false);
           navigate({ to: '/chat' });
         },
-        subtitle: m.command_palette_subtitle_go_copilot(),
-        title: m.command_palette_title_go_copilot(),
+        subtitle: m.command_palette_subtitle_go_companion(),
+        title: m.command_palette_title_go_companion(),
         icon: MessageSquareIcon,
-        id: 'go_copilot',
+        id: 'go_companion',
       },
       {
         action: () => {

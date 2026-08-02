@@ -42,7 +42,7 @@
       },
        {
           "id": "feat-006",
-          "name": "AI Chat / Copilot",
+          "name": "AI Chat / Companion",
           "description": "Real AI chat wired to the AI service via Kong (/api/v1/ai). AI SDK v7 useChat + DefaultChatTransport (custom SynapseChatTransport reads X-Conversation-Id, sends Bearer token + last user message), streaming responses, conversation history rail (left of the /chat workspace), suggestions, sources & reasoning display. Model selector, web search toggle, speech input kept as UI; attachments blocked (server text-only).",
           "dependencies": ["feat-003"],
           "status": "done",
@@ -50,11 +50,11 @@
        },
        {
           "id": "feat-007",
-          "name": "Settings (General, Copilot, Templates)",
-          "description": "Settings with 3 tabs: General (autosave, email digests, copilot alerts), Copilot (backend-backed: personality preset incl. custom instructions, response length, language, emoji toggle — GET/PUT /api/v1/ai/settings), Templates (CRUD custom templates).",
-          "dependencies": ["feat-003"],
-          "status": "done",
-          "evidence": "src/features/settings/components/settings-page.tsx, src/features/settings/components/general-tab.tsx, src/features/settings/components/copilot-tab.tsx, src/features/settings/components/templates-tab.tsx, src/features/settings/hooks/use-ai-settings.ts"
+           "name": "Settings (General, Companion, Templates)",
+           "description": "Settings with 3 tabs: General (autosave, email digests, companion alerts), Companion (backend-backed: bot name, personality preset incl. custom instructions, response length, language, emoji toggle — GET/PUT /api/v1/ai/settings), Templates (CRUD custom templates).",
+           "dependencies": ["feat-003"],
+           "status": "done",
+           "evidence": "src/features/settings/components/settings-page.tsx, src/features/settings/components/general-tab.tsx, src/features/settings/components/companion-tab.tsx, src/features/settings/components/templates-tab.tsx, src/features/settings/hooks/use-ai-settings.ts"
        },
       {
          "id": "feat-008",
@@ -126,7 +126,7 @@
          "description": "6 predefined templates (Meeting, Journal, Project, RFC, Sprint Retro, Study) + custom templates with markdown content, title patterns.",
          "dependencies": ["feat-004"],
          "status": "done",
-         "evidence": "src/features/chat/lib/copilot-config.ts (PREDEFINED_TEMPLATES), src/features/notes/components/template-selector.tsx"
+          "evidence": "src/features/chat/lib/companion-config.ts (PREDEFINED_TEMPLATES), src/features/notes/components/template-selector.tsx"
       },
       {
          "id": "feat-017",
@@ -162,11 +162,11 @@
       },
        {
           "id": "feat-021",
-          "name": "Copilot Config Persistence",
-          "description": "DEPRECATED (2026-08-01): localStorage CopilotConfig (name, temperature, avatar, persona, prompt, welcome message) removed. Replaced by server-backed AI settings (feat-033) — see src/features/settings/hooks/use-ai-settings.ts + /api/v1/ai/settings.",
-          "dependencies": ["feat-007"],
-          "status": "deprecated",
-          "evidence": "src/features/chat/lib/copilot-config.ts (trimmed to NoteTemplate helpers only)"
+          "name": "Companion Config Persistence",
+          "description": "DEPRECATED (2026-08-01): localStorage CompanionConfig (name, temperature, avatar, persona, prompt, welcome message) removed. Replaced by server-backed AI settings (feat-033) — see src/features/settings/hooks/use-ai-settings.ts + /api/v1/ai/settings.",
+          "dependencies": ["feat-006"],
+          "status": "done",
+          "evidence": "src/features/chat/lib/companion-config.ts (trimmed to NoteTemplate helpers only)"
        },
       {
          "id": "feat-022",
@@ -259,10 +259,50 @@
        {
           "id": "feat-033",
           "name": "AI Chat Backend Integration & Conversation History",
-          "description": "Wired mock chat to the real AI service (Kong /api/v1/ai) via AI SDK v7 useChat + custom DefaultChatTransport (X-Conversation-Id capture, Bearer auth, send-last-message protocol). Added Gemini/Claude-style conversation history left rail inside /chat (new chat, load history, active highlight, auto-refresh after first turn). Migrated Settings > Copilot tab to backend /api/v1/ai/settings (useAiSettings hook; localStorage CopilotConfig removed). CORS expose of X-Conversation-Id in Kong + ai service. Removed dead i18n keys, added chat/settings keys, en/vi parity.",
-          "dependencies": ["feat-006", "feat-007"],
-          "status": "done",
-          "evidence": "src/features/chat/lib/chat-transport.ts, src/features/chat/lib/chat-api.ts, src/features/chat/hooks/use-chat-session.ts, src/features/chat/hooks/use-conversations.ts, src/features/chat/components/chat-page.tsx, src/features/chat/components/chat-bot.tsx, src/features/settings/hooks/use-ai-settings.ts, src/features/settings/components/copilot-tab.tsx, src/features/settings/components/settings-page.tsx, infra/kong/kong.yml, services/ai/src/app.ts, messages/en.json, messages/vi.json"
-       }
-    ]
-}
+           "description": "Wired mock chat to the real AI service (Kong /api/v1/ai) via AI SDK v7 useChat + custom DefaultChatTransport (X-Conversation-Id capture, Bearer auth, send-last-message protocol). Added Gemini/Claude-style conversation history left rail inside /chat (new chat, load history, active highlight, auto-refresh after first turn). Migrated Settings > Companion tab to backend /api/v1/ai/settings (useAiSettings hook; localStorage CompanionConfig removed). CORS expose of X-Conversation-Id in Kong + ai service. Removed dead i18n keys, added chat/settings keys, en/vi parity.",
+           "dependencies": ["feat-006", "feat-007"],
+           "status": "done",
+            "evidence": "src/features/chat/lib/chat-transport.ts, src/features/chat/lib/chat-api.ts, src/features/chat/hooks/use-chat-session.ts, src/features/chat/hooks/use-conversations.ts, src/features/chat/components/chat-page.tsx, src/features/chat/components/chat-bot.tsx, src/features/settings/hooks/use-ai-settings.ts, src/features/settings/components/companion-tab.tsx, src/features/settings/components/settings-page.tsx, infra/kong/kong.yml, services/ai/src/app.ts, messages/en.json, messages/vi.json"
+        },
+        {
+           "id": "feat-034",
+           "name": "AI Note Title Generation",
+            "description": "Generate note titles from content via POST /api/v1/ai/generator/note-title (content sliced to 1500 chars). UI: Sparkles button on /notes/create title row + 'Generate title' action wired in $noteId overflow menu (was disabled). Create-page title is now optional client-side (noteCreateFormSchema, max 200) so the notes service auto-generates a title on create when blank (circuit-breaker fallback 'Untitled'). New i18n: settings_companion_bot_name, notes_page_ai_title_failed (en/vi).",
+            "dependencies": ["feat-004", "feat-033"],
+            "status": "done",
+            "evidence": "src/features/notes/api.ts (generateNoteTitle), src/features/notes/schemas.ts (noteCreateFormSchema/NoteCreateFormValues), src/features/notes/hooks/use-note-mutation.ts (create mutation accepts NoteCreateFormValues), src/routes/_app/notes/create.tsx (AI title button), src/routes/_app/notes/$noteId.tsx (generate-title menu item), src/features/settings/components/companion-tab.tsx (botName input), src/features/chat/lib/chat-api.ts (AiSettings.botName), messages/en.json, messages/vi.json"
+        },
+         {
+            "id": "feat-035",
+            "name": "Chat with Note",
+            "description": "NOT-STARTED (deferred 2026-08-02): per-note chat that scopes RAG to a single note. Requires backend work first: add optional noteId to chat request schema + scope retrieval to that note's embedding, then client-side chat-with-note action on note cards ($noteId + note list). i18n key notes_page_card_chat_with_note already reserved in en/vi.",
+            "dependencies": ["feat-004", "feat-033"],
+            "status": "not-started",
+            "evidence": "Backend: services/ai/src/chat (chatRequestSchema needs noteId), RAG currently scopes by userId only. Client: messages/en.json + messages/vi.json (notes_page_card_chat_with_note)"
+         },
+         {
+            "id": "feat-036",
+            "name": "Copilot to Companion Rename",
+            "description": "All user-facing 'Copilot' branding replaced with 'Companion': 22 i18n keys renamed (settings_page_tab_copilot → settings_page_tab_companion, workspace_tab_copilot, error_page_btn_copilot, command_palette_title/subtitle_go_copilot, settings_page_general_copilot_alerts* + settings_page_copilot_* + all 12 settings_copilot_*), values updated (AI Copilot → AI Companion, Copilot Alerts → Companion Alerts, etc.) in en AND vi; files renamed copilot-tab.tsx → companion-tab.tsx (CopilotTab → CompanionTab) and chat/lib/copilot-config.ts → companion-config.ts; settings-page tab value 'copilot' → 'companion', localStorage key synapse_copilot_alerts → synapse_companion_alerts; command palette + error page updated. model-selector 'github-copilot' model id intentionally kept (technical identifier).",
+            "dependencies": ["feat-007"],
+            "status": "done",
+            "evidence": "src/features/settings/components/companion-tab.tsx, src/features/chat/lib/companion-config.ts, src/features/settings/components/settings-page.tsx, src/features/settings/components/general-tab.tsx, src/features/settings/components/templates-tab.tsx, src/features/notes/components/deprecated/template-selector.tsx, src/features/command-palette/components/command-palette.tsx, src/components/app/pages/error-page.tsx, src/components/ai-elements/model-selector.tsx, messages/en.json, messages/vi.json"
+         },
+         {
+            "id": "feat-037",
+            "name": "Model Selector Hidden + TanStack Query Sweep + Companion Save Fix",
+            "description": "Three hardening changes (2026-08-02): (1) Model selector UI hidden in ChatBot via SHOW_MODEL_SELECTOR=false flag (files/state/logic kept intact; model state still held, selector not rendered). (2) Companion settings save made observable + TanStack-driven: use-ai-settings.ts converted from raw useEffect fetch to useQuery(['ai-settings']) + useMutation with optimistic update and rollback on error; companion-tab.tsx now toasts settings_page_save_failed on save/reset/autosave failure and blocks saving preset=custom with empty custom instructions (mirrors backend refine); new i18n settings_page_save_failed en/vi. (3) TanStack Query sweep: use-conversations.ts → useQuery(['ai-conversations']) with refresh via invalidateQueries; chat-page.tsx conversation-message load → queryClient.fetchQuery(['ai-conversation-messages', id]) preserving ChatBot remount/seed semantics exactly; generateNoteTitle → useGenerateNoteTitleMutation (use-note-mutation.ts) used by create.tsx and $noteId.tsx (isGeneratingTitle derived from mutation.isPending). Exceptions documented: chat-transport.ts native fetch (AI SDK streaming transport), prompt-input blob-URL fetch (local), authClient (library hook).",
+            "dependencies": ["feat-006", "feat-007", "feat-033", "feat-034"],
+            "status": "done",
+            "evidence": "src/features/chat/components/chat-bot.tsx (SHOW_MODEL_SELECTOR), src/features/settings/hooks/use-ai-settings.ts (useQuery+useMutation+rollback), src/features/settings/components/companion-tab.tsx (error toast + custom-preset guard), src/features/chat/hooks/use-conversations.ts (useQuery), src/features/chat/components/chat-page.tsx (fetchQuery), src/features/notes/hooks/use-note-mutation.ts (useGenerateNoteTitleMutation), src/routes/_app/notes/create.tsx, src/routes/_app/notes/$noteId.tsx, messages/en.json, messages/vi.json (settings_page_save_failed)"
+         },
+         {
+            "id": "feat-038",
+            "name": "AI Thinking Indicator",
+            "description": "In-conversation 'thinking' indicator for the chat: when a user submits and the assistant response has no content yet (status submitted, or assistant message with zero parts), render an assistant bubble with Shimmer 'Thinking…' (chat_thinking key, en/vi). Reuses the existing Shimmer pattern from Reasoning; auto-disappears when the first streamed part arrives (reasoning/text), on stop, or on error. Pure additive UI in chat-bot.tsx — no changes to transport/session/remount logic. Also unblocks build: deprecated quick-create-note-dialog cast payload to NoteCreateFormValues (noteCreateFormSchema.content is now required min(10), breaking NoteFormValues assignability).",
+            "dependencies": ["feat-006", "feat-037"],
+            "status": "done",
+            "evidence": "src/features/chat/components/chat-bot.tsx (isAwaitingResponse + Shimmer bubble), src/components/ai-elements/shimmer.tsx, src/features/notes/components/deprecated/quick-create-note-dialog.tsx (payload cast), messages/en.json, messages/vi.json (chat_thinking)"
+         }
+     ]
+ }

@@ -1,27 +1,27 @@
 import { logger } from 'hono/logger';
-import { cors } from 'hono/cors';
 import { Hono } from 'hono';
 
 import { errorHandler, notFoundHandler } from '@/middleware/errors';
-import conversationRoute from '@/conversation/route';
-import settingsRoute from '@/settings/route';
-import chatRoute from '@/chat/route';
-import { env } from '@/env';
+import { startNoteEventsConsumer } from '@/embeddings';
+import { conversationRoute } from '@/conversation';
+import { generatorRoute } from '@/generator';
+import { settingsRoute } from '@/settings';
+import { chatRoute } from '@/chat';
 
 const app = new Hono();
 
 app.use('*', logger());
-app.use(
-	'*',
-	cors({
-		allowHeaders: ['Content-Type', 'Authorization'],
-		allowMethods: ['POST', 'GET', 'OPTIONS'],
-		exposeHeaders: ['Content-Length', 'X-Conversation-Id'],
-		origin: env.ORIGINS,
-		credentials: true,
-		maxAge: 600
-	})
-);
+// app.use(
+// 	'*',
+// 	cors({
+// 		exposeHeaders: ['Content-Length', 'X-Conversation-Id'],
+// 		allowHeaders: ['Content-Type', 'Authorization'],
+// 		allowMethods: ['POST', 'GET', 'OPTIONS'],
+// 		origin: env.ORIGINS,
+// 		credentials: true,
+// 		maxAge: 600
+// 	})
+// );
 
 app.onError(errorHandler);
 app.notFound(notFoundHandler);
@@ -31,5 +31,11 @@ app.get('/health', (c) => c.json({ status: 'ok' }));
 app.route('/', chatRoute);
 app.route('/', conversationRoute);
 app.route('/', settingsRoute);
+app.route('/', generatorRoute);
+
+startNoteEventsConsumer().catch((err) => {
+	console.error('[app] Failed to start note events consumer', err);
+	process.exit(1);
+});
 
 export default app;

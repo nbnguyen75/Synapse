@@ -11,10 +11,12 @@ import {
   useSearch,
 } from '@tanstack/react-router';
 
+import { toast } from 'sonner';
 import { z } from 'zod/v4';
 
 import {
   useDeleteNoteMutation,
+  useGenerateNoteTitleMutation,
   useUpdateNoteMutation,
 } from '@/features/notes/hooks/use-note-mutation';
 import {
@@ -52,6 +54,7 @@ import {
   DownloadIcon,
   Edit3Icon,
   EyeIcon,
+  Loader2Icon,
   MoreHorizontalIcon,
   SaveIcon,
   SparklesIcon,
@@ -92,6 +95,10 @@ function NoteDetailsPage() {
 
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('preview');
 
+  const generateTitleMutation = useGenerateNoteTitleMutation();
+
+  const isGeneratingTitle = generateTitleMutation.isPending;
+
   const { data: note } = useGetNoteQuery(initialData.id, initialData);
   const { isPending: isUpdating, mutate: updateNote } = useUpdateNoteMutation();
   const { isPending: isDeleting, mutate: deleteNote } = useDeleteNoteMutation();
@@ -103,7 +110,7 @@ function NoteDetailsPage() {
     },
   });
 
-  const { handleSubmit, control } = form;
+  const { handleSubmit, setValue, control } = form;
 
   const [watchedContent, watchedTitle] = useWatch({
     name: ['content', 'title'],
@@ -154,12 +161,18 @@ function NoteDetailsPage() {
     );
   };
 
-  // const handleAiTitle = () => {
-  //   if (!watchedContent) return;
-  //   const generated = generateAiTitle(watchedContent);
-  //   setValue('title', generated, { shouldDirty: true });
-  //   toast.success(m.notes_page_ai_title_success());
-  // };
+  const handleAiTitle = async () => {
+    if (!watchedContent?.trim() || isGeneratingTitle) return;
+
+    try {
+      const generatedTitle =
+        await generateTitleMutation.mutateAsync(watchedContent);
+      setValue('title', generatedTitle, { shouldDirty: true });
+      toast.success(m.notes_page_ai_title_success());
+    } catch {
+      toast.error(m.notes_page_ai_title_failed());
+    }
+  };
 
   return (
     <form
@@ -245,8 +258,16 @@ function NoteDetailsPage() {
                 />
 
                 <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem disabled className="cursor-pointer">
-                    <SparklesIcon className="size-4 mr-2 text-violet-500" />
+                  <DropdownMenuItem
+                    disabled={isGeneratingTitle || !watchedContent?.trim()}
+                    onClick={() => void handleAiTitle()}
+                    className="cursor-pointer"
+                  >
+                    {isGeneratingTitle ? (
+                      <Loader2Icon className="size-4 mr-2 text-violet-500 animate-spin" />
+                    ) : (
+                      <SparklesIcon className="size-4 mr-2 text-violet-500" />
+                    )}
                     <span>{m.notes_page_ai_generate_title()}</span>
                   </DropdownMenuItem>
 

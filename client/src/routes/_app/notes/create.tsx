@@ -1,13 +1,20 @@
-import type { NoteFormValues } from '@/features/notes/schemas';
-
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
 import { createFileRoute } from '@tanstack/react-router';
 import { useNavigate } from '@tanstack/react-router';
 
+import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
+import { toast } from 'sonner';
 import { z } from 'zod/v4';
 
-import { useCreateNoteMutation } from '@/features/notes/hooks/use-note-mutation';
+import {
+  useCreateNoteMutation,
+  useGenerateNoteTitleMutation,
+} from '@/features/notes/hooks/use-note-mutation';
+import {
+  noteCreateFormSchema,
+  type NoteCreateFormValues,
+} from '@/features/notes/schemas';
 
 import { useKeyboardShortcut } from '@/hooks/use-key-binding';
 
@@ -18,7 +25,14 @@ import { m } from '@/paraglide/messages';
 
 import { LexicalEditor, MarkdownRenderer } from '@/components/shared';
 
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Field, FieldError } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -26,7 +40,9 @@ import {
   ArrowLeftIcon,
   Edit3Icon,
   EyeIcon,
+  Loader2Icon,
   SaveIcon,
+  SparklesIcon,
   TagIcon,
 } from 'lucide-react';
 
@@ -44,47 +60,63 @@ function CreateNotePage() {
   const navigate = useNavigate();
   const { title } = Route.useSearch();
 
-  const createNoteMutation = useCreateNoteMutation();
+  const { isPending: isCreatingNote, mutate: createNote } =
+    useCreateNoteMutation();
+  const { isPending: isGeneratingTitle, mutate: generateTitle } =
+    useGenerateNoteTitleMutation();
 
-  const form = useForm<NoteFormValues>({
+  const form = useForm<NoteCreateFormValues>({
     defaultValues: {
-      content: undefined,
-      title: title ?? '',
+      content: '',
+      title,
     },
+    resolver: standardSchemaResolver(noteCreateFormSchema),
   });
 
-  const { handleSubmit, control } = form;
+  const { handleSubmit, setValue, control } = form;
 
   const [watchedContent] = useWatch({
-    name: ['content', 'title'],
+    name: ['content'],
     control,
   });
 
-  const onSave = (data: NoteFormValues) => {
-    createNoteMutation.mutate({
-      data: {
-        ...data,
+  const onSave = (data: NoteCreateFormValues) => {
+    createNote(
+      {
+        data: {
+          ...data,
+        },
+      },
+      {
+        onSuccess: async () => {
+          await navigate({ replace: true, to: '/notes' });
+        },
+      },
+    );
+  };
+
+  const handleAiTitle = () => {
+    if (!watchedContent?.trim()) return;
+
+    generateTitle(watchedContent, {
+      onSuccess: (data) => {
+        setValue('title', data as string | undefined, { shouldDirty: true });
+        toast.success(m.notes_page_ai_title_success());
+      },
+      onError: () => {
+        toast.error(m.notes_page_ai_title_failed());
       },
     });
-
-    navigate({ replace: true, to: '/notes' });
   };
 
   useKeyboardShortcut(
     getShortcut('save-note').combos,
     () => {
-      if (createNoteMutation.isPending) return;
+      if (isCreatingNote) return;
       void form.handleSubmit(onSave)();
     },
     { allowWhenTyping: ['ctrl+s', 'meta+s'] },
   );
-
-  // const handleAiTitle = () => {
-  //   if (!watchedContent) return;
-  //   const generated = generateAiTitle(watchedContent);
-  //   setValue('title', generated, { shouldDirty: true });
-  //   toast.success(m.notes_page_ai_title_success());
-  // };
 
   return (
     <form onSubmit={handleSubmit(onSave)} className="h-full">
@@ -105,11 +137,11 @@ function CreateNotePage() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={createNoteMutation.isPending}
+                disabled={isCreatingNote}
                 className="h-8 gap-1.5 text-xs font-semibold rounded-md"
               >
                 <SaveIcon className="size-3.5" />
-                {createNoteMutation.isPending
+                {isCreatingNote
                   ? m.notes_page_create_saving()
                   : m.notes_page_create_create()}
               </Button>
@@ -142,11 +174,40 @@ function CreateNotePage() {
                   name="title"
                   control={control}
                   render={({ field }) => (
-                    <Input
-                      {...field}
-                      placeholder={m.notes_page_untitled_placeholder()}
-                      className="w-full resize-none bg-transparent text-3xl md:text-4xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7 px-0"
-                    />
+                    <InputGroup className="h-14 pl-3 resize-none bg-transparent font-semibold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7">
+                      <InputGroupInput
+                        {...field}
+                        disabled={isCreatingNote}
+                        placeholder={m.notes_page_untitled_placeholder()}
+                        className="text-3xl md:text-4xl"
+                      />
+
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                          variant="default"
+                          disabled={
+                            !watchedContent?.trim() ||
+                            isGeneratingTitle ||
+                            isCreatingNote
+                          }
+                          onClick={() => handleAiTitle()}
+                          title={m.notes_page_ai_title()}
+                          className="h-10 rounded-md"
+                        >
+                          {isGeneratingTitle ? (
+                            <>
+                              <Loader2Icon className="size-4 animate-spin" />
+                              Generating...
+                            </>
+                          ) : (
+                            <>
+                              <SparklesIcon className="size-4" />
+                              Generate title
+                            </>
+                          )}
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    </InputGroup>
                   )}
                 />
 
@@ -155,6 +216,7 @@ function CreateNotePage() {
                   <Input
                     type="text"
                     value=""
+                    disabled={isCreatingNote}
                     placeholder={m.notes_page_tags_placeholder()}
                     className="h-6 border-none shadow-none focus-visible:ring-0 p-0 text-xs bg-transparent max-w-70 placeholder:text-muted-foreground/40"
                   />
@@ -167,14 +229,21 @@ function CreateNotePage() {
                   <Controller
                     name="content"
                     control={control}
-                    render={({ field }) => (
-                      <LexicalEditor
-                        value={field.value ?? ''}
-                        onChange={field.onChange}
-                        id="details-note-content"
-                        className="h-full max-h-120"
-                        placeholder={m.notes_page_lexical_placeholder()}
-                      />
+                    render={({ fieldState, field }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <LexicalEditor
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          id="details-note-content"
+                          className="h-full max-h-120"
+                          placeholder={m.notes_page_lexical_placeholder()}
+                          disabled={isCreatingNote}
+                        />
+
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
                     )}
                   />
                 </TabsContent>

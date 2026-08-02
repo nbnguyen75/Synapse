@@ -11,23 +11,14 @@ export async function getUserSettings(userId: string): Promise<UserAiSettings> {
 		responseLength: row.responseLength,
 		language: row.language,
 		useEmoji: row.useEmoji,
+		botName: row.botName,
 		preset: row.preset
 	};
 }
 
 export async function saveUserSettings(userId: string, input: UserAiSettings) {
-	const isCustomMissingInstructions =
-		input.preset === 'custom' && !input.customInstructions?.trim();
-
-	if (isCustomMissingInstructions) {
-		return {
-			error: { customInstructions: "Required when preset is 'custom'" },
-			success: false as const
-		};
-	}
-
 	await upsert(userId, input);
-	return { success: true as const, data: input };
+	return input;
 }
 
 export function buildSystemInstruction(settings: UserAiSettings): string {
@@ -48,6 +39,7 @@ export function buildSystemInstruction(settings: UserAiSettings): string {
 	}[settings.responseLength];
 
 	return [
+		`Tên của bạn là "${settings.botName}". Khi được hỏi bạn là ai, giới thiệu đúng tên này.`,
 		`Phong cách: ${personality}`,
 		languageLine,
 		lengthLine,

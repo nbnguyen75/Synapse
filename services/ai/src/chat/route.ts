@@ -16,9 +16,9 @@ import {
 	saveAssistantReply,
 	validateChatMessages
 } from '@/chat/services';
+import { CHAT_TEMPERATURE, MAX_QUESTION_LENGTH } from '@/chat/constants';
 import { throwFromReason, ValidationError } from '@/lib/errors';
 import { getUserSettings, MAX_OUTPUT_TOKENS } from '@/settings';
-import { MAX_QUESTION_LENGTH } from '@/chat/constants';
 import { authJwksMiddleware } from '@/middleware/auth';
 import { zValidator } from '@/middleware/validation';
 import { chatRequestSchema } from '@/chat/schemas';
@@ -45,25 +45,30 @@ const chatRoute = new Hono()
 		if (!turnResult.success) throwFromReason(turnResult.reason, 'Conversation');
 
 		const { conversation, history } = turnResult.data;
-    const settings = await getUserSettings(userId);
+		const settings = await getUserSettings(userId);
 		const relevantNotes = await retrieveRelevantNotes(userId, question);
 		const systemPrompt = await buildSystemPrompt(settings, relevantNotes);
 
+		const recentHistory = history.slice(-15);
+		const allMessages = [...recentHistory, lastUserMessage].filter((m) => m.role !== 'system');
+
 		const result = streamText({
-			messages: await convertToModelMessages(
-				[...history, lastUserMessage].filter((m) => m.role !== 'system')
-			),
 			maxOutputTokens: MAX_OUTPUT_TOKENS[settings.responseLength],
+			messages: await convertToModelMessages(allMessages),
+			temperature: CHAT_TEMPERATURE,
 			instructions: systemPrompt,
-			model: chatModel,
-			temperature: 0.3
+			model: chatModel
 		});
 
 		const uiStream = toUIMessageStream({
 			onEnd: async ({ messages }) => {
-				const assistantMsg = messages.at(-1);
-				if (assistantMsg?.role === 'assistant') {
-					await saveAssistantReply(conversation.id, extractQuestionText(assistantMsg));
+				try {
+					const assistantMsg = messages.at(-1);
+					if (assistantMsg?.role === 'assistant') {
+						await saveAssistantReply(conversation.id, assistantMsg);
+					}
+				} catch (error) {
+					console.error('[Save Assistant Reply Failed]:', error);
 				}
 			},
 			generateMessageId: createIdGenerator({ prefix: 'msg', size: 16 }),

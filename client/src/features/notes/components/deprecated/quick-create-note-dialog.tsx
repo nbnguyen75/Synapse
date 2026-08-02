@@ -4,7 +4,11 @@ import { useForm } from 'react-hook-form';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 
 import { useCreateNoteMutation } from '@/features/notes/hooks/use-note-mutation';
-import { noteFormSchema, type NoteFormValues } from '@/features/notes/schemas';
+import {
+  noteFormSchema,
+  type NoteCreateFormValues,
+  type NoteFormValues,
+} from '@/features/notes/schemas';
 
 import { m } from '@/paraglide/messages';
 
@@ -38,7 +42,7 @@ export default function QuickCreateNoteDialog({
   });
 
   const onSubmit = (data: NoteFormValues) => {
-    createNote({ data });
+    createNote({ data: data as NoteCreateFormValues });
     onOpenChange(false);
     form.reset();
   };

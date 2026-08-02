@@ -4,3 +4,4 @@ export {
 	loadHistory,
 	checkConversationOwnership
 } from './services';
+export { default as conversationRoute } from './route';

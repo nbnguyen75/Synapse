@@ -61,8 +61,11 @@ import {
 } from '@/components/ai-elements/message';
 import { SpeechInput } from '@/components/ai-elements/speech-input';
 import { Suggestion } from '@/components/ai-elements/suggestion';
+import { Shimmer } from '@/components/ai-elements/shimmer';
 
 import { GlobeIcon, SparklesIcon } from 'lucide-react';
+
+const SHOW_MODEL_SELECTOR = false;
 
 interface ChatBotProps {
   onConversationId?: (conversationId: string) => void;
@@ -94,6 +97,12 @@ export default function ChatBot({
   const status = chat.status;
   const messages = chat.messages;
   const isGenerating = status === 'submitted' || status === 'streaming';
+
+  const lastMessage = messages[messages.length - 1];
+  const isAwaitingResponse =
+    isGenerating &&
+    (lastMessage?.role === 'user' ||
+      (lastMessage?.role === 'assistant' && lastMessage.parts.length === 0));
 
   const handleSubmit = useCallback(
     (message: PromptInputMessage) => {
@@ -162,6 +171,13 @@ export default function ChatBot({
                 message={message}
               />
             ))}
+            {isAwaitingResponse && (
+              <Message from="assistant">
+                <MessageContent>
+                  <Shimmer duration={1}>{m.chat_thinking()}</Shimmer>
+                </MessageContent>
+              </Message>
+            )}
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
@@ -220,53 +236,55 @@ export default function ChatBot({
                 <GlobeIcon size={16} />
                 <span>{m.chat_search_toggle()}</span>
               </PromptInputButton>
-              <ModelSelector
-                onOpenChange={setModelSelectorOpen}
-                open={modelSelectorOpen}
-              >
-                <ModelSelectorTrigger
-                  render={
-                    <PromptInputButton>
-                      {selectedModelData?.chefSlug && (
-                        <ModelSelectorLogo
-                          provider={selectedModelData.chefSlug}
-                        />
-                      )}
-                      {selectedModelData?.name && (
-                        <ModelSelectorName>
-                          {selectedModelData.name}
-                        </ModelSelectorName>
-                      )}
-                    </PromptInputButton>
-                  }
-                />
-
-                <ModelSelectorContent showCloseButton={false}>
-                  <ModelSelectorInput
-                    placeholder={m.chat_search_models_placeholder()}
+              {SHOW_MODEL_SELECTOR && (
+                <ModelSelector
+                  onOpenChange={setModelSelectorOpen}
+                  open={modelSelectorOpen}
+                >
+                  <ModelSelectorTrigger
+                    render={
+                      <PromptInputButton>
+                        {selectedModelData?.chefSlug && (
+                          <ModelSelectorLogo
+                            provider={selectedModelData.chefSlug}
+                          />
+                        )}
+                        {selectedModelData?.name && (
+                          <ModelSelectorName>
+                            {selectedModelData.name}
+                          </ModelSelectorName>
+                        )}
+                      </PromptInputButton>
+                    }
                   />
 
-                  <ModelSelectorList>
-                    <ModelSelectorEmpty>
-                      {m.chat_search_models_empty()}
-                    </ModelSelectorEmpty>
-                    {chefs.map((chef) => (
-                      <ModelSelectorGroup heading={chef} key={chef}>
-                        {models
-                          .filter((item) => item.chef === chef)
-                          .map((item) => (
-                            <ModelItem
-                              isSelected={model === item.id}
-                              key={item.id}
-                              m={item}
-                              onSelect={handleModelSelect}
-                            />
-                          ))}
-                      </ModelSelectorGroup>
-                    ))}
-                  </ModelSelectorList>
-                </ModelSelectorContent>
-              </ModelSelector>
+                  <ModelSelectorContent showCloseButton={false}>
+                    <ModelSelectorInput
+                      placeholder={m.chat_search_models_placeholder()}
+                    />
+
+                    <ModelSelectorList>
+                      <ModelSelectorEmpty>
+                        {m.chat_search_models_empty()}
+                      </ModelSelectorEmpty>
+                      {chefs.map((chef) => (
+                        <ModelSelectorGroup heading={chef} key={chef}>
+                          {models
+                            .filter((item) => item.chef === chef)
+                            .map((item) => (
+                              <ModelItem
+                                isSelected={model === item.id}
+                                key={item.id}
+                                m={item}
+                                onSelect={handleModelSelect}
+                              />
+                            ))}
+                        </ModelSelectorGroup>
+                      ))}
+                    </ModelSelectorList>
+                  </ModelSelectorContent>
+                </ModelSelector>
+              )}
             </PromptInputTools>
 
             <PromptInputSubmit

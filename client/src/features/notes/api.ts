@@ -1,4 +1,8 @@
-import type { NoteFormValues, NotesApiParams } from '@/features/notes/schemas';
+import type {
+  NoteCreateFormValues,
+  NoteFormValues,
+  NotesApiParams,
+} from '@/features/notes/schemas';
 import type { ApiResponse, PaginatedApiResponse } from '@/types/shared';
 import type { Note } from '@/features/notes/types';
 
@@ -40,7 +44,7 @@ export async function getNote(id: string) {
   return result.data;
 }
 
-export async function createNote(createNoteData: NoteFormValues) {
+export async function createNote(createNoteData: NoteCreateFormValues) {
   const result = await $fetch<ApiResponse<Note>>('/api/v1/notes', {
     body: createNoteData,
     method: 'POST',
@@ -64,6 +68,24 @@ export async function updateNote(id: string, updateNoteData: NoteFormValues) {
   }
 
   return result.data;
+}
+
+const MAX_NOTE_CONTENT_LENGTH = 1500;
+
+export async function generateNoteTitle(content: string) {
+  const result = await $fetch<ApiResponse<{ title: string }>>(
+    '/api/v1/ai/generator/note-title',
+    {
+      body: { content: content.slice(0, MAX_NOTE_CONTENT_LENGTH) },
+      method: 'POST',
+    },
+  );
+
+  if (!result.success) {
+    throw new Error(result.message);
+  }
+
+  return result.data.title;
 }
 
 export async function deleteNote(id: string) {

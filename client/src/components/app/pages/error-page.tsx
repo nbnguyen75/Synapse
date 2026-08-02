@@ -163,7 +163,7 @@ export default function ErrorPage({
                 className="h-9 px-4 text-xs font-medium gap-2 cursor-pointer border-border/80"
               >
                 <Bot className="h-3.5 w-3.5" />
-                <span>{m.error_page_btn_copilot()}</span>
+                <span>{m.error_page_btn_companion()}</span>
               </Button>
               <Button
                 variant="ghost"

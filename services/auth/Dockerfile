@@ -1,4 +1,4 @@
-FROM oven/bun:latest AS base
+FROM oven/bun:1.3.14-slim AS base
 WORKDIR /app
 
 # ==== Stage: app (production, chỉ chạy server) ====

@@ -4,19 +4,19 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
 interface GeneralTabProps {
-  onCopilotAlertsChange: (v: boolean) => void;
+  onCompanionAlertsChange: (v: boolean) => void;
   onEmailDigestsChange: (v: boolean) => void;
   onAutosaveChange: (v: boolean) => void;
-  copilotAlerts: boolean;
+  companionAlerts: boolean;
   emailDigests: boolean;
   autosave: boolean;
 }
 
 export default function GeneralTab({
-  onCopilotAlertsChange,
+  onCompanionAlertsChange,
   onEmailDigestsChange,
   onAutosaveChange,
-  copilotAlerts,
+  companionAlerts,
   emailDigests,
   autosave,
 }: GeneralTabProps) {
@@ -55,14 +55,14 @@ export default function GeneralTab({
         </div>
         <div className="flex items-center justify-between rounded-lg border p-4">
           <div>
-            <Label>{m.settings_page_general_copilot_alerts()}</Label>
+            <Label>{m.settings_page_general_companion_alerts()}</Label>
             <p className="text-xs text-muted-foreground">
-              {m.settings_page_general_copilot_alerts_desc()}
+              {m.settings_page_general_companion_alerts_desc()}
             </p>
           </div>
           <Switch
-            checked={copilotAlerts}
-            onCheckedChange={onCopilotAlertsChange}
+            checked={companionAlerts}
+            onCheckedChange={onCompanionAlertsChange}
           />
         </div>
       </div>
