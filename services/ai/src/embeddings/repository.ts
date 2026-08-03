@@ -1,9 +1,11 @@
-import { eq } from 'drizzle-orm';
+import { inArray, sql } from 'drizzle-orm';
 
 import { noteEmbeddings, notes } from '@/database/schema';
 import { db } from '@/database';
 
 export type UpsertNoteParams = {
+	createdAt: string | null;
+	updatedAt: string | null;
 	title: string | null;
 	trashed: boolean;
 	content: string;
@@ -17,47 +19,79 @@ export type UpsertNoteEmbeddingParams = {
 	userId: string;
 };
 
-export async function upsertNoteRecord(data: UpsertNoteParams) {
+export async function getNotesByIds(noteIds: string[]) {
+	if (noteIds.length === 0) return [];
+
+	return db
+		.select({
+			content: notes.content,
+			trashed: notes.trashed,
+			title: notes.title,
+			id: notes.id
+		})
+		.from(notes)
+		.where(inArray(notes.id, noteIds));
+}
+
+export async function bulkUpsertNoteRecords(dataList: UpsertNoteParams[]) {
+	if (dataList.length === 0) return;
+
 	return db
 		.insert(notes)
-		.values({
-			content: data.content,
-			trashed: data.trashed,
-			updatedAt: new Date(),
-			userId: data.userId,
-			title: data.title,
-			id: data.id
-		})
-		.onConflictDoUpdate({
-			set: {
+		.values(
+			dataList.map((data) => ({
+				createdAt: data.createdAt ? new Date(data.createdAt) : null,
+				updatedAt: data.updatedAt ? new Date(data.updatedAt) : null,
 				content: data.content,
 				trashed: data.trashed,
-				updatedAt: new Date(),
-				title: data.title
+				userId: data.userId,
+				title: data.title,
+				id: data.id
+			}))
+		)
+		.onConflictDoUpdate({
+			set: {
+				createdAt: sql`EXCLUDED.created_at`,
+				updatedAt: sql`EXCLUDED.updated_at`,
+				content: sql`EXCLUDED.content`,
+				trashed: sql`EXCLUDED.trashed`,
+				title: sql`EXCLUDED.title`
 			},
 			target: notes.id
 		});
 }
 
-export async function upsertNoteEmbeddingRecord(data: UpsertNoteEmbeddingParams) {
+export async function bulkDeleteOnlyEmbeddings(noteIds: string[]) {
+	if (noteIds.length === 0) return;
+
+	return db.delete(noteEmbeddings).where(inArray(noteEmbeddings.noteId, noteIds));
+}
+
+export async function bulkUpsertNoteEmbeddingRecords(dataList: UpsertNoteEmbeddingParams[]) {
+	if (dataList.length === 0) return;
+
 	return db
 		.insert(noteEmbeddings)
-		.values({
-			embedding: data.embedding,
-			noteId: data.noteId,
-			userId: data.userId
-		})
+		.values(
+			dataList.map((data) => ({
+				embedding: data.embedding,
+				noteId: data.noteId,
+				userId: data.userId
+			}))
+		)
 		.onConflictDoUpdate({
 			set: {
-				embedding: data.embedding
+				embedding: sql`EXCLUDED.embedding`
 			},
 			target: noteEmbeddings.noteId
 		});
 }
 
-export async function deleteNoteAndEmbeddingRecords(noteId: string) {
+export async function bulkDeleteNotesAndEmbeddings(noteIds: string[]) {
+	if (noteIds.length === 0) return;
+
 	return db.transaction(async (tx) => {
-		await tx.delete(noteEmbeddings).where(eq(noteEmbeddings.noteId, noteId));
-		await tx.delete(notes).where(eq(notes.id, noteId));
+		await tx.delete(noteEmbeddings).where(inArray(noteEmbeddings.noteId, noteIds));
+		await tx.delete(notes).where(inArray(notes.id, noteIds));
 	});
 }

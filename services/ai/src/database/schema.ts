@@ -64,7 +64,8 @@ export const messages = pgTable(
 // bằng tablesFilter trong drizzle.config.ts.
 
 export const notes = pgTable('notes', {
-	updatedAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
+	createdAt: d.timestamp({ withTimezone: true }),
+	updatedAt: d.timestamp({ withTimezone: true }),
 	trashed: d.boolean().notNull().default(false),
 	content: d.text().notNull(),
 	userId: d.text().notNull(),

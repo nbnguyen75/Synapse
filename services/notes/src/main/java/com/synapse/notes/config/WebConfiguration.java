@@ -1,13 +1,13 @@
 package com.synapse.notes.config;
 
-import com.synapse.notes.common.annotation.CurrentUserIdArgumentResolver;
+import com.synapse.notes.common.resolver.CurrentUserIdArgumentResolver;
 import java.util.List;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class WebConfiguration implements WebMvcConfigurer {
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
     resolvers.add(new CurrentUserIdArgumentResolver());

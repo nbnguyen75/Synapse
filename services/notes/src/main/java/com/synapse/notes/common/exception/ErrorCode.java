@@ -11,16 +11,15 @@ public enum ErrorCode {
   CONFLICT("Data conflict", HttpStatus.CONFLICT),
   INTERNAL_ERROR("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
 
-  USER_NOT_FOUND("User not found", HttpStatus.NOT_FOUND),
-  USER_EMAIL_DUPLICATE("Email already exists", HttpStatus.CONFLICT),
-  ORDER_NOT_FOUND("Order not found", HttpStatus.NOT_FOUND),
-  ORDER_ALREADY_CANCELLED("Order has already been cancelled", HttpStatus.CONFLICT),
-  PAYMENT_INSUFFICIENT_BALANCE("Insufficient balance", HttpStatus.BAD_REQUEST),
+  // Auth & Routing
   AUTH_TOKEN_EXPIRED("Access token has expired", HttpStatus.UNAUTHORIZED),
   AUTH_INVALID_CREDENTIALS("Invalid email or password", HttpStatus.UNAUTHORIZED),
-
   ROUTE_NOT_FOUND("Route not found", HttpStatus.NOT_FOUND),
-  METHOD_NOT_ALLOWED("HTTP method not supported for this route", HttpStatus.METHOD_NOT_ALLOWED);
+  METHOD_NOT_ALLOWED("HTTP method not supported for this route", HttpStatus.METHOD_NOT_ALLOWED),
+
+  // Note Specific Errors
+  NOTE_NOT_FOUND("Note not found", HttpStatus.NOT_FOUND),
+  NOTE_ACCESS_DENIED("You do not have permission to access this note", HttpStatus.FORBIDDEN);
 
   private final String defaultMessage;
   private final HttpStatus httpStatus;

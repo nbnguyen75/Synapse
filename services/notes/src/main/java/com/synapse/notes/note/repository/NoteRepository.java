@@ -1,5 +1,6 @@
-package com.synapse.notes.note;
+package com.synapse.notes.note.repository;
 
+import com.synapse.notes.note.model.Note;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -113,4 +114,9 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
       @Param("ids") Collection<UUID> ids,
       @Param("favorite") boolean favorite,
       @Param("now") Instant now);
+
+  @Query("SELECT n.id FROM Note n WHERE n.userId = :userId AND n.trashed = true")
+  List<UUID> findTrashedIdsByUserId(@Param("userId") String userId);
+
+  List<Note> findAllByIdInAndUserId(Collection<UUID> ids, String userId);
 }

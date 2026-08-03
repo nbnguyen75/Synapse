@@ -1,0 +1,149 @@
+package com.synapse.notes.note.controller;
+
+import com.synapse.notes.common.annotation.CurrentUserId;
+import com.synapse.notes.common.response.ApiResponse;
+import com.synapse.notes.common.response.PageResponse;
+import com.synapse.notes.note.dto.request.BulkNoteRequest;
+import com.synapse.notes.note.dto.request.CreateNoteRequest;
+import com.synapse.notes.note.dto.request.NoteQueryParams;
+import com.synapse.notes.note.dto.request.UpdateNoteRequest;
+import com.synapse.notes.note.dto.response.NoteResponse;
+import com.synapse.notes.note.service.NoteService;
+import jakarta.validation.Valid;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("")
+@RequiredArgsConstructor
+public class NoteController {
+  private final NoteService noteService;
+
+  /**
+   * Filter notes by state (active by default, or archived/trashed/favorite via query params) GET
+   * /?q=meeting&archived=false&trashed=false&page=0&size=10&sort=pinned,desc,updatedAt,desc
+   */
+  @GetMapping("")
+  public ApiResponse<PageResponse<NoteResponse>> getNotes(
+      @CurrentUserId String userId, @Valid @ModelAttribute NoteQueryParams query) {
+
+    return ApiResponse.success(noteService.getNotes(userId, query));
+  }
+
+  @GetMapping("/{id}")
+  public ApiResponse<NoteResponse> get(@CurrentUserId String userId, @PathVariable UUID id) {
+    return ApiResponse.success(noteService.getNoteById(userId, id));
+  }
+
+  @PostMapping("")
+  public ApiResponse<NoteResponse> create(
+      @CurrentUserId String userId, @RequestBody @Valid CreateNoteRequest req) {
+    return ApiResponse.success(noteService.createNote(userId, req));
+  }
+
+  @PutMapping("/{id}")
+  public ApiResponse<NoteResponse> update(
+      @CurrentUserId String userId,
+      @PathVariable UUID id,
+      @RequestBody @Valid UpdateNoteRequest req) {
+    return ApiResponse.success(noteService.updateNote(userId, id, req));
+  }
+
+  @PatchMapping("/{id}/pin")
+  public ApiResponse<NoteResponse> togglePin(@CurrentUserId String userId, @PathVariable UUID id) {
+    return ApiResponse.success(noteService.togglePin(userId, id));
+  }
+
+  @PatchMapping("/{id}/favorite")
+  public ApiResponse<NoteResponse> toggleFavorite(
+      @CurrentUserId String userId, @PathVariable UUID id) {
+    return ApiResponse.success(noteService.toggleFavorite(userId, id));
+  }
+
+  @PatchMapping("/{id}/archive")
+  public ApiResponse<NoteResponse> archiveNote(
+      @CurrentUserId String userId, @PathVariable UUID id) {
+    return ApiResponse.success(noteService.archiveNote(userId, id));
+  }
+
+  @PatchMapping("/{id}/unarchive")
+  public ApiResponse<NoteResponse> unarchiveNote(
+      @CurrentUserId String userId, @PathVariable UUID id) {
+    return ApiResponse.success(noteService.unarchiveNote(userId, id));
+  }
+
+  @PatchMapping("/{id}/trash")
+  public ApiResponse<NoteResponse> moveToTrash(
+      @CurrentUserId String userId, @PathVariable UUID id) {
+    return ApiResponse.success(noteService.moveToTrash(userId, id));
+  }
+
+  @PatchMapping("/{id}/restore")
+  public ApiResponse<NoteResponse> restoreFromTrash(
+      @CurrentUserId String userId, @PathVariable UUID id) {
+    return ApiResponse.success(noteService.restoreFromTrash(userId, id));
+  }
+
+  @DeleteMapping("/{id}")
+  public ApiResponse<Object> delete(@CurrentUserId String userId, @PathVariable UUID id) {
+    noteService.deleteNotePermanent(userId, id);
+    return ApiResponse.success(null);
+  }
+
+  @DeleteMapping("/trash")
+  public ApiResponse<Object> emptyTrash(@CurrentUserId String userId) {
+    noteService.emptyTrash(userId);
+    return ApiResponse.success(null);
+  }
+
+  // ==================== BULK OPERATIONS ====================
+
+  @PatchMapping("/bulk/archive")
+  public ApiResponse<Integer> bulkArchive(
+      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
+    return ApiResponse.success(noteService.bulkArchive(userId, req.ids()));
+  }
+
+  @PatchMapping("/bulk/unarchive")
+  public ApiResponse<Integer> bulkUnarchive(
+      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
+    return ApiResponse.success(noteService.bulkUnarchive(userId, req.ids()));
+  }
+
+  @PatchMapping("/bulk/trash")
+  public ApiResponse<Integer> bulkTrash(
+      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
+    return ApiResponse.success(noteService.bulkTrash(userId, req.ids()));
+  }
+
+  @PatchMapping("/bulk/favorite")
+  public ApiResponse<Integer> bulkFavorite(
+      @CurrentUserId String userId,
+      @RequestParam(defaultValue = "true") boolean favorite,
+      @RequestBody @Valid BulkNoteRequest req) {
+    return ApiResponse.success(noteService.bulkFavorite(userId, req.ids(), favorite));
+  }
+
+  @PatchMapping("/bulk/restore")
+  public ApiResponse<Integer> bulkRestore(
+      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
+    return ApiResponse.success(noteService.bulkRestore(userId, req.ids()));
+  }
+
+  @DeleteMapping("/bulk")
+  public ApiResponse<Integer> bulkDeletePermanent(
+      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
+    return ApiResponse.success(noteService.bulkDeletePermanent(userId, req.ids()));
+  }
+}

@@ -1,4 +1,4 @@
-package com.synapse.notes.note;
+package com.synapse.notes.note.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,16 +35,12 @@ public class Note {
   private String userId;
 
   @Column
-  @Size(
-      max = MAX_TITLE_LENGTH,
-      message = "Title must not exceed " + MAX_TITLE_LENGTH + " characters")
+  @Size(max = MAX_TITLE_LENGTH)
   private String title;
 
   @Column(nullable = false, columnDefinition = "TEXT")
-  @NotBlank(message = "Content is required")
-  @Size(
-      max = MAX_CONTENT_LENGTH,
-      message = "Note content must not exceed " + MAX_CONTENT_LENGTH + " characters")
+  @NotBlank
+  @Size(max = MAX_CONTENT_LENGTH)
   private String content;
 
   @Builder.Default
@@ -63,10 +59,6 @@ public class Note {
   @Column(nullable = false)
   private boolean trashed = false;
 
-  /**
-   * Timestamp for when the note was moved to trash. Useful for scheduled jobs that permanently
-   * purge notes older than 30 days.
-   */
   private Instant trashedAt;
 
   @Builder.Default
@@ -76,4 +68,44 @@ public class Note {
   @Builder.Default
   @Column(nullable = false)
   private Instant updatedAt = Instant.now();
+
+  public void updateContent(String title, String content) {
+    this.title = title;
+    this.content = content;
+    this.updatedAt = Instant.now();
+  }
+
+  public void togglePin() {
+    this.pinned = !this.pinned;
+    this.updatedAt = Instant.now();
+  }
+
+  public void toggleFavorite() {
+    this.favorite = !this.favorite;
+    this.updatedAt = Instant.now();
+  }
+
+  public void archive() {
+    this.archived = true;
+    this.pinned = false;
+    this.updatedAt = Instant.now();
+  }
+
+  public void unarchive() {
+    this.archived = false;
+    this.updatedAt = Instant.now();
+  }
+
+  public void moveToTrash() {
+    this.trashed = true;
+    this.trashedAt = Instant.now();
+    this.pinned = false;
+    this.updatedAt = Instant.now();
+  }
+
+  public void restoreFromTrash() {
+    this.trashed = false;
+    this.trashedAt = null;
+    this.updatedAt = Instant.now();
+  }
 }

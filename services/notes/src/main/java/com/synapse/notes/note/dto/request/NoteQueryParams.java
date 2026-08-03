@@ -1,4 +1,4 @@
-package com.synapse.notes.note;
+package com.synapse.notes.note.dto.request;
 
 import com.synapse.notes.common.utils.SortSupport;
 import jakarta.validation.constraints.Max;

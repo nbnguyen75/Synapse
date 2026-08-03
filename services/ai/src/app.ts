@@ -1,8 +1,8 @@
 import { logger } from 'hono/logger';
 import { Hono } from 'hono';
 
+import { startNoteEventsConsumer, stopNoteEventsConsumer } from '@/embeddings';
 import { errorHandler, notFoundHandler } from '@/middleware/errors';
-import { startNoteEventsConsumer } from '@/embeddings';
 import { conversationRoute } from '@/conversation';
 import { generatorRoute } from '@/generator';
 import { settingsRoute } from '@/settings';
@@ -11,17 +11,6 @@ import { chatRoute } from '@/chat';
 const app = new Hono();
 
 app.use('*', logger());
-// app.use(
-// 	'*',
-// 	cors({
-// 		exposeHeaders: ['Content-Length', 'X-Conversation-Id'],
-// 		allowHeaders: ['Content-Type', 'Authorization'],
-// 		allowMethods: ['POST', 'GET', 'OPTIONS'],
-// 		origin: env.ORIGINS,
-// 		credentials: true,
-// 		maxAge: 600
-// 	})
-// );
 
 app.onError(errorHandler);
 app.notFound(notFoundHandler);
@@ -37,5 +26,24 @@ startNoteEventsConsumer().catch((err) => {
 	console.error('[app] Failed to start note events consumer', err);
 	process.exit(1);
 });
+
+// 2. Xử lý Graceful Shutdown khi nhận tín hiệu dừng từ hệ thống
+const handleShutdown = async (signal: string) => {
+	// eslint-disable-next-line no-console
+	console.log(`[app] Received ${signal}. Stopping note events consumer...`);
+	try {
+		await stopNoteEventsConsumer();
+		// eslint-disable-next-line no-console
+		console.log('[app] Consumer stopped successfully.');
+	} catch (err) {
+		console.error('[app] Error stopping consumer:', err);
+	} finally {
+		process.exit(0);
+	}
+};
+
+process.on('SIGINT', () => handleShutdown('SIGINT'));
+process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+process.on('SIGHUP', () => handleShutdown('SIGHUP'));
 
 export default app;

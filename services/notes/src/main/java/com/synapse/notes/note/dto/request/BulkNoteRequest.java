@@ -1,4 +1,4 @@
-package com.synapse.notes.note;
+package com.synapse.notes.note.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;

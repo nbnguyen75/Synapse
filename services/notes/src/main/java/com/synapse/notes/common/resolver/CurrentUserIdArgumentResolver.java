@@ -1,5 +1,6 @@
-package com.synapse.notes.common.annotation;
+package com.synapse.notes.common.resolver;
 
+import com.synapse.notes.common.annotation.CurrentUserId;
 import com.synapse.notes.common.exception.ApiException;
 import com.synapse.notes.common.exception.ErrorCode;
 import org.jspecify.annotations.Nullable;
