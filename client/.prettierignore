@@ -16,3 +16,9 @@ feature_list.json
 init.sh
 progress.md
 session-handoff.md
+.env*
+.gitignore
+.vscode
+.dockerignore
+.gitignore
+docs

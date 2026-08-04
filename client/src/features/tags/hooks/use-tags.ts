@@ -72,8 +72,8 @@ export function useTags() {
 
   const tagUsageCount = useMemo(() => {
     const count: Record<string, number> = {};
-    for (const note of notes) {
-    }
+    // for (const note of notes) {
+    // }
     return count;
   }, [notes]);
 

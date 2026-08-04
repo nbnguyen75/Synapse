@@ -68,7 +68,7 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
       const note = await getNote(noteId);
 
       return note;
-    } catch (error) {
+    } catch {
       console.error(`Note not found with id: ${noteId}`);
 
       throw redirect({ to: '/notes' });

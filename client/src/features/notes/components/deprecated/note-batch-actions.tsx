@@ -38,7 +38,7 @@ export function NoteBatchActions({
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const allNotes = queryClient.getQueryData<Note[]>(['notes']) || [];
+  const _allNotes = queryClient.getQueryData<Note[]>(['notes']) || [];
   // const allTags = useMemo(
   //   () => Array.from(new Set(allNotes.flatMap((n) => n.tags || []))),
   //   [allNotes],

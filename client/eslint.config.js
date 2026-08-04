@@ -1,25 +1,32 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import tseslint from 'typescript-eslint';
-import { defineConfig, globalIgnores } from 'eslint/config';
-import oxlint from 'eslint-plugin-oxlint';
-import perfectionist from 'eslint-plugin-perfectionist';
+import path from 'node:path';
+
+import { defineConfig, globalIgnores, includeIgnoreFile } from 'eslint/config';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import perfectionist from 'eslint-plugin-perfectionist';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import reactHooks from 'eslint-plugin-react-hooks';
+import oxlint from 'eslint-plugin-oxlint';
+import tseslint from 'typescript-eslint';
+import globals from 'globals';
+import js from '@eslint/js';
+import { glob } from 'glob';
+
+const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
+
+const gitignoreFiles = await glob('**/.gitignore', {
+  ignore: ['**/node_modules/**', 'docs/**', 'public/**'],
+  absolute: true,
+});
 
 export default defineConfig([
+  includeIgnoreFile([gitignorePath, ...gitignoreFiles], {
+    gitignoreResolution: true,
+  }),
   globalIgnores([
-    'dist',
-    'eslint.config.js',
-    'prettier.config.js',
+    '**/*.min.js',
     'public/*',
-    'src/routeTree.gen.ts',
     'README.md',
     'src/routeTree.gen.ts',
-    'project.inlang/**',
-    '!project.inlang/settings.json',
-    'src/paraglide/**',
     '.agents/**/scripts',
     '.claude/**/scripts',
     'AGENTS.md',
@@ -28,54 +35,31 @@ export default defineConfig([
     'progress.md',
     'session-handoff.md',
     '**/deprecated/**',
+    '.vscode/**',
+    '.gitignore',
+    '.env*',
+    '.prettierignore',
+    'bun.lock',
   ]),
   {
-    files: ['**/*.{ts,tsx,js,jsx}'],
     rules: {
-      'import/no-cycle': 'off',
-      'sort-imports': 'off',
-      'import/order': 'off',
-      'simple-import-sort/imports': 'off',
-      'no-empty': [
-        'warn',
-        {
-          allowEmptyCatch: true,
-        },
-      ],
-      'no-useless-assignment': 'warn',
-      '@typescript-eslint/array-type': 'warn',
-      '@typescript-eslint/require-await': 'warn',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/no-misused-promises': 'off',
-      '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/only-throw-error': [
         'error',
         {
-          allowThrowingAny: false,
-          allowThrowingUnknown: false,
           allow: [
             {
-              from: 'package',
               package: '@tanstack/router-core',
               name: 'Redirect',
+              from: 'package',
             },
             {
-              from: 'package',
               package: '@tanstack/router-core',
               name: 'NotFoundError',
+              from: 'package',
             },
           ],
-        },
-      ],
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-      '@typescript-eslint/restrict-template-expressions': [
-        'warn',
-        {
-          allowNumber: true,
-          allowBoolean: true,
-          allowAny: true,
+          allowThrowingUnknown: false,
+          allowThrowingAny: false,
         },
       ],
       '@typescript-eslint/no-unused-vars': [
@@ -86,9 +70,36 @@ export default defineConfig([
           varsIgnorePattern: '^_',
         },
       ],
+      '@typescript-eslint/restrict-template-expressions': [
+        'warn',
+        {
+          allowBoolean: true,
+          allowNumber: true,
+          allowAny: true,
+        },
+      ],
+      'no-empty': [
+        'warn',
+        {
+          allowEmptyCatch: true,
+        },
+      ],
+      '@typescript-eslint/no-unsafe-member-access': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
-      'no-undef': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'warn',
       'react-refresh/only-export-components': 'off',
+      '@typescript-eslint/require-await': 'warn',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/array-type': 'warn',
+      'simple-import-sort/imports': 'off',
+      'no-useless-assignment': 'warn',
+      'import/no-cycle': 'off',
+      'sort-imports': 'off',
+      'import/order': 'off',
+      'no-undef': 'off',
     },
     extends: [
       js.configs.recommended,
@@ -98,11 +109,12 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      globals: globals.browser,
       parserOptions: {
         projectService: true,
       },
+      globals: globals.browser,
     },
+    files: ['**/*.{ts,tsx,js,jsx}'],
   },
   {
     rules: {
@@ -119,8 +131,8 @@ export default defineConfig([
             {
               /* 2. TanStack Ecosystem */
               elementNamePattern: '^@tanstack.*$',
-              modifiers: ['value'],
               groupName: 'tanstack',
+              modifiers: ['value'],
             },
             {
               /* 3. Low-level UI Primitives */
@@ -167,8 +179,8 @@ export default defineConfig([
             {
               /* 10. Context Providers */
               elementNamePattern: '^@/providers/.*$',
-              modifiers: ['value'],
               groupName: 'providers',
+              modifiers: ['value'],
             },
             {
               /* 11. Configurations & Environment */
@@ -189,14 +201,14 @@ export default defineConfig([
             {
               /* 13. App Components (Loại trừ ui/ và ai-elements/) */
               elementNamePattern: '^@/components/(?!(ui|ai-elements)/).*$',
-              modifiers: ['value'],
               groupName: 'components',
+              modifiers: ['value'],
             },
             {
               /* 14. AI Elements Components */
               elementNamePattern: '^@/components/ai-elements/.*$',
-              modifiers: ['value'],
               groupName: 'ai-elements',
+              modifiers: ['value'],
             },
             {
               /* 15. UI Components (Shadcn/UI) */
@@ -275,7 +287,15 @@ export default defineConfig([
         { type: 'line-length', order: 'desc' },
       ],
     },
-    files: ['**/*.tsx', '**/*.jsx', '**/*.ts', '**/*.js'],
+    files: [
+      '**/*.tsx',
+      '**/*.jsx',
+      '**/*.ts',
+      '**/*.js',
+      'eslint.config.js',
+      'prettier.config.js',
+      'vite.config.ts',
+    ],
     plugins: {
       perfectionist,
     },

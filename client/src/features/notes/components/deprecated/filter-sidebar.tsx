@@ -34,7 +34,7 @@ export function FilterSidebar({
   const [tagsOpen, setTagsOpen] = useState(true);
 
   const activeNotes = notes.filter((n) => !n.archived);
-  const tagCount = allTags.reduce<Record<string, number>>((acc, tag) => {
+  const tagCount = allTags.reduce<Record<string, number>>((acc, _tag) => {
     // acc[tag] = notes.filter((n) => n.tags?.includes(tag)).length;
     return acc;
   }, {});

@@ -3,3 +3,8 @@ node_modules/
 bun.lock
 .husky
 drizzle
+.env*
+.gitignore
+.vscode
+.dockerignore
+.gitignore

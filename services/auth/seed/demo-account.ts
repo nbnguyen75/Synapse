@@ -14,11 +14,11 @@ async function seedDemoAccount() {
 		return;
 	}
 
-	// if (!DEMO_PASSWORD) {
-	// 	throw new Error(
-	// 		'[seed] DEMO_PASSWORD is not set — refusing to seed without an explicit password.'
-	// 	);
-	// }
+	if (!DEMO_PASSWORD.trim()) {
+		throw new Error(
+			'[seed] DEMO_PASSWORD is not set — refusing to seed without an explicit password.'
+		);
+	}
 
 	const existing = await db
 		.select({ id: user.id })

@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { defineConfig, includeIgnoreFile } from 'eslint/config';
+import { defineConfig, includeIgnoreFile, globalIgnores } from 'eslint/config';
 import perfectionist from 'eslint-plugin-perfectionist';
 import prettier from 'eslint-config-prettier';
 import baseConfig from '@hono/eslint-config';
@@ -13,6 +13,18 @@ const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
+	globalIgnores([
+		'drizzle/**',
+		'.vscode/**',
+		'**/*.min.js',
+		'.dockerignore',
+		'.gitignore',
+		'.env*',
+		'.prettierignore',
+		'README.md',
+		'bun.lock',
+		'Dockerfile',
+	]),
 	js.configs.recommended,
 	ts.configs.recommended,
 	prettier,
