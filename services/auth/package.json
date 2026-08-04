@@ -4,8 +4,8 @@
 		"*": "bun --bun check"
 	},
 	"scripts": {
-		"dev": "NODE_ENV=development bun run --port 5001 --hot src/app.ts",
-		"build": "bun build --production --outdir=dist --minify --target=node src/app.ts",
+		"dev": "NODE_ENV=development bun run --hot src/index.ts",
+		"build": "bun build --production --outdir=dist --minify --target=node src/index.ts",
 		"generate-auth-schema": "bun x --bun auth@latest generate --config src/auth/service.ts --output src/database/schema.ts --yes",
 		"lint": "oxlint . && eslint .",
 		"format": "prettier --list-different --write .",

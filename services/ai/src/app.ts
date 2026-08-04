@@ -8,9 +8,16 @@ import { generatorRoute } from '@/generator';
 import { settingsRoute } from '@/settings';
 import { chatRoute } from '@/chat';
 
+const SKIP_LOG_PATHS = ['/health', '/favicon.ico'];
+
 const app = new Hono();
 
-app.use('*', logger());
+app.use('*', async (c, next) => {
+	if (SKIP_LOG_PATHS.includes(c.req.path)) {
+		return next();
+	}
+	return logger()(c, next);
+});
 
 app.onError(errorHandler);
 app.notFound(notFoundHandler);

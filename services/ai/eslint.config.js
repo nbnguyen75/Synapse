@@ -23,7 +23,7 @@ export default defineConfig(
 		'.prettierignore',
 		'README.md',
 		'bun.lock',
-		'Dockerfile',
+		'Dockerfile'
 	]),
 	js.configs.recommended,
 	ts.configs.recommended,

@@ -15,6 +15,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    mem_limit: 512m
     networks:
       - synapse-net
 
@@ -30,6 +31,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    mem_limit: 512m
     networks:
       - synapse-net
 
@@ -78,6 +80,8 @@ services:
         condition: service_completed_successfully
       postgres:
         condition: service_healthy
+    mem_limit: 256m
+    mem_reservation: 96m
     networks:
       - synapse-net
 
@@ -114,6 +118,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    mem_limit: 512m
+    mem_reservation: 128m
     networks:
       - synapse-net
 
@@ -135,6 +141,8 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
+    mem_limit: 512m
+    mem_reservation: 256m
     networks:
       - synapse-net
 
@@ -143,7 +151,9 @@ services:
     container_name: synapse-kong
     restart: unless-stopped
     environment:
+      KONG_MEM_CACHE_SIZE: "32m"
       KONG_DATABASE: "off"
+      KONG_NGINX_WORKER_PROCESSES: "1"
       KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
@@ -156,6 +166,8 @@ services:
       - auth
       - notes
       - ai
+    mem_limit: 256m
+    mem_reservation: 128m
     networks:
       - synapse-net
 

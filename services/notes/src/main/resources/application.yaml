@@ -1,5 +1,9 @@
 server:
-  port: 8082
+  port: ${PORT:8082}
+  tomcat:
+    connection-timeout: ${TOMCAT_CONNECTION_TIMEOUT:20000}
+    threads:
+      max: ${TOMCAT_MAX_THREADS:200}
 
 spring:
   main:

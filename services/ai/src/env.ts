@@ -10,6 +10,7 @@ export const env = createEnv({
 			)
 			.optional()
 			.default([]),
+		TAVILY_API_KEY: z.string().optional(),
 		AUTH_JWKS_URL: z.url(),
 		DATABASE_URL: z.url(),
 		RABBITMQ_URL: z.url()

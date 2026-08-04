@@ -4,20 +4,16 @@ import { Hono } from 'hono';
 import { errorHandler, notFoundHandler } from '@/middleware/errors';
 import { auth } from '@/auth/service';
 
+const SKIP_LOG_PATHS = ['/health', '/favicon.ico'];
+
 const app = new Hono();
 
-app.use('*', logger());
-// app.use(
-// 	'*',
-// 	cors({
-// 		allowHeaders: ['Content-Type', 'Authorization'],
-// 		allowMethods: ['POST', 'GET', 'OPTIONS'],
-// 		exposeHeaders: ['Content-Length'],
-// 		origin: env.ORIGINS,
-// 		credentials: true,
-// 		maxAge: 600
-// 	})
-// );
+app.use('*', async (c, next) => {
+	if (SKIP_LOG_PATHS.includes(c.req.path)) {
+		return next();
+	}
+	return logger()(c, next);
+});
 
 app.onError(errorHandler);
 app.notFound(notFoundHandler);

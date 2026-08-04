@@ -1,7 +1,11 @@
+import type { MessageMetadata } from '@/database/schema';
+
 import {
 	convertToModelMessages,
 	createIdGenerator,
 	createUIMessageStreamResponse,
+	isStepCount,
+	smoothStream,
 	streamText,
 	toUIMessageStream
 } from 'ai';
@@ -11,12 +15,13 @@ import { Hono } from 'hono';
 import {
 	buildSystemPrompt,
 	extractQuestionText,
+	getChatTools,
 	prepareChatTurn,
-	retrieveRelevantNotes,
+	sanitizeMessages,
 	saveAssistantReply,
 	validateChatMessages
 } from '@/chat/services';
-import { CHAT_TEMPERATURE, MAX_QUESTION_LENGTH } from '@/chat/constants';
+import { CHAT_TEMPERATURE, MAX_QUESTION_LENGTH, RECENT_HISTORY_LIMIT } from '@/chat/constants';
 import { throwFromReason, ValidationError } from '@/lib/errors';
 import { getUserSettings, MAX_OUTPUT_TOKENS } from '@/settings';
 import { authJwksMiddleware } from '@/middleware/auth';
@@ -46,17 +51,29 @@ const chatRoute = new Hono()
 
 		const { conversation, history } = turnResult.data;
 		const settings = await getUserSettings(userId);
-		const relevantNotes = await retrieveRelevantNotes(userId, question);
-		const systemPrompt = await buildSystemPrompt(settings, relevantNotes);
 
-		const recentHistory = history.slice(-15);
-		const allMessages = [...recentHistory, lastUserMessage].filter((m) => m.role !== 'system');
+		const systemPrompt = buildSystemPrompt(settings, lastUserMessage.metadata as MessageMetadata);
+
+		const recentHistory = history.slice(RECENT_HISTORY_LIMIT);
+		const rawMessages = [...recentHistory, lastUserMessage].filter((m) => m.role !== 'system');
+
+    const cleanMessages = sanitizeMessages(rawMessages);
 
 		const result = streamText({
+      // ! Chunking not work well with Vietnamese https://ai-sdk.dev/docs/reference/ai-sdk-core/smooth-stream#word-chunking-caveats-with-non-latin-languages
+			experimental_transform: smoothStream({
+				chunking: 'word',
+				delayInMs: 15
+			}),
+			onError: ({ error }) => {
+				console.error('[Chat streamText error]:', error);
+			},
 			maxOutputTokens: MAX_OUTPUT_TOKENS[settings.responseLength],
-			messages: await convertToModelMessages(allMessages),
+			messages: await convertToModelMessages(cleanMessages),
+			tools: getChatTools(userId, conversation.id),
 			temperature: CHAT_TEMPERATURE,
 			instructions: systemPrompt,
+			stopWhen: isStepCount(5),
 			model: chatModel
 		});
 
@@ -66,6 +83,18 @@ const chatRoute = new Hono()
 					const assistantMsg = messages.at(-1);
 					if (assistantMsg?.role === 'assistant') {
 						await saveAssistantReply(conversation.id, assistantMsg);
+
+						const usage = await result.usage;
+
+						await saveAssistantReply(conversation.id, assistantMsg, {
+							tokens: {
+								outputTokens: usage.outputTokens,
+								inputTokens: usage.inputTokens,
+								totalTokens: usage.totalTokens
+							},
+							responseLength: settings.responseLength,
+							model: chatModel.modelId
+						});
 					}
 				} catch (error) {
 					console.error('[Save Assistant Reply Failed]:', error);

@@ -42,6 +42,17 @@ export const conversations = pgTable(
 	(t) => [d.index('conversations_user_id_idx').on(t.userId)]
 );
 
+export type MessageMetadata = {
+	tokens?: { outputTokens?: number; inputTokens?: number; totalTokens?: number };
+	responseLength?: 'balanced' | 'detailed' | 'short';
+	timezoneOffset?: number;
+	[key: string]: unknown;
+	createdAt?: number;
+	timeZone?: string;
+	locale?: string;
+	model?: string;
+};
+
 export const messages = pgTable(
 	'messages',
 	{
@@ -50,10 +61,10 @@ export const messages = pgTable(
 			.notNull()
 			.references(() => conversations.id, { onDelete: 'cascade' }),
 		createdAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
+		metadata: d.jsonb().$type<MessageMetadata>(),
 		id: d.uuid().primaryKey().defaultRandom(),
 		parts: d.jsonb().notNull(),
-		role: roleEnum().notNull(),
-		metadata: d.jsonb()
+		role: roleEnum().notNull()
 	},
 	(t) => [d.index('messages_conversation_id_idx').on(t.conversationId)]
 );

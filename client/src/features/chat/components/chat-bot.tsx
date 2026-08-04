@@ -41,6 +41,7 @@ import {
 import {
   Conversation,
   ConversationContent,
+  ConversationEmptyState,
   ConversationScrollButton,
 } from '@/components/ai-elements/conversation';
 import {
@@ -182,29 +183,34 @@ export default function ChatBot({
           <ConversationScrollButton />
         </Conversation>
       ) : (
-        <div className="flex flex-1 flex-col items-center justify-center gap-8 p-8">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-              <SparklesIcon className="size-5" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-sm font-medium">{m.chat_agent_name()}</h3>
-              <p className="text-muted-foreground text-sm">
-                {m.chat_agent_desc()}
-              </p>
-            </div>
-          </div>
-          <div className="flex max-w-xl flex-wrap items-center justify-center gap-2">
-            {suggestions.map((suggestion) => (
-              <Suggestion
-                className="text-foreground/70 hover:text-foreground"
-                key={suggestion}
-                onClick={handleSuggestionClick}
-                suggestion={suggestion}
-              />
-            ))}
-          </div>
-        </div>
+        <ConversationEmptyState
+          description={m.chat_agent_desc()}
+          icon={<SparklesIcon className="size-5" />}
+          title="Synapse AI"
+        />
+        // <div className="flex flex-1 flex-col items-center justify-center gap-8 p-8">
+        //   <div className="flex flex-col items-center gap-3 text-center">
+        //     <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+        //       <SparklesIcon className="size-5" />
+        //     </div>
+        //     <div className="space-y-1">
+        //       <h3 className="text-sm font-medium">{m.chat_agent_name()}</h3>
+        //       <p className="text-muted-foreground text-sm">
+        //         {m.chat_agent_desc()}
+        //       </p>
+        //     </div>
+        //   </div>
+        //   <div className="flex max-w-xl flex-wrap items-center justify-center gap-2">
+        //     {suggestions.map((suggestion) => (
+        //       <Suggestion
+        //         className="text-foreground/70 hover:text-foreground"
+        //         key={suggestion}
+        //         onClick={handleSuggestionClick}
+        //         suggestion={suggestion}
+        //       />
+        //     ))}
+        //   </div>
+        // </div>
       )}
 
       <div className="shrink-0 px-4 py-5">
@@ -338,7 +344,11 @@ function MessageView({ isStreaming, message }: MessageViewProps) {
         </Sources>
       )}
       {reasoningParts.map((part, index) => (
-        <Reasoning key={index} isStreaming={part.state === 'streaming'}>
+        <Reasoning
+          defaultOpen={false}
+          key={index}
+          isStreaming={part.state === 'streaming'}
+        >
           <ReasoningTrigger />
           <ReasoningContent>{part.text}</ReasoningContent>
         </Reasoning>

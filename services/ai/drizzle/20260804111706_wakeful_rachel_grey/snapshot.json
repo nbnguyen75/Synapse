@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "e1984edf-be1a-4dd3-8dce-1a7c6d877b4e",
+  "id": "87217ece-c347-4e35-a5c0-ec1f4a28012f",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -169,6 +169,19 @@
       "table": "messages"
     },
     {
+      "type": "jsonb",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "metadata",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "messages"
+    },
+    {
       "type": "uuid",
       "typeSchema": null,
       "notNull": true,
@@ -203,19 +216,6 @@
       "generated": null,
       "identity": null,
       "name": "role",
-      "entityType": "columns",
-      "schema": "public",
-      "table": "messages"
-    },
-    {
-      "type": "jsonb",
-      "typeSchema": null,
-      "notNull": false,
-      "dimensions": 0,
-      "default": null,
-      "generated": null,
-      "identity": null,
-      "name": "metadata",
       "entityType": "columns",
       "schema": "public",
       "table": "messages"
@@ -275,9 +275,22 @@
     {
       "type": "timestamp with time zone",
       "typeSchema": null,
-      "notNull": true,
+      "notNull": false,
       "dimensions": 0,
-      "default": "now()",
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "notes"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
       "generated": null,
       "identity": null,
       "name": "updated_at",

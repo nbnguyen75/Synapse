@@ -8,12 +8,26 @@ import { authClient } from '@/lib/auth';
 
 const CHAT_ENDPOINT = `${env.VITE_API_URL}/api/v1/ai`;
 
+export function getDefaultMessageMetadata() {
+  if (typeof window === 'undefined') {
+    return { createdAt: Date.now() };
+  }
+
+  return {
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    timezoneOffset: new Date().getTimezoneOffset(),
+    locale: navigator.language,
+    createdAt: Date.now(),
+  };
+}
+
 export class SynapseChatTransport extends DefaultChatTransport<UIMessage> {
   private conversationId: string | undefined;
 
   constructor(
     initialConversationId: string | undefined,
     onConversationId?: (conversationId: string) => void,
+    getExtraMetadata?: () => Record<string, unknown>,
   ) {
     super({
       prepareSendMessagesRequest: async ({ messages }) => {
@@ -32,10 +46,19 @@ export class SynapseChatTransport extends DefaultChatTransport<UIMessage> {
           headers.Authorization = `Bearer ${data.token}`;
         }
 
+        const messageWithMetadata = {
+          ...lastUserMessage,
+          metadata: {
+            ...getDefaultMessageMetadata(),
+            ...lastUserMessage.metadata,
+            ...(getExtraMetadata ? getExtraMetadata() : {}),
+          },
+        };
+
         return {
           body: {
             conversationId: this.conversationId,
-            message: lastUserMessage,
+            message: messageWithMetadata,
           },
           headers,
         };

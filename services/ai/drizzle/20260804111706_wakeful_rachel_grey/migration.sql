@@ -13,10 +13,10 @@ CREATE TABLE "conversations" (
 CREATE TABLE "messages" (
 	"conversation_id" uuid NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"metadata" jsonb,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 	"parts" jsonb NOT NULL,
-	"role" "message_role" NOT NULL,
-	"metadata" jsonb
+	"role" "message_role" NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "note_embeddings" (
@@ -27,7 +27,8 @@ CREATE TABLE "note_embeddings" (
 );
 --> statement-breakpoint
 CREATE TABLE "notes" (
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"created_at" timestamp with time zone,
+	"updated_at" timestamp with time zone,
 	"trashed" boolean DEFAULT false NOT NULL,
 	"content" text NOT NULL,
 	"user_id" text NOT NULL,
