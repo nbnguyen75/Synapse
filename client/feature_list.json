@@ -296,13 +296,21 @@
             "status": "done",
             "evidence": "src/features/chat/components/chat-bot.tsx (SHOW_MODEL_SELECTOR), src/features/settings/hooks/use-ai-settings.ts (useQuery+useMutation+rollback), src/features/settings/components/companion-tab.tsx (error toast + custom-preset guard), src/features/chat/hooks/use-conversations.ts (useQuery), src/features/chat/components/chat-page.tsx (fetchQuery), src/features/notes/hooks/use-note-mutation.ts (useGenerateNoteTitleMutation), src/routes/_app/notes/create.tsx, src/routes/_app/notes/$noteId.tsx, messages/en.json, messages/vi.json (settings_page_save_failed)"
          },
-         {
-            "id": "feat-038",
-            "name": "AI Thinking Indicator",
-            "description": "In-conversation 'thinking' indicator for the chat: when a user submits and the assistant response has no content yet (status submitted, or assistant message with zero parts), render an assistant bubble with Shimmer 'Thinking…' (chat_thinking key, en/vi). Reuses the existing Shimmer pattern from Reasoning; auto-disappears when the first streamed part arrives (reasoning/text), on stop, or on error. Pure additive UI in chat-bot.tsx — no changes to transport/session/remount logic. Also unblocks build: deprecated quick-create-note-dialog cast payload to NoteCreateFormValues (noteCreateFormSchema.content is now required min(10), breaking NoteFormValues assignability).",
-            "dependencies": ["feat-006", "feat-037"],
-            "status": "done",
-            "evidence": "src/features/chat/components/chat-bot.tsx (isAwaitingResponse + Shimmer bubble), src/components/ai-elements/shimmer.tsx, src/features/notes/components/deprecated/quick-create-note-dialog.tsx (payload cast), messages/en.json, messages/vi.json (chat_thinking)"
-         }
-     ]
- }
+          {
+             "id": "feat-038",
+             "name": "AI Thinking Indicator",
+             "description": "In-conversation 'thinking' indicator for the chat: when a user submits and the assistant response has no content yet (status submitted, or assistant message with zero parts), render an assistant bubble with Shimmer 'Thinking…' (chat_thinking key, en/vi). Reuses the existing Shimmer pattern from Reasoning; auto-disappears when the first streamed part arrives (reasoning/text), on stop, or on error. Pure additive UI in chat-bot.tsx — no changes to transport/session/remount logic. Also unblocks build: deprecated quick-create-note-dialog cast payload to NoteCreateFormValues (noteCreateFormSchema.content is now required min(10), breaking NoteFormValues assignability).",
+             "dependencies": ["feat-006", "feat-037"],
+             "status": "done",
+             "evidence": "src/features/chat/components/chat-bot.tsx (isAwaitingResponse + Shimmer bubble), src/components/ai-elements/shimmer.tsx, src/features/notes/components/deprecated/quick-create-note-dialog.tsx (payload cast), messages/en.json, messages/vi.json (chat_thinking)"
+          },
+          {
+             "id": "feat-039",
+             "name": "Settings Page i18n + Companion Option Label Fix + Orphan Key Cleanup",
+             "description": "Full translation pass over the restructured settings feature. companion-settings-page.tsx: all 13 hardcoded Vietnamese strings replaced with m.*() (bot name label/placeholder, response length, language, preset, use-emoji label+desc, custom instructions label+placeholder, save button). use-companion-settings.ts toasts now use existing settings_page_toast_saved / settings_page_save_failed keys. settings.tsx route title createTitle('Settings') → createTitle(m.settings_page_title()). constants.ts bug fix: response-length and language dropdown options all pointed at the same message key (identical labels x3); refactored to RULES.md-compliant data-only config + literal getters getResponseLengthLabel/getPresetLabel/getLanguageLabel. New i18n: 12 keys (placeholders x5, use_emoji_desc, response_length_short/balanced/detailed, language_vi/en/auto). Deleted 11 orphaned keys from old removed templates tab / old companion tab (settings_page_tab_templates, settings_page_companion_saving, settings_page_companion_persona_custom, settings_page_template_create, settings_page_toast_avatar_invalid, settings_companion_reset_default, settings_templates_* x5); KEPT settings_page_template_name/description/title_pattern/content because deprecated/template-selector.tsx still references them. en/vi parity 585/585. Also fixed pre-existing build break (user commit 3315f0b): chat-transport.ts spread of UIMessage.metadata (typed unknown) — added type-only cast (Record<string, unknown> | undefined), zero runtime change.",
+             "dependencies": ["feat-007", "feat-008", "feat-036"],
+             "status": "done",
+             "evidence": "src/features/settings/components/companion-settings-page.tsx, src/features/settings/components/general-settings-page.tsx (already i18n'd), src/features/settings/hooks/use-companion-settings.ts, src/features/settings/constants.ts (getters), src/routes/_app/settings.tsx (createTitle), src/features/chat/lib/chat-transport.ts (metadata cast), messages/en.json, messages/vi.json (585 keys each)"
+          }
+      ]
+  }

@@ -31,7 +31,7 @@ import { chatModel } from '@/lib/ai';
 
 const chatRoute = new Hono()
 	.use(authJwksMiddleware)
-	.post('', zValidator('json', chatRequestSchema), async (c) => {
+	.post('/', zValidator('json', chatRequestSchema), async (c) => {
 		const userId = c.get('userId');
 		const body = c.req.valid('json');
 

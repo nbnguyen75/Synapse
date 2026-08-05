@@ -53,10 +53,6 @@ export function getSortItems(): {
   ];
 }
 
-export function formatDate(dateStr: string): string {
-  return format(new Date(dateStr), 'MMM d, yyyy');
-}
-
 export function getSortOptionLabel(key: string): string {
   switch (key) {
     case 'updated':
@@ -77,3 +73,5 @@ export function getSortOptionLabel(key: string): string {
       return key;
   }
 }
+
+export const MAX_NOTE_CONTENT_LENGTH = 1500;

@@ -61,33 +61,3 @@ export async function getConversationMessages(
 
   return result.data;
 }
-
-export async function getAiSettings(): Promise<AiSettingsResponse> {
-  const result = await $fetch<ApiResponse<AiSettingsResponse>>(
-    '/api/v1/ai/settings',
-    {
-      method: 'GET',
-    },
-  );
-
-  if (!result.success) {
-    throw new Error(result.message);
-  }
-
-  return result.data;
-}
-
-export async function updateAiSettings(
-  settings: AiSettings,
-): Promise<AiSettings> {
-  const result = await $fetch<ApiResponse<AiSettings>>('/api/v1/ai/settings', {
-    body: settings,
-    method: 'PUT',
-  });
-
-  if (!result.success) {
-    throw new Error(result.message);
-  }
-
-  return result.data;
-}

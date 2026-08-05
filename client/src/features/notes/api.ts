@@ -6,7 +6,10 @@ import type {
 import type { ApiResponse, PaginatedApiResponse } from '@/types/shared';
 import type { Note } from '@/features/notes/types';
 
-import { EMPTY_PAGINATED } from '@/features/notes/constants';
+import {
+  EMPTY_PAGINATED,
+  MAX_NOTE_CONTENT_LENGTH,
+} from '@/features/notes/constants';
 
 import { $fetch } from '@/lib/fetch';
 
@@ -69,8 +72,6 @@ export async function updateNote(id: string, updateNoteData: NoteFormValues) {
 
   return result.data;
 }
-
-const MAX_NOTE_CONTENT_LENGTH = 1500;
 
 export async function generateNoteTitle(content: string) {
   const result = await $fetch<ApiResponse<{ title: string }>>(

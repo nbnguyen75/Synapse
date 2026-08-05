@@ -2,11 +2,23 @@
 
 ## Current State
 
-**Last Updated:** 2026-08-02
-**Session ID:** client-sync-staged-backend-ai-title
-**Active Feature:** Client sync with staged backend (botName setting + AI note title generation) — done; Copilot→Companion rename — done; messages i18n corruption recovery + auth-error-key restoration — done; feat-037 (hide model selector + TanStack Query sweep + companion save fix) — done; feat-038 (AI thinking indicator) — done
+**Last Updated:** 2026-08-05
+**Session ID:** settings-page-i18n-pass
+**Active Feature:** Settings page i18n pass (companion settings page + toasts + route title + companion option label fix + orphan cleanup) — done; pre-existing build break in chat-transport.ts (user commit 3315f0b) fixed with type-only cast — done
 
 ## Status
+
+### What's Done (feat-039 — Settings page i18n + option label fix + orphan cleanup)
+
+- [x] **companion-settings-page.tsx** — all 13 hardcoded Vietnamese strings replaced with `m.*()`: bot name label/placeholder, response length label/placeholder, language label/placeholder, use-emoji label + description, preset label/placeholder, custom instructions label/placeholder, save button (`settings_page_companion_save`). Reused orphaned keys where wording matched; updated 3 key values to match the current UI (bot_name → "Assistant name"/"Tên trợ lý", use_emoji → "Use emoji"/"Sử dụng emoji", preset → "Response style"/"Phong cách phản hồi", companion_save → "Save"/"Lưu").
+- [x] **constants.ts bug fix** — response-length options (short/balanced/detailed) and language options (vi/en/auto) all pointed at the SAME key (`settings_companion_response_length` / `settings_companion_language`) → dropdowns rendered the identical label 3×. Refactored to RULES.md-compliant shape: three option Maps deleted, config stays data-only (arrays `COMPANION_SETTINGS_RESPONSE_LENGTH/PRESETS/LANGUAGES`), labels resolved via literal-switch getters `getResponseLengthLabel` / `getPresetLabel` / `getLanguageLabel` (default fallback per `getSortOptionLabel`). Page renders options by mapping arrays + getters.
+- [x] **use-companion-settings.ts** — toasts now i18n'd: `toast.success(m.settings_page_toast_saved())`, `toast.error(m.settings_page_save_failed())` (both keys already existed).
+- [x] **settings.tsx route** — `createTitle('Settings')` → `createTitle(m.settings_page_title())` (only route with a hardcoded title; all 8 others already used `m.*()`).
+- [x] **New i18n keys (12 × en/vi)** — placeholders ×5 (`bot_name`, `response_length`, `language`, `preset`, `custom_instructions`), `use_emoji_desc`, `response_length_short|balanced|detailed`, `language_vi|en|auto`. Parity 585/585, 0/0.
+- [x] **Orphan key cleanup (11 deleted)** — `settings_page_tab_templates`, `settings_page_companion_saving`, `settings_page_companion_persona_custom`, `settings_page_template_create`, `settings_page_toast_avatar_invalid`, `settings_companion_reset_default`, `settings_templates_predefined|edit_title|cancel|save|delete`. **KEPT** `settings_page_template_name/description/title_pattern/content` — deprecated `template-selector.tsx` still calls them (per "never delete deprecated-file references").
+- [x] **Pre-existing build break fixed** — `chat-transport.ts:53` `...lastUserMessage.metadata` failed `tsc -b` (TS2698, `UIMessage.metadata?: unknown` in ai@7.0.47). Introduced by user commit 3315f0b (RAG→tool-calling), was never caught (build disabled in init.sh). Fixed with a type-only cast `...(lastUserMessage.metadata as Record<string, unknown> | undefined)` — zero runtime change.
+- [x] **Verification** — `bun --bun run generate-translation` ✓ (585 keys en+vi, parity 0/0), `bun --bun check` ✓ exit 0 (pre-existing warnings only), `bun --bun run build` (tsc -b + vite) ✓ built in 21.51s.
+- [x] **Artifacts** — `feature_list.json` feat-039 done (39 feats, valid JSON); no commit (user manages).
 
 ### What's Done (feat-038 — AI thinking indicator)
 

@@ -50,7 +50,8 @@ export class SynapseChatTransport extends DefaultChatTransport<UIMessage> {
           ...lastUserMessage,
           metadata: {
             ...getDefaultMessageMetadata(),
-            ...lastUserMessage.metadata,
+            ...(lastUserMessage.metadata as
+              Record<string, unknown> | undefined),
             ...(getExtraMetadata ? getExtraMetadata() : {}),
           },
         };

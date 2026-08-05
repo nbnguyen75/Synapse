@@ -3,12 +3,14 @@ import type { Note } from '@/features/notes/types';
 
 import { useCallback, useRef } from 'react';
 
+import { format } from 'date-fns';
+
 import {
   countWordsMarkdownSync,
   exportMarkdown,
   getMarkdownReadTimeSync,
 } from '@/features/notes/services';
-import { formatDate, MAX_VISIBLE_TAGS } from '@/features/notes/constants';
+import { MAX_VISIBLE_TAGS } from '@/features/notes/constants';
 
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
@@ -303,7 +305,7 @@ export default function NoteCard({
               className="gap-1 font-normal text-[10px] px-2 py-0 h-5 bg-muted/60 hover:bg-muted text-muted-foreground border-none transition-all duration-200 hover:scale-[1.02]"
             >
               <CalendarIcon className="size-2.5 text-muted-foreground/80 transition-transform duration-200 group-hover:scale-110" />
-              {formatDate(note.updatedAt)}
+              {format(new Date(note.updatedAt), 'MMM d, yyyy HH:mm')}
             </Badge>
           </div>
         </CardHeader>

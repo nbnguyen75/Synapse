@@ -14,7 +14,7 @@ import { ok } from '@/middleware/responses';
 const conversationRoute = new Hono()
 	.use(authJwksMiddleware)
 	.basePath('/conversations')
-	.get('', async (c) => {
+	.get('/', async (c) => {
 		const rows = await listConversations(c.get('userId'));
 
 		return ok(c, rows);

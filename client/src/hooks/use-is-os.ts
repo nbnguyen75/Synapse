@@ -20,8 +20,6 @@ export function useIsMac() {
   return isMac;
 }
 
-('use client');
-
 export type OperatingSystem =
   'macOS' | 'Windows' | 'Linux' | 'iOS' | 'Android' | 'Unknown';
 

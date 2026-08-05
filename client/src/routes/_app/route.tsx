@@ -101,11 +101,11 @@ function AppLayout() {
                 <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
                   <AppTopHeader />
 
-                  <main className="overflow-hidden flex-1 p-3">
-                    <ConfirmProvider>
+                  <ConfirmProvider>
+                    <main className="overflow-y-auto min-h-0 flex-1 p-3">
                       <Outlet />
-                    </ConfirmProvider>
-                  </main>
+                    </main>
+                  </ConfirmProvider>
                 </ResizablePanel>
 
                 <ResizableHandle withHandle />

@@ -24,10 +24,10 @@ app.notFound(notFoundHandler);
 
 app.get('/health', (c) => c.json({ status: 'ok' }));
 
-app.route('/', chatRoute);
 app.route('/', conversationRoute);
 app.route('/', settingsRoute);
 app.route('/', generatorRoute);
+app.route('/', chatRoute);
 
 startNoteEventsConsumer().catch((err) => {
 	console.error('[app] Failed to start note events consumer', err);

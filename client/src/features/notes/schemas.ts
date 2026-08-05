@@ -29,7 +29,7 @@ export type NoteFormValues = z.infer<typeof noteFormSchema>;
 
 export const noteCreateFormSchema = z.object({
   title: z.string().max(200).optional(),
-  content: z.string().min(10).max(1500),
+  content: z.string().min(1).max(1500),
 });
 
 export type NoteCreateFormValues = z.infer<typeof noteCreateFormSchema>;
