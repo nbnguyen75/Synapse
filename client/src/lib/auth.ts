@@ -123,6 +123,6 @@ export function getTranslatedAuthErrorMessage(code: AuthErrorCode) {
     case 'PASSWORD_ALREADY_SET':
       return m.auth_error_code_PASSWORD_ALREADY_SET();
     default:
-      return m.auth_error_code_VALIDATION_ERROR();
+      return m.auth_invalid_credentials();
   }
 }

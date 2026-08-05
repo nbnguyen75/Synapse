@@ -12,8 +12,6 @@ import { useSession } from '@/lib/auth';
 
 import { DefaultLoaderPage, ErrorPage } from '@/components/app/pages';
 
-import { Toaster } from '@/components/ui/sonner';
-
 import { ThemeProvider } from '@/providers';
 
 const queryClient = new QueryClient({
@@ -70,8 +68,6 @@ if (!rootElement.innerHTML) {
       <ThemeProvider defaultTheme="system" storageKey="synapse-app-theme">
         <QueryClientProvider client={queryClient}>
           <InnerApp />
-
-          <Toaster richColors theme="light" closeButton position="top-center" />
         </QueryClientProvider>
       </ThemeProvider>
     </StrictMode>,

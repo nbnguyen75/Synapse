@@ -14,6 +14,8 @@ import { env } from '@/config/env';
 
 import { DefaultLoaderPage } from '@/components/app/pages';
 
+import { Toaster } from '@/components/ui/sonner';
+
 import appCss from '@/assets/styles.css?url';
 
 interface RouterContext {
@@ -50,7 +52,10 @@ function RootLayout() {
   return (
     <>
       <HeadContent />
+
       <Outlet />
+
+      <Toaster richColors theme="light" closeButton position="top-center" />
 
       <TanStackDevtools
         config={{

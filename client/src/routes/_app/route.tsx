@@ -44,6 +44,7 @@ export const Route = createFileRoute('/_app')({
       });
     }
   },
+  preloadStaleTime: 1000 * 60 * 5,
   component: AppLayout,
 });
 
@@ -92,7 +93,7 @@ function AppLayout() {
           </SidebarManager>
 
           <SidebarInset>
-            <SidebarProvider defaultOpen={false}>
+            <SidebarProvider>
               <ResizablePanelGroup
                 orientation="horizontal"
                 className="overflow-hidden max-h-svh"

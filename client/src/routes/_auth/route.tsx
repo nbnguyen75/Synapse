@@ -1,20 +1,31 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
-import AuthLayout from '@/components/layouts/auth-layout';
-
 export const Route = createFileRoute('/_auth')({
   beforeLoad: ({ context }) => {
     if (context.auth.isAuthenticated) {
       throw redirect({ to: '/notes' });
     }
   },
+  preloadStaleTime: 1000 * 60 * 5,
   component: RouteComponent,
 });
 
 function RouteComponent() {
   return (
-    <AuthLayout>
-      <Outlet />
-    </AuthLayout>
+    <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12 transition-colors duration-300">
+      <div className="w-full max-w-95 flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="mb-4 flex h-10 w-10 items-center justify-center">
+          <img
+            src="/images/logo.png"
+            className="rounded-md"
+            alt=""
+            width={40}
+            height={40}
+          />
+        </div>
+
+        <Outlet />
+      </div>
+    </div>
   );
 }

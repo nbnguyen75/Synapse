@@ -42,7 +42,7 @@ export const useSettingsStore = create<AppSettingsState>()(
         open: true,
       },
       rightSidebar: {
-        open: true,
+        open: false,
       },
       layoutMode: 'servant',
     }),
