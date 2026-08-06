@@ -24,8 +24,8 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
         AND (:favorite IS NULL OR n.favorite = :favorite)
         AND (
           :q IS NULL OR :q = '' OR
-          LOWER(n.title) LIKE LOWER(CONCAT('%', :q, '%')) OR
-          LOWER(n.content) LIKE LOWER(CONCAT('%', :q, '%'))
+          LOWER(FUNCTION('unaccent', n.title)) LIKE LOWER(CONCAT('%', FUNCTION('unaccent', :q), '%')) OR
+          LOWER(FUNCTION('unaccent', n.content)) LIKE LOWER(CONCAT('%', FUNCTION('unaccent', :q), '%'))
         )
       """)
   Page<Note> findNotes(
@@ -42,15 +42,15 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
 
   List<Note> findByUserId(String userId);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query("DELETE FROM Note n WHERE n.userId = :userId AND n.trashed = true")
   void deleteAllTrashedByUserId(@Param("userId") String userId);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query("DELETE FROM Note n WHERE n.trashed = true AND n.trashedAt < :cutoff")
   void deleteExpiredTrashedNotes(@Param("cutoff") Instant cutoff);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query(
       """
       UPDATE Note n
@@ -62,7 +62,7 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
       @Param("ids") Collection<UUID> ids,
       @Param("now") Instant now);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query(
       """
       UPDATE Note n
@@ -74,7 +74,7 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
       @Param("ids") Collection<UUID> ids,
       @Param("now") Instant now);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query(
       """
       UPDATE Note n
@@ -86,7 +86,7 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
       @Param("ids") Collection<UUID> ids,
       @Param("now") Instant now);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query(
       """
       UPDATE Note n
@@ -98,11 +98,11 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
       @Param("ids") Collection<UUID> ids,
       @Param("now") Instant now);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query("DELETE FROM Note n WHERE n.userId = :userId AND n.id IN :ids")
   int bulkDeletePermanent(@Param("userId") String userId, @Param("ids") Collection<UUID> ids);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query(
       """
       UPDATE Note n

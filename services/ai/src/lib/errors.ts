@@ -50,8 +50,3 @@ export class ConflictError extends AppError {
 		super('CONFLICT', message, StatusCodes.CONFLICT);
 	}
 }
-
-export function throwFromReason(reason: 'forbidden' | 'not_found', resource = 'Resource'): never {
-	if (reason === 'not_found') throw new NotFoundError(resource);
-	throw new ForbiddenError();
-}

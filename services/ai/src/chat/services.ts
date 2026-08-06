@@ -9,10 +9,7 @@ import {
 } from '@/chat/tools';
 import { appendMessage, getOrCreateConversation, loadHistory } from '@/conversation';
 import { buildSystemInstruction, type UserAiSettings } from '@/settings';
-import { RAG_SIMILARITY_THRESHOLD, RAG_TOP_K } from '@/chat/constants';
-import { findTopKSimilarNotes } from '@/chat/repository';
-import { dataPartSchema } from '@/chat/schemas';
-import { embedText } from '@/lib/ai';
+import { dataPartSchema, messageMetadataSchema } from '@/chat/schemas';
 
 export function getChatTools(userId: string, conversationId: string) {
 	return {
@@ -25,6 +22,7 @@ export function getChatTools(userId: string, conversationId: string) {
 export async function validateChatMessages(message: unknown) {
 	return safeValidateUIMessages({
 		dataSchemas: { note_sources: dataPartSchema },
+		metadataSchema: messageMetadataSchema,
 		messages: [message]
 	});
 }
@@ -36,27 +34,14 @@ export function extractQuestionText(message: UIMessage): string {
 		.join(' ');
 }
 
-/**
- * @deprecated
- * @param userId
- * @param question
- * @returns
- */
-export async function retrieveRelevantNotes(userId: string, question: string) {
-	const queryEmbedding = await embedText(question);
-	const results = await findTopKSimilarNotes(userId, queryEmbedding, RAG_TOP_K);
-	return results.filter((r) => r.similarity > RAG_SIMILARITY_THRESHOLD);
-}
-
 function getResponseLengthInstruction(length: 'balanced' | 'detailed' | 'short'): string {
 	switch (length) {
 		case 'short':
-			return `- **Độ dài**: Trả lời CỰC KỲ NGẮN GỌN (tối đa 2-3 câu, khoảng 100 từ). Đi thẳng vào kết quả.`;
+			return `- **Độ dài**: Ngắn gọn (tối đa 2-3 câu). Trả lời trực tiếp vào trọng tâm.`;
 		case 'balanced':
-			return `- **Độ dài**: Trả lời CÔ ĐỌNG, VỪA PHẢI (tối đa khoảng 250 - 300 từ). 
-- **Cách trình bày**: Dùng các dấu gạch đầu dòng ngắn gọn. Hãy tóm tắt các ý chính và TỰ KẾT THÚC CÂU HOÀN CHỈNH, tuyệt đối không viết bài quá dài dẫn đến bị ngắt câu.`;
+			return `- **Độ dài**: Vừa phải (dưới 250 từ). Trình bày tự nhiên, chỉ dùng danh sách hoặc ví dụ khi thực sự cần thiết.`;
 		case 'detailed':
-			return `- **Độ dài**: Trả lời CHI TIẾT và ĐẦY ĐỦ (khoảng 500 - 600 từ). Phân tích sâu các khía cạnh.`;
+			return `- **Độ dài**: Chi tiết (khoảng 400-500 từ). Phân tích sâu, linh hoạt dùng định dạng và ví dụ để làm rõ ý.`;
 	}
 }
 
@@ -77,49 +62,29 @@ export function buildSystemPrompt(
 		hour: '2-digit',
 		year: 'numeric',
 		day: '2-digit',
-		hour12: false // Dùng định dạng 24h
+		hour12: false
 	});
 
-	const timeZoneInfo = userMessageMetadata?.timeZone ? ` (${userMessageMetadata.timeZone})` : '';
+	const timeZoneStr = userMessageMetadata?.timeZone ? ` (${userMessageMetadata.timeZone})` : '';
 
-	return `Bạn là "${settings.botName}", trợ lý ghi chú cá nhân được xây dựng trên nền tảng Synapse.
-  - Thời gian hiện tại: ${currentDate}${timeZoneInfo}
-
+	return `Bạn là "${settings.botName}", trợ lý Synapse.
 ${buildSystemInstruction(settings)}
 
---- QUY TẮC ĐỘ DÀI ---
+[ĐỘ DÀI]
 ${lengthInstruction}
 
-==================================================
-QUY TẮC SỬ DỤNG TOOL "searchNotes" & DỊCH Ý ĐỊNH
-==================================================
+[TOOL MATCHING - THEO ƯU TIÊN]
+0. KHÔNG TOOL: Hỏi đáp chung, code, toán, logic, chào hỏi -> Trả lời ngay.
+1. searchNotes (Dữ liệu cá nhân): Lịch hẹn, mật khẩu, ghi chú. (Hỏi chung/mới nhất -> query: ""; Cụ thể -> query: 1-2 từ khóa).
+2. searchChatHistory (Nội bộ phiên chat): Hỏi lại nội dung đã nói trong cuộc trò chuyện này.
+3. searchWeb (Thời gian thực): Thời tiết, tỷ giá, giá vàng, tin tức thời sự.
 
-Khi người dùng đưa ra một câu hỏi, bạn PHẢI phân tích ý định (Intent) trước khi gọi Tool "searchNotes":
+[XỬ LÝ DỮ LIỆU NOTES]
+- Mặc định: Chỉ trích xuất & tóm tắt đúng đáp án. Không in nguyên văn/lộ thông tin không liên quan.
+- Chỉ in nguyên văn khi user yêu cầu trực tiếp ("đọc hết", "in toàn bộ").
 
-1. CÂU HỎI TỔNG QUÁT / THỜI GIAN MƠ HỒ:
-   - Ví dụ: "Sắp tới có sự kiện gì?", "Tuần này mình có lịch gì không?", "Dạo này có kế hoạch gì?", "Xem ghi chú gần đây".
-   - Hành động: TRUYỀN CHUỖI RỖNG query: "" vào tool searchNotes. 
-   - Lý do: Đừng cố đoán từ khóa (như "sự kiện", "kế hoạch"). Chuỗi rỗng sẽ kích hoạt hệ thống lấy các ghi chú mới nhất/gần đây nhất, sau đó bạn sẽ tự đọc nội dung ghi chú để trả lời người dùng.
-
-2. CÂU HỎI THEO CHỦ ĐỀ / TỪ ĐỒNG NGHĨA:
-   - Ví dụ: "Tìm ghi chú về tiệc tùng", "Nhắc mình lịch đi chơi", "Thông tin xe cộ".
-   - Hành động: Rút gọn query thành 1-2 từ cốt lõi nhất. 
-   - Ví dụ: "Tìm ghi chú về tiệc tùng" -> query: "tiệc" hoặc "đám cưới".
-
-3. CÂU HỎI TRA CỨU CHÍNH XÁC (Specific Search):
-   - Ví dụ: "Mật khẩu wifi nhà là gì?", "Số tài khoản Techcombank", "Mã cửa 1234".
-   - Hành động: Giữ nguyên từ khóa quan trọng chính xác -> query: "wifi", "Techcombank", "mã cửa".
-
-4. PHÂN BIỆT TOOL:
-   - "searchNotes": Dùng khi tìm thông tin TRONG GHI CHÚ/TÀI LIỆU cá nhân.
-   - "searchChatHistory": CHỈ dùng khi người dùng hỏi lại lịch sử trò chuyện (Ví dụ: "Hồi nãy mình vừa hỏi câu gì?", "Lúc nãy bạn nói gì về IT?").
-   - "searchWeb": CHỈ DÙNG khi người dùng hỏi không tìm được câu trả lời hay câu trả lời trong trí nhớ quá cũ hay cần thêm thông tin để trả lời vấn đề không nằm ở các tool trên.
-
-==================================================
-QUY TẮC TRẢ LỜI
-==================================================
-- Dựa trên kết quả trả về từ Tool, hãy trả lời ngắn gọn, thân thiện và đi thẳng vào vấn đề.
-- Nếu ghi chú chứa mốc thời gian, hãy đối chiếu với "Thời gian hiện tại" ở trên để nhắc nhở người dùng hợp lý.`;
+[PHẢN HỒI]
+Trả lời thẳng vấn đề, thân thiện. Lịch hiện tại: ${currentDate}${timeZoneStr}.`;
 }
 
 export async function prepareChatTurn(
@@ -127,13 +92,12 @@ export async function prepareChatTurn(
 	conversationId: undefined | string,
 	userMessage: UIMessage
 ) {
-	const conversationResult = await getOrCreateConversation(userId, conversationId);
-	if (!conversationResult.success) return conversationResult;
+	const conversation = await getOrCreateConversation(userId, conversationId);
+	const history = await loadHistory(conversation.id);
 
-	const history = await loadHistory(conversationResult.data.id);
-	await appendMessage(conversationResult.data.id, userMessage);
+	await appendMessage(conversation.id, userMessage);
 
-	return { data: { conversation: conversationResult.data, history }, success: true as const };
+	return { conversation, history };
 }
 
 export async function saveAssistantReply(
@@ -153,67 +117,51 @@ export async function saveAssistantReply(
 	await appendMessage(conversationId, messageWithMetadata);
 }
 
-export function sanitizeMessages(messages: UIMessage[]): UIMessage[] {
+interface SanitizeOptions {
+	stripOldAttachments?: boolean;
+	maxHistory?: number;
+}
+
+export function sanitizeMessages(messages: UIMessage[], options: SanitizeOptions = {}) {
+	const { stripOldAttachments = true, maxHistory = 15 } = options;
+
+	if (messages.length === 0) return [];
+
+	// 1. Sliding Window: Chỉ lấy N tin nhắn gần nhất
+	const recentMessages = messages.slice(-maxHistory);
 	const sanitized: UIMessage[] = [];
+	const lastIndex = recentMessages.length - 1;
 
-	for (const msg of messages) {
-		if (msg.role === 'assistant' && Array.isArray(msg.parts)) {
-			// 💡 Lọc các parts trong assistant message
-			const validParts = msg.parts.filter((part) => {
-				const isToolPart = part.type.startsWith('tool-') || part.type === 'tool-invocation';
+	for (let i = 0; i < recentMessages.length; i++) {
+		const msg = recentMessages[i];
+		if (!Array.isArray(msg.parts) || msg.parts.length === 0) continue;
 
-				if (isToolPart) {
-					// Lấy state trực tiếp từ part (SDK mới) hoặc từ part.toolInvocation (SDK cũ)
-					const state =
-						'state' in part
-							? (part as { state?: string }).state
-							: (part as { toolInvocation?: { state?: string } }).toolInvocation?.state;
+		const isLatestMessage = i === lastIndex;
 
-					return state === 'result';
-				}
-				return true; // Giữ lại text, reasoning, sources...
-			});
+		const cleanedParts = msg.parts.filter((part) => {
+			if (part.type === 'text') {
+				return typeof part.text === 'string' && part.text.trim().length > 0;
+			}
 
-			const hasValidContent = validParts.some((part) => {
-				if (part.type === 'text') return part.text.trim().length > 0;
-				if (part.type.startsWith('tool-') || part.type === 'tool-invocation') return true;
+			if (!isLatestMessage && stripOldAttachments && part.type === 'file') {
 				return false;
-			});
-
-			if (hasValidContent) {
-				sanitized.push({
-					...msg,
-					parts: validParts
-				});
 			}
-		} else {
-			sanitized.push(msg);
-		}
-	}
 
-	// Đảm bảo tin nhắn cuối không phải assistant chứa tool chưa có kết quả
-	while (sanitized.length > 0) {
-		const lastMsg = sanitized[sanitized.length - 1];
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-		if (lastMsg.role === 'assistant' && lastMsg.parts) {
-			const hasUnfinishedTool = lastMsg.parts.some((p) => {
-				const isTool = p.type.startsWith('tool-') || p.type === 'tool-invocation';
-				if (!isTool) return false;
-
-				const state =
-					'state' in p
-						? (p as { state?: string }).state
-						: (p as { toolInvocation?: { state?: string } }).toolInvocation?.state;
-
-				return state !== 'result';
-			});
-
-			if (hasUnfinishedTool) {
-				sanitized.pop();
-				continue;
+			if (part.type === 'tool-invocation' && part.state !== 'output-available') {
+				console.warn(`[sanitizeMessages] Stripping incomplete tool call: ${part.toolCallId}`);
+				return false;
 			}
-		}
-		break;
+
+			return true;
+		});
+
+		if (cleanedParts.length === 0) continue;
+
+		sanitized.push({
+			parts: cleanedParts as UIMessage['parts'],
+			role: msg.role,
+			id: msg.id
+		});
 	}
 
 	return sanitized;

@@ -62,7 +62,7 @@ export function createSearchWebTool() {
 			try {
 				const response = await tvly.search(query, {
 					searchDepth: 'basic',
-					maxResults: 5
+					maxResults: 3
 				});
 
 				console.warn('[search-web-tool.query]: ', query);
@@ -80,7 +80,7 @@ export function createSearchWebTool() {
 				};
 			} catch (error) {
 				console.error('[Tavily Search Error]:', error);
-        
+
 				return { error: 'Không thể kết nối tới dịch vụ tìm kiếm web.' };
 			}
 		},

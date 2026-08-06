@@ -1,4 +1,5 @@
 import * as d from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 export const { table: pgTable } = d.snakeCase;
 
@@ -13,7 +14,8 @@ export const presetEnum = d.pgEnum('personality_preset', [
 ]);
 export const languageEnum = d.pgEnum('language_pref', ['vi', 'en', 'auto']);
 export const responseLengthEnum = d.pgEnum('response_length', ['short', 'balanced', 'detailed']);
-export const roleEnum = d.pgEnum('message_role', ['user', 'assistant']);
+
+export const roleEnum = d.pgEnum('message_role', ['user', 'assistant', 'system', 'data', 'tool']);
 
 // ==================== User AI Settings ====================
 
@@ -62,17 +64,19 @@ export const messages = pgTable(
 			.references(() => conversations.id, { onDelete: 'cascade' }),
 		createdAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
 		metadata: d.jsonb().$type<MessageMetadata>(),
-		id: d.uuid().primaryKey().defaultRandom(),
 		parts: d.jsonb().notNull(),
-		role: roleEnum().notNull()
+		role: roleEnum().notNull(),
+		id: d.text().primaryKey(),
+		searchText: d.text(),
+		content: d.text()
 	},
-	(t) => [d.index('messages_conversation_id_idx').on(t.conversationId)]
+	(t) => [
+		d.index('messages_conversation_id_idx').on(t.conversationId),
+		d.index('messages_search_text_trgm_idx').using('gin', sql`${t.searchText} gin_trgm_ops`)
+	]
 );
 
 // ==================== Notes (read-only mirror) ====================
-// Notes service (Spring Boot) sở hữu bảng gốc — khớp chính xác Note.java.
-// AI service CHỈ ĐỌC, không insert/update/delete. Loại khỏi migration của AI service
-// bằng tablesFilter trong drizzle.config.ts.
 
 export const notes = pgTable('notes', {
 	createdAt: d.timestamp({ withTimezone: true }),
@@ -85,8 +89,6 @@ export const notes = pgTable('notes', {
 });
 
 // ==================== Note Embeddings ====================
-// AI service sở hữu hoàn toàn — đồng bộ qua RabbitMQ event, không viết
-// trực tiếp vào bảng của Notes service.
 
 export const noteEmbeddings = pgTable(
 	'note_embeddings',

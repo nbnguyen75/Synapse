@@ -2,7 +2,7 @@ import type { UIMessage } from 'ai';
 
 import { eq, desc, asc } from 'drizzle-orm';
 
-import { conversations, messages } from '@/database/schema';
+import { conversations, messages, type MessageMetadata } from '@/database/schema';
 import { db } from '@/database';
 
 export async function findById(id: string) {
@@ -39,11 +39,24 @@ export async function findMessages(conversationId: string) {
 		.orderBy(asc(messages.createdAt));
 }
 
+function extractPlainTextFromParts(parts: UIMessage['parts']): string {
+	if (!Array.isArray(parts)) return '';
+	return parts
+		.filter((p) => p.type === 'text' && 'text' in p && typeof p.text === 'string')
+		.map((p) => (p as { text: string; type: 'text' }).text)
+		.join(' ')
+		.trim();
+}
+
 export async function insertMessage(conversationId: string, message: UIMessage) {
+	const plainText = extractPlainTextFromParts(message.parts);
+
 	await db.insert(messages).values({
-		role: message.role as 'assistant' | 'user',
-		metadata: message.metadata ?? null,
+		metadata: message.metadata as MessageMetadata | null,
+		searchText: plainText,
 		parts: message.parts,
-		conversationId
+		role: message.role,
+		conversationId,
+		id: message.id
 	});
 }

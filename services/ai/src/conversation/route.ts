@@ -8,7 +8,6 @@ import {
 import { conversationIdParamSchema } from '@/conversation/schemas';
 import { authJwksMiddleware } from '@/middleware/auth';
 import { zValidator } from '@/middleware/validation';
-import { throwFromReason } from '@/lib/errors';
 import { ok } from '@/middleware/responses';
 
 const conversationRoute = new Hono()
@@ -22,8 +21,7 @@ const conversationRoute = new Hono()
 	.get('/:id/messages', zValidator('param', conversationIdParamSchema), async (c) => {
 		const { id } = c.req.valid('param');
 
-		const result = await checkConversationOwnership(c.get('userId'), id);
-		if (!result.success) throwFromReason(result.reason, 'Conversation');
+		await checkConversationOwnership(c.get('userId'), id);
 
 		const history = await loadHistory(id);
 		return ok(c, history);

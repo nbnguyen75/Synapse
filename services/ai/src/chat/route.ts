@@ -22,11 +22,11 @@ import {
 	validateChatMessages
 } from '@/chat/services';
 import { CHAT_TEMPERATURE, MAX_QUESTION_LENGTH, RECENT_HISTORY_LIMIT } from '@/chat/constants';
-import { throwFromReason, ValidationError } from '@/lib/errors';
 import { getUserSettings, MAX_OUTPUT_TOKENS } from '@/settings';
 import { authJwksMiddleware } from '@/middleware/auth';
 import { zValidator } from '@/middleware/validation';
 import { chatRequestSchema } from '@/chat/schemas';
+import { ValidationError } from '@/lib/errors';
 import { chatModel } from '@/lib/ai';
 
 const chatRoute = new Hono()
@@ -46,24 +46,25 @@ const chatRoute = new Hono()
 			throw new ValidationError(`Question too long (max ${MAX_QUESTION_LENGTH} characters)`);
 		}
 
-		const turnResult = await prepareChatTurn(userId, body.conversationId, lastUserMessage);
-		if (!turnResult.success) throwFromReason(turnResult.reason, 'Conversation');
-
-		const { conversation, history } = turnResult.data;
-		const settings = await getUserSettings(userId);
+		const [{ conversation, history }, settings] = await Promise.all([
+			prepareChatTurn(userId, body.conversationId, lastUserMessage),
+			getUserSettings(userId)
+		]);
 
 		const systemPrompt = buildSystemPrompt(settings, lastUserMessage.metadata as MessageMetadata);
 
 		const recentHistory = history.slice(RECENT_HISTORY_LIMIT);
 		const rawMessages = [...recentHistory, lastUserMessage].filter((m) => m.role !== 'system');
 
-    const cleanMessages = sanitizeMessages(rawMessages);
+		const cleanMessages = sanitizeMessages(rawMessages);
+
+		const segmenterLocale = settings.language === 'en' ? 'en' : 'vi';
+		const segmenter = new Intl.Segmenter(segmenterLocale, { granularity: 'word' });
 
 		const result = streamText({
-      // ! Chunking not work well with Vietnamese https://ai-sdk.dev/docs/reference/ai-sdk-core/smooth-stream#word-chunking-caveats-with-non-latin-languages
 			experimental_transform: smoothStream({
-				chunking: 'word',
-				delayInMs: 15
+				chunking: segmenter,
+				delayInMs: 5
 			}),
 			onError: ({ error }) => {
 				console.error('[Chat streamText error]:', error);
@@ -82,8 +83,6 @@ const chatRoute = new Hono()
 				try {
 					const assistantMsg = messages.at(-1);
 					if (assistantMsg?.role === 'assistant') {
-						await saveAssistantReply(conversation.id, assistantMsg);
-
 						const usage = await result.usage;
 
 						await saveAssistantReply(conversation.id, assistantMsg, {
