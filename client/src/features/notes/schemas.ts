@@ -1,37 +1,57 @@
 import { z } from 'zod/v4';
 
-import { SORTABLE_FIELDS } from '@/features/notes/constants';
+import {
+  NOTE_BULK_ACTIONS,
+  NOTE_SORTABLE_FIELDS,
+} from '@/features/notes/constants';
 
 import { m } from '@/paraglide/messages';
 
-export const notesQueryParamsSchema = z.object({
-  pageSize: z.coerce.number().int().positive().max(100).optional(),
-  page: z.coerce.number().int().positive().optional(),
-  sort: z.enum(SORTABLE_FIELDS).optional(),
+import { paginationQuerySchema } from '@/schemas';
+
+export const notesQueryParamsSchema = paginationQuerySchema.extend({
+  sort: z
+    .enum(NOTE_SORTABLE_FIELDS, { message: m.validation_sort_invalid() })
+    .nullable()
+    .default(null),
   q: z.string().optional(),
 });
 
 export type NotesQueryParams = z.infer<typeof notesQueryParamsSchema>;
 
-export interface NotesApiParams extends Omit<NotesQueryParams, 'sort'> {
-  archived?: boolean;
-  favorite?: boolean;
-  trashed?: boolean;
-  sort?: string[];
-}
-
-export const noteFormSchema = z.object({
-  title: z.string().min(1, { message: m.notes_page_toast_title_required() }),
-  content: z.string().optional(),
+export const noteIdParamSchema = z.object({
+  id: z.string().trim().min(1, { message: m.validation_id_required() }),
 });
 
-export type NoteFormValues = z.infer<typeof noteFormSchema>;
+export type NoteIdParams = z.infer<typeof noteIdParamSchema>;
 
-export const noteCreateFormSchema = z.object({
-  title: z.string().max(200).optional(),
-  content: z.string().min(1).max(1500),
+export const noteInputSchema = z.object({
+  content: z
+    .string()
+    .min(1, { message: m.notes_page_toast_title_required() })
+    .max(1500, { message: m.validation_content_max() }),
+  title: z
+    .string()
+    .trim()
+    .max(200, { message: m.validation_title_max() })
+    .optional(),
 });
 
-export type NoteCreateFormValues = z.infer<typeof noteCreateFormSchema>;
+export type NoteFormInput = z.input<typeof noteInputSchema>;
 
-export type NoteViewMode = 'active' | 'favorites' | 'archive' | 'trash';
+export type NoteInputPayload = z.infer<typeof noteInputSchema>;
+
+export const bulkNoteActionsSchema = z.object({
+  ids: z
+    .array(z.string().min(1, { message: m.validation_id_required() }))
+    .min(1, { message: m.validation_ids_required() }),
+  action: z.enum(NOTE_BULK_ACTIONS),
+});
+
+export type BulkNoteActions = z.infer<typeof bulkNoteActionsSchema>;
+
+export const generateNoteTitleSchema = z.object({
+  content: z.string().min(1, { message: m.validation_content_required() }),
+});
+
+export type GenerateNoteTitleInput = z.infer<typeof generateNoteTitleSchema>;

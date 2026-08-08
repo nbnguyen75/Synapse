@@ -1,9 +1,9 @@
-import type { NoteViewMode } from '@/features/notes/schemas';
-
-import { useEffect, useRef, useState } from 'react';
+import type { Note, NoteViewMode } from '@/features/notes/types';
+import type { BulkNoteAction } from '@/features/notes/constants';
 
 import { m } from '@/paraglide/messages';
-import { cn } from '@/lib/utils';
+
+import { SelectionToolbar } from '@/components/shared';
 
 import { Button } from '@/components/ui/button';
 
@@ -18,179 +18,128 @@ import {
 } from 'lucide-react';
 
 interface NotesBulkActionsProps {
-  onBulkDeletePermanent?: () => void;
+  onBulkAction: (action: BulkNoteAction) => void;
   onClearSelection: () => void;
-  onBulkUnarchive?: () => void;
-  onBulkFavorite?: () => void;
-  onBulkArchive?: () => void;
-  onBulkRestore?: () => void;
-  onBulkTrash?: () => void;
+  selectedIds: Set<string>;
   viewMode?: NoteViewMode;
-  onBulkPin?: () => void;
-  selectedCount: number;
+  notes: Note[];
 }
 
-const EXIT_ANIMATION_DURATION = 250;
-
 export default function NotesBulkActions({
-  onBulkDeletePermanent,
   onClearSelection,
-  onBulkUnarchive,
-  onBulkFavorite,
-  selectedCount,
-  onBulkArchive,
-  onBulkRestore,
-  onBulkTrash,
-  onBulkPin,
+  onBulkAction,
+  selectedIds,
   viewMode,
+  notes,
 }: NotesBulkActionsProps) {
-  const [visible, setVisible] = useState(false);
-  const [closing, setClosing] = useState(false);
-  const prevCount = useRef(0);
+  const selectedNotes = notes.filter((note) => selectedIds.has(note.id));
+  const selectedTotal = selectedNotes.length;
 
-  useEffect(() => {
-    if (selectedCount > 0 && prevCount.current === 0) {
-      setClosing(false);
-      setVisible(true);
-    } else if (selectedCount === 0 && prevCount.current > 0) {
-      setClosing(true);
-      const timer = setTimeout(() => {
-        setVisible(false);
-        setClosing(false);
-      }, EXIT_ANIMATION_DURATION);
-      prevCount.current = 0;
-      return () => clearTimeout(timer);
-    }
-    prevCount.current = selectedCount;
-  }, [selectedCount]);
+  const majorityPinned =
+    selectedNotes.filter((note) => note.pinned).length > selectedTotal / 2;
+  const majorityFavorited =
+    selectedNotes.filter((note) => note.favorite).length > selectedTotal / 2;
+  const majorityArchived =
+    selectedNotes.filter((note) => note.archived).length > selectedTotal / 2;
 
-  if (!visible) return null;
+  const pinAction: BulkNoteAction = majorityPinned ? 'UNPIN' : 'PIN';
+  const pinLabel = majorityPinned ? m.notes_bulk_unpin() : m.notes_bulk_pin();
 
-  const isEntering = !closing && selectedCount > 0;
+  const favoriteAction: BulkNoteAction = majorityFavorited
+    ? 'UNFAVORITE'
+    : 'FAVORITE';
+  const favoriteLabel = majorityFavorited
+    ? m.notes_bulk_unfavorite()
+    : m.notes_bulk_favorite();
+
+  const archiveAction: BulkNoteAction = majorityArchived
+    ? 'UNARCHIVE'
+    : 'ARCHIVE';
+  const archiveLabel = majorityArchived
+    ? m.notes_bulk_unarchive()
+    : m.notes_bulk_archive();
 
   return (
-    <div
-      className={cn(
-        'flex items-center justify-between border rounded-xl border-border bg-muted/30 px-6 py-2 transition-all duration-250 ease-in-out w-fit mx-auto gap-3 mb-3',
-        isEntering && 'opacity-100',
-        closing && 'opacity-0',
-      )}
+    <SelectionToolbar
+      selectedCount={selectedIds.size}
+      onClearSelection={onClearSelection}
+      countLabel={m.notes_batch_selected({ count: selectedIds.size })}
     >
-      <div className="flex items-center gap-2">
-        <div className="flex size-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
-          {selectedCount}
-        </div>
-        <span className="text-sm font-medium">
-          {m.notes_batch_selected({ count: selectedCount })}
-        </span>
-      </div>
+      {viewMode === 'trash' ? (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 gap-1.5 text-xs cursor-pointer"
+            onClick={() => onBulkAction('RESTORE')}
+          >
+            <RotateCcwIcon className="size-3.5" />
+            <span className="hidden sm:inline">{m.notes_bulk_restore()}</span>
+          </Button>
 
-      <div className="flex items-center gap-1">
-        {viewMode === 'trash' ? (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 gap-1.5 text-xs cursor-pointer"
-              onClick={onBulkRestore}
-            >
-              <RotateCcwIcon className="size-3.5" />
-              <span className="hidden sm:inline">{m.notes_bulk_restore()}</span>
-            </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 gap-1.5 text-xs text-destructive hover:text-destructive cursor-pointer"
+            onClick={() => onBulkAction('DELETE_PERMANENT')}
+          >
+            <XIcon className="size-3.5" />
+            <span className="hidden sm:inline">
+              {m.notes_bulk_delete_permanent()}
+            </span>
+          </Button>
+        </>
+      ) : (
+        <>
+          {viewMode !== 'archive' && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 gap-1.5 text-xs cursor-pointer"
+                onClick={() => onBulkAction(pinAction)}
+              >
+                <PinIcon className="size-3.5" />
+                <span className="hidden sm:inline">{pinLabel}</span>
+              </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 gap-1.5 text-xs text-destructive hover:text-destructive cursor-pointer"
-              onClick={onBulkDeletePermanent}
-            >
-              <XIcon className="size-3.5" />
-              <span className="hidden sm:inline">
-                {m.notes_bulk_delete_permanent()}
-              </span>
-            </Button>
-          </>
-        ) : viewMode === 'archive' ? (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 gap-1.5 text-xs cursor-pointer"
-              onClick={onBulkUnarchive}
-            >
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 gap-1.5 text-xs cursor-pointer"
+                onClick={() => onBulkAction(favoriteAction)}
+              >
+                <StarIcon className="size-3.5" />
+                <span className="hidden sm:inline">{favoriteLabel}</span>
+              </Button>
+            </>
+          )}
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 gap-1.5 text-xs cursor-pointer"
+            onClick={() => onBulkAction(archiveAction)}
+          >
+            {majorityArchived ? (
               <Undo2Icon className="size-3.5" />
-              <span className="hidden sm:inline">
-                {m.notes_bulk_unarchive()}
-              </span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 gap-1.5 text-xs text-destructive hover:text-destructive cursor-pointer"
-              onClick={onBulkTrash}
-            >
-              <Trash2Icon className="size-3.5" />
-              <span className="hidden sm:inline">{m.notes_bulk_delete()}</span>
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 gap-1.5 text-xs cursor-pointer"
-              onClick={onBulkPin}
-            >
-              <PinIcon className="size-3.5" />
-              <span className="hidden sm:inline">{m.notes_bulk_pin()}</span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 gap-1.5 text-xs cursor-pointer"
-              onClick={onBulkFavorite}
-            >
-              <StarIcon className="size-3.5" />
-              <span className="hidden sm:inline">
-                {m.notes_bulk_favorite()}
-              </span>
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 gap-1.5 text-xs cursor-pointer"
-              onClick={onBulkArchive}
-            >
+            ) : (
               <ArchiveIcon className="size-3.5" />
-              <span className="hidden sm:inline">{m.notes_bulk_archive()}</span>
-            </Button>
+            )}
+            <span className="hidden sm:inline">{archiveLabel}</span>
+          </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 gap-1.5 text-xs text-destructive hover:text-destructive cursor-pointer"
-              onClick={onBulkTrash}
-            >
-              <Trash2Icon className="size-3.5" />
-              <span className="hidden sm:inline">{m.notes_bulk_delete()}</span>
-            </Button>
-          </>
-        )}
-
-        <div className="mx-1 h-5 w-px bg-border" />
-
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="size-9 cursor-pointer"
-          onClick={onClearSelection}
-        >
-          <XIcon className="size-4" />
-        </Button>
-      </div>
-    </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 gap-1.5 text-xs text-destructive hover:text-destructive cursor-pointer"
+            onClick={() => onBulkAction('TRASH')}
+          >
+            <Trash2Icon className="size-3.5" />
+            <span className="hidden sm:inline">{m.notes_bulk_delete()}</span>
+          </Button>
+        </>
+      )}
+    </SelectionToolbar>
   );
 }

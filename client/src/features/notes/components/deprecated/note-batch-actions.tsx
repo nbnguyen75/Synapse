@@ -5,8 +5,6 @@ import { useState } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { deleteNote } from '@/features/notes/api';
-
 import { m } from '@/paraglide/messages';
 
 import {
@@ -74,7 +72,7 @@ export function NoteBatchActions({
 
   async function handleDelete() {
     setIsDeleting(true);
-    await Promise.all(ids.map((id) => deleteNote(id)));
+    // await Promise.all(ids.map((id) => deleteNote(id)));
     setIsDeleting(false);
     onClearSelection();
     queryClient.invalidateQueries({ queryKey: ['notes'] });

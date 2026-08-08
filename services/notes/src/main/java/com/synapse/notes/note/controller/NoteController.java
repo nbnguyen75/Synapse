@@ -3,7 +3,7 @@ package com.synapse.notes.note.controller;
 import com.synapse.notes.common.annotation.CurrentUserId;
 import com.synapse.notes.common.response.ApiResponse;
 import com.synapse.notes.common.response.PageResponse;
-import com.synapse.notes.note.dto.request.BulkNoteRequest;
+import com.synapse.notes.note.dto.request.BulkActionRequest;
 import com.synapse.notes.note.dto.request.CreateNoteRequest;
 import com.synapse.notes.note.dto.request.NoteQueryParams;
 import com.synapse.notes.note.dto.request.UpdateNoteRequest;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -107,43 +106,10 @@ public class NoteController {
     return ApiResponse.success(null);
   }
 
-  // ==================== BULK OPERATIONS ====================
-
-  @PatchMapping("/bulk/archive")
-  public ApiResponse<Integer> bulkArchive(
-      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
-    return ApiResponse.success(noteService.bulkArchive(userId, req.ids()));
-  }
-
-  @PatchMapping("/bulk/unarchive")
-  public ApiResponse<Integer> bulkUnarchive(
-      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
-    return ApiResponse.success(noteService.bulkUnarchive(userId, req.ids()));
-  }
-
-  @PatchMapping("/bulk/trash")
-  public ApiResponse<Integer> bulkTrash(
-      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
-    return ApiResponse.success(noteService.bulkTrash(userId, req.ids()));
-  }
-
-  @PatchMapping("/bulk/favorite")
-  public ApiResponse<Integer> bulkFavorite(
-      @CurrentUserId String userId,
-      @RequestParam(defaultValue = "true") boolean favorite,
-      @RequestBody @Valid BulkNoteRequest req) {
-    return ApiResponse.success(noteService.bulkFavorite(userId, req.ids(), favorite));
-  }
-
-  @PatchMapping("/bulk/restore")
-  public ApiResponse<Integer> bulkRestore(
-      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
-    return ApiResponse.success(noteService.bulkRestore(userId, req.ids()));
-  }
-
-  @DeleteMapping("/bulk")
-  public ApiResponse<Integer> bulkDeletePermanent(
-      @CurrentUserId String userId, @RequestBody @Valid BulkNoteRequest req) {
-    return ApiResponse.success(noteService.bulkDeletePermanent(userId, req.ids()));
+  @PostMapping("/bulk/actions")
+  public ApiResponse<Integer> executeBulkAction(
+      @CurrentUserId String userId, @RequestBody @Valid BulkActionRequest req) {
+    int affected = noteService.executeBulkAction(userId, req.ids(), req.action());
+    return ApiResponse.success(affected);
   }
 }

@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router';
 import { m } from '@/paraglide/messages';
 
 import KeyboardShortcutsDialog from '@/components/shared/sidebar-keyboard-shortcuts-dialog';
-import ConfigPopover from '@/components/deprecated/sidebar-config-popover';
 
 import {
   SidebarGroup,
@@ -13,7 +12,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 
-import { Settings2, Keyboard, Settings } from 'lucide-react';
+import { KeyboardIcon, SettingsIcon } from 'lucide-react';
 
 export default function NavSecondary() {
   return (
@@ -23,7 +22,7 @@ export default function NavSecondary() {
           <SidebarMenuItem>
             <KeyboardShortcutsDialog>
               <SidebarMenuButton size="sm" className="text-xs font-medium">
-                <Keyboard className="size-4" />
+                <KeyboardIcon className="size-4" />
                 <span>{m.sidebar_keyboard_shortcuts()}</span>
               </SidebarMenuButton>
             </KeyboardShortcutsDialog>
@@ -35,7 +34,7 @@ export default function NavSecondary() {
               className="text-xs font-medium"
               render={
                 <Link to="/settings">
-                  <Settings className="size-4" />
+                  <SettingsIcon className="size-4" />
                   <span>{m.sidebar_settings()}</span>
                 </Link>
               }

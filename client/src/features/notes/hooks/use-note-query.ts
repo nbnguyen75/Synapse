@@ -1,20 +1,43 @@
-import type { NotesApiParams } from '@/features/notes/schemas';
-import type { Note } from '@/features/notes/types';
+import type { Note, NotesApiParams } from '@/features/notes/types';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { getNote, getNotes } from '@/features/notes/api';
+import { EMPTY_PAGINATED } from '@/features/notes/constants';
+
+import { $fetch } from '@/lib/fetch';
 
 export function useGetNotesQuery(params?: NotesApiParams) {
   return useQuery({
-    queryFn: async () => getNotes(params),
+    queryFn: async () => {
+      const query = params
+        ? {
+            ...params,
+            page: params.page !== undefined ? params.page - 1 : undefined,
+          }
+        : undefined;
+
+      const result = await $fetch.api.v1.notes.$get({
+        query,
+      });
+
+      return result.data;
+    },
+    placeholderData: (previousData) => previousData ?? EMPTY_PAGINATED,
     queryKey: ['notes', params],
   });
 }
 
 export function useGetNoteQuery(id: string, initialData?: Note) {
   return useQuery({
-    queryFn: async () => getNote(id),
+    queryFn: async () => {
+      const result = await $fetch.api.v1.notes[':id'].$get({
+        params: {
+          id,
+        },
+      });
+
+      return result.data;
+    },
     queryKey: ['notes', id],
     initialData,
   });

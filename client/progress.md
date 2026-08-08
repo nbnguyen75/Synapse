@@ -2,11 +2,52 @@
 
 ## Current State
 
-**Last Updated:** 2026-08-05
-**Session ID:** settings-page-i18n-pass
-**Active Feature:** Settings page i18n pass (companion settings page + toasts + route title + companion option label fix + orphan cleanup) — done; pre-existing build break in chat-transport.ts (user commit 3315f0b) fixed with type-only cast — done
+**Last Updated:** 2026-08-08
+**Session ID:** schema-translation-pass
+**Active Feature:** Schema validation i18n + missing favorites empty-state keys — done
 
 ## Status
+
+### What's Done (feat-042 — schema validation i18n + favorites empty-state keys)
+
+- [x] **Fixed translation (build break)** — `notes-list-empty.tsx` referenced `notes_page_no_favorites` / `notes_page_no_favorites_desc` which never existed. Added: en "No favorite notes" / "Star notes to keep them close.", vi "Không có ghi chú yêu thích" / "Đánh dấu sao ghi chú để xem chúng ở đây." (placed after the archived pair).
+- [x] **Schema messages i18n (zod v4.4.3 `{ message }` params)** — all user-input/query schemas now use Paraglide messages instead of zod's default English:
+  - `src/schemas/query.ts` — pagination: `page`/`pageSize` invalid-type/int/positive → `validation_page_invalid` / `validation_page_size_invalid`, `pageSize` max → `validation_page_size_max`.
+  - `src/features/notes/schemas.ts` — `noteIdParamSchema.id` min → `validation_id_required`; `noteInputSchema` content max 1500 → `validation_content_max`, title max 200 → `validation_title_max`; `bulkNoteActionsSchema.ids` min → `validation_ids_required` (element min → `validation_id_required`); `generateNoteTitleSchema.content` min → `validation_content_required`; `notesQueryParamsSchema.sort` enum → `validation_sort_invalid`.
+  - `src/features/companion/schemas.ts` — `conversationIdParam.id` min → `validation_id_required`.
+  - `src/features/settings/schemas.ts` — `tab` enum → `validation_tab_invalid`.
+- [x] **New i18n (12 keys × en/vi)** — `notes_page_no_favorites{,desc}`, `validation_page_invalid`, `validation_page_size_invalid`, `validation_page_size_max`, `validation_id_required`, `validation_content_required`, `validation_content_max`, `validation_title_max`, `validation_ids_required`, `validation_sort_invalid`, `validation_tab_invalid`. 600/600 keys, parity 0/0.
+- [x] **Verification** — `generate-translation` ✓ (600/600, parity 0/0), `check` ✓ exit 0 (pre-existing warnings only). `build`: ALL translation-related errors gone (notes-list-empty, schemas). The 12 remaining structural errors from the user's refactor (nav-main href, 11 deprecated notes files) were fixed by the USER (see "Refactor breakage resolved" below).
+- [x] **Artifacts** — `feature_list.json` feat-042 done (42 feats, valid JSON); no commit (user manages).
+
+
+### What's Done (feat-041 — conversation list in sidebar + store-driven chat page)
+
+- [x] **NavCompanion conversation list** — under the existing "AI Companion" group (mode-switch untouched): New Chat button (MessageCirclePlusIcon + `sidebar_new_chat`), "Recents" section (3-row `Skeleton` while loading, empty text `chat_conversations_empty`, per-conversation `SidebarMenuButton` with truncate title / `chat_conversation_untitled` fallback / active highlight, click → `setActiveConversationId` + navigate `/chat`), "Favorites" section label with empty placeholder (favorites grouping later, per user). Removed the commented-out `companionItems` block.
+- [x] **Zustand store** — new `src/store/companion-store.ts`: `activeConversationId: string | null` + `setActiveConversationId` (no persist; pattern per settings-store).
+- [x] **ChatPage rework** (was the "wrong implementation"): old left rail + local state + `handleSelectConversation`/`handleNewChat` deleted. Now: `activeConversationId` from store; `null` → ChatBot with no initialMessages (empty conversation per spec); id → `useGetConversationMessagesQuery(id)` (hook now `string | null` + `enabled: id !== null`); while loading → absolute spinner overlay (`Spinner size-6`, `bg-background/60`, `role=status`) + ChatBot `disabled`; `key={activeConversationId ?? 'new-chat'}` remount preserves load semantics; `onConversationId` → set store + invalidate `['companion-conversations']` so Recents refreshes after first message.
+- [x] **ChatBot `disabled` prop** — threads to `PromptInputTextarea`, `PromptInputSubmit` (`disabled || isSubmitDisabled`), `PromptInputActionMenuTrigger`, web-search `PromptInputButton`, `SpeechInput` via conditional spread `{...(disabled ? { disabled: true } : {})}` (SpeechInput spreads `...props` last and would clobber its internal `isDisabled` if passed `undefined`).
+- [x] **Stale imports fixed** — `routes/_app/chat.tsx` and `components/layouts/app-right-sidebar.tsx` now import from `@/features/companion/...` (old `@/features/chat` paths were deleted in the user's restructure).
+- [x] **i18n** — new `sidebar_recents` ("Recents"/"Gần đây"); reused `sidebar_new_chat`, `sidebar_favorites`, `chat_conversations_empty`, `chat_conversation_untitled`. 588 keys each, parity 0/0.
+- [x] **Verification** — `generate-translation` ✓ (588/588, parity 0/0), `check` ✓ exit 0 (pre-existing warnings only). `build`: my files typecheck clean at the time; the 13 pre-existing user-refactor errors (nav-main hrefs, 11 deprecated notes files, notes-list-empty keys) were later resolved by the user + feat-042 keys (see below).
+- [x] **Artifacts** — `feature_list.json` feat-041 done (41 feats, valid JSON); no commit (user manages).
+
+### Refactor breakage resolved by user (2026-08-08, before commit)
+
+- `nav-main.tsx` hrefs updated to the new routes (`/notes/favorites`, `/notes/archive`, `/notes/trash`) AND `routeTree.gen.ts` regenerated to include `/notes/archive` (matches the renamed route file `notes/archive.tsx`).
+- Deprecated notes files (`note-batch-actions.tsx`, `note-form.tsx`, `quick-create-note-dialog.tsx`, `quick-edit-note-dialog.tsx`, `template-selector.tsx`) — broken imports/references (deleted `@/features/notes/fetch`, removed schema exports, deleted `@/features/chat/lib/companion-config`) commented out; files kept as reference-only and compile.
+- Verified: working tree == staged (95 files, nothing unstaged); no remaining `companion-config`/`noteFormSchema`/`NoteFormValues` references in deprecated files. Build status: user fixed before commit; no build re-run after their fix (next session should run `./init.sh`/`bun --bun run build` to confirm).
+
+
+### What's Done (feat-040 — bulk actions: toasts + majority rule + empty-trash clear)
+
+- [x] **Action-aware bulk toasts** — `use-note-mutation.ts`: `useBulkActionsMutation` now toasts per-action via literal-switch `getBulkActionSuccessMessage(action)` (PIN→pinned, UNPIN→unpinned, FAVORITE→favorited, UNFAVORITE→unfavorited, ARCHIVE→archived, UNARCHIVE→unarchived, TRASH→trashed, RESTORE→restored, DELETE_PERMANENT→deleted); error → `notes_page_toast_update_failed`. Previously every bulk action toasted "Trash emptied"/trash_failed. Follows the requested hook format (onSuccess invalidate + toast, onError toast, mutationFn). Mirrors `getTranslatedAuthErrorMessage` pattern (RULES.md literal calls).
+- [x] **Majority rule in bulk bar** — `notes-bulk-actions.tsx` restructured: props now `notes` + `selectedIds` + single `onBulkAction(action)` (+ viewMode/onClearSelection). Computes strict majority over selected page notes: `pinnedCount > half` → Unpin (`UNPIN`) else Pin; same for Favorited→Unfavorite/Favorite and Archived→Unarchive/Archive (tie → positive action per user choice). Favorites view automatically yields "Unfavorite", archive view "Unarchive". Backend `UNPIN`/`UNFAVORITE` actions were already supported but never sent. Trash/restore unified through bulk endpoint (was per-note loop) — `handleBulkAction` with DELETE_PERMANENT confirmation dialog preserved. Removed per-call onError toasts + "TODO: Toast here" comments + dead `invalidateNotes`/`queryClient`.
+- [x] **Empty-trash selection clear (bug)** — `handleEmptyTrash` in notes-view-page.tsx now clears the multi-select before delegating to `onEmptyTrash` (mutation lives in trash route, selection lived in NotesViewPage).
+- [x] **i18n** — new `notes_bulk_unpin` ("Unpin"/"Bỏ ghim"), `notes_bulk_unfavorite` ("Unfavorite"/"Bỏ yêu thích"); 587 keys each, parity 0/0. All toast keys already existed.
+- [x] **Verification** — `bun --bun run generate-translation` ✓ (587/587, parity 0/0), `bun --bun check` ✓ exit 0 (pre-existing warnings only), `bun --bun run build` (tsc -b + vite) ✓.
+- [x] **Artifacts** — `feature_list.json` feat-040 done (40 feats, valid JSON); no commit (user manages).
+- [ ] **Known limitation** — majority counts are computed from the current page's notes only; selections spanning multiple pages don't contribute to the count (defaults to positive action). Acceptable; note if cross-page majority is needed later.
 
 ### What's Done (feat-039 — Settings page i18n + option label fix + orphan cleanup)
 

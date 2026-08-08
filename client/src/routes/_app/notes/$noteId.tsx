@@ -1,4 +1,4 @@
-import type { NoteFormValues } from '@/features/notes/schemas';
+import type { NoteFormInput, NoteInputPayload } from '@/features/notes';
 import type { Note } from '@/features/notes/types';
 
 import { Controller, useForm, useWatch } from 'react-hook-form';
@@ -24,7 +24,6 @@ import {
   exportMarkdown,
 } from '@/features/notes/services';
 import { useGetNoteQuery } from '@/features/notes/hooks/use-note-query';
-import { getNote } from '@/features/notes/api';
 
 import { useKeyboardShortcut } from '@/hooks/use-key-binding';
 
@@ -34,6 +33,7 @@ import { getShortcut } from '@/config/keyboard-shortcuts';
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
+import { $fetch } from '@/lib/fetch';
 
 import { LexicalEditor, MarkdownRenderer } from '@/components/shared';
 
@@ -65,9 +65,11 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
   loader: async ({ params }) => {
     const { noteId } = params;
     try {
-      const note = await getNote(noteId);
+      const result = await $fetch.api.v1.notes[':id'].$get({
+        params: { id: noteId },
+      });
 
-      return note;
+      return result.data;
     } catch {
       console.error(`Note not found with id: ${noteId}`);
 
@@ -95,15 +97,14 @@ function NoteDetailsPage() {
 
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('preview');
 
-  const generateTitleMutation = useGenerateNoteTitleMutation();
-
-  const isGeneratingTitle = generateTitleMutation.isPending;
+  const { isPending: isGeneratingNoteTitle, mutate: generateNoteTitle } =
+    useGenerateNoteTitleMutation();
 
   const { data: note } = useGetNoteQuery(initialData.id, initialData);
   const { isPending: isUpdating, mutate: updateNote } = useUpdateNoteMutation();
   const { isPending: isDeleting, mutate: deleteNote } = useDeleteNoteMutation();
 
-  const form = useForm<NoteFormValues>({
+  const form = useForm<NoteFormInput>({
     defaultValues: {
       content: note?.content ?? '',
       title: note?.title,
@@ -117,11 +118,11 @@ function NoteDetailsPage() {
     control,
   });
 
-  const handleOnUpdate = (id: string, data: NoteFormValues) => {
+  const handleOnUpdate = (id: string, data: NoteInputPayload) => {
     updateNote(
       {
-        data,
-        id,
+        params: { id },
+        body: data,
       },
       {
         onSuccess: () => setActiveTab('preview'),
@@ -139,7 +140,7 @@ function NoteDetailsPage() {
   );
 
   const handleOnDelete = async (note?: Note) => {
-    if (!note) return;
+    if (!note || !note.title) return;
 
     const ok = await confirm({
       description: m.notes_page_delete_desc({
@@ -154,24 +155,32 @@ function NoteDetailsPage() {
     if (!ok) return;
 
     deleteNote(
-      { id: note.id },
+      { params: { id: note.id } },
       {
         onSuccess: () => navigate({ to: '/notes' }),
       },
     );
   };
 
-  const handleAiTitle = async () => {
-    if (!watchedContent?.trim() || isGeneratingTitle) return;
+  const handleAiTitle = () => {
+    if (!watchedContent?.trim() || isGeneratingNoteTitle) return;
 
-    try {
-      const generatedTitle =
-        await generateTitleMutation.mutateAsync(watchedContent);
-      setValue('title', generatedTitle, { shouldDirty: true });
-      toast.success(m.notes_page_ai_title_success());
-    } catch {
-      toast.error(m.notes_page_ai_title_failed());
-    }
+    generateNoteTitle(
+      {
+        body: {
+          content: watchedContent,
+        },
+      },
+      {
+        onSuccess: ({ title }) => {
+          setValue('title', title, { shouldDirty: true });
+          toast.success(m.notes_page_ai_title_success());
+        },
+        onError: () => {
+          toast.error(m.notes_page_ai_title_failed());
+        },
+      },
+    );
   };
 
   return (
@@ -259,11 +268,11 @@ function NoteDetailsPage() {
 
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem
-                    disabled={isGeneratingTitle || !watchedContent?.trim()}
+                    disabled={isGeneratingNoteTitle || !watchedContent?.trim()}
                     onClick={() => void handleAiTitle()}
                     className="cursor-pointer"
                   >
-                    {isGeneratingTitle ? (
+                    {isGeneratingNoteTitle ? (
                       <Loader2Icon className="size-4 mr-2 text-violet-500 animate-spin" />
                     ) : (
                       <SparklesIcon className="size-4 mr-2 text-violet-500" />
@@ -276,8 +285,8 @@ function NoteDetailsPage() {
                       note &&
                       exportMarkdown({
                         ...note,
+                        title: watchedTitle ?? '',
                         content: watchedContent,
-                        title: watchedTitle,
                       })
                     }
                     className="cursor-pointer"

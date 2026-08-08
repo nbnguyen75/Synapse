@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "**/*.min.js",
+    "public/*",
+    "README.md",
+    "src/routeTree.gen.ts",
+    ".agents/**/scripts",
+    ".claude/**/scripts",
+    "AGENTS.md",
+    "feature_list.json",
+    "init.sh",
+    "progress.md",
+    "session-handoff.md",
+    "**/deprecated/**",
+    ".vscode/**",
+    ".gitignore",
+    ".env*",
+    ".prettierignore",
+    "bun.lock"
+  ]
+}

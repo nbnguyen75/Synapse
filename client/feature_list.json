@@ -311,6 +311,30 @@
              "dependencies": ["feat-007", "feat-008", "feat-036"],
              "status": "done",
              "evidence": "src/features/settings/components/companion-settings-page.tsx, src/features/settings/components/general-settings-page.tsx (already i18n'd), src/features/settings/hooks/use-companion-settings.ts, src/features/settings/constants.ts (getters), src/routes/_app/settings.tsx (createTitle), src/features/chat/lib/chat-transport.ts (metadata cast), messages/en.json, messages/vi.json (585 keys each)"
+          },
+          {
+             "id": "feat-040",
+             "name": "Bulk Actions: Action-Aware Toasts + Majority-Based Pin/Archive/Unpin/Unarchive",
+             "description": "Bulk action hardening (2026-08-05): (1) useBulkActionsMutation now toasts per-action success via literal-switch getBulkActionSuccessMessage (all 9 BulkNoteActions map to existing notes_page_toast_* keys; generic update_failed on error) — previously every bulk action toasted 'Trash emptied'. (2) Multi-select majority rule: bulk bar computes counts from selected page notes and shows Unpin/Pin, Unfavorite/Favorite, Unarchive/Archive by strict majority (count > half; tie → Pin/Favorite/Archive); backend UNPIN/UNFAVORITE actions were already supported but never sent. Trash/restore unified through the bulk endpoint (was per-note loop). (3) Bug fix: emptying trash from the trash page now clears the multi-select (selection lived in NotesViewPage while the mutation lived in the trash route). (4) Per-call onError toasts and 'TODO: Toast here' comments removed from notes-view-page handlers; single handleBulkAction with DELETE_PERMANENT confirmation preserved. New i18n: notes_bulk_unpin, notes_bulk_unfavorite (en/vi, 587 keys each, parity 0/0).",
+             "dependencies": ["feat-031"],
+             "status": "done",
+             "evidence": "src/features/notes/hooks/use-note-mutation.ts (getBulkActionSuccessMessage + useBulkActionsMutation), src/features/notes/components/notes-bulk-actions.tsx (majority logic, single onBulkAction prop), src/features/notes/components/notes-view-page.tsx (handleBulkAction, handleEmptyTrash clears selection), messages/en.json, messages/vi.json (notes_bulk_unpin, notes_bulk_unfavorite)"
+          },
+          {
+             "id": "feat-041",
+             "name": "Conversation List in Sidebar (NavCompanion) + Store-Driven Chat Page",
+             "description": "Moved the conversation list out of the chat page into the sidebar (2026-08-08, on top of user's chat→companion restructure). NavCompanion now has: New Chat button (clears store + navigates /chat), 'Recents' section listing conversations from useGetConversationsQuery (3-row Skeleton while loading, empty text, truncate title fallback chat_conversation_untitled, active highlight, click → setActiveConversationId + navigate /chat), and a 'Favorites' section label (placeholder only — favorites grouping later). New zustand store src/store/companion-store.ts holds activeConversationId (null = new chat). ChatPage consumes the store: null → empty conversation (ConversationEmptyState), id → useGetConversationMessagesQuery(id) (hook now takes string|null with enabled flag) with absolute spinner overlay + ChatBot disabled (textarea, submit, attachments trigger, speech, web-search — SpeechInput via conditional spread to preserve its internal isDisabled); onConversationId → store + invalidate ['companion-conversations'] so Recents refreshes. ChatBot gained optional disabled prop. Fixed stale imports: chat.tsx route + app-right-sidebar.tsx → @/features/companion. New i18n: sidebar_recents (en/vi, 588 keys each, parity 0/0).",
+             "dependencies": ["feat-037", "feat-039"],
+             "status": "done",
+             "evidence": "src/store/companion-store.ts (NEW), src/components/layouts/app-sidebar/nav-companion.tsx (New Chat + Recents + Favorites sections, skeleton), src/features/companion/components/chat-page.tsx (store-driven, spinner overlay, disabled ChatBot), src/features/companion/components/chat-bot.tsx (disabled prop), src/features/companion/hooks/use-companion-conversation.ts (null id + enabled), src/routes/_app/chat.tsx + src/components/layouts/app-right-sidebar.tsx (import path fixes), messages/en.json, messages/vi.json (sidebar_recents)"
+          },
+          {
+             "id": "feat-042",
+             "name": "Schema Validation i18n + Missing Favorites Empty-State Keys",
+             "description": "Translation pass over schemas + fixed missing i18n keys (2026-08-08). (1) Build fix: notes-list-empty.tsx referenced notes_page_no_favorites / notes_page_no_favorites_desc which never existed — keys added (en: 'No favorite notes'/'Star notes to keep them close.', vi equivalents). (2) All user-input/query schemas now carry Paraglide messages instead of zod default English (zod v4.4.3 { message } params): src/schemas/query.ts pagination (page/pageSize invalid+int+positive → validation_page_invalid / validation_page_size_invalid, pageSize max 100 → validation_page_size_max); notes schemas (noteIdParam.id min → validation_id_required, noteInputSchema content max 1500 → validation_content_max + title max 200 → validation_title_max, bulkNoteActions ids min → validation_ids_required, generateNoteTitle content min → validation_content_required, sort enum → validation_sort_invalid); companion conversationIdParam.id → validation_id_required; settings tab enum → validation_tab_invalid. 12 new keys en/vi, 600/600 parity 0/0.",
+             "dependencies": ["feat-041"],
+             "status": "done",
+             "evidence": "src/schemas/query.ts, src/features/notes/schemas.ts, src/features/companion/schemas.ts, src/features/settings/schemas.ts (zod { message: m.*() } params), src/features/notes/components/notes-list-empty.tsx (now compiles), messages/en.json, messages/vi.json (12 new keys, 600 each)"
           }
       ]
   }

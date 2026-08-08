@@ -1,9 +1,9 @@
-import type { Note } from '@/features/notes/types';
+import type { Note, NotesEmptyVariant } from '@/features/notes/types';
 import type { BaseUIEvent } from '@base-ui/react';
 
 import { Fragment, type ReactNode } from 'react';
 
-import { NotesEmptyState, NoteCardSkeleton } from '@/features/notes/components';
+import { NotesListEmpty, NoteCardSkeleton } from '@/features/notes/components';
 
 import { m } from '@/paraglide/messages';
 
@@ -15,12 +15,19 @@ interface NotesListProps {
   onCreateClick?: (
     event: BaseUIEvent<React.MouseEvent<HTMLButtonElement, MouseEvent>>,
   ) => void;
-  emptyVariant?: 'active' | 'archived' | 'trash' | 'no-results';
   renderItem: (note: Note) => ReactNode;
+  emptyVariant: NotesEmptyVariant;
   loadingCardCount?: number;
   isLoading?: boolean;
-  hasQuery: boolean;
   notes: Note[];
+}
+
+function Container({ children }: { children: ReactNode }) {
+  return (
+    <div className="grid gap-4 grid-cols-1 @3xl:grid-cols-2 @8xl:grid-cols-3">
+      {children}
+    </div>
+  );
 }
 
 export default function NotesList({
@@ -29,37 +36,34 @@ export default function NotesList({
   emptyVariant,
   renderItem,
   isLoading,
-  hasQuery,
   notes,
 }: NotesListProps) {
   if (isLoading)
     return (
-      <div className="grid gap-4 grid-cols-1 @2xl:grid-cols-2 @6xl:grid-cols-3">
+      <Container>
         {Array.from({ length: loadingCardCount }).map((_, i) => (
           <NoteCardSkeleton key={i} />
         ))}
-      </div>
+      </Container>
     );
 
   if (notes.length < 1)
     return (
-      <NotesEmptyState
-        variant={emptyVariant ?? (hasQuery ? 'no-results' : 'active')}
-      >
+      <NotesListEmpty variant={emptyVariant}>
         {emptyVariant === 'active' && (
           <Button onClick={onCreateClick}>
             <PlusIcon className="h-4 w-4" />
             {m.notes_page_create()}
           </Button>
         )}
-      </NotesEmptyState>
+      </NotesListEmpty>
     );
 
   return (
-    <div className="grid gap-4 grid-cols-1 @2xl:grid-cols-2 @7xl:grid-cols-3">
+    <Container>
       {notes.map((note) => (
         <Fragment key={note.id}>{renderItem(note)}</Fragment>
       ))}
-    </div>
+    </Container>
   );
 }

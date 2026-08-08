@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { AuthContext } from '@/types/shared';
+import type { AuthContext } from '@/types/app';
 
 import {
   createRootRouteWithContext,

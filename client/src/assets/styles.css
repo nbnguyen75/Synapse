@@ -7,6 +7,10 @@
 @custom-variant hover (&:hover);
 
 @theme inline {
+  --container-8xl: 96rem; /* 1536px */
+  --container-9xl: 100rem; /* 1600px */
+  --container-10xl: 120rem; /* 1920px */
+
   --font-inter: 'Inter Variable', sans-serif;
   --font-body: var(--font-inter);
 

@@ -4,11 +4,11 @@ import { useForm } from 'react-hook-form';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 
 import { useCreateNoteMutation } from '@/features/notes/hooks/use-note-mutation';
-import {
-  noteFormSchema,
-  type NoteCreateFormValues,
-  type NoteFormValues,
-} from '@/features/notes/schemas';
+// import {
+//   noteFormSchema,
+//   type NoteCreateFormValues,
+//   type NoteFormValues,
+// } from '@/features/notes/schemas';
 
 import { m } from '@/paraglide/messages';
 
@@ -35,17 +35,17 @@ export default function QuickCreateNoteDialog({
 }: QuickCreateNoteDialogProps) {
   const { mutate: createNote, isPending } = useCreateNoteMutation();
 
-  const form = useForm<NoteFormValues>({
-    resolver: standardSchemaResolver(noteFormSchema),
-    defaultValues: { content: undefined, title: '' },
-    mode: 'onBlur',
-  });
+  // const form = useForm<NoteFormValues>({
+  //   resolver: standardSchemaResolver(noteFormSchema),
+  //   defaultValues: { content: undefined, title: '' },
+  //   mode: 'onBlur',
+  // });
 
-  const onSubmit = (data: NoteFormValues) => {
-    createNote({ data: data as NoteCreateFormValues });
-    onOpenChange(false);
-    form.reset();
-  };
+  // const onSubmit = (data: NoteFormValues) => {
+  //   createNote({ data: data as NoteCreateFormValues });
+  //   onOpenChange(false);
+  //   form.reset();
+  // };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -60,8 +60,8 @@ export default function QuickCreateNoteDialog({
 
         <NoteForm
           id="create-note-form"
-          form={form}
-          onSubmit={onSubmit}
+          // form={form}
+          // onSubmit={onSubmit}
           isPending={isPending}
         />
 
@@ -70,7 +70,7 @@ export default function QuickCreateNoteDialog({
             variant="outline"
             className="cursor-pointer"
             onClick={() => onOpenChange(false)}
-            disabled={form.formState.isSubmitting || isPending}
+            // disabled={form.formState.isSubmitting || isPending}
           >
             {m.notes_page_create_cancel()}
           </Button>
@@ -79,17 +79,17 @@ export default function QuickCreateNoteDialog({
             type="submit"
             form="create-note-form"
             className="cursor-pointer"
-            disabled={
-              form.formState.isSubmitting ||
-              isPending ||
-              !form.formState.isDirty
-            }
+            // disabled={
+            //   form.formState.isSubmitting ||
+            //   isPending ||
+            //   !form.formState.isDirty
+            // }
           >
-            {form.formState.isSubmitting ? (
+            {/* {form.formState.isSubmitting ? (
               <Spinner className="h-4 w-4" />
             ) : (
               m.notes_page_create_save()
-            )}
+            )} */}
           </Button>
         </DialogFooter>
       </DialogContent>

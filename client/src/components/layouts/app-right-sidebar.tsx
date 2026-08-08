@@ -1,4 +1,4 @@
-import ChatBot from '@/features/chat/components/chat-bot';
+import ChatBot from '@/features/companion/components/chat-bot';
 
 import { useSettingsStore } from '@/store/settings-store';
 

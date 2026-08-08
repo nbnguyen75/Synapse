@@ -1,6 +1,5 @@
 // ! Not used, reference only
 import type { BaseSyntheticEvent, ComponentProps } from 'react';
-import type { NoteFormValues } from '@/features/notes/schemas';
 
 import { Controller, type UseFormReturn } from 'react-hook-form';
 
@@ -14,36 +13,36 @@ import { Field, FieldLabel, FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 
 interface NoteFormProps extends Omit<ComponentProps<'form'>, 'onSubmit'> {
-  onSubmit?: (
-    data: NoteFormValues,
-    $event?: BaseSyntheticEvent,
-  ) => Promise<void> | void;
-  form: UseFormReturn<NoteFormValues>;
+  // onSubmit?: (
+  //   data: NoteFormValues,
+  //   $event?: BaseSyntheticEvent,
+  // ) => Promise<void> | void;
+  // form: UseFormReturn<NoteFormValues>;
   isPending?: boolean;
 }
 
 export default function NoteForm({
   isPending = false,
   className,
-  onSubmit,
-  form,
+  // onSubmit,
+  // form,
   ...restProps
 }: NoteFormProps) {
-  const {
-    formState: { isSubmitting },
-    handleSubmit,
-    control,
-  } = form;
+  // const {
+  //   formState: { isSubmitting },
+  //   handleSubmit,
+  //   control,
+  // } = form;
 
   return (
     <form
-      onSubmit={handleSubmit((data, $event) => onSubmit?.(data, $event))}
+      // onSubmit={handleSubmit((data, $event) => onSubmit?.(data, $event))}
       className={cn('w-full space-y-4', className)}
       {...restProps}
     >
       <Controller
         name="title"
-        control={control}
+        // control={control}
         render={({ fieldState, field }) => (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel
@@ -60,7 +59,7 @@ export default function NoteForm({
               placeholder={m.notes_page_create_title_placeholder()}
               aria-invalid={fieldState.invalid}
               className="w-full bg-zinc-900/40 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-zinc-700 focus-visible:border-zinc-700 h-9.5 rounded-lg text-xs"
-              disabled={isSubmitting || isPending}
+              // disabled={isSubmitting || isPending}
             />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
@@ -69,7 +68,7 @@ export default function NoteForm({
 
       <Controller
         name="content"
-        control={control}
+        // control={control}
         render={({ fieldState, field }) => (
           <Tabs defaultValue="edit" className="w-full h-full">
             <TabsList variant="line">
@@ -90,7 +89,7 @@ export default function NoteForm({
                   placeholder={m.notes_page_create_content_placeholder()}
                   className="min-h-40 max-h-80"
                   onBlur={field.onBlur}
-                  disabled={isSubmitting || isPending}
+                  // disabled={isSubmitting || isPending}
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />

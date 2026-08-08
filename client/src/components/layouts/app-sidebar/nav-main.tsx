@@ -29,20 +29,20 @@ const navItems = [
     activeColor:
       'text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400',
     label: () => m.sidebar_favorites(),
-    href: '/favorites',
+    href: '/notes/favorites',
     icon: StarIcon,
   },
   {
     activeColor: 'text-purple-600 dark:text-purple-400',
     label: () => m.sidebar_archive(),
+    href: '/notes/archive',
     icon: ArchiveIcon,
-    href: '/archive',
   },
   {
     activeColor: 'text-rose-600 dark:text-rose-400',
     label: () => m.sidebar_trash(),
+    href: '/notes/trash',
     icon: Trash2Icon,
-    href: '/trash',
   },
 ] as const;
 

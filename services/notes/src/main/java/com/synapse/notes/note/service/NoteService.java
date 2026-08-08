@@ -4,6 +4,7 @@ import com.synapse.notes.common.exception.ApiException;
 import com.synapse.notes.common.exception.ErrorCode;
 import com.synapse.notes.common.response.PageResponse;
 import com.synapse.notes.note.client.NoteTitleClient;
+import com.synapse.notes.note.dto.request.BulkActionRequest.BulkAction;
 import com.synapse.notes.note.dto.request.CreateNoteRequest;
 import com.synapse.notes.note.dto.request.NoteQueryParams;
 import com.synapse.notes.note.dto.request.UpdateNoteRequest;
@@ -138,50 +139,39 @@ public class NoteService {
     }
   }
 
-  // ==================== BULK OPERATIONS ====================
-
   @Transactional
-  public int bulkArchive(String userId, Collection<UUID> ids) {
-    return noteRepository.bulkArchive(userId, ids, Instant.now());
-  }
-
-  @Transactional
-  public int bulkUnarchive(String userId, Collection<UUID> ids) {
-    return noteRepository.bulkUnarchive(userId, ids, Instant.now());
-  }
-
-  @Transactional
-  public int bulkTrash(String userId, Collection<UUID> ids) {
-    int affected = noteRepository.bulkTrash(userId, ids, Instant.now());
-    if (affected > 0) {
-      final var notes = noteRepository.findAllByIdInAndUserId(ids, userId);
-      eventPublisher.publishUpdated(notes);
-    }
-    return affected;
-  }
-
-  @Transactional
-  public int bulkRestore(String userId, Collection<UUID> ids) {
-    int affected = noteRepository.bulkRestore(userId, ids, Instant.now());
-    if (affected > 0) {
-      final var notes = noteRepository.findAllByIdInAndUserId(ids, userId);
-      eventPublisher.publishUpdated(notes);
-    }
-    return affected;
-  }
-
-  @Transactional
-  public int bulkFavorite(String userId, Collection<UUID> ids, boolean favorite) {
-    return noteRepository.bulkFavorite(userId, ids, favorite, Instant.now());
-  }
-
-  @Transactional
-  public int bulkDeletePermanent(String userId, Collection<UUID> ids) {
-    int affected = noteRepository.bulkDeletePermanent(userId, ids);
-    if (affected > 0) {
-      eventPublisher.publishDeleted(ids);
-    }
-    return affected;
+  public int executeBulkAction(String userId, Collection<UUID> ids, BulkAction action) {
+    return switch (action) {
+      case ARCHIVE -> noteRepository.bulkArchive(userId, ids, Instant.now());
+      case UNARCHIVE -> noteRepository.bulkUnarchive(userId, ids, Instant.now());
+      case PIN -> noteRepository.bulkPin(userId, ids, true, Instant.now());
+      case UNPIN -> noteRepository.bulkPin(userId, ids, false, Instant.now());
+      case FAVORITE -> noteRepository.bulkFavorite(userId, ids, true, Instant.now());
+      case UNFAVORITE -> noteRepository.bulkFavorite(userId, ids, false, Instant.now());
+      case TRASH -> {
+        int affected = noteRepository.bulkTrash(userId, ids, Instant.now());
+        if (affected > 0) {
+          final var notes = noteRepository.findAllByIdInAndUserId(ids, userId);
+          eventPublisher.publishUpdated(notes);
+        }
+        yield affected;
+      }
+      case RESTORE -> {
+        int affected = noteRepository.bulkRestore(userId, ids, Instant.now());
+        if (affected > 0) {
+          final var notes = noteRepository.findAllByIdInAndUserId(ids, userId);
+          eventPublisher.publishUpdated(notes);
+        }
+        yield affected;
+      }
+      case DELETE_PERMANENT -> {
+        int affected = noteRepository.bulkDeletePermanent(userId, ids);
+        if (affected > 0) {
+          eventPublisher.publishDeleted(ids);
+        }
+        yield affected;
+      }
+    };
   }
 
   private Note getNoteEntity(String userId, UUID id) {

@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 
 import { useUpdateNoteMutation } from '@/features/notes/hooks/use-note-mutation';
-import { noteFormSchema, type NoteFormValues } from '@/features/notes/schemas';
+// import { noteFormSchema, type NoteFormValues } from '@/features/notes/schemas';
 
 import { m } from '@/paraglide/messages';
 
@@ -36,25 +36,25 @@ export default function QuickEditNoteDialog({
 }: QuickEditNoteDialogProps) {
   const { mutate: updateNote, isPending } = useUpdateNoteMutation();
 
-  const form = useForm<NoteFormValues>({
-    defaultValues: { content: undefined, title: '' },
-    resolver: standardSchemaResolver(noteFormSchema),
-    mode: 'onBlur',
-  });
+  // const form = useForm<NoteFormValues>({
+  //   defaultValues: { content: undefined, title: '' },
+  //   resolver: standardSchemaResolver(noteFormSchema),
+  //   mode: 'onBlur',
+  // });
 
-  useEffect(() => {
-    if (note) {
-      form.reset({ content: note.content, title: note.title });
-    }
-  }, [note, form]);
+  // useEffect(() => {
+  //   if (note) {
+  //     form.reset({ content: note.content, title: note.title });
+  //   }
+  // }, [note, form]);
 
-  const onSubmit = (data: NoteFormValues) => {
-    if (!note) return;
+  // const onSubmit = (data: NoteFormValues) => {
+  //   if (!note) return;
 
-    updateNote({ id: note.id, data });
-    onOpenChange(false);
-    form.reset();
-  };
+  //   updateNote({ id: note.id, data });
+  //   onOpenChange(false);
+  //   form.reset();
+  // };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -69,8 +69,8 @@ export default function QuickEditNoteDialog({
 
         <NoteForm
           id="update-note-form"
-          form={form}
-          onSubmit={onSubmit}
+          // form={form}
+          // onSubmit={onSubmit}
           isPending={isPending}
         />
 
@@ -79,7 +79,7 @@ export default function QuickEditNoteDialog({
             variant="outline"
             className="cursor-pointer"
             onClick={() => onOpenChange(false)}
-            disabled={form.formState.isSubmitting || isPending}
+            // disabled={form.formState.isSubmitting || isPending}
           >
             {m.notes_page_edit_cancel()}
           </Button>
@@ -88,17 +88,17 @@ export default function QuickEditNoteDialog({
             type="submit"
             form="update-note-form"
             className="cursor-pointer"
-            disabled={
-              form.formState.isSubmitting ||
-              isPending ||
-              !form.formState.isDirty
-            }
+            // disabled={
+            //   form.formState.isSubmitting ||
+            //   isPending ||
+            //   !form.formState.isDirty
+            // }
           >
-            {form.formState.isSubmitting ? (
+            {/* {form.formState.isSubmitting ? (
               <Spinner className="h-4 w-4" />
             ) : (
               m.notes_page_edit_save()
-            )}
+            )} */}
           </Button>
         </DialogFooter>
       </DialogContent>

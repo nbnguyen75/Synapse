@@ -3,7 +3,6 @@ import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import { DEFAULT_NOTES_QUERY_PARAMS } from '@/features/notes/constants';
 import { notesQueryParamsSchema } from '@/features/notes/schemas';
 import { NotesViewPage } from '@/features/notes/components';
-import { VIEW_FILTERS } from '@/features/notes/constants';
 
 import { createTitle } from '@/config/metadata';
 
@@ -17,17 +16,9 @@ export const Route = createFileRoute('/_app/notes/')({
     meta: [{ title: createTitle(m.notes_page_title()) }],
   }),
   validateSearch: notesQueryParamsSchema,
-  component: NotesPage,
+  component: RouteComponent,
 });
 
-function NotesPage() {
-  const search = Route.useSearch();
-
-  return (
-    <NotesViewPage
-      viewMode="active"
-      search={search}
-      apiFilters={VIEW_FILTERS.active}
-    />
-  );
+function RouteComponent() {
+  return <NotesViewPage viewMode="active" />;
 }

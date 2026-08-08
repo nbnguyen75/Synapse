@@ -1,11 +1,27 @@
-import type { PaginatedData } from '@/types/shared';
-import type { Note } from '@/features/notes/types';
-
-import { format } from 'date-fns';
+import type {
+  Note,
+  NotesEmptyVariant,
+  NoteViewMode,
+} from '@/features/notes/types';
+import type { PaginatedData } from '@/types/response';
 
 import { m } from '@/paraglide/messages';
 
-export const SORTABLE_FIELDS = [
+export const NOTE_BULK_ACTIONS = [
+  'PIN',
+  'UNPIN',
+  'FAVORITE',
+  'UNFAVORITE',
+  'ARCHIVE',
+  'UNARCHIVE',
+  'TRASH',
+  'RESTORE',
+  'DELETE_PERMANENT',
+] as const;
+
+export type BulkNoteAction = (typeof NOTE_BULK_ACTIONS)[number];
+
+export const NOTE_SORTABLE_FIELDS = [
   'updatedAt,desc',
   'updatedAt,asc',
   'createdAt,desc',
@@ -14,7 +30,14 @@ export const SORTABLE_FIELDS = [
   'title,asc',
 ] as const;
 
-export const MAX_VISIBLE_TAGS = 3;
+export type NoteSortableField = (typeof NOTE_SORTABLE_FIELDS)[number];
+
+export const NOTE_VIEW_FILTERS = {
+  favorites: { archived: false, trashed: false, favorite: true },
+  active: { archived: false, trashed: false },
+  archive: { archived: true, trashed: false },
+  trash: { trashed: true },
+} as const;
 
 export const DEFAULT_NOTES_QUERY_PARAMS = {
   sort: 'updatedAt,desc' as const,
@@ -22,13 +45,6 @@ export const DEFAULT_NOTES_QUERY_PARAMS = {
   page: 1,
   q: '',
 };
-
-export const VIEW_FILTERS = {
-  favorites: { archived: false, trashed: false, favorite: true },
-  active: { archived: false, trashed: false },
-  archive: { archived: true, trashed: false },
-  trash: { trashed: true },
-} as const;
 
 export const EMPTY_PAGINATED: PaginatedData<Note> = {
   totalElements: 0,
@@ -39,11 +55,8 @@ export const EMPTY_PAGINATED: PaginatedData<Note> = {
   page: 0,
 };
 
-export function getSortItems(): {
-  value: (typeof SORTABLE_FIELDS)[number];
-  label: string;
-}[] {
-  return [
+export const NOTE_SORT_OPTIONS: { value: NoteSortableField; label: string }[] =
+  [
     { label: m.notes_page_sort_updated(), value: 'updatedAt,desc' },
     { label: m.notes_page_sort_updated_asc(), value: 'updatedAt,asc' },
     { label: m.notes_page_sort_created_new(), value: 'createdAt,desc' },
@@ -51,27 +64,50 @@ export function getSortItems(): {
     { label: m.notes_page_sort_title_az(), value: 'title,asc' },
     { label: m.notes_page_sort_title_za(), value: 'title,desc' },
   ];
+
+interface NotesViewConfig {
+  filters: { archived?: boolean; favorite?: boolean; trashed?: boolean };
+  description: (count: string) => string;
+  emptyVariant: NotesEmptyVariant;
+  title: () => string;
 }
 
-export function getSortOptionLabel(key: string): string {
-  switch (key) {
-    case 'updated':
-      return m.notes_page_sort_updated();
-    case 'createdNew':
-      return m.notes_page_sort_created_new();
-    case 'createdOld':
-      return m.notes_page_sort_created_old();
-    case 'titleAz':
-      return m.notes_page_sort_title_az();
-    case 'titleZa':
-      return m.notes_page_sort_title_za();
-    case 'readLong':
-      return m.notes_page_sort_read_long();
-    case 'readShort':
-      return m.notes_page_sort_read_short();
-    default:
-      return key;
-  }
-}
+export const NOTE_VIEW_CONFIG: Record<NoteViewMode, NotesViewConfig> = {
+  favorites: {
+    description: (count) => m.favorites_page_title_desc({ count }),
+    title: () => '⭐ ' + m.favorites_page_title(),
+    filters: NOTE_VIEW_FILTERS.favorites,
+    emptyVariant: 'favorites',
+  },
+  archive: {
+    description: (count) => m.archive_page_title_desc({ count }),
+    title: () => '📦 ' + m.archive_page_title(),
+    filters: NOTE_VIEW_FILTERS.archive,
+    emptyVariant: 'archived',
+  },
+  active: {
+    description: (count) => m.notes_page_view_desc({ count }),
+    title: () => '📝 ' + m.notes_page_title(),
+    filters: NOTE_VIEW_FILTERS.active,
+    emptyVariant: 'active',
+  },
+  trash: {
+    description: (count) => m.trash_page_title_desc({ count }),
+    title: () => '🗑️ ' + m.trash_page_title(),
+    filters: NOTE_VIEW_FILTERS.trash,
+    emptyVariant: 'trash',
+  },
+};
 
-export const MAX_NOTE_CONTENT_LENGTH = 1500;
+export const BULK_NOTES_ACTION_SUCCESS_MESSAGE: Record<BulkNoteAction, string> =
+  {
+    DELETE_PERMANENT: m.notes_page_toast_deleted(),
+    UNFAVORITE: m.notes_page_toast_unfavorited(),
+    UNARCHIVE: m.notes_page_toast_unarchived(),
+    FAVORITE: m.notes_page_toast_favorited(),
+    ARCHIVE: m.notes_page_toast_archived(),
+    RESTORE: m.notes_page_toast_restored(),
+    UNPIN: m.notes_page_toast_unpinned(),
+    TRASH: m.notes_page_toast_trashed(),
+    PIN: m.notes_page_toast_pinned(),
+  };

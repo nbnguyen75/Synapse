@@ -12,9 +12,10 @@ import {
   useGenerateNoteTitleMutation,
 } from '@/features/notes/hooks/use-note-mutation';
 import {
-  noteCreateFormSchema,
-  type NoteCreateFormValues,
-} from '@/features/notes/schemas';
+  noteInputSchema,
+  type NoteFormInput,
+  type NoteInputPayload,
+} from '@/features/notes';
 
 import { useKeyboardShortcut } from '@/hooks/use-key-binding';
 
@@ -53,10 +54,10 @@ export const Route = createFileRoute('/_app/notes/create')({
   validateSearch: z.object({
     title: z.string().optional(),
   }),
-  component: CreateNotePage,
+  component: RouteComponent,
 });
 
-function CreateNotePage() {
+function RouteComponent() {
   const navigate = useNavigate();
   const { title } = Route.useSearch();
 
@@ -65,12 +66,12 @@ function CreateNotePage() {
   const { isPending: isGeneratingTitle, mutate: generateTitle } =
     useGenerateNoteTitleMutation();
 
-  const form = useForm<NoteCreateFormValues>({
+  const form = useForm<NoteFormInput>({
     defaultValues: {
       content: '',
       title,
     },
-    resolver: standardSchemaResolver(noteCreateFormSchema),
+    resolver: standardSchemaResolver(noteInputSchema),
   });
 
   const { handleSubmit, setValue, control } = form;
@@ -80,12 +81,10 @@ function CreateNotePage() {
     control,
   });
 
-  const onSave = (data: NoteCreateFormValues) => {
+  const onSave = (data: NoteInputPayload) => {
     createNote(
       {
-        data: {
-          ...data,
-        },
+        body: data,
       },
       {
         onSuccess: async () => {
@@ -98,15 +97,22 @@ function CreateNotePage() {
   const handleAiTitle = () => {
     if (!watchedContent?.trim()) return;
 
-    generateTitle(watchedContent, {
-      onSuccess: (data) => {
-        setValue('title', data as string | undefined, { shouldDirty: true });
-        toast.success(m.notes_page_ai_title_success());
+    generateTitle(
+      {
+        body: {
+          content: watchedContent,
+        },
       },
-      onError: () => {
-        toast.error(m.notes_page_ai_title_failed());
+      {
+        onSuccess: (data) => {
+          setValue('title', data.title, { shouldDirty: true });
+          toast.success(m.notes_page_ai_title_success());
+        },
+        onError: () => {
+          toast.error(m.notes_page_ai_title_failed());
+        },
       },
-    });
+    );
   };
 
   useKeyboardShortcut(

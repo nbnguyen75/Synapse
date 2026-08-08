@@ -1,4 +1,4 @@
-import type { AuthContext } from '@/types/shared';
+import type { AuthContext } from '@/types/app';
 
 import ReactDOM from 'react-dom/client';
 import { StrictMode } from 'react';

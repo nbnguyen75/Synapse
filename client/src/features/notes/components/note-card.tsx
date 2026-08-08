@@ -1,7 +1,6 @@
-import type { NoteViewMode } from '@/features/notes/schemas';
-import type { Note } from '@/features/notes/types';
+import type { Note, NoteViewMode } from '@/features/notes/types';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 import { format } from 'date-fns';
 
@@ -10,7 +9,7 @@ import {
   exportMarkdown,
   getMarkdownReadTimeSync,
 } from '@/features/notes/services';
-import { MAX_VISIBLE_TAGS } from '@/features/notes/constants';
+import { useNoteCardActions } from '@/features/notes/hooks/use-note-card-actions';
 
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
@@ -55,44 +54,37 @@ interface NoteWithDetails extends Note {
 }
 
 interface NoteCardProps {
-  onDelete?: (note: Note) => void | Promise<void>;
-  onPermanentDelete?: (id: string) => void;
   onToggleSelect?: (id: string) => void;
   onSelectRange?: (id: string) => void;
-  onOpenDetail?: (note: Note) => void;
-  onToggleStar?: (id: string) => void;
-  onTogglePin?: (id: string) => void;
-  onUnarchive?: (id: string) => void;
-  onArchive?: (id: string) => void;
-  onRestore?: (id: string) => void;
-  onTrash?: (id: string) => void;
   viewMode?: NoteViewMode;
-  isBatchMode?: boolean;
   note: NoteWithDetails;
   isSelected?: boolean;
 }
 
+const MAX_VISIBLE_TAGS = 3;
+
 export default function NoteCard({
-  isBatchMode: _isBatchMode,
-  onDelete: _onDelete,
-  onPermanentDelete,
   onToggleSelect,
   onSelectRange,
-  onOpenDetail,
-  onToggleStar,
-  onTogglePin,
-  onUnarchive,
   isSelected,
-  onArchive,
-  onRestore,
   viewMode,
-  onTrash,
   note,
 }: NoteCardProps) {
+  const actions = useNoteCardActions(note, viewMode);
   const tags = note.tags || [];
   const visibleTags = tags.slice(0, MAX_VISIBLE_TAGS);
   const remainingTagsCount = tags.length - MAX_VISIBLE_TAGS;
-  const wordCount = countWordsMarkdownSync(note.content);
+
+  const wordCount = useMemo(
+    () => countWordsMarkdownSync(note.content),
+    [note.content],
+  );
+  const readTime = useMemo(
+    () => getMarkdownReadTimeSync(note.content),
+    [note.content],
+  );
+
+  const canPinFavorite = viewMode !== 'archive' && viewMode !== 'trash';
 
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -160,7 +152,7 @@ export default function NoteCard({
             </div>
 
             <div className="flex items-center gap-0.5 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity duration-200">
-              {viewMode !== 'archive' && viewMode !== 'trash' && (
+              {canPinFavorite && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -171,7 +163,7 @@ export default function NoteCard({
                   }
                   onClick={(e) => {
                     e.stopPropagation();
-                    onTogglePin?.(note.id);
+                    actions.onTogglePin();
                   }}
                   className={cn(
                     'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
@@ -189,7 +181,7 @@ export default function NoteCard({
                 </Button>
               )}
 
-              {viewMode !== 'archive' && viewMode !== 'trash' && (
+              {canPinFavorite && (
                 <Button
                   variant="ghost"
                   size="icon"
@@ -200,7 +192,7 @@ export default function NoteCard({
                   }
                   onClick={(e) => {
                     e.stopPropagation();
-                    onToggleStar?.(note.id);
+                    actions.onToggleFavorite();
                   }}
                   className={cn(
                     'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-amber-500 hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
@@ -236,7 +228,7 @@ export default function NoteCard({
                   className="w-52"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <DropdownMenuItem onClick={() => onOpenDetail?.(note)}>
+                  <DropdownMenuItem onClick={() => actions.openDetail()}>
                     <FileTextIcon className="mr-2 size-3.5" />
                     {m.notes_page_card_open_doc()}
                   </DropdownMenuItem>
@@ -250,13 +242,13 @@ export default function NoteCard({
 
                   {viewMode === 'trash' ? (
                     <>
-                      <DropdownMenuItem onClick={() => onRestore?.(note.id)}>
+                      <DropdownMenuItem onClick={() => actions.onRestore()}>
                         <RotateCcwIcon className="mr-2 size-3.5" />
                         {m.notes_card_restore()}
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
-                        onClick={() => onPermanentDelete?.(note.id)}
+                        onClick={() => actions.onPermanentDelete()}
                         variant="destructive"
                       >
                         <XCircleIcon className="mr-2 size-3.5" />
@@ -265,13 +257,13 @@ export default function NoteCard({
                     </>
                   ) : viewMode === 'archive' ? (
                     <>
-                      <DropdownMenuItem onClick={() => onUnarchive?.(note.id)}>
+                      <DropdownMenuItem onClick={() => actions.onUnarchive()}>
                         <Undo2Icon className="mr-2 size-3.5" />
                         {m.notes_card_unarchive()}
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
-                        onClick={() => onTrash?.(note.id)}
+                        onClick={() => actions.onTrash()}
                         variant="destructive"
                       >
                         <Trash2Icon className="mr-2 size-3.5" />
@@ -280,13 +272,13 @@ export default function NoteCard({
                     </>
                   ) : (
                     <>
-                      <DropdownMenuItem onClick={() => onArchive?.(note.id)}>
+                      <DropdownMenuItem onClick={() => actions.onArchive()}>
                         <ArchiveIcon className="mr-2 size-3.5" />
                         {m.notes_page_action_archive()}
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
-                        onClick={() => onTrash?.(note.id)}
+                        onClick={() => actions.onTrash()}
                         variant="destructive"
                       >
                         <Trash2Icon className="mr-2 size-3.5" />
@@ -366,7 +358,7 @@ export default function NoteCard({
           className="shrink-0 gap-1 font-normal text-[10px] px-2 py-0 h-5 bg-muted/50 hover:bg-muted text-muted-foreground/80 border-none transition-all duration-200 hover:scale-[1.02]"
         >
           <BookOpenIcon className="size-2.5 text-muted-foreground/80 transition-transform duration-200 group-hover:rotate-6" />
-          {getMarkdownReadTimeSync(note.content)}
+          {readTime}
         </Badge>
       </CardFooter>
     </Card>

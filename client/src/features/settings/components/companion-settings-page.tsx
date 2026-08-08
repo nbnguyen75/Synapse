@@ -4,23 +4,18 @@ import { useEffect } from 'react';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 
 import {
-  COMPANION_SETTINGS_LANGUAGES,
-  COMPANION_SETTINGS_PRESETS,
-  COMPANION_SETTINGS_RESPONSE_LENGTH,
-  DEFAULT_AI_SETTINGS,
-  getLanguageLabel,
-  getPresetLabel,
-  getResponseLengthLabel,
-} from '@/features/settings/constants';
-import {
   companionSettingsSchema,
-  type CompanionSettings,
-  type CompanionSettingsFormValues,
-} from '@/features/settings/schemas';
+  DEFAULT_COMPANION_SETTINGS,
+  useGetCompanionSettingsQuery,
+  useUpdateCompanionSettingsMutation,
+  type CompanionSettingsFormInput,
+  type CompanionSettingsPayload,
+} from '@/features/companion';
 import {
-  useGetCompanionSettings,
-  useUpdateCompanionSettings,
-} from '@/features/settings/hooks/use-companion-settings';
+  COMPANION_RESPONSE_LENGTH_OPTIONS,
+  COMPANION_SETTINGS_LANGUAGE_OPTIONS,
+  COMPANION_SETTINGS_PRESET_OPTIONS,
+} from '@/features/settings/constants';
 
 import { m } from '@/paraglide/messages';
 
@@ -47,33 +42,16 @@ import { Input } from '@/components/ui/input';
 import { SaveIcon } from 'lucide-react';
 
 export default function CompanionSettingsPage() {
-  const presetOptionItems = COMPANION_SETTINGS_PRESETS.map((value) => ({
-    label: getPresetLabel(value),
-    value,
-  }));
-
-  const responseLengthOptionItems = COMPANION_SETTINGS_RESPONSE_LENGTH.map(
-    (value) => ({
-      label: getResponseLengthLabel(value),
-      value,
-    }),
-  );
-
-  const languageOptionItems = COMPANION_SETTINGS_LANGUAGES.map((value) => ({
-    label: getLanguageLabel(value),
-    value,
-  }));
-
   const {
-    data: companionSettings = DEFAULT_AI_SETTINGS,
+    data: companionSettings = DEFAULT_COMPANION_SETTINGS,
     isLoading: isLoadingCompanionSettings,
-  } = useGetCompanionSettings();
+  } = useGetCompanionSettingsQuery();
   const {
     isPending: isUpdatingCompanionSettings,
     mutate: updateCompanionSettings,
-  } = useUpdateCompanionSettings();
+  } = useUpdateCompanionSettingsMutation();
 
-  const form = useForm<CompanionSettingsFormValues>({
+  const form = useForm<CompanionSettingsFormInput>({
     resolver: standardSchemaResolver(companionSettingsSchema),
     defaultValues: companionSettings,
     mode: 'onBlur',
@@ -94,8 +72,8 @@ export default function CompanionSettingsPage() {
 
   const isPending = isUpdatingCompanionSettings;
 
-  const onSubmit = (data: CompanionSettings) => {
-    updateCompanionSettings({ data });
+  const onSubmit = (data: CompanionSettingsPayload) => {
+    updateCompanionSettings({ body: data });
   };
 
   if (isLoadingCompanionSettings) {
@@ -146,7 +124,9 @@ export default function CompanionSettingsPage() {
   return (
     <div className="mt-6">
       <form
-        onSubmit={handleSubmit((data) => onSubmit(data as CompanionSettings))}
+        onSubmit={handleSubmit((data) =>
+          onSubmit(data as CompanionSettingsPayload),
+        )}
         className="w-full space-y-5"
         id="companion-settings-form"
       >
@@ -190,7 +170,7 @@ export default function CompanionSettingsPage() {
                 value={field.value}
                 onValueChange={field.onChange}
                 disabled={isPending}
-                items={responseLengthOptionItems}
+                items={COMPANION_RESPONSE_LENGTH_OPTIONS}
               >
                 <SelectTrigger id="responseLength" className="w-full">
                   <SelectValue
@@ -199,9 +179,9 @@ export default function CompanionSettingsPage() {
                 </SelectTrigger>
 
                 <SelectContent>
-                  {COMPANION_SETTINGS_RESPONSE_LENGTH.map((responseLen) => (
-                    <SelectItem key={responseLen} value={responseLen}>
-                      {getResponseLengthLabel(responseLen)}
+                  {COMPANION_RESPONSE_LENGTH_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -226,7 +206,7 @@ export default function CompanionSettingsPage() {
                 value={field.value}
                 onValueChange={field.onChange}
                 disabled={isPending}
-                items={languageOptionItems}
+                items={COMPANION_SETTINGS_LANGUAGE_OPTIONS}
               >
                 <SelectTrigger id="language" className="w-full">
                   <SelectValue
@@ -235,9 +215,9 @@ export default function CompanionSettingsPage() {
                 </SelectTrigger>
 
                 <SelectContent>
-                  {COMPANION_SETTINGS_LANGUAGES.map((language) => (
-                    <SelectItem key={language} value={language}>
-                      {getLanguageLabel(language)}
+                  {COMPANION_SETTINGS_LANGUAGE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -285,7 +265,7 @@ export default function CompanionSettingsPage() {
                 value={field.value}
                 onValueChange={field.onChange}
                 disabled={isPending}
-                items={presetOptionItems}
+                items={COMPANION_SETTINGS_PRESET_OPTIONS}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue
@@ -294,9 +274,9 @@ export default function CompanionSettingsPage() {
                 </SelectTrigger>
 
                 <SelectContent>
-                  {COMPANION_SETTINGS_PRESETS.map((preset) => (
-                    <SelectItem key={preset} value={preset}>
-                      {getPresetLabel(preset)}
+                  {COMPANION_SETTINGS_PRESET_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

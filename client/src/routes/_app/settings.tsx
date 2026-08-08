@@ -1,3 +1,4 @@
+/* eslint-disable perfectionist/sort-objects */
 import type { SettingsTab } from '@/features/settings/constants';
 
 import { useState, type ElementType } from 'react';
@@ -19,12 +20,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings2Icon, SparklesIcon } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/settings')({
-  head: ({ params }) => {
-    const {} = params;
+  loaderDeps: ({ search }) => {
+    return {
+      tab: search.tab,
+    };
+  },
+  loader: ({ deps }) => {
+    return {
+      tab: deps.tab,
+    };
+  },
+  head: ({ loaderData }) => {
+    const tabTitle =
+      loaderData?.tab === 'companion'
+        ? m.settings_page_tab_companion()
+        : m.settings_page_tab_general();
+
     return {
       meta: [
         {
-          title: createTitle(m.settings_page_title()),
+          title: createTitle(`${tabTitle} - ${m.settings_page_title()}`),
         },
       ],
     };

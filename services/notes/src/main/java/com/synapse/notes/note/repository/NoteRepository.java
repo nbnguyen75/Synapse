@@ -106,8 +106,21 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
   @Query(
       """
       UPDATE Note n
+      SET n.pinned = :pinned, n.updatedAt = :now
+      WHERE n.userId = :userId AND n.id IN :ids AND n.trashed = false
+      """)
+  int bulkPin(
+      @Param("userId") String userId,
+      @Param("ids") Collection<UUID> ids,
+      @Param("pinned") boolean pinned,
+      @Param("now") Instant now);
+
+  @Modifying(clearAutomatically = true)
+  @Query(
+      """
+      UPDATE Note n
       SET n.favorite = :favorite, n.updatedAt = :now
-      WHERE n.userId = :userId AND n.id IN :ids
+      WHERE n.userId = :userId AND n.id IN :ids AND n.trashed = false
       """)
   int bulkFavorite(
       @Param("userId") String userId,

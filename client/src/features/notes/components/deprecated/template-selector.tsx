@@ -1,13 +1,13 @@
 // ! Not used, reference only
 import { useState } from 'react';
 
-import {
-  loadCustomTemplates,
-  saveCustomTemplates,
-  deleteCustomTemplate,
-  PREDEFINED_TEMPLATES,
-  type NoteTemplate,
-} from '@/features/chat/lib/companion-config';
+// import {
+//   loadCustomTemplates,
+//   saveCustomTemplates,
+//   deleteCustomTemplate,
+//   PREDEFINED_TEMPLATES,
+//   type NoteTemplate,
+// } from '@/features/chat/lib/companion-config';
 
 import { m } from '@/paraglide/messages';
 
@@ -39,9 +39,9 @@ interface TemplateSelectorProps {
 const TEMPLATE_ICONS = [Briefcase, Calendar, FileSpreadsheet, GraduationCap];
 
 export function TemplateSelector({ onApplyTemplate }: TemplateSelectorProps) {
-  const [customTemplates, setCustomTemplates] = useState<NoteTemplate[]>(() =>
-    loadCustomTemplates(),
-  );
+  // const [customTemplates, setCustomTemplates] = useState<NoteTemplate[]>(() =>
+  //   loadCustomTemplates(),
+  // );
   const [isSaving, setIsSaving] = useState(false);
   const [saveName, setSaveName] = useState('');
   const [saveDesc, setSaveDesc] = useState('');
@@ -49,22 +49,22 @@ export function TemplateSelector({ onApplyTemplate }: TemplateSelectorProps) {
   const [saveContent, setSaveContent] = useState('');
 
   function handleDelete(name: string) {
-    const updated = deleteCustomTemplate(name);
-    setCustomTemplates(updated);
+    // const updated = deleteCustomTemplate(name);
+    // setCustomTemplates(updated);
   }
 
   function handleSaveTemplate() {
     if (!saveName.trim()) return;
-    const tmpl: NoteTemplate = {
-      titlePattern: saveTitle.trim(),
-      description: saveDesc.trim(),
-      name: saveName.trim(),
-      content: saveContent,
-      predefined: false,
-    };
-    const updated = [...customTemplates, tmpl];
-    setCustomTemplates(updated);
-    saveCustomTemplates(updated);
+    // const tmpl: NoteTemplate = {
+    //   titlePattern: saveTitle.trim(),
+    //   description: saveDesc.trim(),
+    //   name: saveName.trim(),
+    //   content: saveContent,
+    //   predefined: false,
+    // };
+    // const updated = [...customTemplates, tmpl];
+    // setCustomTemplates(updated);
+    // saveCustomTemplates(updated);
     setIsSaving(false);
     setSaveName('');
     setSaveDesc('');
@@ -88,7 +88,7 @@ export function TemplateSelector({ onApplyTemplate }: TemplateSelectorProps) {
       </div>
 
       <div className="space-y-2">
-        {[...PREDEFINED_TEMPLATES, ...customTemplates].map((t, i) => {
+        {/* {[...PREDEFINED_TEMPLATES, ...customTemplates].map((t, i) => {
           const Icon = TEMPLATE_ICONS[i % TEMPLATE_ICONS.length];
           return (
             <div
@@ -120,7 +120,7 @@ export function TemplateSelector({ onApplyTemplate }: TemplateSelectorProps) {
               )}
             </div>
           );
-        })}
+        })} */}
       </div>
 
       <Dialog open={isSaving} onOpenChange={setIsSaving}>

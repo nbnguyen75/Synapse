@@ -1,3 +1,8 @@
+import { useNavigate } from '@tanstack/react-router';
+
+import { useGetConversationsQuery } from '@/features/companion';
+
+import { useCompanionStore } from '@/store/companion-store';
 import { useSettingsStore } from '@/store/settings-store';
 
 import { m } from '@/paraglide/messages';
@@ -9,26 +14,37 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 
 import {
   BotIcon,
-  HistoryIcon,
   MessageCirclePlusIcon,
   MessageSquareIcon,
+  MessageSquareTextIcon,
 } from 'lucide-react';
 
-const companionItems = [
-  {
-    label: () => m.sidebar_new_chat(),
-    icon: MessageCirclePlusIcon,
-    href: '/chat',
-  },
-  { label: () => m.sidebar_history(), icon: HistoryIcon, href: '#' },
-] as const;
-
 export default function NavCompanion() {
+  const navigate = useNavigate();
   const { setLayoutMode, layoutMode } = useSettingsStore();
+  const activeConversationId = useCompanionStore(
+    (state) => state.activeConversationId,
+  );
+  const setActiveConversationId = useCompanionStore(
+    (state) => state.setActiveConversationId,
+  );
+
+  const { data: conversations = [], isLoading } = useGetConversationsQuery();
+
+  const handleNewChat = () => {
+    setActiveConversationId(null);
+    void navigate({ to: '/chat' });
+  };
+
+  const handleSelectConversation = (conversationId: string) => {
+    setActiveConversationId(conversationId);
+    void navigate({ to: '/chat' });
+  };
 
   return (
     <SidebarGroup>
@@ -67,17 +83,51 @@ export default function NavCompanion() {
           />
         </SidebarMenuItem>
 
-        {companionItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <SidebarMenuItem key={item.label()}>
-              <SidebarMenuButton className="w-full" disabled>
-                <Icon className="size-4" />
-                <span>{item.label()}</span>
-              </SidebarMenuButton>
+        <SidebarMenuItem>
+          <SidebarMenuButton className="w-full" onClick={handleNewChat}>
+            <MessageCirclePlusIcon className="size-4" />
+            <span>{m.sidebar_new_chat()}</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+
+      <SidebarGroupLabel>{m.sidebar_recents()}</SidebarGroupLabel>
+      <SidebarMenu>
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, index) => (
+            <SidebarMenuItem key={index}>
+              <Skeleton className="h-8 w-full" />
             </SidebarMenuItem>
-          );
-        })}
+          ))
+        ) : conversations.length === 0 ? (
+          <p className="px-3 py-2 text-sm text-muted-foreground">
+            {m.chat_conversations_empty()}
+          </p>
+        ) : (
+          conversations.map((conversation) => {
+            const isActive = conversation.id === activeConversationId;
+            return (
+              <SidebarMenuItem key={conversation.id}>
+                <SidebarMenuButton
+                  isActive={isActive}
+                  onClick={() => handleSelectConversation(conversation.id)}
+                >
+                  <MessageSquareTextIcon className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate text-left text-sm">
+                    {conversation.title ?? m.chat_conversation_untitled()}
+                  </span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })
+        )}
+      </SidebarMenu>
+
+      <SidebarGroupLabel>{m.sidebar_favorites()}</SidebarGroupLabel>
+      <SidebarMenu>
+        <p className="px-3 py-2 text-sm text-muted-foreground">
+          {m.chat_conversations_empty()}
+        </p>
       </SidebarMenu>
     </SidebarGroup>
   );
