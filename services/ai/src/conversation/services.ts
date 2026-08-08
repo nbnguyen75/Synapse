@@ -1,21 +1,24 @@
 import type { UIMessage } from 'ai';
 
 import {
-	create,
-	findAllByUserId,
-	findById,
-	findMessages,
+	createNewConversation,
+	findAllConversationByUserId,
+	findConversationById,
+	findMessagesByConversationId,
 	insertMessage,
-	touch
+	deletePermanentConversation,
+	updateLastSavedConversation,
+	updateFavoriteConversation,
+	updateConversationTitle
 } from '@/conversation/repository';
 import { ForbiddenError, NotFoundError } from '@/lib/errors';
 
 export async function getOrCreateConversation(userId: string, conversationId?: string) {
 	if (!conversationId) {
-		return await create(userId);
+		return await createNewConversation(userId);
 	}
 
-	const conversation = await findById(conversationId);
+	const conversation = await findConversationById(conversationId);
 	if (!conversation) {
 		throw new NotFoundError('Cuộc trò chuyện không tồn tại');
 	}
@@ -27,7 +30,7 @@ export async function getOrCreateConversation(userId: string, conversationId?: s
 }
 
 export async function checkConversationOwnership(userId: string, conversationId: string) {
-	const conversation = await findById(conversationId);
+	const conversation = await findConversationById(conversationId);
 
 	if (!conversation) {
 		throw new NotFoundError('Cuộc trò chuyện không tồn tại');
@@ -40,11 +43,30 @@ export async function checkConversationOwnership(userId: string, conversationId:
 }
 
 export async function listConversations(userId: string) {
-	return findAllByUserId(userId);
+	return findAllConversationByUserId(userId);
+}
+
+export async function renameConversation(userId: string, conversationId: string, title: string) {
+	await checkConversationOwnership(userId, conversationId);
+	await updateConversationTitle(conversationId, title);
+}
+
+export async function deleteConversation(userId: string, conversationId: string) {
+	await checkConversationOwnership(userId, conversationId);
+	await deletePermanentConversation(conversationId);
+}
+
+export async function setConversationFavorite(
+	userId: string,
+	conversationId: string,
+	favorited: boolean
+) {
+	await checkConversationOwnership(userId, conversationId);
+	await updateFavoriteConversation(conversationId, favorited);
 }
 
 export async function loadHistory(conversationId: string): Promise<UIMessage[]> {
-	const rows = await findMessages(conversationId);
+	const rows = await findMessagesByConversationId(conversationId);
 
 	return rows.map((r) => ({
 		parts: r.parts as UIMessage['parts'],
@@ -56,5 +78,5 @@ export async function loadHistory(conversationId: string): Promise<UIMessage[]> 
 
 export async function appendMessage(conversationId: string, message: UIMessage) {
 	await insertMessage(conversationId, message);
-	await touch(conversationId);
+	await updateLastSavedConversation(conversationId);
 }

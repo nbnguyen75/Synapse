@@ -5,7 +5,7 @@ import { eq, desc, asc } from 'drizzle-orm';
 import { conversations, messages, type MessageMetadata } from '@/database/schema';
 import { db } from '@/database';
 
-export async function findById(id: string) {
+export async function findConversationById(id: string) {
 	const [row] = await db.select().from(conversations).where(eq(conversations.id, id)).limit(1);
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -14,7 +14,7 @@ export async function findById(id: string) {
 	return row;
 }
 
-export async function findAllByUserId(userId: string) {
+export async function findAllConversationByUserId(userId: string) {
 	return db
 		.select()
 		.from(conversations)
@@ -22,16 +22,31 @@ export async function findAllByUserId(userId: string) {
 		.orderBy(desc(conversations.updatedAt));
 }
 
-export async function create(userId: string) {
+export async function createNewConversation(userId: string) {
 	const [row] = await db.insert(conversations).values({ userId }).returning();
 	return row;
 }
 
-export async function touch(id: string) {
+export async function updateLastSavedConversation(id: string) {
 	await db.update(conversations).set({ updatedAt: new Date() }).where(eq(conversations.id, id));
 }
 
-export async function findMessages(conversationId: string) {
+export async function updateConversationTitle(id: string, title: string) {
+	await db
+		.update(conversations)
+		.set({ updatedAt: new Date(), title })
+		.where(eq(conversations.id, id));
+}
+
+export async function updateFavoriteConversation(id: string, favorited: boolean) {
+	await db.update(conversations).set({ favorited }).where(eq(conversations.id, id));
+}
+
+export async function deletePermanentConversation(id: string) {
+	await db.delete(conversations).where(eq(conversations.id, id));
+}
+
+export async function findMessagesByConversationId(conversationId: string) {
 	return db
 		.select()
 		.from(messages)

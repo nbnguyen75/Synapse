@@ -4,7 +4,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router';
 
 export function useNotesQueryParams() {
   const navigate = useNavigate();
-  const search = useSearch({ from: '/_app/notes/' });
+  const search = useSearch({ from: '/_app/notes' });
 
   const setPage = (newPage: number) => {
     void navigate({

@@ -15,6 +15,7 @@ export interface CompanionSettings {
 
 export interface CompanionConversation {
   title: string | null;
+  favorited: boolean;
   createdAt: string;
   updatedAt: string;
   userId: string;

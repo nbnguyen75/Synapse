@@ -37,6 +37,7 @@ export const conversations = pgTable(
 	{
 		createdAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
 		updatedAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
+		favorited: d.boolean().notNull().default(false),
 		id: d.uuid().primaryKey().defaultRandom(),
 		userId: d.text().notNull(),
 		title: d.text()

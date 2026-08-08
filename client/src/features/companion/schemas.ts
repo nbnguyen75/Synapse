@@ -31,3 +31,15 @@ export const conversationIdParam = z.object({
 });
 
 export type ConversationIdParams = z.infer<typeof conversationIdParam>;
+
+export const renameConversationSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, { message: m.validation_title_required() })
+    .max(100, { message: m.validation_title_max() }),
+});
+
+export const favoriteConversationSchema = z.object({
+  favorited: z.boolean(),
+});

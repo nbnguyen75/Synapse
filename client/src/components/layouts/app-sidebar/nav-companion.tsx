@@ -1,6 +1,5 @@
-import { useNavigate } from '@tanstack/react-router';
-
-import { useGetConversationsQuery } from '@/features/companion';
+import { useGetConversationsQuery } from '@/features/companion/hooks/use-companion-conversation';
+import { ConversationListItem } from '@/features/companion/components/conversation-list-item';
 
 import { useCompanionStore } from '@/store/companion-store';
 import { useSettingsStore } from '@/store/settings-store';
@@ -21,12 +20,10 @@ import {
   BotIcon,
   MessageCirclePlusIcon,
   MessageSquareIcon,
-  MessageSquareTextIcon,
 } from 'lucide-react';
 
 export default function NavCompanion() {
-  const navigate = useNavigate();
-  const { setLayoutMode, layoutMode } = useSettingsStore();
+  const { setRightSidebarOpen, setLayoutMode, layoutMode } = useSettingsStore();
   const activeConversationId = useCompanionStore(
     (state) => state.activeConversationId,
   );
@@ -36,14 +33,24 @@ export default function NavCompanion() {
 
   const { data: conversations = [], isLoading } = useGetConversationsQuery();
 
+  const favoriteConversations = conversations.filter(
+    (conversation) => conversation.favorited,
+  );
+
   const handleNewChat = () => {
     setActiveConversationId(null);
-    void navigate({ to: '/chat' });
+    setRightSidebarOpen(true);
   };
 
   const handleSelectConversation = (conversationId: string) => {
     setActiveConversationId(conversationId);
-    void navigate({ to: '/chat' });
+    setRightSidebarOpen(true);
+  };
+
+  const handleConversationDeleted = (conversationId: string) => {
+    if (conversationId === activeConversationId) {
+      setActiveConversationId(null);
+    }
   };
 
   return (
@@ -91,6 +98,25 @@ export default function NavCompanion() {
         </SidebarMenuItem>
       </SidebarMenu>
 
+      <SidebarGroupLabel>{m.sidebar_favorites()}</SidebarGroupLabel>
+      <SidebarMenu>
+        {favoriteConversations.length === 0 ? (
+          <p className="px-3 py-2 text-sm text-muted-foreground">
+            {m.chat_conversation_favorites_empty()}
+          </p>
+        ) : (
+          favoriteConversations.map((conversation) => (
+            <ConversationListItem
+              conversation={conversation}
+              isActive={conversation.id === activeConversationId}
+              key={conversation.id}
+              onDeleted={handleConversationDeleted}
+              onSelect={handleSelectConversation}
+            />
+          ))
+        )}
+      </SidebarMenu>
+
       <SidebarGroupLabel>{m.sidebar_recents()}</SidebarGroupLabel>
       <SidebarMenu>
         {isLoading ? (
@@ -104,30 +130,16 @@ export default function NavCompanion() {
             {m.chat_conversations_empty()}
           </p>
         ) : (
-          conversations.map((conversation) => {
-            const isActive = conversation.id === activeConversationId;
-            return (
-              <SidebarMenuItem key={conversation.id}>
-                <SidebarMenuButton
-                  isActive={isActive}
-                  onClick={() => handleSelectConversation(conversation.id)}
-                >
-                  <MessageSquareTextIcon className="size-4 shrink-0" />
-                  <span className="min-w-0 flex-1 truncate text-left text-sm">
-                    {conversation.title ?? m.chat_conversation_untitled()}
-                  </span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
-          })
+          conversations.map((conversation) => (
+            <ConversationListItem
+              conversation={conversation}
+              isActive={conversation.id === activeConversationId}
+              key={conversation.id}
+              onDeleted={handleConversationDeleted}
+              onSelect={handleSelectConversation}
+            />
+          ))
         )}
-      </SidebarMenu>
-
-      <SidebarGroupLabel>{m.sidebar_favorites()}</SidebarGroupLabel>
-      <SidebarMenu>
-        <p className="px-3 py-2 text-sm text-muted-foreground">
-          {m.chat_conversations_empty()}
-        </p>
       </SidebarMenu>
     </SidebarGroup>
   );

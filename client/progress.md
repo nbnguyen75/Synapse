@@ -3,10 +3,23 @@
 ## Current State
 
 **Last Updated:** 2026-08-08
-**Session ID:** schema-translation-pass
-**Active Feature:** Schema validation i18n + missing favorites empty-state keys — done
+**Session ID:** conversation-actions
+**Active Feature:** Conversation actions (favorite, rename, delete) + Favorites section — done
 
 ## Status
+
+### What's Done (feat-043 — conversation actions: favorite, rename, delete)
+
+- [x] **Backend (services/ai)** — three new routes on the conversation router: `PATCH /api/v1/ai/conversations/:id` (rename via `renameConversationSchema`, title trim 1–100), `PATCH /api/v1/ai/conversations/:id/favorite` (`favoriteConversationSchema` `{ favorited: boolean }`), `DELETE /api/v1/ai/conversations/:id`. Service: `onDelete` cascade deletes the conversation's messages, `favorited` threaded through `Conversation` type + list query.
+- [x] **Client API surface** — `CompanionFetchRouter` gains the 3 endpoints; `src/features/companion/schemas.ts` gains `renameConversationSchema` (min(1) `validation_title_required` / max(100) `validation_title_max`) and `favoriteConversationSchema`; `CompanionConversation` type gains `favorited`.
+- [x] **Mutation hooks** — `use-companion-conversation.ts` gains `useRenameConversationMutation`, `useDeleteConversationMutation`, `useToggleConversationFavoriteMutation` (mirrors `use-note-mutation.ts` InferResponseType/InferRequestType pattern; invalidate `['companion-conversations']`; per-action toasts). Also added `useGetConversationsQuery` (was previously defined in a chat feature file — nav-companion needed it; single source).
+- [x] **ConversationListItem** (new, `src/features/companion/components/conversation-list-item.tsx`) — one sidebar row + Base UI `DropdownMenu` (via `render` prop on `SidebarMenuAction showOnHover`): star/unstar (amber StarIcon when favorited), rename (RHF + zod rename dialog, `standardSchemaResolver`, Field/Input, Save/Cancel), delete (AlertDialog confirm → onDeleted callback). No `useEffect` (form reset on dialog open via `onOpenChange`).
+- [x] **nav-companion.tsx** — Recents section renders `ConversationListItem` per conversation; Favorites section now populated (favorited only, empty state `chat_conversation_favorites_empty`); `handleConversationDeleted` clears `activeConversationId` in the store when the active conversation is deleted.
+- [x] **i18n (20 new keys en/vi)** — `chat_conversation_action_star|unstar|menu|rename|delete`, `chat_conversation_rename_title|placeholder|save|cancel`, `chat_conversation_delete_title|description|confirm`, `chat_conversation_toast_renamed|deleted|starred|unstarred|failed`, `chat_conversation_favorites_empty`, `validation_title_required`.
+- [x] **Verification** — `generate-translation` OK; `tsc -b` clean; oxlint + eslint clean on all touched files; prettier all unchanged (check ran `--fix` only on touched files; pre-existing warnings in companion-chat.tsx untouched).
+- [x] **Artifacts** — `feature_list.json` feat-043 done (43 feats, valid JSON); no commit (user manages).
+- [ ] **Known note** — shared `validation_title_max` says "at most 200" but the conversation schema caps at 100 (server parity); key text is shared with notes (200) so left untouched.
+
 
 ### What's Done (feat-042 — schema validation i18n + favorites empty-state keys)
 

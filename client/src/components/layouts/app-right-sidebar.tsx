@@ -1,4 +1,4 @@
-import ChatBot from '@/features/companion/components/chat-bot';
+import CompanionChat from '@/features/companion/components/companion-chat';
 
 import { useSettingsStore } from '@/store/settings-store';
 
@@ -34,7 +34,7 @@ export default function AppRightSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <ChatBot />
+        <CompanionChat />
       </SidebarContent>
     </Sidebar>
   );

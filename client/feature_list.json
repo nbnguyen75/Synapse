@@ -335,6 +335,14 @@
              "dependencies": ["feat-041"],
              "status": "done",
              "evidence": "src/schemas/query.ts, src/features/notes/schemas.ts, src/features/companion/schemas.ts, src/features/settings/schemas.ts (zod { message: m.*() } params), src/features/notes/components/notes-list-empty.tsx (now compiles), messages/en.json, messages/vi.json (12 new keys, 600 each)"
+          },
+          {
+             "id": "feat-043",
+             "name": "Conversation Actions: Favorite, Rename, Delete",
+             "description": "Per-conversation dropdown in the sidebar (star/unstar, rename, delete) + populated Favorites section (2026-08-08). Backend (services/ai): PATCH /api/v1/ai/conversations/:id (rename, title max 100), PATCH /api/v1/ai/conversations/:id/favorite ({ favorited }), DELETE /api/v1/ai/conversations/:id with onDelete cascade; Conversation model + list query gain favorited. Client: CompanionFetchRouter 3 new endpoints, useRenameConversationMutation / useDeleteConversationMutation / useToggleConversationFavoriteMutation (InferRequestType/ResponseType pattern), ConversationListItem component (Base UI dropdown via render prop, RHF+zod rename dialog, AlertDialog delete confirm), nav-companion renders Recents + Favorites (both with per-item actions), deleting the active conversation clears the store. 20 new i18n keys en/vi (actions, rename dialog, delete dialog, toasts, favorites empty). Verified: tsc -b, oxlint, eslint, prettier all clean.",
+             "dependencies": ["feat-041"],
+             "status": "done",
+             "evidence": "services/ai/src/conversation/route.ts (+favorite/rename/delete routes), services/ai/src/conversation/schemas.ts (renameConversationSchema, favoriteConversationSchema), services/ai/src/conversation/service.ts (onDelete cascade + favorited), services/ai/src/conversation/types.ts, src/features/companion/types/api.ts (3 new endpoints), src/features/companion/schemas.ts (renameConversationSchema, favoriteConversationSchema), src/features/companion/hooks/use-companion-conversation.ts (3 mutation hooks), src/features/companion/components/conversation-list-item.tsx (NEW), src/components/layouts/app-sidebar/nav-companion.tsx (Recents + Favorites sections, onDeleted clears store), messages/en.json, messages/vi.json (20 keys)"
           }
       ]
   }

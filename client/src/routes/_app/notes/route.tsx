@@ -1,6 +1,12 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import {
+  createFileRoute,
+  Outlet,
+  stripSearchParams,
+} from '@tanstack/react-router';
 
+import { DEFAULT_NOTES_QUERY_PARAMS } from '@/features/notes/constants';
 import { NoteCardSkeleton } from '@/features/notes/components';
+import { notesQueryParamsSchema } from '@/features/notes';
 
 import { m } from '@/paraglide/messages';
 
@@ -12,8 +18,12 @@ export const Route = createFileRoute('/_app/notes')({
       ))}
     </div>
   ),
+  search: {
+    middlewares: [stripSearchParams(DEFAULT_NOTES_QUERY_PARAMS)],
+  },
   staticData: {
     breadcrumb: () => m.notes_page_breadcrumb_notes(),
   },
+  validateSearch: notesQueryParamsSchema,
   component: () => <Outlet />,
 });

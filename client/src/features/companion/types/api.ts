@@ -11,6 +11,17 @@ import type { EnsureRouter } from '@/lib/fetch';
 import type { UIMessage } from 'ai';
 
 export type CompanionFetchRouter = EnsureRouter<{
+  '/api/v1/ai/conversations/:id': {
+    $patch: {
+      response: ApiSuccessResponse<null>;
+      params: ConversationIdParams;
+      body: { title: string };
+    };
+    $delete: {
+      response: ApiSuccessResponse<null>;
+      params: ConversationIdParams;
+    };
+  };
   '/api/v1/ai/settings': {
     $put: {
       response: ApiSuccessResponse<CompanionSettings>;
@@ -18,6 +29,13 @@ export type CompanionFetchRouter = EnsureRouter<{
     };
     $get: {
       response: ApiSuccessResponse<CompanionSettings>;
+    };
+  };
+  '/api/v1/ai/conversations/:id/favorite': {
+    $patch: {
+      response: ApiSuccessResponse<null>;
+      params: ConversationIdParams;
+      body: { favorited: boolean };
     };
   };
   '/api/v1/ai/conversations/:id/messages': {
