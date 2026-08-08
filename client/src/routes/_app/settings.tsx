@@ -39,7 +39,7 @@ export const Route = createFileRoute('/_app/settings')({
     return {
       meta: [
         {
-          title: createTitle(`${tabTitle} - ${m.settings_page_title()}`),
+          title: createTitle(`${m.settings_page_title()} - ${tabTitle}`),
         },
       ],
     };

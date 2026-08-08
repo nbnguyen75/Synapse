@@ -12,7 +12,6 @@ export function useGetNotesQuery(params?: NotesApiParams) {
       const query = params
         ? {
             ...params,
-            page: params.page !== undefined ? params.page - 1 : undefined,
           }
         : undefined;
 

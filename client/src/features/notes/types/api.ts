@@ -13,7 +13,7 @@ import type { Note } from '@/features/notes/types/note';
 import type { EnsureRouter } from '@/lib/fetch';
 
 export type NotesApiParams = Omit<NotesQueryParams, 'sort'> & {
-  sort: string[] | null;
+  sort: (NotesQueryParams['sort'] | (string & {}))[];
   archived?: boolean;
   favorite?: boolean;
   trashed?: boolean;

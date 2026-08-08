@@ -229,10 +229,7 @@ export default function ChatBot({
           <PromptInputFooter>
             <PromptInputTools>
               <PromptInputActionMenu>
-                <PromptInputActionMenuTrigger
-                  disabled={disabled}
-                  className={'max-w-56 w-full'}
-                />
+                <PromptInputActionMenuTrigger disabled={disabled} />
                 <PromptInputActionMenuContent className={'max-w-56 w-full'}>
                   <PromptInputActionAddAttachments className={'w-full'} />
                 </PromptInputActionMenuContent>

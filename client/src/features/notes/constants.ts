@@ -3,6 +3,7 @@ import type {
   NotesEmptyVariant,
   NoteViewMode,
 } from '@/features/notes/types';
+import type { NotesQueryParams } from '@/features/notes/schemas';
 import type { PaginatedData } from '@/types/response';
 
 import { m } from '@/paraglide/messages';
@@ -39,11 +40,11 @@ export const NOTE_VIEW_FILTERS = {
   trash: { trashed: true },
 } as const;
 
-export const DEFAULT_NOTES_QUERY_PARAMS = {
-  sort: 'updatedAt,desc' as const,
+export const DEFAULT_NOTES_QUERY_PARAMS: NotesQueryParams = {
+  sort: 'updatedAt,desc',
   pageSize: 20,
   page: 1,
-  q: '',
+  q: null,
 };
 
 export const EMPTY_PAGINATED: PaginatedData<Note> = {

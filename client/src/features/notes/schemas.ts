@@ -12,9 +12,8 @@ import { paginationQuerySchema } from '@/schemas';
 export const notesQueryParamsSchema = paginationQuerySchema.extend({
   sort: z
     .enum(NOTE_SORTABLE_FIELDS, { message: m.validation_sort_invalid() })
-    .nullable()
-    .default(null),
-  q: z.string().optional(),
+    .default('updatedAt,desc'),
+  q: z.string().nullable().default(null),
 });
 
 export type NotesQueryParams = z.infer<typeof notesQueryParamsSchema>;

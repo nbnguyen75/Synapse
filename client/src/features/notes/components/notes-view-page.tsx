@@ -3,7 +3,6 @@ import type { NotesApiParams, NoteViewMode } from '@/features/notes/types';
 import { useNavigate } from '@tanstack/react-router';
 
 import {
-  DEFAULT_NOTES_QUERY_PARAMS,
   EMPTY_PAGINATED,
   NOTE_SORT_OPTIONS,
   NOTE_VIEW_CONFIG,
@@ -58,17 +57,14 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
     title,
   } = NOTE_VIEW_CONFIG[viewMode];
 
-  const { sortValue, search, query, sort, page } = useNotesQueryParams();
+  const { search } = useNotesQueryParams();
+
+  const { q: query, sort, page } = search;
 
   const apiParams: NotesApiParams = {
     ...search,
     ...apiFilters,
-    sort:
-      viewMode === 'active'
-        ? ['pinned,desc', sort ?? DEFAULT_NOTES_QUERY_PARAMS.sort]
-        : sort !== null
-          ? [sort]
-          : null,
+    sort: viewMode === 'active' ? ['pinned,desc', sort] : [sort],
   };
 
   const { data = EMPTY_PAGINATED, isLoading } = useGetNotesQuery(apiParams);
@@ -128,7 +124,7 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
 
               <Select
                 items={NOTE_SORT_OPTIONS}
-                defaultValue={sortValue}
+                defaultValue={sort}
                 onValueChange={(value) => {
                   void navigate({
                     search: (prev) => ({

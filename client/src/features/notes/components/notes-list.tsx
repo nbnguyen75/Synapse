@@ -24,7 +24,7 @@ interface NotesListProps {
 
 function Container({ children }: { children: ReactNode }) {
   return (
-    <div className="grid gap-4 grid-cols-1 @3xl:grid-cols-2 @8xl:grid-cols-3">
+    <div className="grid gap-4 grid-cols-1 @4xl:grid-cols-2 @8xl:grid-cols-3">
       {children}
     </div>
   );

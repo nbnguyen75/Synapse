@@ -8,12 +8,12 @@ export const paginationQuerySchema = z.object({
     .int({ message: m.validation_page_size_invalid() })
     .positive({ message: m.validation_page_size_invalid() })
     .max(100, { message: m.validation_page_size_max() })
-    .optional(),
+    .default(20),
   page: z.coerce
     .number({ message: m.validation_page_invalid() })
     .int({ message: m.validation_page_invalid() })
     .positive({ message: m.validation_page_invalid() })
-    .optional(),
+    .default(1),
 });
 
 export type PaginationQuery = z.infer<typeof paginationQuerySchema>;

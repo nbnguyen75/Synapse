@@ -12,15 +12,15 @@ public record NoteQueryParams(
     Boolean archived,
     Boolean trashed,
     Boolean favorite,
-    @Min(value = 0, message = "Page index must be >= 0") Integer page,
+    @Min(value = 1, message = "Page index must be >= 1") Integer page,
     @Min(value = 1, message = "Page size must be at least 1")
         @Max(value = 100, message = "Page size must not exceed 100")
         Integer pageSize,
     List<String> sort) {
 
   public NoteQueryParams {
-    page = (page == null || page < 0) ? 0 : page;
-    pageSize = (pageSize == null || pageSize <= 0) ? 20 : (pageSize > 100 ? 100 : pageSize);
+    page = (page == null || page < 1) ? 1 : page;
+    pageSize = (pageSize == null || pageSize < 1) ? 20 : (pageSize > 100 ? 100 : pageSize);
     archived = (archived == null) ? false : archived;
     trashed = (trashed == null) ? false : trashed;
 
@@ -28,6 +28,6 @@ public record NoteQueryParams(
   }
 
   public Pageable toPageable(Set<String> allowedSortFields) {
-    return SortSupport.toPageable(page, pageSize, sort, allowedSortFields);
+    return SortSupport.toPageable(page - 1, pageSize, sort, allowedSortFields);
   }
 }
