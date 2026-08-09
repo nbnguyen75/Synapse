@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 
+import { format } from 'date-fns';
 import { toast } from 'sonner';
 
 import {
@@ -22,6 +23,7 @@ export interface NoteWithDetails extends Note {
 }
 
 const MAX_VISIBLE_TAGS = 3;
+const PREVIEW_CHAR_LIMIT = 300;
 
 const NOTE_ACTIONS = {
   favorite: (note: Note) =>
@@ -240,6 +242,18 @@ export function useNoteCard({
     exportMarkdown(note);
   };
 
+  const previewContent = useMemo(() => {
+    if (!note.content) return '';
+    return note.content.length > PREVIEW_CHAR_LIMIT
+      ? `${note.content.slice(0, PREVIEW_CHAR_LIMIT)}`
+      : note.content;
+  }, [note.content]);
+
+  const formattedUpdatedAt = useMemo(
+    () => format(new Date(note.updatedAt), 'MMM d, yyyy HH:mm'),
+    [note.updatedAt],
+  );
+
   return {
     actions: {
       handleTouchStart,
@@ -258,6 +272,10 @@ export function useNoteCard({
     state: {
       tagsCount: tags.length,
       canPinFavorite,
+    },
+    data: {
+      formattedUpdatedAt,
+      previewContent,
     },
     status: {
       isPending,

@@ -1,5 +1,7 @@
 import type { Note, NoteViewMode } from '@/features/notes/types';
 
+import { memo } from 'react';
+
 import { format } from 'date-fns';
 
 import { useNoteCard } from '@/features/notes/hooks';
@@ -54,20 +56,21 @@ interface NoteCardProps {
   isSelected?: boolean;
 }
 
-export default function NoteCard({
+function NoteCard({
   onToggleSelect,
   onSelectRange,
   isSelected,
   viewMode,
   note,
 }: NoteCardProps) {
-  const { actions, metrics, state } = useNoteCard({
+  const { actions, metrics, state, data } = useNoteCard({
     onToggleSelect,
     onSelectRange,
     viewMode,
     note,
   });
 
+  const { formattedUpdatedAt, previewContent } = data;
   const {
     handleTouchStart,
     handleCardClick,
@@ -77,7 +80,7 @@ export default function NoteCard({
     execute,
   } = actions;
   const { remainingTagsCount, visibleTags, wordCount, readTime } = metrics;
-  const { canPinFavorite, tagsCount } = state;
+  const { canPinFavorite } = state;
 
   return (
     <Card
@@ -263,7 +266,7 @@ export default function NoteCard({
               className="gap-1 font-normal text-[10px] px-2 py-0 h-5 bg-muted/60 hover:bg-muted text-muted-foreground border-none transition-all duration-200 hover:scale-[1.02]"
             >
               <CalendarIcon className="size-2.5 text-muted-foreground/80 transition-transform duration-200 group-hover:scale-110" />
-              {format(new Date(note.updatedAt), 'MMM d, yyyy HH:mm')}
+              {formattedUpdatedAt}
             </Badge>
           </div>
         </CardHeader>
@@ -283,7 +286,7 @@ export default function NoteCard({
               '[&_code]:bg-muted [&_code]:px-1 [&_code]:rounded [&_code]:text-[10px] [&_code]:font-mono',
             )}
           >
-            <MarkdownRenderer className="px-3" content={note.content ?? ''} />
+            <MarkdownRenderer className="px-3" content={previewContent} />
           </div>
         </CardContent>
       </div>
@@ -309,12 +312,11 @@ export default function NoteCard({
             </Badge>
           )}
 
-          {tagsCount > 0 && (
+          {wordCount > 0 && (
             <Badge
               variant="outline"
               className="font-normal text-[10px] px-2 py-0 h-5 border-border/40 text-muted-foreground/70"
             >
-              {/* TODO: this is wrong */}
               {m.notes_page_word_count({ count: wordCount })}
             </Badge>
           )}
@@ -331,3 +333,16 @@ export default function NoteCard({
     </Card>
   );
 }
+
+export default memo(NoteCard, (prev, next) => {
+  return (
+    prev.isSelected === next.isSelected &&
+    prev.viewMode === next.viewMode &&
+    prev.note.id === next.note.id &&
+    prev.note.updatedAt === next.note.updatedAt &&
+    prev.note.title === next.note.title &&
+    prev.note.content === next.note.content &&
+    prev.note.pinned === next.note.pinned &&
+    prev.note.favorite === next.note.favorite
+  );
+});
