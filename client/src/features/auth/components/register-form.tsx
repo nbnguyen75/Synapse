@@ -1,4 +1,7 @@
-import type { RegisterFormValues } from '@/features/auth/schemas';
+import type {
+  RegisterFormInput,
+  RegisterPayload,
+} from '@/features/auth/schemas';
 
 import { useState, type BaseSyntheticEvent, type ComponentProps } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
@@ -19,10 +22,10 @@ import { Icon } from '@iconify/react';
 
 interface RegisterFormProps extends Omit<ComponentProps<'form'>, 'onSubmit'> {
   onSubmit?: (
-    data: RegisterFormValues,
+    data: RegisterPayload,
     $event?: BaseSyntheticEvent,
   ) => Promise<void> | void;
-  form: UseFormReturn<RegisterFormValues>;
+  form: UseFormReturn<RegisterFormInput>;
   isPending?: boolean;
 }
 

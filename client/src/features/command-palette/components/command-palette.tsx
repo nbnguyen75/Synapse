@@ -15,7 +15,7 @@ import {
   CommandPaletteSearchInput,
   CommandPaletteSearchResults,
 } from '@/features/command-palette/components';
-import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
+import { useGetNotes, type Note } from '@/features/notes';
 
 import { useKeyBinding, useKeyboardShortcut } from '@/hooks/use-key-binding';
 
@@ -55,11 +55,8 @@ export default function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const { data } = useGetNotesQuery();
-  const notes = useMemo<NoteItem[]>(
-    () => (data?.items as NoteItem[]) ?? [],
-    [data?.items],
-  );
+  const { data } = useGetNotes();
+  const notes = useMemo<Note[]>(() => data.items ?? [], [data.items]);
 
   const focusInput = () => {
     setTimeout(() => inputRef.current?.focus(), 10);

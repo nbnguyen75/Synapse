@@ -10,7 +10,8 @@ export const loginSchema = z.object({
   email: z.email(m.validation_email_invalid()),
 });
 
-export type LoginFormValues = z.infer<typeof loginSchema>;
+export type LoginFormInput = z.input<typeof loginSchema>;
+export type LoginPayload = z.infer<typeof loginSchema>;
 
 export const registerSchema = z
   .object({
@@ -26,4 +27,5 @@ export const registerSchema = z
     path: ['confirmPassword'],
   });
 
-export type RegisterFormValues = z.infer<typeof registerSchema>;
+export type RegisterFormInput = z.input<typeof registerSchema>;
+export type RegisterPayload = z.infer<typeof registerSchema>;

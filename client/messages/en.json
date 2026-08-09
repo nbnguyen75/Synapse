@@ -420,7 +420,7 @@
   "notes_batch_delete_confirm": "Delete {count} note(s)?",
   "notes_batch_delete_confirm_btn": "Confirm Delete",
   "notes_batch_cancel": "Cancel",
-  "loader_title": "Loading your workspace...",
+  "loader_title": "Loading your personal space...",
   "loader_subtitle": "Please wait a moment...",
   "sidebar_intelligence_hub": "Intelligence Hub",
   "sidebar_knowledge_hub": "Knowledge Assistant",

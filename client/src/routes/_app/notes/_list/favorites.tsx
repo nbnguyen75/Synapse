@@ -6,16 +6,16 @@ import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
 
-export const Route = createFileRoute('/_app/notes/archive')({
+export const Route = createFileRoute('/_app/notes/_list/favorites')({
   head: () => ({
-    meta: [{ title: createTitle(m.archive_page_title()) }],
+    meta: [{ title: createTitle(m.favorites_page_title()) }],
   }),
   staticData: {
-    breadcrumb: () => m.sidebar_archive(),
+    breadcrumb: () => m.sidebar_favorites(),
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <NotesViewPage viewMode="archive" />;
+  return <NotesViewPage viewMode="favorites" />;
 }

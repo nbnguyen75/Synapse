@@ -1,15 +1,8 @@
 import type { Note, NoteViewMode } from '@/features/notes/types';
 
-import { useCallback, useMemo, useRef } from 'react';
-
 import { format } from 'date-fns';
 
-import {
-  countWordsMarkdownSync,
-  exportMarkdown,
-  getMarkdownReadTimeSync,
-} from '@/features/notes/services';
-import { useNoteCardActions } from '@/features/notes/hooks/use-note-card-actions';
+import { useNoteCard } from '@/features/notes/hooks';
 
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
@@ -61,8 +54,6 @@ interface NoteCardProps {
   isSelected?: boolean;
 }
 
-const MAX_VISIBLE_TAGS = 3;
-
 export default function NoteCard({
   onToggleSelect,
   onSelectRange,
@@ -70,48 +61,23 @@ export default function NoteCard({
   viewMode,
   note,
 }: NoteCardProps) {
-  const actions = useNoteCardActions(note, viewMode);
-  const tags = note.tags || [];
-  const visibleTags = tags.slice(0, MAX_VISIBLE_TAGS);
-  const remainingTagsCount = tags.length - MAX_VISIBLE_TAGS;
+  const { actions, metrics, state } = useNoteCard({
+    onToggleSelect,
+    onSelectRange,
+    viewMode,
+    note,
+  });
 
-  const wordCount = useMemo(
-    () => countWordsMarkdownSync(note.content),
-    [note.content],
-  );
-  const readTime = useMemo(
-    () => getMarkdownReadTimeSync(note.content),
-    [note.content],
-  );
-
-  const canPinFavorite = viewMode !== 'archive' && viewMode !== 'trash';
-
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleTouchStart = useCallback(() => {
-    longPressTimer.current = setTimeout(() => {
-      onToggleSelect?.(note.id);
-    }, 500);
-  }, [note.id, onToggleSelect]);
-
-  const handleTouchEnd = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-  }, []);
-
-  const handleCardClick = useCallback(
-    (e: React.MouseEvent) => {
-      if ((e.target as HTMLElement).closest('[data-slot="checkbox"]')) return;
-      if (e.shiftKey) {
-        onSelectRange?.(note.id);
-      } else {
-        onToggleSelect?.(note.id);
-      }
-    },
-    [note.id, onSelectRange, onToggleSelect],
-  );
+  const {
+    handleTouchStart,
+    handleCardClick,
+    handleTouchEnd,
+    exportNote,
+    openDetail,
+    execute,
+  } = actions;
+  const { remainingTagsCount, visibleTags, wordCount, readTime } = metrics;
+  const { canPinFavorite, tagsCount } = state;
 
   return (
     <Card
@@ -163,7 +129,7 @@ export default function NoteCard({
                   }
                   onClick={(e) => {
                     e.stopPropagation();
-                    actions.onTogglePin();
+                    execute('pin');
                   }}
                   className={cn(
                     'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
@@ -192,7 +158,7 @@ export default function NoteCard({
                   }
                   onClick={(e) => {
                     e.stopPropagation();
-                    actions.onToggleFavorite();
+                    execute('favorite');
                   }}
                   className={cn(
                     'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-amber-500 hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
@@ -228,12 +194,12 @@ export default function NoteCard({
                   className="w-52"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <DropdownMenuItem onClick={() => actions.openDetail()}>
+                  <DropdownMenuItem onClick={openDetail}>
                     <FileTextIcon className="mr-2 size-3.5" />
                     {m.notes_page_card_open_doc()}
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={() => exportMarkdown(note)}>
+                  <DropdownMenuItem onClick={exportNote}>
                     <DownloadIcon className="mr-2 size-3.5" />
                     {m.notes_page_action_export()}
                   </DropdownMenuItem>
@@ -242,13 +208,13 @@ export default function NoteCard({
 
                   {viewMode === 'trash' ? (
                     <>
-                      <DropdownMenuItem onClick={() => actions.onRestore()}>
+                      <DropdownMenuItem onClick={() => execute('restore')}>
                         <RotateCcwIcon className="mr-2 size-3.5" />
                         {m.notes_card_restore()}
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
-                        onClick={() => actions.onPermanentDelete()}
+                        onClick={() => execute('delete')}
                         variant="destructive"
                       >
                         <XCircleIcon className="mr-2 size-3.5" />
@@ -257,13 +223,13 @@ export default function NoteCard({
                     </>
                   ) : viewMode === 'archive' ? (
                     <>
-                      <DropdownMenuItem onClick={() => actions.onUnarchive()}>
+                      <DropdownMenuItem onClick={() => execute('unarchive')}>
                         <Undo2Icon className="mr-2 size-3.5" />
                         {m.notes_card_unarchive()}
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
-                        onClick={() => actions.onTrash()}
+                        onClick={() => execute('trash')}
                         variant="destructive"
                       >
                         <Trash2Icon className="mr-2 size-3.5" />
@@ -272,13 +238,13 @@ export default function NoteCard({
                     </>
                   ) : (
                     <>
-                      <DropdownMenuItem onClick={() => actions.onArchive()}>
+                      <DropdownMenuItem onClick={() => execute('archive')}>
                         <ArchiveIcon className="mr-2 size-3.5" />
                         {m.notes_page_action_archive()}
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
-                        onClick={() => actions.onTrash()}
+                        onClick={() => execute('delete')}
                         variant="destructive"
                       >
                         <Trash2Icon className="mr-2 size-3.5" />
@@ -343,11 +309,12 @@ export default function NoteCard({
             </Badge>
           )}
 
-          {tags.length === 0 && (
+          {tagsCount > 0 && (
             <Badge
               variant="outline"
               className="font-normal text-[10px] px-2 py-0 h-5 border-border/40 text-muted-foreground/70"
             >
+              {/* TODO: this is wrong */}
               {m.notes_page_word_count({ count: wordCount })}
             </Badge>
           )}

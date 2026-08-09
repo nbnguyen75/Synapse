@@ -99,16 +99,3 @@ export const NOTE_VIEW_CONFIG: Record<NoteViewMode, NotesViewConfig> = {
     emptyVariant: 'trash',
   },
 };
-
-export const BULK_NOTES_ACTION_SUCCESS_MESSAGE: Record<BulkNoteAction, string> =
-  {
-    DELETE_PERMANENT: m.notes_page_toast_deleted(),
-    UNFAVORITE: m.notes_page_toast_unfavorited(),
-    UNARCHIVE: m.notes_page_toast_unarchived(),
-    FAVORITE: m.notes_page_toast_favorited(),
-    ARCHIVE: m.notes_page_toast_archived(),
-    RESTORE: m.notes_page_toast_restored(),
-    UNPIN: m.notes_page_toast_unpinned(),
-    TRASH: m.notes_page_toast_trashed(),
-    PIN: m.notes_page_toast_pinned(),
-  };

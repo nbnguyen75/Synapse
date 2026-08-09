@@ -18,19 +18,27 @@ export type NotesApiParams = Omit<NotesQueryParams, 'sort'> & {
   favorite?: boolean;
   trashed?: boolean;
 };
+export type PatchNoteInput = {
+  status?: 'ACTIVE' | 'ARCHIVED' | 'TRASHED';
+  favorite?: boolean;
+  pinned?: boolean;
+};
 
 export type NotesFetchRouter = EnsureRouter<{
   '/api/v1/notes/:id': {
-    $delete: {
-      response: ApiSuccessResponse<Record<never, never>>;
-      params: {
-        id: string;
-      };
-    };
     $put: {
       response: ApiSuccessResponse<Note>;
       body: NoteInputPayload;
       params: NoteIdParams;
+    };
+    $patch: {
+      response: ApiSuccessResponse<Note>;
+      body: PatchNoteInput;
+      params: NoteIdParams;
+    };
+    $delete: {
+      response: ApiSuccessResponse<Record<never, never>>;
+      params: { id: string };
     };
     $get: {
       response: ApiSuccessResponse<Note>;
@@ -51,54 +59,6 @@ export type NotesFetchRouter = EnsureRouter<{
     $post: {
       response: ApiSuccessResponse<Prettify<Pick<Note, 'title'>>>;
       body: GenerateNoteTitleInput;
-    };
-  };
-  '/api/v1/notes/:id/unarchive': {
-    $patch: {
-      params: {
-        id: string;
-      };
-      response: ApiSuccessResponse<Note>;
-    };
-  };
-  '/api/v1/notes/:id/favorite': {
-    $patch: {
-      params: {
-        id: string;
-      };
-      response: ApiSuccessResponse<Note>;
-    };
-  };
-  '/api/v1/notes/:id/archive': {
-    $patch: {
-      params: {
-        id: string;
-      };
-      response: ApiSuccessResponse<Note>;
-    };
-  };
-  '/api/v1/notes/:id/restore': {
-    $patch: {
-      params: {
-        id: string;
-      };
-      response: ApiSuccessResponse<Note>;
-    };
-  };
-  '/api/v1/notes/:id/trash': {
-    $patch: {
-      params: {
-        id: string;
-      };
-      response: ApiSuccessResponse<Note>;
-    };
-  };
-  '/api/v1/notes/:id/pin': {
-    $patch: {
-      params: {
-        id: string;
-      };
-      response: ApiSuccessResponse<Note>;
     };
   };
   '/api/v1/notes/bulk/actions': {

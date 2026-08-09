@@ -1,4 +1,4 @@
-import type { LoginFormValues } from '@/features/auth/schemas';
+import type { LoginFormInput, LoginPayload } from '@/features/auth/schemas';
 
 import { useState, type BaseSyntheticEvent, type ComponentProps } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
@@ -22,10 +22,10 @@ import { Icon } from '@iconify/react';
 
 interface LoginFormProps extends Omit<ComponentProps<'form'>, 'onSubmit'> {
   onSubmit?: (
-    data: LoginFormValues,
+    data: LoginPayload,
     $event?: BaseSyntheticEvent,
   ) => Promise<void> | void;
-  form: UseFormReturn<LoginFormValues>;
+  form: UseFormReturn<LoginFormInput>;
   isPending?: boolean;
 }
 

@@ -20,7 +20,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 public class GlobalExceptionHandler {
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-  /** 1. Lỗi nghiệp vụ chủ động (Custom Business Exceptions) */
   @ExceptionHandler(ApiException.class)
   public ResponseEntity<ApiResponse<Void>> handleApiException(ApiException ex) {
     log.warn("Business Logic Exception: [{}] - {}", ex.getErrorCode().name(), ex.getMessage());
@@ -29,31 +28,59 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.error(ex.getErrorCode(), ex.getMessage()));
   }
 
-  /** 2. Lỗi Validation DTO (@Valid Request Body) */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiResponse<Void>> handleValidation(MethodArgumentNotValidException ex) {
     List<ApiResponse.FieldError> details =
         ex.getBindingResult().getFieldErrors().stream()
-            .map(f -> new ApiResponse.FieldError(f.getField(), f.getDefaultMessage()))
+            .map(
+                f -> {
+                  ErrorCode errorCode = parseErrorCode(f.getDefaultMessage());
+                  String code =
+                      (errorCode != null) ? errorCode.name() : ErrorCode.VALIDATION_ERROR.name();
+                  String message =
+                      (errorCode != null) ? errorCode.getDefaultMessage() : f.getDefaultMessage();
+
+                  return new ApiResponse.FieldError(f.getField(), code, message);
+                })
             .toList();
 
-    log.warn("Validation failed: User sent bad data again.");
+    log.warn(
+        "Validation failed: User sent bad data again.: {}",
+        details.stream().map(f -> f.field()).toList());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.validationError(details));
   }
 
-  /** 3. Lỗi Validation Query/Path Params (@Validated) */
+  private ErrorCode parseErrorCode(String message) {
+    if (message == null || message.isBlank()) {
+      return null;
+    }
+    try {
+      return ErrorCode.valueOf(message);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(
       ConstraintViolationException ex) {
     List<ApiResponse.FieldError> details =
         ex.getConstraintViolations().stream()
-            .map(v -> new ApiResponse.FieldError(v.getPropertyPath().toString(), v.getMessage()))
+            .map(
+                v -> {
+                  ErrorCode errorCode = parseErrorCode(v.getMessage());
+                  String code =
+                      (errorCode != null) ? errorCode.name() : ErrorCode.VALIDATION_ERROR.name();
+                  String message =
+                      (errorCode != null) ? errorCode.getDefaultMessage() : v.getMessage();
+
+                  return new ApiResponse.FieldError(v.getPropertyPath().toString(), code, message);
+                })
             .toList();
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.validationError(details));
   }
 
-  /** 4. Bổ sung: Lỗi Payload JSON bị hỏng / Thiếu ngoặc / Trailing comma */
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(
       HttpMessageNotReadableException ex) {
@@ -65,7 +92,6 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.error(ErrorCode.VALIDATION_ERROR, message));
   }
 
-  /** 5. Bổ sung: Thiếu Query Parameter bắt buộc */
   @ExceptionHandler(MissingServletRequestParameterException.class)
   public ResponseEntity<ApiResponse<Void>> handleMissingParam(
       MissingServletRequestParameterException ex) {
@@ -78,7 +104,6 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.error(ErrorCode.VALIDATION_ERROR, message));
   }
 
-  /** 6. Xử lý truyền sai kiểu dữ liệu (Type Mismatch) */
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ApiResponse<Void>> handleTypeMismatch(
       MethodArgumentTypeMismatchException ex) {
@@ -94,7 +119,6 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.error(ErrorCode.VALIDATION_ERROR, message));
   }
 
-  /** 7. Xử lý 404 (Route Not Found) - Dev Meme "Worked on Localhost" */
   @ExceptionHandler(NoHandlerFoundException.class)
   public ResponseEntity<ApiResponse<Void>> handleNotFound(NoHandlerFoundException ex) {
     String message =
@@ -107,7 +131,6 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.error(ErrorCode.ROUTE_NOT_FOUND, message));
   }
 
-  /** 8. Xử lý 405 (Method Not Allowed) - Sửa lại tiếng Anh tự nhiên hơn */
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   public ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed(
       HttpRequestMethodNotSupportedException ex) {
@@ -121,7 +144,6 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.error(ErrorCode.METHOD_NOT_ALLOWED, message));
   }
 
-  /** 9. Xử lý 500 (Unhandled Error) - Huyền thoại "Worked on my machine" */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
     log.error("Unhandled exception caught in GlobalExceptionHandler: ", ex);

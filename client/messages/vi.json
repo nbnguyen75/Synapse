@@ -420,7 +420,7 @@
   "notes_batch_delete_confirm": "Xóa {count} ghi chú?",
   "notes_batch_delete_confirm_btn": "Xác nhận xóa",
   "notes_batch_cancel": "Hủy",
-  "loader_title": "Đang tải không gian làm việc...",
+  "loader_title": "Đang tải không gian cá nhân của bạn...",
   "loader_subtitle": "Vui lòng chờ trong giây lát...",
   "sidebar_intelligence_hub": "Trung tâm Tri thức",
   "sidebar_knowledge_hub": "Trợ lý Tri thức",

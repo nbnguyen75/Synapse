@@ -6,7 +6,11 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 
-import { loginSchema, type LoginFormValues } from '@/features/auth/schemas';
+import {
+  loginSchema,
+  type LoginFormInput,
+  type LoginPayload,
+} from '@/features/auth/schemas';
 import { LoginForm } from '@/features/auth/components';
 
 import { createTitle } from '@/config/metadata';
@@ -39,7 +43,7 @@ function RouteComponent() {
   const [isEmailPending, setIsEmailPending] = useState(false);
   const [isSocialPending, setIsSocialPending] = useState(false);
 
-  const form = useForm<LoginFormValues>({
+  const form = useForm<LoginFormInput>({
     resolver: standardSchemaResolver(loginSchema),
     defaultValues: { password: '', email: '' },
     mode: 'onBlur',
@@ -51,7 +55,7 @@ function RouteComponent() {
 
   const isPending = isSubmitting || isEmailPending || isSocialPending;
 
-  const handleOnSubmit = async (data: LoginFormValues) => {
+  const handleOnSubmit = async (data: LoginPayload) => {
     try {
       const { password, email } = data;
 

@@ -6,6 +6,7 @@ import com.synapse.notes.common.response.PageResponse;
 import com.synapse.notes.note.dto.request.BulkActionRequest;
 import com.synapse.notes.note.dto.request.CreateNoteRequest;
 import com.synapse.notes.note.dto.request.NoteQueryParams;
+import com.synapse.notes.note.dto.request.PatchNoteRequest;
 import com.synapse.notes.note.dto.request.UpdateNoteRequest;
 import com.synapse.notes.note.dto.response.NoteResponse;
 import com.synapse.notes.note.service.NoteService;
@@ -59,39 +60,12 @@ public class NoteController {
     return ApiResponse.success(noteService.updateNote(userId, id, req));
   }
 
-  @PatchMapping("/{id}/pin")
-  public ApiResponse<NoteResponse> togglePin(@CurrentUserId String userId, @PathVariable UUID id) {
-    return ApiResponse.success(noteService.togglePin(userId, id));
-  }
-
-  @PatchMapping("/{id}/favorite")
-  public ApiResponse<NoteResponse> toggleFavorite(
-      @CurrentUserId String userId, @PathVariable UUID id) {
-    return ApiResponse.success(noteService.toggleFavorite(userId, id));
-  }
-
-  @PatchMapping("/{id}/archive")
-  public ApiResponse<NoteResponse> archiveNote(
-      @CurrentUserId String userId, @PathVariable UUID id) {
-    return ApiResponse.success(noteService.archiveNote(userId, id));
-  }
-
-  @PatchMapping("/{id}/unarchive")
-  public ApiResponse<NoteResponse> unarchiveNote(
-      @CurrentUserId String userId, @PathVariable UUID id) {
-    return ApiResponse.success(noteService.unarchiveNote(userId, id));
-  }
-
-  @PatchMapping("/{id}/trash")
-  public ApiResponse<NoteResponse> moveToTrash(
-      @CurrentUserId String userId, @PathVariable UUID id) {
-    return ApiResponse.success(noteService.moveToTrash(userId, id));
-  }
-
-  @PatchMapping("/{id}/restore")
-  public ApiResponse<NoteResponse> restoreFromTrash(
-      @CurrentUserId String userId, @PathVariable UUID id) {
-    return ApiResponse.success(noteService.restoreFromTrash(userId, id));
+  @PatchMapping("/{id}")
+  public ApiResponse<NoteResponse> patchNote(
+      @CurrentUserId String userId,
+      @PathVariable UUID id,
+      @RequestBody @Valid PatchNoteRequest req) {
+    return ApiResponse.success(noteService.patchNote(userId, id, req));
   }
 
   @DeleteMapping("/{id}")

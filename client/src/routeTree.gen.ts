@@ -19,12 +19,13 @@ import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppTagsRouteImport } from './routes/_app/tags'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
-import { Route as AppNotesIndexRouteImport } from './routes/_app/notes/index'
 import { Route as AppNotesNoteIdRouteImport } from './routes/_app/notes/$noteId'
-import { Route as AppNotesArchiveRouteImport } from './routes/_app/notes/archive'
+import { Route as AppNotesListRouteRouteImport } from './routes/_app/notes/_list/route'
 import { Route as AppNotesCreateRouteImport } from './routes/_app/notes/create'
-import { Route as AppNotesFavoritesRouteImport } from './routes/_app/notes/favorites'
-import { Route as AppNotesTrashRouteImport } from './routes/_app/notes/trash'
+import { Route as AppNotesListIndexRouteImport } from './routes/_app/notes/_list/index'
+import { Route as AppNotesListArchiveRouteImport } from './routes/_app/notes/_list/archive'
+import { Route as AppNotesListFavoritesRouteImport } from './routes/_app/notes/_list/favorites'
+import { Route as AppNotesListTrashRouteImport } from './routes/_app/notes/_list/trash'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -74,19 +75,13 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AppNotesIndexRoute = AppNotesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppNotesRouteRoute,
-} as any)
 const AppNotesNoteIdRoute = AppNotesNoteIdRouteImport.update({
   id: '/$noteId',
   path: '/$noteId',
   getParentRoute: () => AppNotesRouteRoute,
 } as any)
-const AppNotesArchiveRoute = AppNotesArchiveRouteImport.update({
-  id: '/archive',
-  path: '/archive',
+const AppNotesListRouteRoute = AppNotesListRouteRouteImport.update({
+  id: '/_list',
   getParentRoute: () => AppNotesRouteRoute,
 } as any)
 const AppNotesCreateRoute = AppNotesCreateRouteImport.update({
@@ -94,15 +89,25 @@ const AppNotesCreateRoute = AppNotesCreateRouteImport.update({
   path: '/create',
   getParentRoute: () => AppNotesRouteRoute,
 } as any)
-const AppNotesFavoritesRoute = AppNotesFavoritesRouteImport.update({
+const AppNotesListIndexRoute = AppNotesListIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppNotesListRouteRoute,
+} as any)
+const AppNotesListArchiveRoute = AppNotesListArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
+  getParentRoute: () => AppNotesListRouteRoute,
+} as any)
+const AppNotesListFavoritesRoute = AppNotesListFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
-  getParentRoute: () => AppNotesRouteRoute,
+  getParentRoute: () => AppNotesListRouteRoute,
 } as any)
-const AppNotesTrashRoute = AppNotesTrashRouteImport.update({
+const AppNotesListTrashRoute = AppNotesListTrashRouteImport.update({
   id: '/trash',
   path: '/trash',
-  getParentRoute: () => AppNotesRouteRoute,
+  getParentRoute: () => AppNotesListRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -115,14 +120,15 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/notes/$noteId': typeof AppNotesNoteIdRoute
-  '/notes/archive': typeof AppNotesArchiveRoute
   '/notes/create': typeof AppNotesCreateRoute
-  '/notes/favorites': typeof AppNotesFavoritesRoute
-  '/notes/trash': typeof AppNotesTrashRoute
-  '/notes/': typeof AppNotesIndexRoute
+  '/notes/archive': typeof AppNotesListArchiveRoute
+  '/notes/favorites': typeof AppNotesListFavoritesRoute
+  '/notes/trash': typeof AppNotesListTrashRoute
+  '/notes/': typeof AppNotesListIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/notes': typeof AppNotesListIndexRoute
   '/chat': typeof AppChatRoute
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
@@ -130,11 +136,10 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/notes/$noteId': typeof AppNotesNoteIdRoute
-  '/notes/archive': typeof AppNotesArchiveRoute
   '/notes/create': typeof AppNotesCreateRoute
-  '/notes/favorites': typeof AppNotesFavoritesRoute
-  '/notes/trash': typeof AppNotesTrashRoute
-  '/notes': typeof AppNotesIndexRoute
+  '/notes/archive': typeof AppNotesListArchiveRoute
+  '/notes/favorites': typeof AppNotesListFavoritesRoute
+  '/notes/trash': typeof AppNotesListTrashRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -148,12 +153,13 @@ export interface FileRoutesById {
   '/_app/tags': typeof AppTagsRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
+  '/_app/notes/_list': typeof AppNotesListRouteRouteWithChildren
   '/_app/notes/$noteId': typeof AppNotesNoteIdRoute
-  '/_app/notes/archive': typeof AppNotesArchiveRoute
   '/_app/notes/create': typeof AppNotesCreateRoute
-  '/_app/notes/favorites': typeof AppNotesFavoritesRoute
-  '/_app/notes/trash': typeof AppNotesTrashRoute
-  '/_app/notes/': typeof AppNotesIndexRoute
+  '/_app/notes/_list/archive': typeof AppNotesListArchiveRoute
+  '/_app/notes/_list/favorites': typeof AppNotesListFavoritesRoute
+  '/_app/notes/_list/trash': typeof AppNotesListTrashRoute
+  '/_app/notes/_list/': typeof AppNotesListIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -167,14 +173,15 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/notes/$noteId'
-    | '/notes/archive'
     | '/notes/create'
+    | '/notes/archive'
     | '/notes/favorites'
     | '/notes/trash'
     | '/notes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/notes'
     | '/chat'
     | '/profile'
     | '/settings'
@@ -182,11 +189,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/notes/$noteId'
-    | '/notes/archive'
     | '/notes/create'
+    | '/notes/archive'
     | '/notes/favorites'
     | '/notes/trash'
-    | '/notes'
   id:
     | '__root__'
     | '/'
@@ -199,12 +205,13 @@ export interface FileRouteTypes {
     | '/_app/tags'
     | '/_auth/login'
     | '/_auth/register'
+    | '/_app/notes/_list'
     | '/_app/notes/$noteId'
-    | '/_app/notes/archive'
     | '/_app/notes/create'
-    | '/_app/notes/favorites'
-    | '/_app/notes/trash'
-    | '/_app/notes/'
+    | '/_app/notes/_list/archive'
+    | '/_app/notes/_list/favorites'
+    | '/_app/notes/_list/trash'
+    | '/_app/notes/_list/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -285,13 +292,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_app/notes/': {
-      id: '/_app/notes/'
-      path: '/'
-      fullPath: '/notes/'
-      preLoaderRoute: typeof AppNotesIndexRouteImport
-      parentRoute: typeof AppNotesRouteRoute
-    }
     '/_app/notes/$noteId': {
       id: '/_app/notes/$noteId'
       path: '/$noteId'
@@ -299,11 +299,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotesNoteIdRouteImport
       parentRoute: typeof AppNotesRouteRoute
     }
-    '/_app/notes/archive': {
-      id: '/_app/notes/archive'
-      path: '/archive'
-      fullPath: '/notes/archive'
-      preLoaderRoute: typeof AppNotesArchiveRouteImport
+    '/_app/notes/_list': {
+      id: '/_app/notes/_list'
+      path: ''
+      fullPath: '/notes'
+      preLoaderRoute: typeof AppNotesListRouteRouteImport
       parentRoute: typeof AppNotesRouteRoute
     }
     '/_app/notes/create': {
@@ -313,39 +313,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppNotesCreateRouteImport
       parentRoute: typeof AppNotesRouteRoute
     }
-    '/_app/notes/favorites': {
-      id: '/_app/notes/favorites'
+    '/_app/notes/_list/': {
+      id: '/_app/notes/_list/'
+      path: '/'
+      fullPath: '/notes/'
+      preLoaderRoute: typeof AppNotesListIndexRouteImport
+      parentRoute: typeof AppNotesListRouteRoute
+    }
+    '/_app/notes/_list/archive': {
+      id: '/_app/notes/_list/archive'
+      path: '/archive'
+      fullPath: '/notes/archive'
+      preLoaderRoute: typeof AppNotesListArchiveRouteImport
+      parentRoute: typeof AppNotesListRouteRoute
+    }
+    '/_app/notes/_list/favorites': {
+      id: '/_app/notes/_list/favorites'
       path: '/favorites'
       fullPath: '/notes/favorites'
-      preLoaderRoute: typeof AppNotesFavoritesRouteImport
-      parentRoute: typeof AppNotesRouteRoute
+      preLoaderRoute: typeof AppNotesListFavoritesRouteImport
+      parentRoute: typeof AppNotesListRouteRoute
     }
-    '/_app/notes/trash': {
-      id: '/_app/notes/trash'
+    '/_app/notes/_list/trash': {
+      id: '/_app/notes/_list/trash'
       path: '/trash'
       fullPath: '/notes/trash'
-      preLoaderRoute: typeof AppNotesTrashRouteImport
-      parentRoute: typeof AppNotesRouteRoute
+      preLoaderRoute: typeof AppNotesListTrashRouteImport
+      parentRoute: typeof AppNotesListRouteRoute
     }
   }
 }
 
+interface AppNotesListRouteRouteChildren {
+  AppNotesListArchiveRoute: typeof AppNotesListArchiveRoute
+  AppNotesListFavoritesRoute: typeof AppNotesListFavoritesRoute
+  AppNotesListTrashRoute: typeof AppNotesListTrashRoute
+  AppNotesListIndexRoute: typeof AppNotesListIndexRoute
+}
+
+const AppNotesListRouteRouteChildren: AppNotesListRouteRouteChildren = {
+  AppNotesListArchiveRoute: AppNotesListArchiveRoute,
+  AppNotesListFavoritesRoute: AppNotesListFavoritesRoute,
+  AppNotesListTrashRoute: AppNotesListTrashRoute,
+  AppNotesListIndexRoute: AppNotesListIndexRoute,
+}
+
+const AppNotesListRouteRouteWithChildren =
+  AppNotesListRouteRoute._addFileChildren(AppNotesListRouteRouteChildren)
+
 interface AppNotesRouteRouteChildren {
+  AppNotesListRouteRoute: typeof AppNotesListRouteRouteWithChildren
   AppNotesNoteIdRoute: typeof AppNotesNoteIdRoute
-  AppNotesArchiveRoute: typeof AppNotesArchiveRoute
   AppNotesCreateRoute: typeof AppNotesCreateRoute
-  AppNotesFavoritesRoute: typeof AppNotesFavoritesRoute
-  AppNotesTrashRoute: typeof AppNotesTrashRoute
-  AppNotesIndexRoute: typeof AppNotesIndexRoute
 }
 
 const AppNotesRouteRouteChildren: AppNotesRouteRouteChildren = {
+  AppNotesListRouteRoute: AppNotesListRouteRouteWithChildren,
   AppNotesNoteIdRoute: AppNotesNoteIdRoute,
-  AppNotesArchiveRoute: AppNotesArchiveRoute,
   AppNotesCreateRoute: AppNotesCreateRoute,
-  AppNotesFavoritesRoute: AppNotesFavoritesRoute,
-  AppNotesTrashRoute: AppNotesTrashRoute,
-  AppNotesIndexRoute: AppNotesIndexRoute,
 }
 
 const AppNotesRouteRouteWithChildren = AppNotesRouteRoute._addFileChildren(

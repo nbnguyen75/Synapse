@@ -1,35 +1,15 @@
-import type { NoteFormInput, NoteInputPayload } from '@/features/notes';
-import type { Note } from '@/features/notes/types';
+import { Controller } from 'react-hook-form';
 
-import { Controller, useForm, useWatch } from 'react-hook-form';
-import { useState } from 'react';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
-import {
-  createFileRoute,
-  redirect,
-  useNavigate,
-  useSearch,
-} from '@tanstack/react-router';
-
-import { toast } from 'sonner';
 import { z } from 'zod/v4';
 
 import {
-  useDeleteNoteMutation,
-  useGenerateNoteTitleMutation,
-  useUpdateNoteMutation,
-} from '@/features/notes/hooks/use-note-mutation';
-import {
   getMarkdownReadTimeSync,
   exportMarkdown,
-} from '@/features/notes/services';
-import { useGetNoteQuery } from '@/features/notes/hooks/use-note-query';
+} from '@/features/notes/service';
+import { useNoteDetails } from '@/features/notes/hooks';
 
-import { useKeyboardShortcut } from '@/hooks/use-key-binding';
-
-import { useConfirm } from '@/providers/confirm-provider';
-
-import { getShortcut } from '@/config/keyboard-shortcuts';
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
@@ -91,106 +71,21 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
 
 function NoteDetailsPage() {
   const initialData = Route.useLoaderData();
-  const navigate = useNavigate();
-  const search = useSearch({ from: '/_app/notes/$noteId' });
-  const confirm = useConfirm();
+  const { actions, status, state, form, note } = useNoteDetails(initialData);
 
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('preview');
-
-  const { isPending: isGeneratingNoteTitle, mutate: generateNoteTitle } =
-    useGenerateNoteTitleMutation();
-
-  const { data: note } = useGetNoteQuery(initialData.id, initialData);
-  const { isPending: isUpdating, mutate: updateNote } = useUpdateNoteMutation();
-  const { isPending: isDeleting, mutate: deleteNote } = useDeleteNoteMutation();
-
-  const form = useForm<NoteFormInput>({
-    defaultValues: {
-      content: note?.content ?? '',
-      title: note?.title,
-    },
-  });
-
-  const { handleSubmit, setValue, control } = form;
-
-  const [watchedContent, watchedTitle] = useWatch({
-    name: ['content', 'title'],
-    control,
-  });
-
-  const handleOnUpdate = (id: string, data: NoteInputPayload) => {
-    updateNote(
-      {
-        params: { id },
-        body: data,
-      },
-      {
-        onSuccess: () => setActiveTab('preview'),
-      },
-    );
-  };
-
-  useKeyboardShortcut(
-    getShortcut('save-note').combos,
-    () => {
-      if (isUpdating || isDeleting || !note) return;
-      void form.handleSubmit((data) => handleOnUpdate(note.id, data))();
-    },
-    { allowWhenTyping: ['ctrl+s', 'meta+s'] },
-  );
-
-  const handleOnDelete = async (note?: Note) => {
-    if (!note || !note.title) return;
-
-    const ok = await confirm({
-      description: m.notes_page_delete_desc({
-        title: note.title,
-      }),
-      confirmText: m.notes_page_delete_confirm(),
-      cancelText: m.notes_page_delete_cancel(),
-      title: m.notes_page_delete_title(),
-      variant: 'destructive',
-    });
-
-    if (!ok) return;
-
-    deleteNote(
-      { params: { id: note.id } },
-      {
-        onSuccess: () => navigate({ to: '/notes' }),
-      },
-    );
-  };
-
-  const handleAiTitle = () => {
-    if (!watchedContent?.trim() || isGeneratingNoteTitle) return;
-
-    generateNoteTitle(
-      {
-        body: {
-          content: watchedContent,
-        },
-      },
-      {
-        onSuccess: ({ title }) => {
-          setValue('title', title, { shouldDirty: true });
-          toast.success(m.notes_page_ai_title_success());
-        },
-        onError: () => {
-          toast.error(m.notes_page_ai_title_failed());
-        },
-      },
-    );
-  };
+  const { watchedContent, watchedTitle, activeTab } = state;
+  const { control } = form;
+  const {
+    deleteNotePermanently,
+    generateNoteTitle,
+    backToNotesPage,
+    setActiveTab,
+    saveChanges,
+  } = actions;
+  const { isGeneratingTitle, isDeleting, isUpdating } = status;
 
   return (
-    <form
-      onSubmit={handleSubmit((data) => {
-        if (!note) return;
-        handleOnUpdate(note.id, data);
-      })}
-      className="h-full"
-    >
+    <form onSubmit={saveChanges} className="h-full">
       <Tabs
         defaultValue="preview"
         value={activeTab}
@@ -204,10 +99,7 @@ function NoteDetailsPage() {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                onClick={() => {
-                  const to = search.from ? `/${search.from}` : '/notes';
-                  void navigate({ to });
-                }}
+                onClick={backToNotesPage}
                 className="rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60"
               >
                 <ArrowLeftIcon className="size-4" />
@@ -229,7 +121,7 @@ function NoteDetailsPage() {
             <div className="flex items-center gap-3">
               <span className="hidden sm:flex text-[11px] font-medium text-muted-foreground items-center gap-1 px-2 py-1 rounded-md">
                 <ClockIcon className="size-3" />
-                {getMarkdownReadTimeSync(watchedContent || '')}
+                {getMarkdownReadTimeSync(watchedContent)}
               </span>
 
               <TabsList className="h-8 p-0.5" variant="line">
@@ -268,11 +160,11 @@ function NoteDetailsPage() {
 
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem
-                    disabled={isGeneratingNoteTitle || !watchedContent?.trim()}
-                    onClick={() => void handleAiTitle()}
+                    disabled={isGeneratingTitle || !watchedContent.trim()}
+                    onClick={generateNoteTitle}
                     className="cursor-pointer"
                   >
-                    {isGeneratingNoteTitle ? (
+                    {isGeneratingTitle ? (
                       <Loader2Icon className="size-4 mr-2 text-violet-500 animate-spin" />
                     ) : (
                       <SparklesIcon className="size-4 mr-2 text-violet-500" />
@@ -298,7 +190,7 @@ function NoteDetailsPage() {
                   <DropdownMenuSeparator />
 
                   <DropdownMenuItem
-                    onClick={() => handleOnDelete(note)}
+                    onClick={deleteNotePermanently}
                     variant="destructive"
                     className="cursor-pointer"
                   >

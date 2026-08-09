@@ -16,7 +16,7 @@ public record ApiResponse<T>(
     List<FieldError> details,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime timestamp) {
 
-  public record FieldError(String field, String message) {}
+  public record FieldError(String field, String errorCode, String message) {}
 
   public static ApiResponse<Object> success(String message) {
     return new ApiResponse<>(true, message, Map.of(), null, null, LocalDateTime.now());

@@ -7,6 +7,7 @@ import com.synapse.notes.note.client.NoteTitleClient;
 import com.synapse.notes.note.dto.request.BulkActionRequest.BulkAction;
 import com.synapse.notes.note.dto.request.CreateNoteRequest;
 import com.synapse.notes.note.dto.request.NoteQueryParams;
+import com.synapse.notes.note.dto.request.PatchNoteRequest;
 import com.synapse.notes.note.dto.request.UpdateNoteRequest;
 import com.synapse.notes.note.dto.response.NoteResponse;
 import com.synapse.notes.note.event.NoteEventPublisher;
@@ -77,46 +78,26 @@ public class NoteService {
   }
 
   @Transactional
-  public NoteResponse togglePin(String userId, UUID id) {
+  public NoteResponse patchNote(String userId, UUID id, PatchNoteRequest req) {
     Note note = getNoteEntity(userId, id);
-    note.togglePin();
-    return NoteResponse.from(note);
-  }
+    boolean wasTrashed = note.isTrashed();
 
-  @Transactional
-  public NoteResponse toggleFavorite(String userId, UUID id) {
-    Note note = getNoteEntity(userId, id);
-    note.toggleFavorite();
-    return NoteResponse.from(note);
-  }
+    if (req.status() != null) {
+      note.changeStatus(req.status());
+    }
 
-  @Transactional
-  public NoteResponse archiveNote(String userId, UUID id) {
-    Note note = getNoteEntity(userId, id);
-    note.archive();
-    return NoteResponse.from(note);
-  }
+    if (req.pinned() != null) {
+      note.setPinned(req.pinned());
+    }
 
-  @Transactional
-  public NoteResponse unarchiveNote(String userId, UUID id) {
-    Note note = getNoteEntity(userId, id);
-    note.unarchive();
-    return NoteResponse.from(note);
-  }
+    if (req.favorite() != null) {
+      note.setFavorite(req.favorite());
+    }
 
-  @Transactional
-  public NoteResponse moveToTrash(String userId, UUID id) {
-    Note note = getNoteEntity(userId, id);
-    note.moveToTrash();
-    eventPublisher.publishUpdated(note);
-    return NoteResponse.from(note);
-  }
+    if (wasTrashed != note.isTrashed()) {
+      eventPublisher.publishUpdated(note);
+    }
 
-  @Transactional
-  public NoteResponse restoreFromTrash(String userId, UUID id) {
-    Note note = getNoteEntity(userId, id);
-    note.restoreFromTrash();
-    eventPublisher.publishUpdated(note);
     return NoteResponse.from(note);
   }
 
@@ -141,29 +122,38 @@ public class NoteService {
 
   @Transactional
   public int executeBulkAction(String userId, Collection<UUID> ids, BulkAction action) {
+    if (ids == null || ids.isEmpty()) {
+      return 0;
+    }
+
+    Instant now = Instant.now();
+
     return switch (action) {
-      case ARCHIVE -> noteRepository.bulkArchive(userId, ids, Instant.now());
-      case UNARCHIVE -> noteRepository.bulkUnarchive(userId, ids, Instant.now());
-      case PIN -> noteRepository.bulkPin(userId, ids, true, Instant.now());
-      case UNPIN -> noteRepository.bulkPin(userId, ids, false, Instant.now());
-      case FAVORITE -> noteRepository.bulkFavorite(userId, ids, true, Instant.now());
-      case UNFAVORITE -> noteRepository.bulkFavorite(userId, ids, false, Instant.now());
+      case ARCHIVE -> noteRepository.bulkArchive(userId, ids, now);
+      case UNARCHIVE -> noteRepository.bulkUnarchive(userId, ids, now);
+      case PIN -> noteRepository.bulkPin(userId, ids, true, now);
+      case UNPIN -> noteRepository.bulkPin(userId, ids, false, now);
+      case FAVORITE -> noteRepository.bulkFavorite(userId, ids, true, now);
+      case UNFAVORITE -> noteRepository.bulkFavorite(userId, ids, false, now);
+
       case TRASH -> {
-        int affected = noteRepository.bulkTrash(userId, ids, Instant.now());
+        int affected = noteRepository.bulkTrash(userId, ids, now);
         if (affected > 0) {
           final var notes = noteRepository.findAllByIdInAndUserId(ids, userId);
           eventPublisher.publishUpdated(notes);
         }
         yield affected;
       }
+
       case RESTORE -> {
-        int affected = noteRepository.bulkRestore(userId, ids, Instant.now());
+        int affected = noteRepository.bulkRestore(userId, ids, now);
         if (affected > 0) {
           final var notes = noteRepository.findAllByIdInAndUserId(ids, userId);
           eventPublisher.publishUpdated(notes);
         }
         yield affected;
       }
+
       case DELETE_PERMANENT -> {
         int affected = noteRepository.bulkDeletePermanent(userId, ids);
         if (affected > 0) {

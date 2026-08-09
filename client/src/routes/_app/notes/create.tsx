@@ -1,25 +1,11 @@
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 
 import { createFileRoute } from '@tanstack/react-router';
-import { useNavigate } from '@tanstack/react-router';
 
-import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-import { toast } from 'sonner';
 import { z } from 'zod/v4';
 
-import {
-  useCreateNoteMutation,
-  useGenerateNoteTitleMutation,
-} from '@/features/notes/hooks/use-note-mutation';
-import {
-  noteInputSchema,
-  type NoteFormInput,
-  type NoteInputPayload,
-} from '@/features/notes';
+import { useNoteCreate } from '@/features/notes/hooks';
 
-import { useKeyboardShortcut } from '@/hooks/use-key-binding';
-
-import { getShortcut } from '@/config/keyboard-shortcuts';
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
@@ -58,74 +44,19 @@ export const Route = createFileRoute('/_app/notes/create')({
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
+  // TODO: create content rather than title since title will be empty
   const { title } = Route.useSearch();
-
-  const { isPending: isCreatingNote, mutate: createNote } =
-    useCreateNoteMutation();
-  const { isPending: isGeneratingTitle, mutate: generateTitle } =
-    useGenerateNoteTitleMutation();
-
-  const form = useForm<NoteFormInput>({
-    defaultValues: {
-      content: '',
-      title,
-    },
-    resolver: standardSchemaResolver(noteInputSchema),
+  const { actions, status, state, form } = useNoteCreate({
+    initialTitle: title,
   });
 
-  const { handleSubmit, setValue, control } = form;
-
-  const [watchedContent] = useWatch({
-    name: ['content'],
-    control,
-  });
-
-  const onSave = (data: NoteInputPayload) => {
-    createNote(
-      {
-        body: data,
-      },
-      {
-        onSuccess: async () => {
-          await navigate({ replace: true, to: '/notes' });
-        },
-      },
-    );
-  };
-
-  const handleAiTitle = () => {
-    if (!watchedContent?.trim()) return;
-
-    generateTitle(
-      {
-        body: {
-          content: watchedContent,
-        },
-      },
-      {
-        onSuccess: (data) => {
-          setValue('title', data.title, { shouldDirty: true });
-          toast.success(m.notes_page_ai_title_success());
-        },
-        onError: () => {
-          toast.error(m.notes_page_ai_title_failed());
-        },
-      },
-    );
-  };
-
-  useKeyboardShortcut(
-    getShortcut('save-note').combos,
-    () => {
-      if (isCreatingNote) return;
-      void form.handleSubmit(onSave)();
-    },
-    { allowWhenTyping: ['ctrl+s', 'meta+s'] },
-  );
+  const { watchedContent } = state;
+  const { control } = form;
+  const { isGeneratingTitle, isCreating } = status;
+  const { generateNoteTitle, backToNotesPage, createNew } = actions;
 
   return (
-    <form onSubmit={handleSubmit(onSave)} className="h-full">
+    <form onSubmit={createNew} className="h-full">
       <Tabs defaultValue="create" className="flex h-full flex-col">
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-border/40 bg-background/80 px-4 md:px-8 py-2.5 backdrop-blur-md sticky top-0 z-20">
@@ -134,7 +65,7 @@ function RouteComponent() {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                onClick={() => navigate({ to: '/notes' })}
+                onClick={backToNotesPage}
                 className="rounded-md hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60"
               >
                 <ArrowLeftIcon className="size-4" />
@@ -143,11 +74,11 @@ function RouteComponent() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={isCreatingNote}
+                disabled={isCreating}
                 className="h-8 gap-1.5 text-xs font-semibold rounded-md"
               >
                 <SaveIcon className="size-3.5" />
-                {isCreatingNote
+                {isCreating
                   ? m.notes_page_create_saving()
                   : m.notes_page_create_create()}
               </Button>
@@ -183,7 +114,7 @@ function RouteComponent() {
                     <InputGroup className="h-14 pl-3 resize-none bg-transparent font-semibold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7">
                       <InputGroupInput
                         {...field}
-                        disabled={isCreatingNote}
+                        disabled={isCreating}
                         placeholder={m.notes_page_untitled_placeholder()}
                         className="text-3xl md:text-4xl"
                       />
@@ -194,9 +125,9 @@ function RouteComponent() {
                           disabled={
                             !watchedContent?.trim() ||
                             isGeneratingTitle ||
-                            isCreatingNote
+                            isCreating
                           }
-                          onClick={() => handleAiTitle()}
+                          onClick={generateNoteTitle}
                           title={m.notes_page_ai_title()}
                           className="h-10 rounded-md"
                         >
@@ -222,7 +153,7 @@ function RouteComponent() {
                   <Input
                     type="text"
                     value=""
-                    disabled={isCreatingNote}
+                    disabled={isCreating}
                     placeholder={m.notes_page_tags_placeholder()}
                     className="h-6 border-none shadow-none focus-visible:ring-0 p-0 text-xs bg-transparent max-w-70 placeholder:text-muted-foreground/40"
                   />
@@ -243,7 +174,7 @@ function RouteComponent() {
                           id="details-note-content"
                           className="h-full max-h-120"
                           placeholder={m.notes_page_lexical_placeholder()}
-                          disabled={isCreatingNote}
+                          disabled={isCreating}
                         />
 
                         {fieldState.invalid && (

@@ -53,10 +53,10 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
   @Modifying(clearAutomatically = true)
   @Query(
       """
-      UPDATE Note n
-      SET n.archived = true, n.pinned = false, n.updatedAt = :now
-      WHERE n.userId = :userId AND n.id IN :ids
-      """)
+    UPDATE Note n
+    SET n.archived = true, n.trashed = false, n.trashedAt = null, n.pinned = false, n.updatedAt = :now
+    WHERE n.userId = :userId AND n.id IN :ids
+    """)
   int bulkArchive(
       @Param("userId") String userId,
       @Param("ids") Collection<UUID> ids,
@@ -65,10 +65,10 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
   @Modifying(clearAutomatically = true)
   @Query(
       """
-      UPDATE Note n
-      SET n.archived = false, n.updatedAt = :now
-      WHERE n.userId = :userId AND n.id IN :ids
-      """)
+    UPDATE Note n
+    SET n.archived = false, n.updatedAt = :now
+    WHERE n.userId = :userId AND n.id IN :ids
+    """)
   int bulkUnarchive(
       @Param("userId") String userId,
       @Param("ids") Collection<UUID> ids,
@@ -77,10 +77,10 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
   @Modifying(clearAutomatically = true)
   @Query(
       """
-      UPDATE Note n
-      SET n.trashed = true, n.trashedAt = :now, n.pinned = false, n.updatedAt = :now
-      WHERE n.userId = :userId AND n.id IN :ids
-      """)
+    UPDATE Note n
+    SET n.trashed = true, n.trashedAt = :now, n.archived = false, n.pinned = false, n.updatedAt = :now
+    WHERE n.userId = :userId AND n.id IN :ids
+    """)
   int bulkTrash(
       @Param("userId") String userId,
       @Param("ids") Collection<UUID> ids,
@@ -89,26 +89,22 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
   @Modifying(clearAutomatically = true)
   @Query(
       """
-      UPDATE Note n
-      SET n.trashed = false, n.trashedAt = null, n.updatedAt = :now
-      WHERE n.userId = :userId AND n.id IN :ids
-      """)
+    UPDATE Note n
+    SET n.trashed = false, n.trashedAt = null, n.updatedAt = :now
+    WHERE n.userId = :userId AND n.id IN :ids
+    """)
   int bulkRestore(
       @Param("userId") String userId,
       @Param("ids") Collection<UUID> ids,
       @Param("now") Instant now);
 
   @Modifying(clearAutomatically = true)
-  @Query("DELETE FROM Note n WHERE n.userId = :userId AND n.id IN :ids")
-  int bulkDeletePermanent(@Param("userId") String userId, @Param("ids") Collection<UUID> ids);
-
-  @Modifying(clearAutomatically = true)
   @Query(
       """
-      UPDATE Note n
-      SET n.pinned = :pinned, n.updatedAt = :now
-      WHERE n.userId = :userId AND n.id IN :ids AND n.trashed = false
-      """)
+    UPDATE Note n
+    SET n.pinned = :pinned, n.updatedAt = :now
+    WHERE n.userId = :userId AND n.id IN :ids AND n.trashed = false AND n.archived = false
+    """)
   int bulkPin(
       @Param("userId") String userId,
       @Param("ids") Collection<UUID> ids,
@@ -127,6 +123,10 @@ public interface NoteRepository extends JpaRepository<Note, UUID> {
       @Param("ids") Collection<UUID> ids,
       @Param("favorite") boolean favorite,
       @Param("now") Instant now);
+
+  @Modifying(clearAutomatically = true)
+  @Query("DELETE FROM Note n WHERE n.userId = :userId AND n.id IN :ids")
+  int bulkDeletePermanent(@Param("userId") String userId, @Param("ids") Collection<UUID> ids);
 
   @Query("SELECT n.id FROM Note n WHERE n.userId = :userId AND n.trashed = true")
   List<UUID> findTrashedIdsByUserId(@Param("userId") String userId);

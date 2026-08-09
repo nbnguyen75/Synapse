@@ -8,7 +8,8 @@ import { toast } from 'sonner';
 
 import {
   registerSchema,
-  type RegisterFormValues,
+  type RegisterFormInput,
+  type RegisterPayload,
 } from '@/features/auth/schemas';
 import { RegisterForm } from '@/features/auth/components';
 
@@ -38,7 +39,7 @@ export const Route = createFileRoute('/_auth/register')({
 function RouteComponent() {
   const [isEmailPending, setIsEmailPending] = useState(false);
 
-  const form = useForm<RegisterFormValues>({
+  const form = useForm<RegisterFormInput>({
     defaultValues: { confirmPassword: '', password: '', email: '' },
     resolver: standardSchemaResolver(registerSchema),
     mode: 'onBlur',
@@ -50,7 +51,7 @@ function RouteComponent() {
 
   const isPending = isSubmitting || isEmailPending;
 
-  const handleOnSubmit = async (data: RegisterFormValues) => {
+  const handleOnSubmit = async (data: RegisterPayload) => {
     try {
       const { password, email } = data;
 

@@ -1,5 +1,8 @@
 package com.synapse.notes.note.model;
 
+import com.synapse.notes.common.exception.ApiException;
+import com.synapse.notes.common.exception.ErrorCode;
+import com.synapse.notes.note.dto.request.NoteStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -75,37 +78,47 @@ public class Note {
     this.updatedAt = Instant.now();
   }
 
-  public void togglePin() {
-    this.pinned = !this.pinned;
+  public void setPinned(boolean pinned) {
+    if (pinned) {
+      if (this.trashed) {
+        throw new ApiException(ErrorCode.NOTE_CANNOT_PIN_TRASHED);
+      }
+      if (this.archived) {
+        throw new ApiException(ErrorCode.NOTE_CANNOT_PIN_ARCHIVED);
+      }
+    }
+
+    this.pinned = pinned;
     this.updatedAt = Instant.now();
   }
 
-  public void toggleFavorite() {
-    this.favorite = !this.favorite;
+  public void setFavorite(boolean favorite) {
+    this.favorite = favorite;
     this.updatedAt = Instant.now();
   }
 
-  public void archive() {
-    this.archived = true;
-    this.pinned = false;
-    this.updatedAt = Instant.now();
-  }
+  public void changeStatus(NoteStatus status) {
+    if (status == null) return;
 
-  public void unarchive() {
-    this.archived = false;
-    this.updatedAt = Instant.now();
-  }
-
-  public void moveToTrash() {
-    this.trashed = true;
-    this.trashedAt = Instant.now();
-    this.pinned = false;
-    this.updatedAt = Instant.now();
-  }
-
-  public void restoreFromTrash() {
-    this.trashed = false;
-    this.trashedAt = null;
+    switch (status) {
+      case ACTIVE -> {
+        this.archived = false;
+        this.trashed = false;
+        this.trashedAt = null;
+      }
+      case ARCHIVED -> {
+        this.archived = true;
+        this.trashed = false;
+        this.trashedAt = null;
+        this.pinned = false;
+      }
+      case TRASHED -> {
+        this.trashed = true;
+        this.trashedAt = Instant.now();
+        this.archived = false;
+        this.pinned = false;
+      }
+    }
     this.updatedAt = Instant.now();
   }
 }

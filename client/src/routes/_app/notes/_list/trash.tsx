@@ -6,7 +6,7 @@ import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
 
-export const Route = createFileRoute('/_app/notes/trash')({
+export const Route = createFileRoute('/_app/notes/_list/trash')({
   head: () => ({
     meta: [{ title: createTitle(m.trash_page_title()) }],
   }),

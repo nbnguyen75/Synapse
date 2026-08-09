@@ -1,24 +1,12 @@
-import type { NotesApiParams, NoteViewMode } from '@/features/notes/types';
+import type { NoteViewMode } from '@/features/notes/types';
 
-import { useNavigate } from '@tanstack/react-router';
-
-import {
-  EMPTY_PAGINATED,
-  NOTE_SORT_OPTIONS,
-  NOTE_VIEW_CONFIG,
-} from '@/features/notes/constants';
 import {
   NotesList,
   NoteCard,
   NotesBulkActions,
 } from '@/features/notes/components';
-import { useNotesQueryParams } from '@/features/notes/hooks/use-notes-query-params';
-import { useNotesBulkActions } from '@/features/notes/hooks/use-notes-bulk-actions';
-import { useGetNotesQuery } from '@/features/notes/hooks/use-note-query';
-import { useEmptyTrash } from '@/features/notes/hooks/use-empty-trash';
-
-import { useMultiSelect } from '@/hooks/use-multi-select';
-import { usePagination } from '@/hooks/use-pagination';
+import { NOTE_SORT_OPTIONS } from '@/features/notes/constants';
+import { useNotesView } from '@/features/notes/hooks';
 
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
@@ -50,50 +38,17 @@ interface NotesViewPageProps {
 }
 
 export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
-  const {
-    filters: apiFilters,
-    emptyVariant,
-    description,
-    title,
-  } = NOTE_VIEW_CONFIG[viewMode];
+  const { pagination, selection, actions, config, status, state, data } =
+    useNotesView(viewMode);
 
-  const { search } = useNotesQueryParams();
-
-  const { q: query, sort, page } = search;
-
-  const apiParams: NotesApiParams = {
-    ...search,
-    ...apiFilters,
-    sort: viewMode === 'active' ? ['pinned,desc', sort] : [sort],
-  };
-
-  const { data = EMPTY_PAGINATED, isLoading } = useGetNotesQuery(apiParams);
-  const { totalElements, items: notes, totalPages } = data;
-
-  const navigate = useNavigate();
-
-  const multiSelect = useMultiSelect();
-  const { handleBulkAction } = useNotesBulkActions(
-    multiSelect.selectedIds,
-    multiSelect.clearSelection,
-  );
-  const { handleEmptyTrash } = useEmptyTrash(multiSelect.clearSelection);
-
-  const pagination = usePagination({
-    onPageChange: (page: number) => {
-      void navigate({
-        search: (prev) => ({ ...prev, page }),
-        to: '.',
-      });
-    },
-    totalItems: totalElements,
-    totalPages: totalPages,
-    currentPage: page,
-  });
-
-  const isBulkActive = multiSelect.selectedCount > 0;
-
-  const resolvedEmptyVariant = query ? 'no-results' : emptyVariant;
+  const { isBulkActive, sort } = state;
+  const { notes } = data;
+  const { isLoading } = status;
+  const { toggleSelectRange, clearSelection, toggleSelect, selectedIds } =
+    selection;
+  const { emptyVariant, description, title } = config;
+  const { executeEmptyTrash, executeBulkAction, navigateToCreate, changeSort } =
+    actions;
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -101,11 +56,9 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
         <PageHeaderRow>
           <PageHeaderContent>
             <PageHeaderTitle className="text-foreground">
-              {title()}
+              {title}
             </PageHeaderTitle>
-            <PageHeaderDescription>
-              {description(String(totalElements))}
-            </PageHeaderDescription>
+            <PageHeaderDescription>{description}</PageHeaderDescription>
           </PageHeaderContent>
 
           <PageHeaderActions>
@@ -115,7 +68,7 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
                   variant="destructive"
                   size="sm"
                   className="h-9 gap-1.5 text-xs cursor-pointer"
-                  onClick={handleEmptyTrash}
+                  onClick={executeEmptyTrash}
                 >
                   <Trash2Icon className="size-3.5" />
                   {m.trash_page_empty()}
@@ -125,16 +78,7 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
               <Select
                 items={NOTE_SORT_OPTIONS}
                 defaultValue={sort}
-                onValueChange={(value) => {
-                  void navigate({
-                    search: (prev) => ({
-                      ...prev,
-                      sort: value ?? undefined,
-                      page: 1,
-                    }),
-                    to: '.',
-                  });
-                }}
+                onValueChange={(value) => changeSort(value ?? undefined)}
               >
                 <SelectTrigger className="w-48 h-9 text-sm gap-1">
                   <SelectValue />
@@ -164,19 +108,19 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
           <NotesList
             isLoading={isLoading}
             notes={notes}
-            emptyVariant={resolvedEmptyVariant}
+            emptyVariant={emptyVariant}
             onCreateClick={(e) => {
               e.preventDefault();
-              navigate({ to: '/notes/create' });
+              navigateToCreate();
             }}
             renderItem={(note) => (
               <NoteCard
                 note={note}
                 viewMode={viewMode}
-                isSelected={multiSelect.selectedIds.has(note.id)}
-                onToggleSelect={multiSelect.toggleSelect}
+                isSelected={selectedIds.has(note.id)}
+                onToggleSelect={toggleSelect}
                 onSelectRange={(id) =>
-                  multiSelect.toggleSelectRange(
+                  toggleSelectRange(
                     id,
                     notes.map((n) => n.id),
                   )
@@ -189,9 +133,9 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
         <NotesBulkActions
           viewMode={viewMode}
           notes={notes}
-          selectedIds={multiSelect.selectedIds}
-          onClearSelection={multiSelect.clearSelection}
-          onBulkAction={handleBulkAction}
+          selectedIds={selectedIds}
+          onClearSelection={clearSelection}
+          onBulkAction={executeBulkAction}
         />
 
         <Paginator
@@ -207,7 +151,7 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
       </div>
 
       <Button
-        onClick={() => navigate({ to: '/notes/create' })}
+        onClick={navigateToCreate}
         className={cn(
           'fixed bottom-6 right-6 z-40 size-12 rounded-full shadow-lg md:hidden cursor-pointer transition-all duration-300',
           isBulkActive && 'scale-0 pointer-events-none opacity-0',
