@@ -31,17 +31,18 @@ export type CompanionFetchRouter = EnsureRouter<{
       response: ApiSuccessResponse<CompanionSettings>;
     };
   };
+  '/api/v1/ai/conversations/:id/messages': {
+    $get: {
+      query: { offset?: number; limit?: number };
+      response: ApiSuccessResponse<UIMessage[]>;
+      params: ConversationIdParams;
+    };
+  };
   '/api/v1/ai/conversations/:id/favorite': {
     $patch: {
       response: ApiSuccessResponse<null>;
       params: ConversationIdParams;
       body: { favorited: boolean };
-    };
-  };
-  '/api/v1/ai/conversations/:id/messages': {
-    $get: {
-      response: ApiSuccessResponse<UIMessage[]>;
-      params: ConversationIdParams;
     };
   };
   '/api/v1/ai/conversations': {

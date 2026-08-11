@@ -1,6 +1,7 @@
 import { Controller } from 'react-hook-form';
+import { useEffect } from 'react';
 
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect, useParams } from '@tanstack/react-router';
 
 import { z } from 'zod/v4';
 
@@ -9,6 +10,8 @@ import {
   exportMarkdown,
 } from '@/features/notes/service';
 import { useNoteDetails } from '@/features/notes/hooks';
+
+import { useCompanionContextStore } from '@/store/companion-context-store';
 
 import { createTitle } from '@/config/metadata';
 
@@ -83,6 +86,21 @@ function NoteDetailsPage() {
     saveChanges,
   } = actions;
   const { isGeneratingTitle, isDeleting, isUpdating } = status;
+
+  const { noteId } = useParams({ from: '/_app/notes/$noteId' });
+  const setActiveDocument = useCompanionContextStore(
+    (state) => state.setActiveDocument,
+  );
+
+  useEffect(() => {
+    setActiveDocument({
+      content: watchedContent ?? '',
+      title: watchedTitle ?? '',
+      id: noteId,
+    });
+
+    return () => setActiveDocument(null);
+  }, [noteId, watchedTitle, watchedContent, setActiveDocument]);
 
   return (
     <form onSubmit={saveChanges} className="h-full">

@@ -4,6 +4,7 @@ import LangEnIcon from '@iconify-react/circle-flags/lang-en';
 import LangViIcon from '@iconify-react/circle-flags/lang-vi';
 import { Fragment } from 'react/jsx-runtime';
 
+import { useElementWidth } from '@/hooks/use-element-width';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useIsMac } from '@/hooks/use-is-os';
 
@@ -13,7 +14,6 @@ import { useTheme } from '@/providers/theme-provider';
 
 import { getLocale, setLocale, type Locale } from '@/paraglide/runtime';
 import { m } from '@/paraglide/messages';
-import { cn } from '@/lib/utils';
 
 import { AppBreadcrumb } from '@/components/shared';
 
@@ -77,6 +77,8 @@ export default function AppTopHeader() {
   const isMobile = useIsMobile();
   const isMac = useIsMac();
   const { setTheme, theme } = useTheme();
+  const { rightSidebar, layoutMode } = useSettingsStore();
+  const [headerRef, headerWidth] = useElementWidth<HTMLElement>();
 
   const cycle = () => {
     if (theme === 'light') setTheme('dark');
@@ -85,36 +87,38 @@ export default function AppTopHeader() {
   };
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 md:px-6 backdrop-blur-md shrink-0">
-      <div className="flex items-center gap-3 min-w-0">
+    <header
+      ref={headerRef}
+      className="flex h-14 items-center justify-between gap-2 border-b border-border bg-background/80 px-3 md:px-4 backdrop-blur-md shrink-0 @container/top-header"
+    >
+      <div className="flex items-center gap-2 min-w-0 flex-1">
         <SidebarManagerTrigger
           name="left"
           className="-ml-1 cursor-pointer shrink-0"
         />
-
-        <AppBreadcrumb />
+        <div className="min-w-0 flex-1 truncate">
+          <AppBreadcrumb containerWidth={headerWidth} />
+        </div>
       </div>
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1 shrink-0">
         <Button
           variant="ghost"
-          size={isMobile ? 'icon-sm' : 'lg'}
+          size="icon-sm"
           onClick={() =>
             window.dispatchEvent(new CustomEvent('open-command-palette'))
           }
-          className={cn('cursor-pointer', !isMobile && 'w-fit')}
+          className="cursor-pointer @[680px]/top-header:w-auto @[680px]/top-header:px-3"
         >
-          <SearchIcon className="size-4" />
-          {!isMobile && (
-            <>
-              {m.header_search_placeholder()}
-              <KbdGroup className="ml-3">
-                <Kbd>{isMac ? '⌘' : 'Ctrl'}</Kbd>
-                <span>+</span>
-                <Kbd>K</Kbd>
-              </KbdGroup>
-            </>
-          )}
+          <SearchIcon className="size-4 shrink-0" />
+          <span className="truncate hidden @[680px]/top-header:inline text-xs text-muted-foreground ml-1.5">
+            {m.header_search_placeholder()}
+          </span>
+          <KbdGroup className="ml-2 hidden @[680px]/top-header:inline-flex">
+            <Kbd>{isMac ? '⌘' : 'Ctrl'}</Kbd>
+            <span>+</span>
+            <Kbd>K</Kbd>
+          </KbdGroup>
         </Button>
 
         <DropdownMenu>
@@ -144,7 +148,7 @@ export default function AppTopHeader() {
           <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuItem
               onClick={() => navigate({ to: '/notes/create' })}
-              className="cursor-pointer"
+              className="cursor-pointer text-xs"
             >
               <FileTextIcon className="size-4 mr-2" />
               {m.header_new_note()}
@@ -181,7 +185,7 @@ export default function AppTopHeader() {
           value={getLocale()}
         >
           <SelectTrigger
-            className="h-8 w-fit gap-1 border-none bg-transparent px-2 text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer [&_.locale-text]:hidden md:[&_.locale-text]:inline"
+            className="h-8 w-fit gap-1 border-none bg-transparent px-1.5 text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer [&_.locale-text]:hidden @[720px]/top-header:[&_.locale-text]:inline"
             hideIndicatorIcon
           >
             <SelectValue />
@@ -190,6 +194,7 @@ export default function AppTopHeader() {
           <SelectContent className="min-w-30" align="end">
             {locales.map((option) => (
               <SelectItem
+                key={option.value}
                 value={option.value}
                 className="text-xs cursor-pointer"
               >
@@ -199,28 +204,31 @@ export default function AppTopHeader() {
           </SelectContent>
         </Select>
 
-        <Separator
-          orientation="vertical"
-          className="ml-1 my-auto data-[orientation=vertical]:h-4"
-        />
+        {layoutMode === 'agent' && (
+          <>
+            <Separator
+              orientation="vertical"
+              className="mx-0.5 data-[orientation=vertical]:h-4"
+            />
 
-        <Button
-          data-sidebar="manager-trigger"
-          data-slot="manager-sidebar-trigger"
-          variant="ghost"
-          size="icon-sm"
-          className="-mr-1 cursor-pointer"
-          onClick={() =>
-            useSettingsStore
-              .getState()
-              .setRightSidebarOpen(
-                !useSettingsStore.getState().rightSidebar.open,
-              )
-          }
-        >
-          <PanelRightIcon />
-          <span className="sr-only">{m.header_toggle_right_sidebar()}</span>
-        </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-pressed={rightSidebar.open}
+              className="cursor-pointer"
+              onClick={() =>
+                useSettingsStore
+                  .getState()
+                  .setRightSidebarOpen(
+                    !useSettingsStore.getState().rightSidebar.open,
+                  )
+              }
+            >
+              <PanelRightIcon className="size-4" />
+              <span className="sr-only">{m.header_toggle_right_sidebar()}</span>
+            </Button>
+          </>
+        )}
       </div>
     </header>
   );

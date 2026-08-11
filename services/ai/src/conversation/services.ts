@@ -5,6 +5,7 @@ import {
 	findAllConversationByUserId,
 	findConversationById,
 	findMessagesByConversationId,
+	findMessagesByConversationIdPage,
 	insertMessage,
 	deletePermanentConversation,
 	updateLastSavedConversation,
@@ -69,6 +70,21 @@ export async function loadHistory(conversationId: string): Promise<UIMessage[]> 
 	const rows = await findMessagesByConversationId(conversationId);
 
 	return rows.map((r) => ({
+		parts: r.parts as UIMessage['parts'],
+		metadata: r.metadata ?? undefined,
+		role: r.role as UIMessage['role'],
+		id: r.id
+	}));
+}
+
+export async function loadMessagesPage(
+	conversationId: string,
+	limit: number,
+	offset: number
+): Promise<UIMessage[]> {
+	const rows = await findMessagesByConversationIdPage(conversationId, limit, offset);
+
+	return rows.reverse().map((r) => ({
 		parts: r.parts as UIMessage['parts'],
 		metadata: r.metadata ?? undefined,
 		role: r.role as UIMessage['role'],

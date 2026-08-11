@@ -1,3 +1,5 @@
+import { useNavigate } from '@tanstack/react-router';
+
 import { useGetConversationsQuery } from '@/features/companion/hooks/use-companion-conversation';
 import { ConversationListItem } from '@/features/companion/components/conversation-list-item';
 
@@ -23,6 +25,7 @@ import {
 } from 'lucide-react';
 
 export default function NavCompanion() {
+  const navigate = useNavigate();
   const { setRightSidebarOpen, setLayoutMode, layoutMode } = useSettingsStore();
   const activeConversationId = useCompanionStore(
     (state) => state.activeConversationId,
@@ -37,14 +40,26 @@ export default function NavCompanion() {
     (conversation) => conversation.favorited,
   );
 
+  const recentConversations = conversations.filter(
+    (conversation) => !conversation.favorited,
+  );
+
   const handleNewChat = () => {
     setActiveConversationId(null);
-    setRightSidebarOpen(true);
+    if (layoutMode === 'chat') {
+      navigate({ to: '/chat' });
+    } else {
+      setRightSidebarOpen(true);
+    }
   };
 
   const handleSelectConversation = (conversationId: string) => {
     setActiveConversationId(conversationId);
-    setRightSidebarOpen(true);
+    if (layoutMode === 'chat') {
+      navigate({ to: '/chat/$conversationId', params: { conversationId } });
+    } else {
+      setRightSidebarOpen(true);
+    }
   };
 
   const handleConversationDeleted = (conversationId: string) => {
@@ -64,7 +79,7 @@ export default function NavCompanion() {
             render={
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  {layoutMode === 'servant' ? (
+                  {layoutMode === 'agent' ? (
                     <BotIcon className="h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
                   ) : (
                     <MessageSquareIcon className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
@@ -72,8 +87,8 @@ export default function NavCompanion() {
 
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">
-                      {layoutMode === 'servant'
-                        ? m.sidebar_mode_servant()
+                      {layoutMode === 'agent'
+                        ? m.sidebar_mode_agent()
                         : m.sidebar_mode_chat()}
                     </span>
                   </div>
@@ -82,7 +97,7 @@ export default function NavCompanion() {
                 <Switch
                   checked={layoutMode === 'chat'}
                   onCheckedChange={(checked) =>
-                    setLayoutMode(checked ? 'chat' : 'servant')
+                    setLayoutMode(checked ? 'chat' : 'agent')
                   }
                 />
               </div>
@@ -125,12 +140,12 @@ export default function NavCompanion() {
               <Skeleton className="h-8 w-full" />
             </SidebarMenuItem>
           ))
-        ) : conversations.length === 0 ? (
+        ) : recentConversations.length === 0 ? (
           <p className="px-3 py-2 text-sm text-muted-foreground">
             {m.chat_conversations_empty()}
           </p>
         ) : (
-          conversations.map((conversation) => (
+          recentConversations.map((conversation) => (
             <ConversationListItem
               conversation={conversation}
               isActive={conversation.id === activeConversationId}

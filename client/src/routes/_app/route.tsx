@@ -7,6 +7,7 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import { CommandPalette } from '@/features/command-palette/components';
 
 import { useKeyboardShortcut } from '@/hooks/use-key-binding';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 import { useSettingsStore } from '@/store/settings-store';
 
@@ -32,6 +33,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: ({ location, context }) => {
@@ -50,9 +52,19 @@ export const Route = createFileRoute('/_app')({
 
 function AppLayout() {
   const rightPanelRef = useRef<PanelImperativeHandle>(null);
-  const { setRightSidebarOpen, rightSidebar } = useSettingsStore();
+  const { setRightSidebarOpen, setLayoutMode, rightSidebar, layoutMode } =
+    useSettingsStore();
+  const isMobile = useIsMobile();
 
   const toggleRightSidebar = useCallback(() => {
+    if (layoutMode === 'chat') {
+      setLayoutMode('agent');
+      return;
+    }
+    if (isMobile) {
+      setRightSidebarOpen(!rightSidebar.open);
+      return;
+    }
     const panel = rightPanelRef.current;
     if (!panel) return;
 
@@ -63,22 +75,31 @@ function AppLayout() {
       panel.collapse();
       setRightSidebarOpen(false);
     }
-  }, [setRightSidebarOpen]);
+  }, [
+    isMobile,
+    layoutMode,
+    rightSidebar.open,
+    setLayoutMode,
+    setRightSidebarOpen,
+  ]);
 
   useEffect(() => {
     const panel = rightPanelRef.current;
     if (!panel) return;
 
-    if (rightSidebar.open && panel.isCollapsed()) {
-      panel.expand();
-    } else if (!rightSidebar.open && !panel.isCollapsed()) {
+    const collapsed = layoutMode === 'chat' || !rightSidebar.open;
+    if (collapsed && !panel.isCollapsed()) {
       panel.collapse();
+    } else if (!collapsed && panel.isCollapsed()) {
+      panel.expand();
     }
-  }, [rightSidebar.open]);
+  }, [layoutMode, rightSidebar.open]);
 
   useKeyboardShortcut(getShortcut('toggle-right-sidebar').combos, () => {
     toggleRightSidebar();
   });
+
+  const rightPanelOpen = layoutMode === 'agent' && rightSidebar.open;
 
   return (
     <>
@@ -94,33 +115,60 @@ function AppLayout() {
 
           <SidebarInset>
             <SidebarProvider>
-              <ResizablePanelGroup
-                orientation="horizontal"
-                className="overflow-hidden max-h-svh"
-              >
-                <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
-                  <AppTopHeader />
+              {isMobile ? (
+                <>
+                  <div className="flex h-full w-full flex-col overflow-hidden bg-background">
+                    <AppTopHeader />
 
-                  <ConfirmProvider>
-                    <main className="overflow-y-auto min-h-0 flex-1 p-3">
-                      <Outlet />
-                    </main>
-                  </ConfirmProvider>
-                </ResizablePanel>
+                    <ConfirmProvider>
+                      <main className="overflow-y-auto min-h-0 flex-1 p-3">
+                        <Outlet />
+                      </main>
+                    </ConfirmProvider>
+                  </div>
 
-                <ResizableHandle withHandle />
-
-                <ResizablePanel
-                  panelRef={rightPanelRef}
-                  collapsible={true}
-                  defaultSize="30%"
-                  minSize="30%"
-                  maxSize="55%"
-                  className="no-scrollbar transition-[flex-grow,flex-basis] duration-200 ease-linear"
+                  <Sheet
+                    open={rightPanelOpen}
+                    onOpenChange={setRightSidebarOpen}
+                  >
+                    <SheetContent
+                      side="right"
+                      showCloseButton={false}
+                      className="w-full max-w-md border-l bg-sidebar p-0 text-sidebar-foreground"
+                    >
+                      <AppRightSidebar />
+                    </SheetContent>
+                  </Sheet>
+                </>
+              ) : (
+                <ResizablePanelGroup
+                  orientation="horizontal"
+                  className="overflow-hidden max-h-svh"
                 >
-                  <AppRightSidebar className="no-scrollbar w-full" />
-                </ResizablePanel>
-              </ResizablePanelGroup>
+                  <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
+                    <AppTopHeader />
+
+                    <ConfirmProvider>
+                      <main className="overflow-y-auto min-h-0 flex-1 p-3">
+                        <Outlet />
+                      </main>
+                    </ConfirmProvider>
+                  </ResizablePanel>
+
+                  <ResizableHandle withHandle />
+
+                  <ResizablePanel
+                    panelRef={rightPanelRef}
+                    collapsible={true}
+                    defaultSize="30%"
+                    minSize="30%"
+                    maxSize="55%"
+                    className="no-scrollbar transition-[flex-grow,flex-basis] duration-300 ease-in-out"
+                  >
+                    <AppRightSidebar className="no-scrollbar w-full" />
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              )}
             </SidebarProvider>
           </SidebarInset>
         </SidebarProvider>

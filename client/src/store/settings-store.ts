@@ -21,6 +21,13 @@ interface AppSettingsState {
 export const useSettingsStore = create<AppSettingsState>()(
   persist(
     (set) => ({
+      setLayoutMode: (layoutMode) =>
+        set((state) => ({
+          rightSidebar: {
+            open: layoutMode === 'agent' ? true : state.rightSidebar.open,
+          },
+          layoutMode,
+        })),
       setSidebarOpenMobile: (openMobile) =>
         set((state) => ({
           sidebar: { ...state.sidebar, openMobile },
@@ -33,10 +40,6 @@ export const useSettingsStore = create<AppSettingsState>()(
         set((state) => ({
           sidebar: { ...state.sidebar, open },
         })),
-      setLayoutMode: (layoutMode) =>
-        set(() => ({
-          layoutMode,
-        })),
       sidebar: {
         openMobile: false,
         open: true,
@@ -44,7 +47,7 @@ export const useSettingsStore = create<AppSettingsState>()(
       rightSidebar: {
         open: false,
       },
-      layoutMode: 'servant',
+      layoutMode: 'agent',
     }),
     {
       partialize: (state) => ({
@@ -53,6 +56,7 @@ export const useSettingsStore = create<AppSettingsState>()(
         sidebar: state.sidebar,
       }),
       name: 'synapse-settings',
+      version: 1,
     },
   ),
 );

@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
@@ -21,18 +26,25 @@ export function useGetConversationsQuery() {
   });
 }
 
-export function useGetConversationMessagesQuery(id: string | null) {
-  return useQuery({
-    queryFn: async () => {
+export const MESSAGE_PAGE_SIZE = 15;
+
+export function useGetConversationMessagesInfiniteQuery(id: string | null) {
+  return useInfiniteQuery({
+    queryFn: async ({ pageParam }) => {
       const result = await $fetch.api.v1.ai.conversations[':id'].messages.$get({
+        query: { limit: MESSAGE_PAGE_SIZE, offset: pageParam },
         params: { id: id as string },
       });
 
       return result.data;
     },
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === MESSAGE_PAGE_SIZE
+        ? allPages.reduce((sum, page) => sum + page.length, 0)
+        : undefined,
     queryKey: ['companion-conversation-messages', id],
-    placeholderData: (prevData) => prevData ?? [],
     enabled: id !== null,
+    initialPageParam: 0,
   });
 }
 

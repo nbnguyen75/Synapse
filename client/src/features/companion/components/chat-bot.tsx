@@ -1,14 +1,25 @@
 import type { PromptInputMessage } from '@/components/ai-elements/prompt-input';
 import type { UIMessage } from 'ai';
 
-import { useCallback, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
+import { useStickToBottomContext } from 'use-stick-to-bottom';
 import { toast } from 'sonner';
 
 import { useCompanionChatSession } from '@/features/companion/hooks/use-companion-chat-session';
 import { PromptInputAttachmentsDisplay } from '@/features/companion/components/chat-attachment';
 import { ModelItem } from '@/features/companion/components/chat-model-item';
 import { models, chefs } from '@/features/companion/chat-mock-data';
+
+import { useCompanionContextStore } from '@/store/companion-context-store';
 
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
@@ -45,6 +56,13 @@ import {
   ConversationScrollButton,
 } from '@/components/ai-elements/conversation';
 import {
+  Message,
+  MessageAction,
+  MessageActions,
+  MessageContent,
+  MessageResponse,
+} from '@/components/ai-elements/message';
+import {
   Source,
   Sources,
   SourcesContent,
@@ -55,33 +73,52 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from '@/components/ai-elements/reasoning';
-import {
-  Message,
-  MessageContent,
-  MessageResponse,
-} from '@/components/ai-elements/message';
 import { SpeechInput } from '@/components/ai-elements/speech-input';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 
-import { GlobeIcon, SparklesIcon } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+
+import {
+  CopyIcon,
+  FilePlusIcon,
+  ReplaceIcon,
+  GlobeIcon,
+  SparklesIcon,
+} from 'lucide-react';
 
 const SHOW_MODEL_SELECTOR = false;
 
+export interface ChatBotHandle {
+  prependMessages: (messages: UIMessage[]) => void;
+  sendText: (text: string) => void;
+}
+
 interface ChatBotProps {
   onConversationId?: (conversationId: string) => void;
+  isLoadingOlderMessages?: boolean;
+  onLoadOlderMessages?: () => void;
   initialConversationId?: string;
-  initialMessages?: UIMessage[];
+  hasMoreMessages?: boolean;
+  messages?: UIMessage[];
   disabled?: boolean;
+  centered?: boolean;
   className?: string;
 }
 
-export default function ChatBot({
-  initialConversationId,
-  onConversationId,
-  disabled = false,
-  initialMessages,
-  className,
-}: ChatBotProps) {
+const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
+  {
+    isLoadingOlderMessages = false,
+    messages: loadedMessages,
+    hasMoreMessages = false,
+    initialConversationId,
+    onLoadOlderMessages,
+    onConversationId,
+    disabled = false,
+    centered = false,
+    className,
+  },
+  ref,
+) {
   const [model, setModel] = useState<string>(models[0].id);
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
   const [text, setText] = useState<string>('');
@@ -91,16 +128,43 @@ export default function ChatBot({
     onError: (error) => {
       toast.error(m.chat_error_send(), { description: error.message });
     },
+    initialMessages: loadedMessages,
     initialConversationId,
     onConversationId,
-    initialMessages,
   });
 
+  useLayoutEffect(() => {
+    if (!loadedMessages || loadedMessages.length === 0) return;
+    if (chat.messages.length >= loadedMessages.length) return;
+
+    const knownIds = new Set(chat.messages.map((message) => message.id));
+    const olderMessages = loadedMessages.filter(
+      (message) => !knownIds.has(message.id),
+    );
+    if (olderMessages.length === 0) return;
+
+    chat.setMessages((prev) => [...olderMessages, ...prev]);
+  }, [loadedMessages, chat.messages, chat.setMessages]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      prependMessages: (olderMessages) => {
+        chat.setMessages((prev) => [...olderMessages, ...prev]);
+      },
+      sendText: (content) => {
+        void chat.sendMessage({ text: content });
+        setText('');
+      },
+    }),
+    [chat],
+  );
+
   const status = chat.status;
-  const messages = chat.messages;
+  const liveMessages = chat.messages;
   const isGenerating = status === 'submitted' || status === 'streaming';
 
-  const lastMessage = messages[messages.length - 1];
+  const lastMessage = liveMessages[liveMessages.length - 1];
   const isAwaitingResponse =
     isGenerating &&
     (lastMessage?.role === 'user' ||
@@ -124,13 +188,6 @@ export default function ChatBot({
     },
     [chat],
   );
-
-  // const handleSuggestionClick = useCallback(
-  //   (suggestion: string) => {
-  //     void chat.sendMessage({ text: suggestion });
-  //   },
-  //   [chat],
-  // );
 
   const handleTranscriptionChange = useCallback((transcript: string) => {
     setText((prev) => (prev ? `${prev} ${transcript}` : transcript));
@@ -163,12 +220,20 @@ export default function ChatBot({
         className,
       )}
     >
-      {messages.length > 0 ? (
+      {liveMessages.length > 0 ? (
         <Conversation>
-          <ConversationContent>
-            {messages.map((message, index) => (
+          {hasMoreMessages && (
+            <ConversationLoadOlder
+              isLoading={isLoadingOlderMessages}
+              onLoadOlder={onLoadOlderMessages}
+            />
+          )}
+          <ConversationContent
+            className={cn(centered && 'mx-auto w-full max-w-6xl')}
+          >
+            {liveMessages.map((message, index) => (
               <MessageView
-                isStreaming={isGenerating && index === messages.length - 1}
+                isStreaming={isGenerating && index === liveMessages.length - 1}
                 key={message.id}
                 message={message}
               />
@@ -189,125 +254,160 @@ export default function ChatBot({
           icon={<SparklesIcon className="size-5" />}
           title="Synapse AI"
         />
-        // <div className="flex flex-1 flex-col items-center justify-center gap-8 p-8">
-        //   <div className="flex flex-col items-center gap-3 text-center">
-        //     <div className="flex size-12 items-center justify-center rounded-full bg-muted">
-        //       <SparklesIcon className="size-5" />
-        //     </div>
-        //     <div className="space-y-1">
-        //       <h3 className="text-sm font-medium">{m.chat_agent_name()}</h3>
-        //       <p className="text-muted-foreground text-sm">
-        //         {m.chat_agent_desc()}
-        //       </p>
-        //     </div>
-        //   </div>
-        //   <div className="flex max-w-xl flex-wrap items-center justify-center gap-2">
-        //     {suggestions.map((suggestion) => (
-        //       <Suggestion
-        //         className="text-foreground/70 hover:text-foreground"
-        //         key={suggestion}
-        //         onClick={handleSuggestionClick}
-        //         suggestion={suggestion}
-        //       />
-        //     ))}
-        //   </div>
-        // </div>
       )}
 
       <div className="shrink-0 px-4 py-5">
-        <PromptInput globalDrop multiple onSubmit={handleSubmit}>
-          <PromptInputHeader>
-            <PromptInputAttachmentsDisplay />
-          </PromptInputHeader>
-          <PromptInputBody>
-            <PromptInputTextarea
-              disabled={disabled}
-              onChange={handleTextChange}
-              value={text}
-            />
-          </PromptInputBody>
-          <PromptInputFooter>
-            <PromptInputTools>
-              <PromptInputActionMenu>
-                <PromptInputActionMenuTrigger disabled={disabled} />
-                <PromptInputActionMenuContent className={'max-w-56 w-full'}>
-                  <PromptInputActionAddAttachments className={'w-full'} />
-                </PromptInputActionMenuContent>
-              </PromptInputActionMenu>
-              <SpeechInput
-                className="shrink-0"
-                onTranscriptionChange={handleTranscriptionChange}
-                size="icon-sm"
-                variant="ghost"
-                {...(disabled ? { disabled: true } : {})}
-              />
-              <PromptInputButton
+        <div className={cn('w-full', centered && 'mx-auto max-w-6xl')}>
+          <PromptInput globalDrop multiple onSubmit={handleSubmit}>
+            <PromptInputHeader>
+              <PromptInputAttachmentsDisplay />
+            </PromptInputHeader>
+            <PromptInputBody>
+              <PromptInputTextarea
                 disabled={disabled}
-                onClick={toggleWebSearch}
-                variant={useWebSearch ? 'default' : 'ghost'}
-              >
-                <GlobeIcon size={16} />
-                <span>{m.chat_search_toggle()}</span>
-              </PromptInputButton>
-              {SHOW_MODEL_SELECTOR && (
-                <ModelSelector
-                  onOpenChange={setModelSelectorOpen}
-                  open={modelSelectorOpen}
+                onChange={handleTextChange}
+                value={text}
+              />
+            </PromptInputBody>
+            <PromptInputFooter>
+              <PromptInputTools>
+                <PromptInputActionMenu>
+                  <PromptInputActionMenuTrigger disabled={disabled} />
+                  <PromptInputActionMenuContent className={'max-w-56 w-full'}>
+                    <PromptInputActionAddAttachments className={'w-full'} />
+                  </PromptInputActionMenuContent>
+                </PromptInputActionMenu>
+                <SpeechInput
+                  className="shrink-0"
+                  onTranscriptionChange={handleTranscriptionChange}
+                  size="icon-sm"
+                  variant="ghost"
+                  {...(disabled ? { disabled: true } : {})}
+                />
+                <PromptInputButton
+                  disabled={disabled}
+                  onClick={toggleWebSearch}
+                  variant={useWebSearch ? 'default' : 'ghost'}
                 >
-                  <ModelSelectorTrigger
-                    render={
-                      <PromptInputButton>
-                        {selectedModelData?.chefSlug && (
-                          <ModelSelectorLogo
-                            provider={selectedModelData.chefSlug}
-                          />
-                        )}
-                        {selectedModelData?.name && (
-                          <ModelSelectorName>
-                            {selectedModelData.name}
-                          </ModelSelectorName>
-                        )}
-                      </PromptInputButton>
-                    }
-                  />
-
-                  <ModelSelectorContent showCloseButton={false}>
-                    <ModelSelectorInput
-                      placeholder={m.chat_search_models_placeholder()}
+                  <GlobeIcon size={16} />
+                  <span>{m.chat_search_toggle()}</span>
+                </PromptInputButton>
+                {SHOW_MODEL_SELECTOR && (
+                  <ModelSelector
+                    onOpenChange={setModelSelectorOpen}
+                    open={modelSelectorOpen}
+                  >
+                    <ModelSelectorTrigger
+                      render={
+                        <PromptInputButton>
+                          {selectedModelData?.chefSlug && (
+                            <ModelSelectorLogo
+                              provider={selectedModelData.chefSlug}
+                            />
+                          )}
+                          {selectedModelData?.name && (
+                            <ModelSelectorName>
+                              {selectedModelData.name}
+                            </ModelSelectorName>
+                          )}
+                        </PromptInputButton>
+                      }
                     />
 
-                    <ModelSelectorList>
-                      <ModelSelectorEmpty>
-                        {m.chat_search_models_empty()}
-                      </ModelSelectorEmpty>
-                      {chefs.map((chef) => (
-                        <ModelSelectorGroup heading={chef} key={chef}>
-                          {models
-                            .filter((item) => item.chef === chef)
-                            .map((item) => (
-                              <ModelItem
-                                isSelected={model === item.id}
-                                key={item.id}
-                                m={item}
-                                onSelect={handleModelSelect}
-                              />
-                            ))}
-                        </ModelSelectorGroup>
-                      ))}
-                    </ModelSelectorList>
-                  </ModelSelectorContent>
-                </ModelSelector>
-              )}
-            </PromptInputTools>
+                    <ModelSelectorContent showCloseButton={false}>
+                      <ModelSelectorInput
+                        placeholder={m.chat_search_models_placeholder()}
+                      />
 
-            <PromptInputSubmit
-              disabled={isSubmitDisabled}
-              onStop={chat.stop}
-              status={status}
-            />
-          </PromptInputFooter>
-        </PromptInput>
+                      <ModelSelectorList>
+                        <ModelSelectorEmpty>
+                          {m.chat_search_models_empty()}
+                        </ModelSelectorEmpty>
+                        {chefs.map((chef) => (
+                          <ModelSelectorGroup heading={chef} key={chef}>
+                            {models
+                              .filter((item) => item.chef === chef)
+                              .map((item) => (
+                                <ModelItem
+                                  isSelected={model === item.id}
+                                  key={item.id}
+                                  m={item}
+                                  onSelect={handleModelSelect}
+                                />
+                              ))}
+                          </ModelSelectorGroup>
+                        ))}
+                      </ModelSelectorList>
+                    </ModelSelectorContent>
+                  </ModelSelector>
+                )}
+              </PromptInputTools>
+
+              <PromptInputSubmit
+                disabled={isSubmitDisabled}
+                onStop={chat.stop}
+                status={status}
+              />
+            </PromptInputFooter>
+          </PromptInput>
+        </div>
       </div>
+    </div>
+  );
+});
+
+export default ChatBot;
+
+function ConversationLoadOlder({
+  onLoadOlder,
+  isLoading,
+}: {
+  onLoadOlder?: () => void;
+  isLoading: boolean;
+}) {
+  const { scrollRef } = useStickToBottomContext();
+  const [atTop, setAtTop] = useState(false);
+  const prevHeightRef = useRef(0);
+  const wasLoadingRef = useRef(false);
+
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+
+    const handleScroll = () => {
+      setAtTop(element.scrollTop <= 1);
+    };
+
+    element.addEventListener('scroll', handleScroll, { passive: true });
+    return () => element.removeEventListener('scroll', handleScroll);
+  }, [scrollRef]);
+
+  useEffect(() => {
+    if (atTop && !isLoading && onLoadOlder) {
+      const element = scrollRef.current;
+      prevHeightRef.current = element?.scrollHeight ?? 0;
+      onLoadOlder();
+    }
+  }, [atTop, isLoading, onLoadOlder, scrollRef]);
+
+  useEffect(() => {
+    if (wasLoadingRef.current && !isLoading) {
+      const element = scrollRef.current;
+      if (element && prevHeightRef.current > 0) {
+        element.scrollTop += element.scrollHeight - prevHeightRef.current;
+      }
+    }
+    wasLoadingRef.current = isLoading;
+  }, [isLoading, scrollRef]);
+
+  if (!isLoading) return null;
+
+  return (
+    <div
+      className="absolute top-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-background/80 p-2 shadow-sm backdrop-blur-sm"
+      role="status"
+    >
+      <Spinner className="size-4" />
     </div>
   );
 }
@@ -367,6 +467,51 @@ function MessageView({ isStreaming, message }: MessageViewProps) {
           </MessageResponse>
         </MessageContent>
       ))}
+
+      {message.role === 'assistant' && textParts.length > 0 && (
+        <MessageActions>
+          <MessageAssistantActions
+            text={textParts.map((part) => part.text).join('\n\n')}
+          />
+        </MessageActions>
+      )}
     </Message>
+  );
+}
+
+function MessageAssistantActions({ text }: { text: string }) {
+  const editorBridge = useCompanionContextStore((state) => state.editorBridge);
+
+  const handleCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(text);
+    toast.success(m.companion_message_copied());
+  }, [text]);
+
+  if (!editorBridge) return null;
+
+  return (
+    <>
+      <MessageAction
+        tooltip={m.companion_message_insert()}
+        label={m.companion_message_insert()}
+        onClick={() => editorBridge.insert(text)}
+      >
+        <FilePlusIcon />
+      </MessageAction>
+      <MessageAction
+        tooltip={m.companion_message_replace()}
+        label={m.companion_message_replace()}
+        onClick={() => editorBridge.replace(text)}
+      >
+        <ReplaceIcon />
+      </MessageAction>
+      <MessageAction
+        tooltip={m.companion_message_copy()}
+        label={m.companion_message_copy()}
+        onClick={handleCopy}
+      >
+        <CopyIcon />
+      </MessageAction>
+    </>
   );
 }

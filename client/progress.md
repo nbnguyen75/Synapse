@@ -2,11 +2,63 @@
 
 ## Current State
 
-**Last Updated:** 2026-08-08
-**Session ID:** conversation-actions
-**Active Feature:** Conversation actions (favorite, rename, delete) + Favorites section — done
+**Last Updated:** 2026-08-11
+**Session ID:** chat-nav-and-pagination-fixes
+**Active Feature:** Bug-fix pass on chat — chat-mode navigation to `/chat/:conversationId`, `/chat` = new chat, and scroll-up older-message loading — done (on top of staged feat-044..047)
 
 ## Status
+
+### What's Done (bug-fix pass — chat navigation + older-message loading)
+
+Three bugs fixed (2026-08-11, on top of staged feat-044..047):
+
+- [x] **(B1) Chat-mode conversation click did nothing** — `nav-companion.tsx` `handleSelectConversation` only set the store + opened the right sidebar, and no `/chat/:conversationId` route existed; in chat mode the right panel is collapsed so clicks were invisible. Fix: new route `src/routes/_app/chat.$conversationId.tsx` (`createFileRoute('/_app/chat/$conversationId')`, effect `setActiveConversationId(conversationId)`), and in chat mode `handleSelectConversation` now also `navigate({ to: '/chat/$conversationId', params: { conversationId } })`. Agent mode unchanged (sidebar-only, per user).
+- [x] **(B2) `/chat` = new chat** — `src/routes/_app/chat.tsx` gains a mount effect `setActiveConversationId(null)`; `handleNewChat` navigates to `/chat` in chat mode (agent mode keeps sidebar-only behavior). `useNavigate` added.
+- [x] **(B3) Scroll-to-top spinner flashed but older messages never appeared** — root cause: `@ai-sdk/react@4.0.50` `useChat` seeds `messages` **once** in a `useRef` (`new Chat(chatOptions)` only recreated when `id` changes); growing `data.pages` recomputed the `messages` prop but ChatBot ignored it. Fix in `chat-bot.tsx`: renamed prop `initialMessages` → `messages` (live full list) and added a `useLayoutEffect` that diffs `chat.messages` vs `loadedMessages` and prepends missing older ones via `chat.setMessages((prev) => [...older, ...prev])` (layout effect guarantees the prepend commits before `ConversationLoadOlder`'s passive-effect scroll-delta restore). Render uses `liveMessages` (chat state). Also removed the mount-time `handleScroll()` call in `ConversationLoadOlder` so `atTop` only becomes true on real user scrolls (was causing spurious fetch chaining on open).
+- [x] **Verification** — `bun --bun generate-routes` ✓ (routeTree.gen.ts registers `/chat/$conversationId` under `/chat`), `bun --bun tsc -b` ✓, `bun --bun check` ✓ (exit 0, only the 2 pre-existing warnings), `bun --bun run build` ✓. Prettier churn on unrelated files reverted (pure LF/CRLF line-ending noise; `app-breadcrumb.tsx` was a cosmetic reformat).
+- [x] **Artifacts** — `feature_list.json` feat-048 added; `progress.md` updated; no commit (user manages).
+- [ ] **Known note** — end-to-end scroll-up pagination still needs a manual smoke test with the ai-service up (no local DB run this session); logic verified against installed `@ai-sdk/react@4.0.50` + `ai@7.0.47` sources.
+
+
+### What's Done (feat-044 — Layout switching: Chat vs Agent workspaces)
+
+- [x] **Types** — `LayoutMode = 'agent' | 'chat'` (was `'servant' | 'chat'`) in `src/components/layouts/types.ts`.
+- [x] **settings-store.ts** — persisted under `'synapse-settings'` with `version: 1` + `migrate` mapping `'servant'` → `'agent'`; `setLayoutMode('agent')` now auto-opens the right sidebar.
+- [x] **route.tsx (rewritten)** — ResizablePanel right panel driven by mode (chat = collapsed/hidden panel, agent = expanded with right sidebar); mobile branch via `useIsMobile` → Sheet instead of ResizablePanel; `transition-[flex-grow,flex-basis] duration-300 ease-in-out`; `toggleRightSidebar` switches chat → agent; effect syncs panel collapse/expand with sidebar state.
+- [x] **app-top-header.tsx (rewritten)** — Base-UI `ToggleGroup` mode switch (array-based `value={[layoutMode]}`, read `values?.[0]`); right-sidebar toggle hidden in chat mode; `aria-pressed` toggle; `@container/top-header` container queries.
+- [x] **app-right-sidebar.tsx** — made container-agnostic (plain divs, no `useIsMobile`).
+- [x] **centered prop** — threaded `chat-page.tsx` → `companion-chat.tsx` → `chat-bot.tsx` (`mx-auto w-full max-w-6xl` on ConversationContent + input wrapper).
+- [x] **i18n** — `sidebar_mode_agent(_desc)` renamed from `sidebar_mode_servant`; new `header_mode_toggle_aria`.
+- [x] **Verification** — `bun --bun check` ✓, `bun --bun tsc -b` ✓, `bun --bun run build` ✓.
+
+### What's Done (feat-045 — Responsive top header + collapsing breadcrumb)
+
+- [x] **New `src/components/layouts/constants.ts`** — `HEADER_BREADCRUMB_COLLAPSE_WIDTH=640`, `HEADER_SEARCH_COMPACT_WIDTH=520`, `HEADER_SEARCH_ICON_ONLY_WIDTH=380`.
+- [x] **New `src/hooks/use-element-width.ts`** — ResizeObserver-based width hook (no sync `setState` in effect body — react-hooks clean).
+- [x] **app-breadcrumb.tsx** — when `width <= 640 && crumbs.length > 2`, collapses to `[Root] / [⋯ DropdownMenu] / [Active]` (all crumbs listed in dropdown). `BreadcrumbItemData` type alias avoids clash with the UI `BreadcrumbItem` component.
+- [x] **app-top-header.tsx** — toggle labels + search label/kbd hidden via container-query variants `@min-[520px]/top-header:inline`; actions row `gap-2` + `min-w-0`.
+- [x] **i18n** — new `header_breadcrumb_more`.
+- [x] **Verification** — `bun --bun check` ✓, `bun --bun tsc -b` ✓.
+
+### What's Done (feat-046 — Chat enhancements: first-click fix, pagination, favorites filter)
+
+- [x] **(C1) First-click fix** — `companion-chat.tsx` gates `ChatBot` mount while `isLoadingConversation` (spinner overlay only); mounts only after settle, so the first click never hits a stale empty-message path.
+- [x] **(C2) Backend pagination** — `services/ai`: `messagesQuerySchema` (limit default 15 / max 100, offset default 0, both `z.coerce.number()`), repository `findMessagesByConversationIdPage` (DESC LIMIT/OFFSET), `loadMessagesPage` reverses to chronological, route `GET /:id/messages` uses query validator. Unpaged `loadHistory` kept for the AI request context (`chat/services.ts`).
+- [x] **(C2) Client pagination** — `api.ts` query `{ limit?, offset? }`; `useGetConversationMessagesInfiniteQuery` (`MESSAGE_PAGE_SIZE=15`, `initialPageParam 0`, `getNextPageParam = lastPage.length === 15 ? sum of lengths : undefined`); `companion-chat.tsx` flattens `[...pages].reverse().flat()` for chronological order.
+- [x] **(C2) ChatBot handle** — `forwardRef<ChatBotHandle>` with `prependMessages` (via `chat.setMessages`, since `ai@7.0.47` has no `prependMessages`) + `sendText`. `ConversationLoadOlder` scroll-top listener (`scrollRef.scrollTop <= 1`), anchor restore (`scrollTop += scrollHeight - prevHeight`), top spinner pill.
+- [x] **(C3) Recents filter** — `nav-companion.tsx` `recentConversations = conversations.filter((c) => !c.favorited)`.
+- [x] **Verification** — `bun --bun check` ✓ (client + services/ai scoped to conversation/*), `bun --bun tsc -b` ✓, build ✓.
+
+### What's Done (feat-047 — AI Companion: context-aware right sidebar)
+
+- [x] **`src/store/companion-context-store.ts` (NEW)** — `CompanionActiveDocument { id, title, content }`, `CompanionEditorBridge { insert, replace }`, `setActiveDocument` / `setEditorBridge`.
+- [x] **`src/components/shared/editor/companion-bridge-plugin.tsx` (NEW)** — mounted in `lexical-editor.tsx`; `insert` via `$generateNodesFromMarkdownString(md, CUSTOM_TRANSFORMERS)` + `$getSelection().insertNodes` (fallback root.append); `replace` via `$getRoot().clear()` + `$convertFromMarkdownString`.
+- [x] **`src/routes/_app/notes/$noteId.tsx`** — effect registers `activeDocument` from `watchTitle` / `watchedContent` / `useParams` noteId; cleared on unmount.
+- [x] **`src/features/companion/config/companion-prompts.ts` (NEW)** — `QUICK_ACTION_IDS` + `buildQuickActionPrompt` (summarize / translate / polish / ask); 4000-char truncate; translate targets `getLocale()`.
+- [x] **UI** — `companion-context-bar.tsx` (title + char count + copy button), `companion-quick-actions.tsx` (4 buttons → `chatRef.current.sendText`), `chat-bot.tsx` `MessageAssistantActions` (Insert/Replace/Copy via `editorBridge`, rendered only when a bridge is registered).
+- [x] **`app-right-sidebar.tsx`** — wires `chatRef` + ContextBar + QuickActions above `CompanionChat`.
+- [x] **i18n** — `companion_context_untitled`, `companion_context_chars({count})`, `companion_context_copy`, `companion_context_copied`, `companion_quick_summarize/translate/polish/ask`, `companion_message_insert/replace/copy/copied` (en/vi).
+- [x] **Verification** — `bun --bun check` ✓, `bun --bun tsc -b` ✓, build ✓ (6994 modules).
 
 ### What's Done (feat-043 — conversation actions: favorite, rename, delete)
 
@@ -169,6 +221,11 @@
 ### What's Next
 
 Remaining features from `feature_list.json` (not-started):
+1. Chat with Note (feat-035) — needs backend first: optional `noteId` in `chatRequestSchema` + RAG scoping to that note's embedding; then wire note-card action (i18n key `notes_page_card_chat_with_note` reserved)
+2. AI Tab Completion Plugin (feat-023)
+3. Voice-to-Text in Notes (feat-024)
+4. PDF Export (feat-027)
+5. Quick Note Dialog (feat-028)
 ### What's Done (feat-030 — Layout Refresh)
 
 - [x] **Breadcrumb system** — `src/types/breadcrumb.ts` (route type augmentation), `src/hooks/use-breadcrumb.ts` (useMatches + staticData + aliases), `src/components/common/app-breadcrumb.tsx` (shadcn wiring)
@@ -207,6 +264,12 @@ Remaining features from `feature_list.json` (not-started):
 
 ## Key Findings
 
+- Base-UI `ToggleGroup` uses array-based `value`/`onValueChange` (`value={[layoutMode]}`, `values?.[0]`) — not the single-value API you'd expect from a segmented control.
+- `ai@7.0.47` `useChat` has `setMessages` but NO `prependMessages` — prepend older pages via functional update `chat.setMessages((prev) => [...older, ...prev])`.
+- Client fetch RPC types are hand-written in `src/features/companion/types/api.ts` — backend schema changes do not auto-propagate; update both.
+- Tailwind v4 container queries use the `@container/top-header` + `@min-[640px]/top-header:variant` syntax; breadcrumb collapse is JS-driven (`useElementWidth`), label/kbd hiding is container-query-driven.
+- **Prettier + git autocrlf churn**: prettier's default `endOfLine: lf` rewrites untouched CRLF files → git shows them as modified with `git diff --numstat` = `0 0`. Revert those (they're pure line-ending churn); do NOT run whole-directory `bun --bun check` in `services/ai` (formats `.`). Scope prettier/oxlint/eslint to changed files only.
+- `tsc` is not on PATH on Windows — use `bun --bun tsc -b` (and `bun --bun x <bin>` / `bun --bun node_modules/.bin/<bin>` for scoped tool runs).
 - TanStack Router's `staticData` + `useMatches()` pattern provides clean breadcrumb resolution without extra context/providers
 - Paraglide message keys must be added to both en.json and vi.json simultaneously
 - FAB auto-hide via `scale-0 pointer-events-none opacity-0` is smoother than conditional rendering
@@ -220,12 +283,17 @@ Remaining features from `feature_list.json` (not-started):
 ## Blockers / Risks
 
 - Kong rate-limiting plugin (minute: 5, limit_by: credential) on the ai-service may 429 heavy local testing — pre-existing, out of scope.
-- ChatBot's transport captures `onConversationId` at mount; safe because ChatPage passes a stable `useCallback` and ChatBot remounts per session.
+- `services/ai` `tsc -b` fails on a PRE-EXISTING unrelated error: `src/embeddings/services.ts(90,40)` — `EmbeddingModelV4Embedding | null` not assignable to `number[]`. Not caused by feat-046; services/ai gate is `bun --bun check` only.
+- Pagination API is unverified end-to-end (no local DB/ai-service run this session) — page 2+ fetch path needs a manual smoke test.
 - AI title generation requires the ai-service up (circuit breaker only guards the notes-service auto-title path, not the direct client call).
 - RAG retrieval stays empty until RabbitMQ is running (`compose.yml` rabbitmq:4.3.4-management) and at least one note create/update event has been embedded.
 
 ## Decisions Made
 
+- **Layout mode naming**: internal value `'agent'` (kept from `'servant'`), user-facing name "AI Companion" (never "copilot"); migrate map handles the persisted `'servant'` value.
+- **Chat mode = single-column**: right panel hidden entirely in chat mode (breadcrumb + notes remain full-width); agent mode = expanded right sidebar.
+- **`centered` prop** (not a separate CSS class in global CSS) keeps Tailwind utilities colocated with ChatBot.
+- **Paginated load** replaces one-shot `loadHistory` on the client; server keeps unpaged `loadHistory` for AI request context.
 - **Chat transport**: custom `DefaultChatTransport` subclass with native `fetch` wrapper reading `X-Conversation-Id`; DB is source of truth (send only last user message; backend persists full conversation).
 - **Session lifecycle**: `ChatBot` remounts via `sessionKey` only on explicit new-chat / select-conversation; captured conversation id updates state without remount so streaming continues.
 - **Attachments / web search / model selector**: UI kept, non-functional (attachments blocked by client toast; server is text-only).
@@ -248,6 +316,8 @@ Remaining features from `feature_list.json` (not-started):
 ## Notes for Next Session
 
 - Remaining features: Chat with Note (feat-035, needs backend noteId scoping), AI Tab Completion (feat-023), Voice-to-Text (feat-024), PDF Export (feat-027), Quick Note Dialog (feat-028)
+- **SMOKE TEST NEEDED (manual)**: feat-046 pagination + feat-044/045 responsive layout are verified by typecheck/lint/build only. With the stack up, confirm: (1) first click on a fresh conversation sends immediately, (2) scrolling to the top of an old (>15 msg) conversation loads older messages without jumping, (3) chat↔agent toggle animates the right panel and hides the header toggle in chat mode, (4) breadcrumb collapses to the ⋯ dropdown under 640px, (5) Companion Insert/Replace writes into the active note editor.
+- feat-044/045/046/047 staged; user manages commit (staged already — nothing else to stage).
 - **BACKEND VERIFY PENDING (user)**: companion settings save also depends on deploying the staged ai-service — apply `services/ai` migration (adds `user_ai_settings.bot_name`) + rebuild/restart ai container, then curl GET/PUT `/api/v1/ai/settings`. Client now surfaces failures via `settings_page_save_failed` toast instead of failing silently.
 - Staged backend (generator module, embeddings/RabbitMQ, notes events, botName) + client changes in this session are NOT committed — user manages commits
 - **Open question for user**: "change any copilot to companion" was applied to the CLIENT only. `services/`, `infra/`, docs were NOT grepped — check repo-wide copilot references if the rename should extend beyond the client (model id `github-copilot` is expected to stay regardless).

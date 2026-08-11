@@ -19,6 +19,7 @@ import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppTagsRouteImport } from './routes/_app/tags'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
+import { Route as AppChatConversationIdRouteImport } from './routes/_app/chat.$conversationId'
 import { Route as AppNotesNoteIdRouteImport } from './routes/_app/notes/$noteId'
 import { Route as AppNotesListRouteRouteImport } from './routes/_app/notes/_list/route'
 import { Route as AppNotesCreateRouteImport } from './routes/_app/notes/create'
@@ -75,6 +76,11 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AppChatConversationIdRoute = AppChatConversationIdRouteImport.update({
+  id: '/$conversationId',
+  path: '/$conversationId',
+  getParentRoute: () => AppChatRoute,
+} as any)
 const AppNotesNoteIdRoute = AppNotesNoteIdRouteImport.update({
   id: '/$noteId',
   path: '/$noteId',
@@ -113,12 +119,13 @@ const AppNotesListTrashRoute = AppNotesListTrashRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/notes': typeof AppNotesRouteRouteWithChildren
-  '/chat': typeof AppChatRoute
+  '/chat': typeof AppChatRouteWithChildren
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/tags': typeof AppTagsRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/chat/$conversationId': typeof AppChatConversationIdRoute
   '/notes/$noteId': typeof AppNotesNoteIdRoute
   '/notes/create': typeof AppNotesCreateRoute
   '/notes/archive': typeof AppNotesListArchiveRoute
@@ -129,12 +136,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/notes': typeof AppNotesListIndexRoute
-  '/chat': typeof AppChatRoute
+  '/chat': typeof AppChatRouteWithChildren
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
   '/tags': typeof AppTagsRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
+  '/chat/$conversationId': typeof AppChatConversationIdRoute
   '/notes/$noteId': typeof AppNotesNoteIdRoute
   '/notes/create': typeof AppNotesCreateRoute
   '/notes/archive': typeof AppNotesListArchiveRoute
@@ -147,13 +155,14 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_app/notes': typeof AppNotesRouteRouteWithChildren
-  '/_app/chat': typeof AppChatRoute
+  '/_app/chat': typeof AppChatRouteWithChildren
   '/_app/profile': typeof AppProfileRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/tags': typeof AppTagsRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_app/notes/_list': typeof AppNotesListRouteRouteWithChildren
+  '/_app/chat/$conversationId': typeof AppChatConversationIdRoute
   '/_app/notes/$noteId': typeof AppNotesNoteIdRoute
   '/_app/notes/create': typeof AppNotesCreateRoute
   '/_app/notes/_list/archive': typeof AppNotesListArchiveRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/tags'
     | '/login'
     | '/register'
+    | '/chat/$conversationId'
     | '/notes/$noteId'
     | '/notes/create'
     | '/notes/archive'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/tags'
     | '/login'
     | '/register'
+    | '/chat/$conversationId'
     | '/notes/$noteId'
     | '/notes/create'
     | '/notes/archive'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/register'
     | '/_app/notes/_list'
+    | '/_app/chat/$conversationId'
     | '/_app/notes/$noteId'
     | '/_app/notes/create'
     | '/_app/notes/_list/archive'
@@ -292,6 +304,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_app/chat/$conversationId': {
+      id: '/_app/chat/$conversationId'
+      path: '/$conversationId'
+      fullPath: '/chat/$conversationId'
+      preLoaderRoute: typeof AppChatConversationIdRouteImport
+      parentRoute: typeof AppChatRoute
+    }
     '/_app/notes/$noteId': {
       id: '/_app/notes/$noteId'
       path: '/$noteId'
@@ -377,9 +396,20 @@ const AppNotesRouteRouteWithChildren = AppNotesRouteRoute._addFileChildren(
   AppNotesRouteRouteChildren,
 )
 
+interface AppChatRouteChildren {
+  AppChatConversationIdRoute: typeof AppChatConversationIdRoute
+}
+
+const AppChatRouteChildren: AppChatRouteChildren = {
+  AppChatConversationIdRoute: AppChatConversationIdRoute,
+}
+
+const AppChatRouteWithChildren =
+  AppChatRoute._addFileChildren(AppChatRouteChildren)
+
 interface AppRouteRouteChildren {
   AppNotesRouteRoute: typeof AppNotesRouteRouteWithChildren
-  AppChatRoute: typeof AppChatRoute
+  AppChatRoute: typeof AppChatRouteWithChildren
   AppProfileRoute: typeof AppProfileRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppTagsRoute: typeof AppTagsRoute
@@ -387,7 +417,7 @@ interface AppRouteRouteChildren {
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppNotesRouteRoute: AppNotesRouteRouteWithChildren,
-  AppChatRoute: AppChatRoute,
+  AppChatRoute: AppChatRouteWithChildren,
   AppProfileRoute: AppProfileRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppTagsRoute: AppTagsRoute,

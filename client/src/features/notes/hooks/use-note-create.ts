@@ -53,12 +53,16 @@ export function useNoteCreate({ initialTitle }: UseNoteCreateOptions = {}) {
     Error,
     InferRequestType<(typeof $fetch.api.v1.notes)['$post']>
   >({
-    onSuccess: ({ title }) => {
+    onSuccess: ({ title, id }) => {
       queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       toast.success(m.notes_page_toast_created(), {
         description: m.notes_page_toast_created_desc({ title }),
       });
+
+      navigate({ params: { noteId: id }, to: '/notes/$noteId' });
+
+      form.reset({ title: undefined, content: '' });
     },
     mutationFn: async (args) => {
       const result = await $fetch.api.v1.notes.$post(args);

@@ -1,27 +1,32 @@
+import type { ChatBotHandle } from '@/features/companion/components/chat-bot';
+
+import { useRef } from 'react';
+
+import CompanionQuickActions from '@/features/companion/components/companion-quick-actions';
+import CompanionContextBar from '@/features/companion/components/companion-context-bar';
 import CompanionChat from '@/features/companion/components/companion-chat';
 
 import { useSettingsStore } from '@/store/settings-store';
 
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
-import {
-  SidebarHeader,
-  SidebarContent,
-  Sidebar,
-} from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 
 import { XIcon } from 'lucide-react';
 
-export default function AppRightSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
-  const { collapsible: __, side: _, ...restProps } = props;
+export default function AppRightSidebar({ className }: { className?: string }) {
   const setRightSidebarOpen = useSettingsStore((s) => s.setRightSidebarOpen);
+  const chatRef = useRef<ChatBotHandle>(null);
 
   return (
-    <Sidebar side="right" collapsible="none" {...restProps}>
-      <SidebarHeader>
+    <div
+      className={cn(
+        'flex h-full w-full flex-col bg-sidebar text-sidebar-foreground',
+        className,
+      )}
+    >
+      <div className="flex flex-col gap-2 p-2">
         <Button
           variant="ghost"
           size="icon-xs"
@@ -31,11 +36,16 @@ export default function AppRightSidebar({
         >
           <XIcon className="h-4 w-4" />
         </Button>
-      </SidebarHeader>
 
-      <SidebarContent>
-        <CompanionChat />
-      </SidebarContent>
-    </Sidebar>
+        <div className="flex flex-col gap-2 px-1">
+          <CompanionContextBar />
+          <CompanionQuickActions chatRef={chatRef} />
+        </div>
+      </div>
+
+      <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-auto">
+        <CompanionChat chatRef={chatRef} />
+      </div>
+    </div>
   );
 }

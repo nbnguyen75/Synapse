@@ -4,13 +4,14 @@ import {
 	checkConversationOwnership,
 	deleteConversation,
 	listConversations,
-	loadHistory,
+	loadMessagesPage,
 	renameConversation,
 	setConversationFavorite
 } from '@/conversation/services';
 import {
 	conversationIdParamSchema,
 	favoriteConversationSchema,
+	messagesQuerySchema,
 	renameConversationSchema
 } from '@/conversation/schemas';
 import { authJwksMiddleware } from '@/middleware/auth';
@@ -25,14 +26,20 @@ const conversationRoute = new Hono()
 
 		return ok(c, rows);
 	})
-	.get('/:id/messages', zValidator('param', conversationIdParamSchema), async (c) => {
-		const { id } = c.req.valid('param');
+	.get(
+		'/:id/messages',
+		zValidator('param', conversationIdParamSchema),
+		zValidator('query', messagesQuerySchema),
+		async (c) => {
+			const { id } = c.req.valid('param');
+			const { offset, limit } = c.req.valid('query');
 
-		await checkConversationOwnership(c.get('userId'), id);
+			await checkConversationOwnership(c.get('userId'), id);
 
-		const history = await loadHistory(id);
-		return ok(c, history);
-	})
+			const history = await loadMessagesPage(id, limit, offset);
+			return ok(c, history);
+		}
+	)
 	.patch(
 		'/:id',
 		zValidator('param', conversationIdParamSchema),

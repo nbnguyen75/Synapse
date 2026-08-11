@@ -18,6 +18,7 @@ import {
   EditorOnChangePlugin,
 } from './lexical-plugins';
 import KeyboardShortcutsPlugin from './lexical-keyboard-shortcuts';
+import CompanionBridgePlugin from './companion-bridge-plugin';
 import Toolbar from './lexical-toolbar';
 
 const editorTheme = {
@@ -102,6 +103,7 @@ export default function LexicalEditor({
           <InitialStatePlugin value={value} />
           <SyncStatePlugin value={value} />
           <EditorOnChangePlugin onChange={onChange} />
+          <CompanionBridgePlugin />
           <KeyboardShortcutsPlugin />
           <HistoryPlugin />
           <ListPlugin />

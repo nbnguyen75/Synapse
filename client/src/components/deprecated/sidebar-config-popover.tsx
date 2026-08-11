@@ -37,20 +37,20 @@ export default function ConfigPopover({
         <div className="space-y-1">
           <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-muted/50">
             <div className="flex items-center gap-2.5">
-              {layoutMode === 'servant' ? (
+              {layoutMode === 'agent' ? (
                 <Bot className="h-4 w-4 shrink-0 text-primary" />
               ) : (
                 <MessageSquare className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
               )}
               <div className="flex flex-col">
                 <span className="text-xs font-medium text-foreground">
-                  {layoutMode === 'servant'
-                    ? m.sidebar_mode_servant()
+                  {layoutMode === 'agent'
+                    ? m.sidebar_mode_agent()
                     : m.sidebar_mode_chat()}
                 </span>
                 <span className="text-[10px] text-muted-foreground">
-                  {layoutMode === 'servant'
-                    ? m.sidebar_mode_servant_desc()
+                  {layoutMode === 'agent'
+                    ? m.sidebar_mode_agent_desc()
                     : m.sidebar_mode_chat_desc()}
                 </span>
               </div>
@@ -58,7 +58,7 @@ export default function ConfigPopover({
             <Switch
               checked={layoutMode === 'chat'}
               onCheckedChange={(checked) =>
-                setLayoutMode(checked ? 'chat' : 'servant')
+                setLayoutMode(checked ? 'chat' : 'agent')
               }
             />
           </div>

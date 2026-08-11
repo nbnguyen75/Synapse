@@ -54,6 +54,20 @@ export async function findMessagesByConversationId(conversationId: string) {
 		.orderBy(asc(messages.createdAt));
 }
 
+export async function findMessagesByConversationIdPage(
+	conversationId: string,
+	limit: number,
+	offset: number
+) {
+	return db
+		.select()
+		.from(messages)
+		.where(eq(messages.conversationId, conversationId))
+		.orderBy(desc(messages.createdAt))
+		.limit(limit)
+		.offset(offset);
+}
+
 function extractPlainTextFromParts(parts: UIMessage['parts']): string {
 	if (!Array.isArray(parts)) return '';
 	return parts
