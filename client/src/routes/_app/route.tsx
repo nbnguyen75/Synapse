@@ -6,14 +6,12 @@ import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
 import { CommandPalette } from '@/features/command-palette/components';
 
-import { useKeyboardShortcut } from '@/hooks/use-key-binding';
+import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 import { useSettingsStore } from '@/store/settings-store';
 
 import { ConfirmProvider } from '@/providers/confirm-provider';
-
-import { getShortcut } from '@/config/keyboard-shortcuts';
 
 import {
   AppLeftSidebar,
@@ -95,7 +93,7 @@ function AppLayout() {
     }
   }, [layoutMode, rightSidebar.open]);
 
-  useKeyboardShortcut(getShortcut('toggle-right-sidebar').combos, () => {
+  useHotkeyShortcut('toggle-right-sidebar', () => {
     toggleRightSidebar();
   });
 

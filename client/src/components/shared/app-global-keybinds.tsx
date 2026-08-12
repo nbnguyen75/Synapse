@@ -1,21 +1,19 @@
 import { useNavigate } from '@tanstack/react-router';
 
-import { useKeyboardShortcut } from '@/hooks/use-key-binding';
-
-import { getShortcut } from '@/config/keyboard-shortcuts';
+import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 
 export default function AppGlobalKeybinds() {
   const navigate = useNavigate();
 
-  useKeyboardShortcut(getShortcut('new-note').combos, () => {
-    navigate({ to: '/notes/create' });
+  useHotkeyShortcut('go-to-notes', () => {
+    navigate({ to: '/notes' });
   });
 
-  useKeyboardShortcut(getShortcut('focus-search').combos, () => {
+  useHotkeyShortcut('focus-search', () => {
     window.dispatchEvent(new CustomEvent('open-command-palette'));
   });
 
-  useKeyboardShortcut(getShortcut('show-keyboard-shortcuts').combos, () => {
+  useHotkeyShortcut('show-keyboard-shortcuts', () => {
     window.dispatchEvent(new CustomEvent('open-keyboard-shortcuts-dialog'));
   });
 

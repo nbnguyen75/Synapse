@@ -8,6 +8,7 @@ import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 import {
   CompanionSettingsPage,
   GeneralSettingsPage,
+  ShortcutsSettingsPage,
 } from '@/features/settings/components';
 import { settingsQueryParamsSchema } from '@/features/settings/schemas';
 
@@ -17,7 +18,7 @@ import { m } from '@/paraglide/messages';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { Settings2Icon, SparklesIcon } from 'lucide-react';
+import { KeyboardIcon, Settings2Icon, SparklesIcon } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/settings')({
   loaderDeps: ({ search }) => {
@@ -34,7 +35,9 @@ export const Route = createFileRoute('/_app/settings')({
     const tabTitle =
       loaderData?.tab === 'companion'
         ? m.settings_page_tab_companion()
-        : m.settings_page_tab_general();
+        : loaderData?.tab === 'shortcuts'
+          ? m.settings_page_tab_shortcuts()
+          : m.settings_page_tab_general();
 
     return {
       meta: [
@@ -57,6 +60,7 @@ export const settingsTabsMap = new Map<
 >([
   ['general', { label: m.settings_page_tab_general(), icon: Settings2Icon }],
   ['companion', { label: m.settings_page_tab_companion(), icon: SparklesIcon }],
+  ['shortcuts', { label: m.settings_page_tab_shortcuts(), icon: KeyboardIcon }],
 ]);
 
 function RouteComponent() {
@@ -104,6 +108,10 @@ function RouteComponent() {
 
         <TabsContent value="companion">
           <CompanionSettingsPage />
+        </TabsContent>
+
+        <TabsContent value="shortcuts">
+          <ShortcutsSettingsPage />
         </TabsContent>
       </Tabs>
     </div>

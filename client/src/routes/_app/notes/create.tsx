@@ -38,16 +38,15 @@ export const Route = createFileRoute('/_app/notes/create')({
     meta: [{ title: createTitle(m.notes_page_create_page_title()) }],
   }),
   validateSearch: z.object({
-    title: z.string().optional(),
+    content: z.string().optional(),
   }),
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  // TODO: create content rather than title since title will be empty
-  const { title } = Route.useSearch();
+  const { content } = Route.useSearch();
   const { actions, status, state, form } = useNoteCreate({
-    initialTitle: title,
+    initialContent: content,
   });
 
   const { watchedContent } = state;

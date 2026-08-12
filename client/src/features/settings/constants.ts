@@ -6,7 +6,7 @@ import type {
 
 import { m } from '@/paraglide/messages';
 
-export const SETTINGS_TABS = ['general', 'companion'] as const;
+export const SETTINGS_TABS = ['general', 'companion', 'shortcuts'] as const;
 
 export type SettingsTab = (typeof SETTINGS_TABS)[number];
 

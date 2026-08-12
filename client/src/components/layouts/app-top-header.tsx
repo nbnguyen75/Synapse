@@ -5,7 +5,6 @@ import LangViIcon from '@iconify-react/circle-flags/lang-vi';
 import { Fragment } from 'react/jsx-runtime';
 
 import { useElementWidth } from '@/hooks/use-element-width';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useIsMac } from '@/hooks/use-is-os';
 
 import { useSettingsStore } from '@/store/settings-store';
@@ -74,7 +73,6 @@ const locales = [
 
 export default function AppTopHeader() {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const isMac = useIsMac();
   const { setTheme, theme } = useTheme();
   const { rightSidebar, layoutMode } = useSettingsStore();

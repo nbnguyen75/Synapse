@@ -16,9 +16,7 @@ import {
 } from '@/features/notes/hooks/api';
 import { noteKeys } from '@/features/notes/keys';
 
-import { useKeyboardShortcut } from '@/hooks/use-key-binding';
-
-import { getShortcut } from '@/config/keyboard-shortcuts';
+import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 
 import {
   $fetch,
@@ -135,14 +133,11 @@ export function useNoteDetails(initialData: Note) {
     void navigate({ to });
   };
 
-  useKeyboardShortcut(
-    getShortcut('save-note').combos,
-    () => {
-      if (isUpdating || isDeleting) return;
-      void handleSubmit(updateNote)();
-    },
-    { allowWhenTyping: ['ctrl+s', 'meta+s'] },
-  );
+  useFormSaveShortcut({
+    isSubmitting: isUpdating || isDeleting,
+    onSubmit: updateNote,
+    form,
+  });
 
   return {
     actions: {

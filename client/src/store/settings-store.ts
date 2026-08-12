@@ -3,6 +3,24 @@ import type { LayoutMode } from '@/components/layouts/types';
 import { persist } from 'zustand/middleware';
 import { create } from 'zustand';
 
+const SETTINGS_STORAGE_KEY = 'synapse-settings';
+
+/**
+ * Reads the persisted layout mode synchronously (e.g. in route `beforeLoad`
+ * guards, where the store isn't available). Falls back to `'agent'`.
+ */
+export function readPersistedLayoutMode(): LayoutMode {
+  if (typeof localStorage === 'undefined') return 'agent';
+  const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+  if (!raw) return 'agent';
+  try {
+    const parsed = JSON.parse(raw) as { state?: { layoutMode?: LayoutMode } };
+    return parsed.state?.layoutMode ?? 'agent';
+  } catch {
+    return 'agent';
+  }
+}
+
 interface SidebarSettings {
   openMobile: boolean;
   open: boolean;
@@ -55,7 +73,7 @@ export const useSettingsStore = create<AppSettingsState>()(
         layoutMode: state.layoutMode,
         sidebar: state.sidebar,
       }),
-      name: 'synapse-settings',
+      name: SETTINGS_STORAGE_KEY,
       version: 1,
     },
   ),

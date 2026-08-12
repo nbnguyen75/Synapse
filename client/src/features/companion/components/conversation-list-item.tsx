@@ -12,6 +12,7 @@ import {
 } from '@/features/companion/hooks/use-companion-conversation';
 import { renameConversationSchema } from '@/features/companion/schemas';
 
+import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 import { m } from '@/paraglide/messages';
@@ -95,6 +96,13 @@ export function ConversationListItem({
     });
     setIsRenameOpen(false);
   };
+
+  useFormSaveShortcut({
+    isSubmitting: form.formState.isSubmitting,
+    onSubmit: handleRenameSubmit,
+    enabled: isRenameOpen,
+    form,
+  });
 
   const handleDeleteConfirm = () => {
     deleteConversation(
@@ -199,7 +207,12 @@ export function ConversationListItem({
               >
                 {m.chat_conversation_rename_cancel()}
               </Button>
-              <Button disabled={form.formState.isSubmitting} type="submit">
+              <Button
+                disabled={
+                  form.formState.isSubmitting || !form.formState.isDirty
+                }
+                type="submit"
+              >
                 {m.chat_conversation_rename_save()}
               </Button>
             </DialogFooter>

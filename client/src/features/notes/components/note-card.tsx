@@ -2,8 +2,6 @@ import type { Note, NoteViewMode } from '@/features/notes/types';
 
 import { memo } from 'react';
 
-import { format } from 'date-fns';
-
 import { useNoteCard } from '@/features/notes/hooks';
 
 import { m } from '@/paraglide/messages';

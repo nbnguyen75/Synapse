@@ -5,6 +5,8 @@ import { useNavigate } from '@tanstack/react-router';
 import { StatusCodes } from 'http-status-codes';
 import { toast } from 'sonner';
 
+import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
+
 import { m } from '@/paraglide/messages';
 
 import { Button } from '@/components/ui/button';
@@ -72,6 +74,7 @@ export default function ErrorPage({
   const navigate = useNavigate();
   const [showDetails, setShowDetails] = useState(false);
   const [copied, setCopied] = useState(false);
+  const goToCompanion = useGoToCompanion();
 
   const activeConfig = ERROR_CONFIG[statusCode] ?? DEFAULT_ERROR_CONFIG;
 
@@ -159,7 +162,7 @@ export default function ErrorPage({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate({ search: () => ({}), to: '/chat' })}
+                onClick={goToCompanion}
                 className="h-9 px-4 text-xs font-medium gap-2 cursor-pointer border-border/80"
               >
                 <Bot className="h-3.5 w-3.5" />

@@ -7,6 +7,7 @@ import type {
 import { useState, useEffect, useRef, useMemo } from 'react';
 
 import { useNavigate, useRouter } from '@tanstack/react-router';
+import { useHotkeys } from '@tanstack/react-hotkeys';
 
 import { toast } from 'sonner';
 
@@ -15,13 +16,12 @@ import {
   CommandPaletteSearchInput,
   CommandPaletteSearchResults,
 } from '@/features/command-palette/components';
+import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import { useGetNotes, type Note } from '@/features/notes';
 
-import { useKeyBinding, useKeyboardShortcut } from '@/hooks/use-key-binding';
+import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 
 import { useTheme } from '@/providers/theme-provider';
-
-import { getShortcut } from '@/config/keyboard-shortcuts';
 
 import { m } from '@/paraglide/messages';
 import { signOut } from '@/lib/auth';
@@ -51,9 +51,11 @@ export default function CommandPalette() {
   const router = useRouter();
   const navigate = useNavigate();
   const { toggleTheme, theme } = useTheme();
+  const goToCompanion = useGoToCompanion();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const { data } = useGetNotes();
   const notes = useMemo<Note[]>(() => data.items ?? [], [data.items]);
@@ -90,8 +92,8 @@ export default function CommandPalette() {
     };
   }, []);
 
-  useKeyboardShortcut(
-    getShortcut('command-palette').combos,
+  useHotkeyShortcut(
+    'command-palette',
     () => {
       setIsOpen((prev) => {
         const next = !prev;
@@ -102,7 +104,7 @@ export default function CommandPalette() {
       setSelectedIndex(0);
       setCommandOutput(null);
     },
-    { ignoreWhenTyping: false },
+    { allowWhenTyping: true },
   );
 
   const titlePart = search.replace(/^\/create\s*/i, '').trim();
@@ -197,7 +199,7 @@ export default function CommandPalette() {
         action: () => {
           setIsOpen(false);
           navigate({
-            search: titlePart ? { title: titlePart } : undefined,
+            search: titlePart ? { content: titlePart } : undefined,
             to: '/notes/create',
           });
         },
@@ -230,7 +232,7 @@ export default function CommandPalette() {
       {
         action: () => {
           setIsOpen(false);
-          navigate({ to: '/chat' });
+          goToCompanion();
         },
         subtitle: m.command_palette_subtitle_go_companion(),
         title: m.command_palette_title_go_companion(),
@@ -275,7 +277,7 @@ export default function CommandPalette() {
         id: 'logout',
       },
     ],
-    [navigate, theme, toggleTheme],
+    [navigate, goToCompanion, theme, toggleTheme],
   );
 
   const handleOpenNote = (note: NoteItem) => {
@@ -376,47 +378,64 @@ export default function CommandPalette() {
     setSelectedIndex(0);
   };
 
-  useKeyBinding(
-    {
-      arrowup: () =>
-        setSelectedIndex(
-          (prev) =>
-            (prev - 1 + searchResults.length) % (searchResults.length || 1),
-        ),
-      enter: () => {
-        if (searchResults[boundedSelectedIndex]) {
-          void searchResults[boundedSelectedIndex].action();
-        }
+  useHotkeys(
+    [
+      {
+        callback: () =>
+          setSelectedIndex(
+            (prev) =>
+              (prev - 1 + searchResults.length) % (searchResults.length || 1),
+          ),
+        hotkey: 'ArrowUp',
       },
-      arrowdown: () =>
-        setSelectedIndex((prev) => (prev + 1) % (searchResults.length || 1)),
+      {
+        callback: () =>
+          setSelectedIndex((prev) => (prev + 1) % (searchResults.length || 1)),
+        hotkey: 'ArrowDown',
+      },
+      {
+        callback: () => {
+          if (searchResults[boundedSelectedIndex]) {
+            void searchResults[boundedSelectedIndex].action();
+          }
+        },
+        hotkey: 'Enter',
+      },
+    ],
+    {
+      enabled: isOpen && !commandOutput,
+      ignoreInputs: false,
     },
-    { enabled: isOpen && !commandOutput, ignoreWhenTyping: false },
   );
 
-  useKeyBinding(
-    {
-      backspace: (e) => {
-        e.stopPropagation();
-        setCommandOutput(null);
-        focusInput();
+  useHotkeys(
+    [
+      {
+        callback: () => {
+          setCommandOutput(null);
+          focusInput();
+        },
+        hotkey: 'Escape',
       },
-      escape: (e) => {
-        e.stopPropagation();
-        setCommandOutput(null);
-        focusInput();
+      {
+        callback: () => {
+          setCommandOutput(null);
+          focusInput();
+        },
+        hotkey: 'Backspace',
       },
-    },
+    ],
     {
       enabled: isOpen && !!commandOutput,
-      ignoreWhenTyping: false,
-      capture: true,
+      ignoreInputs: false,
+      target: dialogRef,
     },
   );
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent
+        ref={dialogRef}
         showCloseButton={false}
         className="sm:max-w-2xl max-h-120 h-full bg-popover/95 backdrop-blur-md rounded-2xl border border-border/60 shadow-2xl p-0 overflow-hidden gap-0 flex flex-col"
       >

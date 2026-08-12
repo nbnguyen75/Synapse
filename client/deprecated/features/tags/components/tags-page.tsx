@@ -1,11 +1,7 @@
 import { useEffect } from 'react';
 
-import {
-  useTags,
-  TAG_COLORS,
-  TAG_COLOR_VALUES,
-} from '@/features/deprecated/tags/hooks/use-tags';
-import { discoverTagsFromNotes } from '@/features/deprecated/tags/lib/tags';
+import { useTags, TAG_COLORS, TAG_COLOR_VALUES } from '../hooks/use-tags';
+import { discoverTagsFromNotes } from '../lib/tags';
 
 import { m } from '@/paraglide/messages';
 

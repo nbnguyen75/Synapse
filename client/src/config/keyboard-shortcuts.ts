@@ -1,3 +1,5 @@
+import { normalizeHotkey } from '@tanstack/hotkeys';
+
 import { m } from '@/paraglide/messages';
 
 export type ShortcutSectionId = 'global' | 'editor';
@@ -6,7 +8,7 @@ export type ShortcutId =
   | 'command-palette'
   | 'toggle-left-sidebar'
   | 'toggle-right-sidebar'
-  | 'new-note'
+  | 'go-to-notes'
   | 'focus-search'
   | 'save-note'
   | 'show-keyboard-shortcuts'
@@ -26,11 +28,6 @@ export type ShortcutId =
 export interface KeyboardShortcutEntry {
   section: ShortcutSectionId;
   label: () => string;
-  /**
-   * When true the binding is owned by an external system (shadcn sidebar
-   * built-in, Lexical plugin) — the registry only documents it for display.
-   */
-  external?: boolean;
   /** Keys rendered in the shortcuts UI. `mod` resolves to ⌘/Ctrl by OS. */
   display: string[];
   /** Normalized bindings, may use the `mod` token. */
@@ -60,7 +57,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     id: 'editor-strikethrough',
     combos: ['mod+shift+x'],
     section: 'editor',
-    external: true,
     group: 'text',
   },
   'editor-numbered-list': {
@@ -70,7 +66,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     combos: ['mod+shift+7'],
     section: 'editor',
     group: 'lists',
-    external: true,
   },
   'editor-normal-text': {
     label: () => m.lexical_shortcuts_normal_text(),
@@ -79,7 +74,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     combos: ['mod+alt+0'],
     group: 'structure',
     section: 'editor',
-    external: true,
   },
   'editor-bullet-list': {
     label: () => m.lexical_shortcuts_bullet_list(),
@@ -88,7 +82,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     combos: ['mod+shift+8'],
     section: 'editor',
     group: 'lists',
-    external: true,
   },
   'editor-blockquote': {
     label: () => m.lexical_shortcuts_block_quote(),
@@ -97,7 +90,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     combos: ['mod+shift+q'],
     section: 'editor',
     group: 'lists',
-    external: true,
   },
   'editor-heading1': {
     label: () => m.lexical_shortcuts_heading1(),
@@ -106,7 +98,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     combos: ['mod+alt+1'],
     group: 'structure',
     section: 'editor',
-    external: true,
   },
   'editor-heading2': {
     label: () => m.lexical_shortcuts_heading2(),
@@ -115,7 +106,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     combos: ['mod+alt+2'],
     group: 'structure',
     section: 'editor',
-    external: true,
   },
   'editor-heading3': {
     label: () => m.lexical_shortcuts_heading3(),
@@ -124,51 +114,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     combos: ['mod+alt+3'],
     group: 'structure',
     section: 'editor',
-    external: true,
-  },
-  'editor-underline': {
-    label: () => m.keyboard_shortcuts_underline(),
-    id: 'editor-underline',
-    display: ['mod', 'U'],
-    section: 'editor',
-    combos: ['mod+u'],
-    external: true,
-    group: 'text',
-  },
-  'editor-italic': {
-    label: () => m.keyboard_shortcuts_italic(),
-    display: ['mod', 'I'],
-    id: 'editor-italic',
-    section: 'editor',
-    combos: ['mod+i'],
-    external: true,
-    group: 'text',
-  },
-  'toggle-left-sidebar': {
-    label: () => m.keyboard_shortcuts_toggle_left(),
-    id: 'toggle-left-sidebar',
-    display: ['mod', 'B'],
-    section: 'global',
-    combos: ['mod+b'],
-    external: true,
-  },
-  'editor-bold': {
-    label: () => m.keyboard_shortcuts_bold(),
-    display: ['mod', 'B'],
-    id: 'editor-bold',
-    section: 'editor',
-    combos: ['mod+b'],
-    external: true,
-    group: 'text',
-  },
-  'editor-code': {
-    label: () => m.keyboard_shortcuts_code(),
-    display: ['mod', 'E'],
-    id: 'editor-code',
-    section: 'editor',
-    combos: ['mod+e'],
-    external: true,
-    group: 'text',
   },
   'toggle-right-sidebar': {
     label: () => m.keyboard_shortcuts_toggle_right(),
@@ -177,12 +122,58 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     combos: ['mod+alt+b'],
     section: 'global',
   },
+  'editor-underline': {
+    label: () => m.keyboard_shortcuts_underline(),
+    id: 'editor-underline',
+    display: ['mod', 'U'],
+    section: 'editor',
+    combos: ['mod+u'],
+    group: 'text',
+  },
   'show-keyboard-shortcuts': {
     label: () => m.sidebar_keyboard_shortcuts(),
     id: 'show-keyboard-shortcuts',
     display: ['mod', '/'],
     section: 'global',
     combos: ['mod+/'],
+  },
+  'editor-italic': {
+    label: () => m.keyboard_shortcuts_italic(),
+    display: ['mod', 'I'],
+    id: 'editor-italic',
+    section: 'editor',
+    combos: ['mod+i'],
+    group: 'text',
+  },
+  'toggle-left-sidebar': {
+    label: () => m.keyboard_shortcuts_toggle_left(),
+    id: 'toggle-left-sidebar',
+    display: ['mod', 'B'],
+    section: 'global',
+    combos: ['mod+b'],
+  },
+  'go-to-notes': {
+    label: () => m.keyboard_shortcuts_go_to_notes(),
+    display: ['mod', 'Shift', 'N'],
+    combos: ['mod+shift+n'],
+    section: 'global',
+    id: 'go-to-notes',
+  },
+  'editor-bold': {
+    label: () => m.keyboard_shortcuts_bold(),
+    display: ['mod', 'B'],
+    id: 'editor-bold',
+    section: 'editor',
+    combos: ['mod+b'],
+    group: 'text',
+  },
+  'editor-code': {
+    label: () => m.keyboard_shortcuts_code(),
+    display: ['mod', 'E'],
+    id: 'editor-code',
+    section: 'editor',
+    combos: ['mod+e'],
+    group: 'text',
   },
   'command-palette': {
     label: () => m.keyboard_shortcuts_cmd_palette(),
@@ -205,13 +196,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     display: ['/'],
     combos: ['/'],
   },
-  'new-note': {
-    label: () => m.keyboard_shortcuts_new_note(),
-    section: 'global',
-    id: 'new-note',
-    display: ['N'],
-    combos: ['n'],
-  },
 };
 
 export function getShortcut(id: ShortcutId): KeyboardShortcutEntry {
@@ -224,4 +208,67 @@ export function getShortcutsBySection(
   return Object.values(KEYBOARD_SHORTCUTS).filter(
     (entry) => entry.section === section,
   );
+}
+
+/**
+ * Resolves the effective combos for a shortcut: a stored override wins over
+ * the registry default. An override of `[]` disables the shortcut ("None").
+ */
+export function getEffectiveCombos(
+  id: ShortcutId,
+  overrides: Partial<Record<ShortcutId, string[]>>,
+): string[] {
+  return overrides[id] ?? KEYBOARD_SHORTCUTS[id].combos;
+}
+
+/**
+ * Converts a recorded canonical hotkey (e.g. `Mod+Shift+N`) into the lowercase
+ * `mod`-based form stored by the registry (`mod+shift+n`).
+ */
+export function toRegistryCombo(hotkey: string): string {
+  return hotkey.toLowerCase();
+}
+
+/**
+ * Derives the Kbd-friendly display tokens (e.g. `['mod', 'Shift', 'N']`)
+ * from a normalized combo string (e.g. `mod+shift+n`).
+ */
+export function combosToDisplay(combos: string[]): string[] {
+  const combo = combos[0];
+  if (!combo) return [];
+
+  return combo.split('+').map((token) => {
+    if (token === 'mod') return 'mod';
+    if (token === 'ctrl') return 'Ctrl';
+    if (token === 'meta') return 'Meta';
+    if (token === 'shift') return 'Shift';
+    if (token === 'alt') return 'Alt';
+    return token.length === 1 ? token.toUpperCase() : token;
+  });
+}
+
+/**
+ * Returns the first shortcut (other than `targetId`) whose effective combos
+ * collide with `proposedCombos`, comparing on the TanStack canonical form
+ * (case-insensitive, alias- and platform-aware).
+ */
+export function findShortcutConflict(
+  proposedCombos: string[],
+  targetId: ShortcutId,
+  overrides: Partial<Record<ShortcutId, string[]>>,
+): KeyboardShortcutEntry | null {
+  const proposed = new Set(
+    proposedCombos.map((combo) => normalizeHotkey(combo)),
+  );
+
+  for (const entry of Object.values(KEYBOARD_SHORTCUTS)) {
+    if (entry.id === targetId) continue;
+
+    const combos = getEffectiveCombos(entry.id, overrides);
+    for (const combo of combos) {
+      if (proposed.has(normalizeHotkey(combo))) return entry;
+    }
+  }
+
+  return null;
 }

@@ -12,7 +12,7 @@ import {
   cascadeRenameTag,
   cascadeDeleteTag,
   type TagMetadata,
-} from '@/features/deprecated/tags/lib/tags';
+} from '../lib/tags';
 // import { useGetNotesQuery } from '@/features/notes/hooks/api/use-get-note';
 // import { getNotes } from '@/features/notes/fetch';
 

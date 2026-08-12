@@ -5,6 +5,7 @@ import { StrictMode } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { HotkeysProvider } from '@tanstack/react-hotkeys';
 
 import { routeTree } from '@/routeTree.gen';
 
@@ -65,11 +66,13 @@ if (!rootElement.innerHTML) {
 
   root.render(
     <StrictMode>
-      <ThemeProvider defaultTheme="system" storageKey="synapse-app-theme">
-        <QueryClientProvider client={queryClient}>
-          <InnerApp />
-        </QueryClientProvider>
-      </ThemeProvider>
+      <HotkeysProvider defaultOptions={{ hotkey: { ignoreInputs: true } }}>
+        <ThemeProvider defaultTheme="system" storageKey="synapse-app-theme">
+          <QueryClientProvider client={queryClient}>
+            <InnerApp />
+          </QueryClientProvider>
+        </ThemeProvider>
+      </HotkeysProvider>
     </StrictMode>,
   );
 }

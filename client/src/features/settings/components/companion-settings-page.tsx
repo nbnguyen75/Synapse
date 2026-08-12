@@ -17,6 +17,8 @@ import {
   COMPANION_SETTINGS_PRESET_OPTIONS,
 } from '@/features/settings/constants';
 
+import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
+
 import { m } from '@/paraglide/messages';
 
 import { LexicalEditor } from '@/components/shared';
@@ -57,7 +59,12 @@ export default function CompanionSettingsPage() {
     mode: 'onBlur',
   });
 
-  const { handleSubmit, control, reset } = form;
+  const {
+    formState: { isDirty },
+    handleSubmit,
+    control,
+    reset,
+  } = form;
 
   const [watchedPreset] = useWatch({
     name: ['preset'],
@@ -75,6 +82,15 @@ export default function CompanionSettingsPage() {
   const onSubmit = (data: CompanionSettingsPayload) => {
     updateCompanionSettings({ body: data });
   };
+
+  useFormSaveShortcut({
+    onSubmit: (data) => {
+      if (!form.formState.isDirty) return;
+      onSubmit(data as CompanionSettingsPayload);
+    },
+    isSubmitting: isPending,
+    form,
+  });
 
   if (isLoadingCompanionSettings) {
     return (
@@ -320,7 +336,7 @@ export default function CompanionSettingsPage() {
           />
         )}
 
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending || !isDirty}>
           <SaveIcon />
           {m.settings_page_companion_save()}
         </Button>

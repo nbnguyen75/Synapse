@@ -14,9 +14,7 @@ import {
 import { useGenerateNoteTitle } from '@/features/notes/hooks/api';
 import { noteKeys } from '@/features/notes/keys';
 
-import { useKeyboardShortcut } from '@/hooks/use-key-binding';
-
-import { getShortcut } from '@/config/keyboard-shortcuts';
+import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 
 import {
   $fetch,
@@ -26,17 +24,21 @@ import {
 import { m } from '@/paraglide/messages';
 
 interface UseNoteCreateOptions {
+  initialContent?: string;
   initialTitle?: string;
 }
 
-export function useNoteCreate({ initialTitle }: UseNoteCreateOptions = {}) {
+export function useNoteCreate({
+  initialContent,
+  initialTitle,
+}: UseNoteCreateOptions = {}) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const form = useForm<NoteFormInput>({
     defaultValues: {
+      content: initialContent ?? '',
       title: initialTitle,
-      content: '',
     },
     resolver: standardSchemaResolver(noteInputSchema),
   });
@@ -99,14 +101,11 @@ export function useNoteCreate({ initialTitle }: UseNoteCreateOptions = {}) {
     void navigate({ to: '/notes' });
   };
 
-  useKeyboardShortcut(
-    getShortcut('save-note').combos,
-    () => {
-      if (isCreating) return;
-      void handleSubmit(createNote)();
-    },
-    { allowWhenTyping: ['ctrl+s', 'meta+s'] },
-  );
+  useFormSaveShortcut({
+    isSubmitting: isCreating,
+    onSubmit: createNote,
+    form,
+  });
 
   return {
     actions: {

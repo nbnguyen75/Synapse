@@ -1,3 +1,4 @@
+import { useShortcut } from '@/hooks/use-shortcut';
 import { useIsMac } from '@/hooks/use-is-os';
 
 import {
@@ -7,6 +8,8 @@ import {
   type KeyboardShortcutEntry,
   type ShortcutSectionId,
 } from '@/config/keyboard-shortcuts';
+
+import { m } from '@/paraglide/messages';
 
 import { Kbd, KbdGroup } from '@/components/ui/kbd';
 
@@ -33,13 +36,21 @@ function KeyCombo({ display }: { display: string[] }) {
 }
 
 function ShortcutRow({ entry }: { entry: KeyboardShortcutEntry }) {
+  const { display } = useShortcut(entry.id);
+
   return (
     <div
       key={entry.id}
       className="flex items-center justify-between bg-muted/30 p-2 rounded-lg border border-border/50"
     >
       <span className="text-muted-foreground">{entry.label()}</span>
-      <KeyCombo display={entry.display} />
+      {display.length > 0 ? (
+        <KeyCombo display={display} />
+      ) : (
+        <span className="text-xs text-muted-foreground">
+          {m.settings_shortcuts_disabled()}
+        </span>
+      )}
     </div>
   );
 }

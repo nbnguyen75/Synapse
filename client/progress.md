@@ -2,11 +2,23 @@
 
 ## Current State
 
-**Last Updated:** 2026-08-11
-**Session ID:** chat-nav-and-pagination-fixes
-**Active Feature:** Bug-fix pass on chat — chat-mode navigation to `/chat/:conversationId`, `/chat` = new chat, and scroll-up older-message loading — done (on top of staged feat-044..047)
+**Last Updated:** 2026-08-12
+**Session ID:** remappable-shortcuts
+**Active Feature:** feat-049 — single-source remappable keyboard shortcuts + bug-fix batch — done (verified lint/tsc/build; artifacts updated)
 
 ## Status
+
+### What's Done (feat-049 — Remappable Keyboard Shortcuts + Bug-Fix Batch)
+
+- [x] **Single source of truth** — `src/config/keyboard-shortcuts.ts` is the only shortcut registry (global + 12 editor + sidebar toggles). `src/store/shortcuts-store.ts` (NEW): zustand persist `'synapse-shortcuts'` v1, `partialize: { overrides }`, `setBinding(id, combos|null)` (null = disable), `resetBinding`, `resetAll`. `src/hooks/use-shortcut.ts` (NEW): reactive `{ combos, display }` per `ShortcutId` via `getEffectiveCombos(id, overrides)`. Helpers: `normalizeCombo` (first meta/ctrl → `mod`), `combosToDisplay` (uses combos[0]), `findShortcutConflict` (mod-expanded compare, skips targetId, one-namespace rule → `mod+b` assignment to editor-bold is rejected since toggle-left-sidebar already owns it).
+- [x] **Global bindings reactive** — `app-global-keybinds.tsx`: go-to-notes (`mod+shift+n`, replaces old quick-new-note N), focus-search, show-keyboard-shortcuts. `_app/route.tsx` `toggle-right-sidebar` + `sidebar.tsx` `toggle-left-sidebar` (removed built-in `SIDEBAR_KEYBOARD_SHORTCUT='b'`/hardcoded effect) now store-driven. `command-palette.tsx` uses `useShortcut('command-palette')`; palette arrow/enter binding got `capture: true` (was being intercepted by the window-sidebar listener). `useKeyboardShortcut` now mod-expands `allowWhenTyping`.
+- [x] **Editor keymap registry-driven** — `lexical-keyboard-shortcuts.tsx` rebuilt: `EDITOR_SHORTCUT_IDS` (12 ids, `satisfies readonly ShortcutId[]`), `actionCombos` from `getEffectiveCombos(id, overrides)`, combos+dispatcher in refs, `matchesCombo` (expandModKey), command `COMMAND_PRIORITY_LOW`. Matching shifted from `event.code` to `getKeyCombo`/`event.key` — known accepted behavior shift. Exported helpers (`formatHeadingBlock`/`formatParagraphBlock`/`formatQuoteBlock`, `HeadingTagType`) preserved.
+- [x] **Form save shortcut shared** — `use-form-save-shortcut.ts` (NEW): binds `save-note` combos to `form.handleSubmit(onSubmit)` with `allowWhenTyping: save-note.combos`, `enabled` option. Wired into `use-note-create.ts`/`use-note-details.ts` (replaces hardcoded ctrl+s/meta+s), `companion-settings-page.tsx` (skips submit when not dirty), conversation rename dialog in `conversation-list-item.tsx` (gated on `isRenameOpen`, placed after `handleRenameSubmit` for TDZ; save button also disabled `|| !form.formState.isDirty`).
+- [x] **Settings > Shortcuts tab** — `SETTINGS_TABS = ['general','companion','shortcuts']` + `settings.tsx` wiring + head title. `shortcuts-settings-page.tsx` (sections, editor sub-groups, Reset all disabled when no overrides) + `shortcut-remap-row.tsx` (Change/None/Reset buttons; capture Input autoFocus readOnly; **modifier required** — bare keys like `/` for focus-search can't be captured; Escape cancels; modifier-only keys ignored; conflict → stay capturing + inline error; success → `setBinding(id, [normalized])`; `mod` shown as ⌘/Ctrl via `useIsMac`). `keyboard-shortcuts-list.tsx` dialog now shows live effective combos + `settings_shortcuts_disabled` when empty.
+- [x] **Bug fixes bundled** — agent-mode `/chat` guard: `readPersistedLayoutMode()` (in `settings-store.ts`, reads `localStorage['synapse-settings'].state.layoutMode`) + `beforeLoad` redirect to `/notes` in `chat.tsx` + `chat.$conversationId.tsx`. `use-go-to-companion.ts` (NEW): chat mode → navigate `/chat`, agent mode → `setRightSidebarOpen(true)`; used by command palette + error page. `/create` prefill: `validateSearch` `content` (was `title`), `useNoteCreate` gained `initialContent`. Empty companion-save toast → `settings_page_toast_saved` / `settings_page_save_failed`.
+- [x] **i18n (en+vi)** — `keyboard_shortcuts_new_note` → `keyboard_shortcuts_go_to_notes`; added `settings_page_tab_shortcuts`, `settings_shortcuts_{description,reset_all,remap,disable,reset,capturing,cancel,disabled,conflict}`. `bun run generate-translation` ✓.
+- [x] **Verification** — `./init.sh` ✓, `bun --bun check` ✓ (prettier fixed formatting; 2 pre-existing warnings untouched), `bunx tsc -b` ✓, `bun --bun run build` ✓ (vite v8.1.5, 7003 modules). Pre-existing staged changes (deprecated renames, bun.lock, package.json, shared/index.ts, tags.tsx) left as-is; no commit (user manages).
+- [ ] **Known notes** — (1) editor shortcut matching now uses `event.key` (lowercase) via `getKeyCombo`, not `event.code` — verify in manual smoke that all editor bindings still fire, especially non-latin layouts. (2) `mod+b` is intentionally overloaded (editor-bold in editor scope, toggle-left-sidebar in global scope, different namespaces) — remapping editor-bold to `mod+b` in Settings is blocked by the same-namespace conflict rule. (3) bare-key shortcuts (e.g. focus-search `/`) cannot be re-captured (modifier required) but can be reset to default. (4) `getShortcut` export kept but unused (dead code, deliberately). (5) right-sidebar inner SidebarProvider also registers `toggle-left-sidebar` (same as pre-existing double-registration).
 
 ### What's Done (bug-fix pass — chat navigation + older-message loading)
 
@@ -279,6 +291,9 @@ Remaining features from `feature_list.json` (not-started):
 - base-ui `useDismiss` Escape handler (`closeOnEscapeKeyDown`) does NOT check `event.defaultPrevented` — it closes the dialog unconditionally via a document-level bubble listener. To override it (e.g. Escape = "go back" inside command output), bind in the capture phase on window and call `stopPropagation()`
 - **i18n corruption lessons (2026-08-02)**: (1) Inline PowerShell/node -e strings lose double quotes — a mangled replacement pair became a global `('s','e')` replace. Always use script files for bulk text edits. (2) `src/paraglide/messages/*.js` are a valid recovery source for message JSON only when values contain NO `{params}` — paraglide compiles `{appName}` to `${i?.appName}`, so parameterized values must come from git HEAD, not from compiled output. (3) Paraglide normalizes message keys to lowercase + numeric disambiguation suffix; source-of-truth `messages/*.json` spellings (e.g. uppercase `auth_error_code_USER_NOT_FOUND`) must not be taken from generated files.
 - `git show HEAD:<path>` is the safest ground truth for any file recovery — rebuild from it, then reapply only the known intended delta
+- zustand persist shapes are `{ state, version }` in localStorage; to read a persisted value outside React (e.g. `readPersistedLayoutMode`), JSON.parse the key and read `.state.<field>`.
+- Shortcut overrides store uses `combos: string[] | null` (null = disabled). `getEffectiveCombos` returns `[]` when overridden-disabled; UI (settings row + shortcuts list dialog) renders "Disabled" for empty combos.
+- Remap capture requires ≥1 modifier (parts.length < 2 → ignore); Escape cancels; Backspace NOT implemented as clear. Captured combo is normalized (`meta`/`ctrl` → `mod`) before `setBinding`.
 
 ## Blockers / Risks
 
@@ -290,6 +305,10 @@ Remaining features from `feature_list.json` (not-started):
 
 ## Decisions Made
 
+- **One registry + one store** for all shortcuts (global, sidebar, editor) — `keyboard-shortcuts.ts` is the single source of truth; features read effective combos via `useShortcut`/`useFormSaveShortcut` instead of hardcoding keys (RULES.md single-source principle).
+- **Shortcut overrides are per-id**, not per-scope; a single conflict check across one namespace (editor = all editor shortcuts; global = all global) rejects new `mod+b` assignments in the editor because toggle-left-sidebar already owns it. Editor/global scopes are separate namespaces (mod+b overload allowed between scopes).
+- **Editor shortcut matching uses `event.key`** (`getKeyCombo`) instead of `event.code` — accepted shift (code-based match was dropped in the registry-driven rebuild); non-latin layouts may need a smoke test.
+- **Overrides persist globally** (not per-layout-mode): Settings > Shortcuts edits `synapse-shortcuts` localStorage; effective combos flow reactively into global bindings, sidebar, editor plugin, and the shortcuts-list dialog.
 - **Layout mode naming**: internal value `'agent'` (kept from `'servant'`), user-facing name "AI Companion" (never "copilot"); migrate map handles the persisted `'servant'` value.
 - **Chat mode = single-column**: right panel hidden entirely in chat mode (breadcrumb + notes remain full-width); agent mode = expanded right sidebar.
 - **`centered` prop** (not a separate CSS class in global CSS) keeps Tailwind utilities colocated with ChatBot.
@@ -315,6 +334,8 @@ Remaining features from `feature_list.json` (not-started):
 
 ## Notes for Next Session
 
+- feat-049 (remappable shortcuts) is done and verified (lint/tsc/build) but NOT smoke-tested in a running app. With the stack up: (1) Settings > Shortcuts remap editor-bold, global focus-search, save-note; confirm persistence across reload + conflict rejection on `mod+b`; (2) confirm editor bindings still fire (event.key matching), (3) `/create` content prefill via command palette `/create`, (4) agent-mode `/chat` still redirects to /notes.
+- feat-049 staged alongside feat-044..048 + deprecated renames; user manages commits.
 - Remaining features: Chat with Note (feat-035, needs backend noteId scoping), AI Tab Completion (feat-023), Voice-to-Text (feat-024), PDF Export (feat-027), Quick Note Dialog (feat-028)
 - **SMOKE TEST NEEDED (manual)**: feat-046 pagination + feat-044/045 responsive layout are verified by typecheck/lint/build only. With the stack up, confirm: (1) first click on a fresh conversation sends immediately, (2) scrolling to the top of an old (>15 msg) conversation loads older messages without jumping, (3) chat↔agent toggle animates the right panel and hides the header toggle in chat mode, (4) breadcrumb collapses to the ⋯ dropdown under 640px, (5) Companion Insert/Replace writes into the active note editor.
 - feat-044/045/046/047 staged; user manages commit (staged already — nothing else to stage).

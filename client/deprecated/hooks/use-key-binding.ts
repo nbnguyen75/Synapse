@@ -103,7 +103,7 @@ export function useKeyboardShortcut(
         map[expanded] = handler;
       }
     }
-    return map;
+  return map;
   }, [combos, handler]);
 
   useKeyBinding(bindings, options);

@@ -1,12 +1,16 @@
-import { useEffect } from 'react';
+import type { ShortcutId } from '@/config/keyboard-shortcuts';
+
+import { useEffect, useMemo, useRef } from 'react';
+
+import { normalizeHotkey, normalizeHotkeyFromEvent } from '@tanstack/hotkeys';
 
 import {
+  $createParagraphNode,
   $getSelection,
   $isRangeSelection,
-  $createParagraphNode,
+  COMMAND_PRIORITY_LOW,
   FORMAT_TEXT_COMMAND,
   KEY_DOWN_COMMAND,
-  COMMAND_PRIORITY_LOW,
   type LexicalEditor as LexicalEditorType,
 } from 'lexical';
 import {
@@ -15,13 +19,34 @@ import {
   type HeadingTagType,
 } from '@lexical/rich-text';
 import {
-  INSERT_UNORDERED_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $setBlocksType } from '@lexical/selection';
 
+import { useShortcutsStore } from '@/store/shortcuts-store';
+
+import { getEffectiveCombos } from '@/config/keyboard-shortcuts';
+
 export type { HeadingTagType };
+
+const EDITOR_SHORTCUT_IDS = [
+  'editor-bold',
+  'editor-italic',
+  'editor-underline',
+  'editor-strikethrough',
+  'editor-code',
+  'editor-heading1',
+  'editor-heading2',
+  'editor-heading3',
+  'editor-normal-text',
+  'editor-bullet-list',
+  'editor-numbered-list',
+  'editor-blockquote',
+] as const satisfies readonly ShortcutId[];
+
+type EditorShortcutId = (typeof EDITOR_SHORTCUT_IDS)[number];
 
 export function formatHeadingBlock(
   editor: LexicalEditorType,
@@ -53,83 +78,85 @@ export function formatQuoteBlock(editor: LexicalEditorType) {
   });
 }
 
+function matchesCombo(event: KeyboardEvent, candidates: string[]): boolean {
+  const hotkey = normalizeHotkeyFromEvent(event);
+  return candidates.some((candidate) => normalizeHotkey(candidate) === hotkey);
+}
+
 export default function KeyboardShortcutsPlugin() {
   const [editor] = useLexicalComposerContext();
+  const overrides = useShortcutsStore((state) => state.overrides);
+
+  const actionCombos = useMemo(
+    () =>
+      Object.fromEntries(
+        EDITOR_SHORTCUT_IDS.map((id) => [
+          id,
+          getEffectiveCombos(id, overrides),
+        ]),
+      ) as Record<EditorShortcutId, string[]>,
+    [overrides],
+  );
+
+  const actionCombosRef = useRef(actionCombos);
+  const dispatchRef = useRef<(action: EditorShortcutId) => void>(() => {});
+
+  useEffect(() => {
+    actionCombosRef.current = actionCombos;
+  }, [actionCombos]);
+
+  useEffect(() => {
+    dispatchRef.current = (action) => {
+      switch (action) {
+        case 'editor-bold':
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+          break;
+        case 'editor-italic':
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+          break;
+        case 'editor-underline':
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
+          break;
+        case 'editor-strikethrough':
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
+          break;
+        case 'editor-code':
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
+          break;
+        case 'editor-heading1':
+          formatHeadingBlock(editor, 'h1');
+          break;
+        case 'editor-heading2':
+          formatHeadingBlock(editor, 'h2');
+          break;
+        case 'editor-heading3':
+          formatHeadingBlock(editor, 'h3');
+          break;
+        case 'editor-normal-text':
+          formatParagraphBlock(editor);
+          break;
+        case 'editor-bullet-list':
+          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+          break;
+        case 'editor-numbered-list':
+          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+          break;
+        case 'editor-blockquote':
+          formatQuoteBlock(editor);
+          break;
+      }
+    };
+  }, [editor]);
 
   useEffect(() => {
     return editor.registerCommand(
       KEY_DOWN_COMMAND,
       (event: KeyboardEvent) => {
-        const { shiftKey, ctrlKey, metaKey, altKey, code } = event;
-        const isMod = ctrlKey || metaKey;
-
-        if (isMod) {
-          if (code === 'KeyB' && !shiftKey && !altKey) {
-            event.preventDefault();
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
-            return true;
-          }
-          if (code === 'KeyI' && !shiftKey && !altKey) {
-            event.preventDefault();
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
-            return true;
-          }
-          if (code === 'KeyU' && !shiftKey && !altKey) {
-            event.preventDefault();
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
-            return true;
-          }
-          if (code === 'KeyX' && shiftKey && !altKey) {
-            event.preventDefault();
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
-            return true;
-          }
-          if (code === 'KeyE' && !shiftKey && !altKey) {
-            event.preventDefault();
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
-            return true;
-          }
-
-          if (altKey && !shiftKey) {
-            if (code === 'Digit1' || code === 'Numpad1') {
-              event.preventDefault();
-              formatHeadingBlock(editor, 'h1');
-              return true;
-            }
-            if (code === 'Digit2' || code === 'Numpad2') {
-              event.preventDefault();
-              formatHeadingBlock(editor, 'h2');
-              return true;
-            }
-            if (code === 'Digit3' || code === 'Numpad3') {
-              event.preventDefault();
-              formatHeadingBlock(editor, 'h3');
-              return true;
-            }
-            if (code === 'Digit0' || code === 'Numpad0') {
-              event.preventDefault();
-              formatParagraphBlock(editor);
-              return true;
-            }
-          }
-
-          if (shiftKey && !altKey) {
-            if (code === 'Digit8' || code === 'KeyU') {
-              event.preventDefault();
-              editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-              return true;
-            }
-            if (code === 'Digit7' || code === 'KeyO') {
-              event.preventDefault();
-              editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-              return true;
-            }
-            if (code === 'KeyQ') {
-              event.preventDefault();
-              formatQuoteBlock(editor);
-              return true;
-            }
-          }
+        for (const id of EDITOR_SHORTCUT_IDS) {
+          if (!matchesCombo(event, actionCombosRef.current[id])) continue;
+          event.preventDefault();
+          dispatchRef.current(id);
+          return true;
         }
         return false;
       },

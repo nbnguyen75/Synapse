@@ -1,12 +1,18 @@
 import { useEffect } from 'react';
 
-import { createFileRoute, useParams } from '@tanstack/react-router';
+import { createFileRoute, redirect, useParams } from '@tanstack/react-router';
 
 import ChatPage from '@/features/companion/components/chat-page';
 
+import { readPersistedLayoutMode } from '@/store/settings-store';
 import { useCompanionStore } from '@/store/companion-store';
 
 export const Route = createFileRoute('/_app/chat/$conversationId')({
+  beforeLoad: () => {
+    if (readPersistedLayoutMode() !== 'chat') {
+      throw redirect({ to: '/notes' });
+    }
+  },
   component: ChatConversationPage,
 });
 

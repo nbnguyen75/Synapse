@@ -9,6 +9,7 @@ import {
   type InferRequestType,
   type InferResponseType,
 } from '@/lib/fetch';
+import { m } from '@/paraglide/messages';
 
 export function useGetCompanionSettingsQuery() {
   return useQuery({
@@ -30,18 +31,18 @@ export function useUpdateCompanionSettingsMutation() {
     Error,
     InferRequestType<typeof $fetch.api.v1.ai.settings.$put>
   >({
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['companion-settings'] });
+
+      toast.success(m.settings_page_toast_saved());
+    },
     mutationFn: async (args) => {
       const result = await $fetch.api.v1.ai.settings.$put(args);
 
       return result.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companion-settings'] });
-
-      toast.success('');
-    },
     onError: () => {
-      toast.error('');
+      toast.error(m.settings_page_save_failed());
     },
   });
 }

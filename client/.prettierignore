@@ -22,3 +22,5 @@ session-handoff.md
 .dockerignore
 .gitignore
 docs
+**/routeTree.gen.ts
+**/deprecated
