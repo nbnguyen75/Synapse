@@ -8,7 +8,7 @@ export type ShortcutId =
   | 'command-palette'
   | 'toggle-left-sidebar'
   | 'toggle-right-sidebar'
-  | 'go-to-notes'
+  | 'go-to-create-note'
   | 'focus-search'
   | 'save-note'
   | 'show-keyboard-shortcuts'
@@ -28,8 +28,6 @@ export type ShortcutId =
 export interface KeyboardShortcutEntry {
   section: ShortcutSectionId;
   label: () => string;
-  /** Keys rendered in the shortcuts UI. `mod` resolves to ⌘/Ctrl by OS. */
-  display: string[];
   /** Normalized bindings, may use the `mod` token. */
   combos: string[];
   id: ShortcutId;
@@ -53,7 +51,6 @@ export const EDITOR_SHORTCUT_GROUPS: Record<string, { label: () => string }> = {
 export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   'editor-strikethrough': {
     label: () => m.keyboard_shortcuts_strikethrough(),
-    display: ['mod', 'Shift', 'X'],
     id: 'editor-strikethrough',
     combos: ['mod+shift+x'],
     section: 'editor',
@@ -61,7 +58,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   },
   'editor-numbered-list': {
     label: () => m.lexical_shortcuts_numbered_list(),
-    display: ['mod', 'Shift', '7'],
     id: 'editor-numbered-list',
     combos: ['mod+shift+7'],
     section: 'editor',
@@ -69,7 +65,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   },
   'editor-normal-text': {
     label: () => m.lexical_shortcuts_normal_text(),
-    display: ['mod', 'Alt', '0'],
     id: 'editor-normal-text',
     combos: ['mod+alt+0'],
     group: 'structure',
@@ -77,7 +72,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   },
   'editor-bullet-list': {
     label: () => m.lexical_shortcuts_bullet_list(),
-    display: ['mod', 'Shift', '8'],
     id: 'editor-bullet-list',
     combos: ['mod+shift+8'],
     section: 'editor',
@@ -85,7 +79,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   },
   'editor-blockquote': {
     label: () => m.lexical_shortcuts_block_quote(),
-    display: ['mod', 'Shift', 'Q'],
     id: 'editor-blockquote',
     combos: ['mod+shift+q'],
     section: 'editor',
@@ -93,7 +86,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   },
   'editor-heading1': {
     label: () => m.lexical_shortcuts_heading1(),
-    display: ['mod', 'Alt', '1'],
     id: 'editor-heading1',
     combos: ['mod+alt+1'],
     group: 'structure',
@@ -101,7 +93,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   },
   'editor-heading2': {
     label: () => m.lexical_shortcuts_heading2(),
-    display: ['mod', 'Alt', '2'],
     id: 'editor-heading2',
     combos: ['mod+alt+2'],
     group: 'structure',
@@ -109,37 +100,32 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   },
   'editor-heading3': {
     label: () => m.lexical_shortcuts_heading3(),
-    display: ['mod', 'Alt', '3'],
     id: 'editor-heading3',
     combos: ['mod+alt+3'],
     group: 'structure',
     section: 'editor',
   },
+  'editor-underline': {
+    label: () => m.keyboard_shortcuts_underline(),
+    id: 'editor-underline',
+    combos: ['mod+u'],
+    section: 'editor',
+    group: 'text',
+  },
   'toggle-right-sidebar': {
     label: () => m.keyboard_shortcuts_toggle_right(),
-    display: ['mod', 'Alt', 'B'],
     id: 'toggle-right-sidebar',
     combos: ['mod+alt+b'],
     section: 'global',
   },
-  'editor-underline': {
-    label: () => m.keyboard_shortcuts_underline(),
-    id: 'editor-underline',
-    display: ['mod', 'U'],
-    section: 'editor',
-    combos: ['mod+u'],
-    group: 'text',
-  },
   'show-keyboard-shortcuts': {
     label: () => m.sidebar_keyboard_shortcuts(),
     id: 'show-keyboard-shortcuts',
-    display: ['mod', '/'],
     section: 'global',
     combos: ['mod+/'],
   },
   'editor-italic': {
     label: () => m.keyboard_shortcuts_italic(),
-    display: ['mod', 'I'],
     id: 'editor-italic',
     section: 'editor',
     combos: ['mod+i'],
@@ -148,20 +134,17 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   'toggle-left-sidebar': {
     label: () => m.keyboard_shortcuts_toggle_left(),
     id: 'toggle-left-sidebar',
-    display: ['mod', 'B'],
     section: 'global',
     combos: ['mod+b'],
   },
-  'go-to-notes': {
-    label: () => m.keyboard_shortcuts_go_to_notes(),
-    display: ['mod', 'Shift', 'N'],
-    combos: ['mod+shift+n'],
+  'go-to-create-note': {
+    label: () => m.keyboard_shortcuts_create_note(),
+    id: 'go-to-create-note',
+    combos: ['mod+alt+n'],
     section: 'global',
-    id: 'go-to-notes',
   },
   'editor-bold': {
     label: () => m.keyboard_shortcuts_bold(),
-    display: ['mod', 'B'],
     id: 'editor-bold',
     section: 'editor',
     combos: ['mod+b'],
@@ -169,7 +152,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   },
   'editor-code': {
     label: () => m.keyboard_shortcuts_code(),
-    display: ['mod', 'E'],
     id: 'editor-code',
     section: 'editor',
     combos: ['mod+e'],
@@ -178,23 +160,20 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
   'command-palette': {
     label: () => m.keyboard_shortcuts_cmd_palette(),
     id: 'command-palette',
-    display: ['mod', 'K'],
     section: 'global',
     combos: ['mod+k'],
-  },
-  'save-note': {
-    label: () => m.keyboard_shortcuts_save_note(),
-    display: ['mod', 'S'],
-    section: 'global',
-    combos: ['mod+s'],
-    id: 'save-note',
   },
   'focus-search': {
     label: () => m.keyboard_shortcuts_focus_search(),
     id: 'focus-search',
     section: 'global',
-    display: ['/'],
     combos: ['/'],
+  },
+  'save-note': {
+    label: () => m.keyboard_shortcuts_save_note(),
+    section: 'global',
+    combos: ['mod+s'],
+    id: 'save-note',
   },
 };
 
@@ -227,24 +206,6 @@ export function getEffectiveCombos(
  */
 export function toRegistryCombo(hotkey: string): string {
   return hotkey.toLowerCase();
-}
-
-/**
- * Derives the Kbd-friendly display tokens (e.g. `['mod', 'Shift', 'N']`)
- * from a normalized combo string (e.g. `mod+shift+n`).
- */
-export function combosToDisplay(combos: string[]): string[] {
-  const combo = combos[0];
-  if (!combo) return [];
-
-  return combo.split('+').map((token) => {
-    if (token === 'mod') return 'mod';
-    if (token === 'ctrl') return 'Ctrl';
-    if (token === 'meta') return 'Meta';
-    if (token === 'shift') return 'Shift';
-    if (token === 'alt') return 'Alt';
-    return token.length === 1 ? token.toUpperCase() : token;
-  });
 }
 
 /**

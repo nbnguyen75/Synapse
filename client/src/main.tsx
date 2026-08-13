@@ -66,7 +66,11 @@ if (!rootElement.innerHTML) {
 
   root.render(
     <StrictMode>
-      <HotkeysProvider defaultOptions={{ hotkey: { ignoreInputs: true } }}>
+      <HotkeysProvider
+        defaultOptions={{
+          hotkey: { conflictBehavior: 'allow', ignoreInputs: true },
+        }}
+      >
         <ThemeProvider defaultTheme="system" storageKey="synapse-app-theme">
           <QueryClientProvider client={queryClient}>
             <InnerApp />

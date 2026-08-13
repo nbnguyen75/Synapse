@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
+import { useChatModeGuard } from '@/features/companion/hooks/use-chat-mode-guard';
 import ChatPage from '@/features/companion/components/chat-page';
 
 import { readPersistedLayoutMode } from '@/store/settings-store';
@@ -20,6 +21,8 @@ function ChatRoute() {
   const setActiveConversationId = useCompanionStore(
     (state) => state.setActiveConversationId,
   );
+
+  useChatModeGuard();
 
   useEffect(() => {
     setActiveConversationId(null);

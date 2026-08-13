@@ -1,3 +1,3 @@
-export { useGetNotes } from './hooks/api';
+export { useGetNotes, useInfiniteNotes } from './hooks/api';
 export * from './schemas';
 export * from './types';

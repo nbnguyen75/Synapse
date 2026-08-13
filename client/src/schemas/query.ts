@@ -8,7 +8,7 @@ export const paginationQuerySchema = z.object({
     .int({ message: m.validation_page_size_invalid() })
     .positive({ message: m.validation_page_size_invalid() })
     .max(100, { message: m.validation_page_size_max() })
-    .default(20),
+    .default(10),
   page: z.coerce
     .number({ message: m.validation_page_invalid() })
     .int({ message: m.validation_page_invalid() })

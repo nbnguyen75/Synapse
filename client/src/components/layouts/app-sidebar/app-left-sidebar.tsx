@@ -13,6 +13,7 @@ import {
   SidebarFooter,
   Sidebar,
 } from '@/components/ui/sidebar';
+import { Badge } from '@/components/ui/badge';
 
 import NavCompanion from './nav-companion';
 import NavSecondary from './nav-secondary';
@@ -64,6 +65,16 @@ export default function AppLeftSidebar({
 
       <SidebarFooter>
         <NavUser />
+
+        <div className="flex items-center justify-between px-2 py-1 text-xs text-muted-foreground font-mono">
+          <span className="truncate">{env.VITE_APP_VERSION}</span>
+          <Badge
+            variant="secondary"
+            className="text-[10px] px-1.5 py-0 h-4 font-sans font-normal border-muted-foreground/30"
+          >
+            Showcase
+          </Badge>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

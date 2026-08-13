@@ -53,6 +53,20 @@ export default function NavCompanion() {
     }
   };
 
+  const handleLayoutModeChange = (checked: boolean) => {
+    setLayoutMode(checked ? 'chat' : 'agent');
+    if (checked) {
+      if (activeConversationId) {
+        navigate({
+          params: { conversationId: activeConversationId },
+          to: '/chat/$conversationId',
+        });
+      } else {
+        navigate({ to: '/chat' });
+      }
+    }
+  };
+
   const handleSelectConversation = (conversationId: string) => {
     setActiveConversationId(conversationId);
     if (layoutMode === 'chat') {
@@ -96,9 +110,7 @@ export default function NavCompanion() {
 
                 <Switch
                   checked={layoutMode === 'chat'}
-                  onCheckedChange={(checked) =>
-                    setLayoutMode(checked ? 'chat' : 'agent')
-                  }
+                  onCheckedChange={handleLayoutModeChange}
                 />
               </div>
             }

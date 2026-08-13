@@ -8,6 +8,7 @@ import { Kbd } from '@/components/ui/kbd';
 import { SearchIcon } from 'lucide-react';
 
 interface CommandPaletteSearchInputProps {
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   inputRef: RefObject<HTMLInputElement | null>;
   onSearchChange: (value: string) => void;
   search: string;
@@ -15,6 +16,7 @@ interface CommandPaletteSearchInputProps {
 
 export default function CommandPaletteSearchInput({
   onSearchChange,
+  onKeyDown,
   inputRef,
   search,
 }: CommandPaletteSearchInputProps) {
@@ -27,6 +29,7 @@ export default function CommandPaletteSearchInput({
         placeholder={m.command_palette_placeholder()}
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
+        onKeyDown={onKeyDown}
         className="w-full text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto bg-transparent placeholder:text-muted-foreground/70 text-foreground"
         autoFocus
       />

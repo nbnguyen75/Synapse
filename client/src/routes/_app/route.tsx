@@ -112,62 +112,57 @@ function AppLayout() {
           </SidebarManager>
 
           <SidebarInset>
-            <SidebarProvider>
-              {isMobile ? (
-                <>
-                  <div className="flex h-full w-full flex-col overflow-hidden bg-background">
-                    <AppTopHeader />
+            {isMobile ? (
+              <>
+                <div className="flex h-full w-full flex-col overflow-hidden bg-background">
+                  <AppTopHeader />
 
-                    <ConfirmProvider>
-                      <main className="overflow-y-auto min-h-0 flex-1 p-3">
-                        <Outlet />
-                      </main>
-                    </ConfirmProvider>
-                  </div>
+                  <ConfirmProvider>
+                    <main className="overflow-y-auto min-h-0 flex-1 p-3">
+                      <Outlet />
+                    </main>
+                  </ConfirmProvider>
+                </div>
 
-                  <Sheet
-                    open={rightPanelOpen}
-                    onOpenChange={setRightSidebarOpen}
+                <Sheet open={rightPanelOpen} onOpenChange={setRightSidebarOpen}>
+                  <SheetContent
+                    side="right"
+                    showCloseButton={false}
+                    className="w-full max-w-md border-l bg-sidebar p-0 text-sidebar-foreground"
                   >
-                    <SheetContent
-                      side="right"
-                      showCloseButton={false}
-                      className="w-full max-w-md border-l bg-sidebar p-0 text-sidebar-foreground"
-                    >
-                      <AppRightSidebar />
-                    </SheetContent>
-                  </Sheet>
-                </>
-              ) : (
-                <ResizablePanelGroup
-                  orientation="horizontal"
-                  className="overflow-hidden max-h-svh"
+                    <AppRightSidebar />
+                  </SheetContent>
+                </Sheet>
+              </>
+            ) : (
+              <ResizablePanelGroup
+                orientation="horizontal"
+                className="overflow-hidden max-h-svh"
+              >
+                <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
+                  <AppTopHeader />
+
+                  <ConfirmProvider>
+                    <main className="overflow-y-auto min-h-0 flex-1 p-3">
+                      <Outlet />
+                    </main>
+                  </ConfirmProvider>
+                </ResizablePanel>
+
+                <ResizableHandle withHandle />
+
+                <ResizablePanel
+                  panelRef={rightPanelRef}
+                  collapsible={true}
+                  defaultSize="30%"
+                  minSize="30%"
+                  maxSize="55%"
+                  className="no-scrollbar transition-[flex-grow,flex-basis] duration-300 ease-in-out"
                 >
-                  <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
-                    <AppTopHeader />
-
-                    <ConfirmProvider>
-                      <main className="overflow-y-auto min-h-0 flex-1 p-3">
-                        <Outlet />
-                      </main>
-                    </ConfirmProvider>
-                  </ResizablePanel>
-
-                  <ResizableHandle withHandle />
-
-                  <ResizablePanel
-                    panelRef={rightPanelRef}
-                    collapsible={true}
-                    defaultSize="30%"
-                    minSize="30%"
-                    maxSize="55%"
-                    className="no-scrollbar transition-[flex-grow,flex-basis] duration-300 ease-in-out"
-                  >
-                    <AppRightSidebar className="no-scrollbar w-full" />
-                  </ResizablePanel>
-                </ResizablePanelGroup>
-              )}
-            </SidebarProvider>
+                  <AppRightSidebar className="no-scrollbar w-full" />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            )}
           </SidebarInset>
         </SidebarProvider>
       </SidebarManagerProvider>

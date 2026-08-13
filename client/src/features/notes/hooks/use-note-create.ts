@@ -43,7 +43,12 @@ export function useNoteCreate({
     resolver: standardSchemaResolver(noteInputSchema),
   });
 
-  const { handleSubmit, setValue, control } = form;
+  const {
+    formState: { isDirty },
+    handleSubmit,
+    setValue,
+    control,
+  } = form;
 
   const [watchedContent] = useWatch({
     name: ['content'],
@@ -66,13 +71,15 @@ export function useNoteCreate({
 
       form.reset({ title: undefined, content: '' });
     },
+    onError: () => {
+      toast.error(m.notes_page_toast_create_failed(), {
+        description: m.common_error_connection(),
+      });
+    },
     mutationFn: async (args) => {
       const result = await $fetch.api.v1.notes.$post(args);
 
       return result.data;
-    },
-    onError: () => {
-      toast.error(m.notes_page_toast_create_failed());
     },
   });
 
@@ -104,6 +111,7 @@ export function useNoteCreate({
   useFormSaveShortcut({
     isSubmitting: isCreating,
     onSubmit: createNote,
+    enabled: isDirty,
     form,
   });
 

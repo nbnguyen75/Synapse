@@ -8,6 +8,7 @@ import { CompanionChatTransport } from '@/features/companion/config/companion-ch
 
 export interface UseCompanionChatSessionOptions {
   onConversationId?: (conversationId: string) => void;
+  onFinish?: (result: { message: UIMessage }) => void;
   extraMetadata?: Record<string, unknown>;
   onError?: (error: Error) => void;
   initialConversationId?: string;
@@ -19,6 +20,7 @@ export function useCompanionChatSession({
   onConversationId,
   initialMessages,
   extraMetadata,
+  onFinish,
   onError,
 }: UseCompanionChatSessionOptions) {
   const [chatId] = useState(() => initialConversationId ?? 'new-chat');
@@ -35,6 +37,7 @@ export function useCompanionChatSession({
     messages: initialMessages,
     id: chatId,
     transport,
+    onFinish,
     onError,
   });
 

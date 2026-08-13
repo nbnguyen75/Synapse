@@ -1,16 +1,18 @@
 import { Controller } from 'react-hook-form';
 
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 
 import { z } from 'zod/v4';
 
 import { useNoteCreate } from '@/features/notes/hooks';
 
+import { useShortcut } from '@/hooks/use-shortcut';
+
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
 
-import { LexicalEditor, MarkdownRenderer } from '@/components/shared';
+import { LexicalEditor, MarkdownRenderer, KeyCombo } from '@/components/shared';
 
 import {
   InputGroup,
@@ -37,6 +39,9 @@ export const Route = createFileRoute('/_app/notes/create')({
   head: () => ({
     meta: [{ title: createTitle(m.notes_page_create_page_title()) }],
   }),
+  search: {
+    middlewares: [stripSearchParams({ content: '' })],
+  },
   validateSearch: z.object({
     content: z.string().optional(),
   }),
@@ -50,9 +55,13 @@ function RouteComponent() {
   });
 
   const { watchedContent } = state;
-  const { control } = form;
+  const {
+    formState: { isDirty },
+    control,
+  } = form;
   const { isGeneratingTitle, isCreating } = status;
   const { generateNoteTitle, backToNotesPage, createNew } = actions;
+  const { combos: saveCombos } = useShortcut('save-note');
 
   return (
     <form onSubmit={createNew} className="h-full">
@@ -73,7 +82,7 @@ function RouteComponent() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={isCreating}
+                disabled={isCreating || !isDirty}
                 className="h-8 gap-1.5 text-xs font-semibold rounded-md"
               >
                 <SaveIcon className="size-3.5" />
@@ -81,6 +90,13 @@ function RouteComponent() {
                   ? m.notes_page_create_saving()
                   : m.notes_page_create_create()}
               </Button>
+
+              {isDirty && !isCreating && saveCombos.length > 0 && (
+                <KeyCombo
+                  combo={saveCombos[0]}
+                  className="ml-1 hidden sm:inline-flex"
+                />
+              )}
             </div>
 
             <div className="flex items-center gap-3">

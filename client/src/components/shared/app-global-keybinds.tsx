@@ -5,8 +5,8 @@ import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 export default function AppGlobalKeybinds() {
   const navigate = useNavigate();
 
-  useHotkeyShortcut('go-to-notes', () => {
-    navigate({ to: '/notes' });
+  useHotkeyShortcut('go-to-create-note', () => {
+    navigate({ to: '/notes/create' });
   });
 
   useHotkeyShortcut('focus-search', () => {

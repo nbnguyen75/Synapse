@@ -5,7 +5,6 @@ import LangViIcon from '@iconify-react/circle-flags/lang-vi';
 import { Fragment } from 'react/jsx-runtime';
 
 import { useElementWidth } from '@/hooks/use-element-width';
-import { useIsMac } from '@/hooks/use-is-os';
 
 import { useSettingsStore } from '@/store/settings-store';
 
@@ -14,7 +13,7 @@ import { useTheme } from '@/providers/theme-provider';
 import { getLocale, setLocale, type Locale } from '@/paraglide/runtime';
 import { m } from '@/paraglide/messages';
 
-import { AppBreadcrumb } from '@/components/shared';
+import { AppBreadcrumb, KeyCombo } from '@/components/shared';
 
 import {
   DropdownMenu,
@@ -37,7 +36,6 @@ import {
 } from '@/components/ui/tooltip';
 import { SidebarManagerTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Kbd, KbdGroup } from '@/components/ui/kbd';
 import { Button } from '@/components/ui/button';
 
 import {
@@ -73,7 +71,6 @@ const locales = [
 
 export default function AppTopHeader() {
   const navigate = useNavigate();
-  const isMac = useIsMac();
   const { setTheme, theme } = useTheme();
   const { rightSidebar, layoutMode } = useSettingsStore();
   const [headerRef, headerWidth] = useElementWidth<HTMLElement>();
@@ -112,11 +109,10 @@ export default function AppTopHeader() {
           <span className="truncate hidden @[680px]/top-header:inline text-xs text-muted-foreground ml-1.5">
             {m.header_search_placeholder()}
           </span>
-          <KbdGroup className="ml-2 hidden @[680px]/top-header:inline-flex">
-            <Kbd>{isMac ? '⌘' : 'Ctrl'}</Kbd>
-            <span>+</span>
-            <Kbd>K</Kbd>
-          </KbdGroup>
+          <KeyCombo
+            combo="mod+k"
+            className="ml-2 hidden @[680px]/top-header:inline-flex"
+          />
         </Button>
 
         <DropdownMenu>

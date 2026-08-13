@@ -1,5 +1,4 @@
 import { useShortcut } from '@/hooks/use-shortcut';
-import { useIsMac } from '@/hooks/use-is-os';
 
 import {
   EDITOR_SHORTCUT_GROUPS,
@@ -11,32 +10,14 @@ import {
 
 import { m } from '@/paraglide/messages';
 
-import { Kbd, KbdGroup } from '@/components/ui/kbd';
+import { KeyCombo } from '@/components/shared/key-combo';
 
 interface KeyboardShortcutsListProps {
   sections: ShortcutSectionId[];
 }
 
-function KeyCombo({ display }: { display: string[] }) {
-  const isMac = useIsMac();
-  const modLabel = isMac ? '⌘' : 'Ctrl';
-
-  return (
-    <KbdGroup>
-      {display.map((key, i) => (
-        <span key={`${key}-${i}`} className="flex items-center gap-1">
-          <Kbd>{key === 'mod' ? modLabel : key}</Kbd>
-          {i < display.length - 1 && (
-            <span className="text-muted-foreground text-[10px]">+</span>
-          )}
-        </span>
-      ))}
-    </KbdGroup>
-  );
-}
-
 function ShortcutRow({ entry }: { entry: KeyboardShortcutEntry }) {
-  const { display } = useShortcut(entry.id);
+  const { combos } = useShortcut(entry.id);
 
   return (
     <div
@@ -44,8 +25,8 @@ function ShortcutRow({ entry }: { entry: KeyboardShortcutEntry }) {
       className="flex items-center justify-between bg-muted/30 p-2 rounded-lg border border-border/50"
     >
       <span className="text-muted-foreground">{entry.label()}</span>
-      {display.length > 0 ? (
-        <KeyCombo display={display} />
+      {combos.length > 0 ? (
+        <KeyCombo combo={combos[0]} />
       ) : (
         <span className="text-xs text-muted-foreground">
           {m.settings_shortcuts_disabled()}

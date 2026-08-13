@@ -1,5 +1,7 @@
 ﻿import { useState, useCallback, useEffect } from 'react';
 
+import { formatForDisplay } from '@tanstack/hotkeys';
+
 import {
   $getSelection,
   $isRangeSelection,
@@ -16,6 +18,8 @@ import {
 } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
+
+import { useShortcut } from '@/hooks/use-shortcut';
 
 import { m } from '@/paraglide/messages';
 
@@ -45,6 +49,14 @@ import {
   Quote,
 } from 'lucide-react';
 
+function comboTitle(
+  withCombo: (args: { combo: string }) => string,
+  withoutCombo: () => string,
+  combo: string | undefined,
+) {
+  return combo ? withCombo({ combo: formatForDisplay(combo) }) : withoutCombo();
+}
+
 export default function Toolbar() {
   const [editor] = useLexicalComposerContext();
   const [isBold, setIsBold] = useState(false);
@@ -55,6 +67,19 @@ export default function Toolbar() {
   const [blockType, setBlockType] = useState<
     'paragraph' | 'h1' | 'h2' | 'h3' | 'quote' | 'ul' | 'ol'
   >('paragraph');
+
+  const boldCombo = useShortcut('editor-bold').combos[0];
+  const italicCombo = useShortcut('editor-italic').combos[0];
+  const underlineCombo = useShortcut('editor-underline').combos[0];
+  const strikethroughCombo = useShortcut('editor-strikethrough').combos[0];
+  const codeCombo = useShortcut('editor-code').combos[0];
+  const paragraphCombo = useShortcut('editor-normal-text').combos[0];
+  const heading1Combo = useShortcut('editor-heading1').combos[0];
+  const heading2Combo = useShortcut('editor-heading2').combos[0];
+  const heading3Combo = useShortcut('editor-heading3').combos[0];
+  const bulletListCombo = useShortcut('editor-bullet-list').combos[0];
+  const numberedListCombo = useShortcut('editor-numbered-list').combos[0];
+  const quoteCombo = useShortcut('editor-blockquote').combos[0];
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -119,7 +144,11 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isBold ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_bold()}
+          title={comboTitle(
+            m.lexical_tooltip_bold,
+            m.keyboard_shortcuts_bold,
+            boldCombo,
+          )}
         >
           <Bold className="h-3.5 w-3.5" />
         </Button>
@@ -129,7 +158,11 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isItalic ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_italic()}
+          title={comboTitle(
+            m.lexical_tooltip_italic,
+            m.keyboard_shortcuts_italic,
+            italicCombo,
+          )}
         >
           <Italic className="h-3.5 w-3.5" />
         </Button>
@@ -141,7 +174,11 @@ export default function Toolbar() {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')
           }
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isUnderline ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_underline()}
+          title={comboTitle(
+            m.lexical_tooltip_underline,
+            m.keyboard_shortcuts_underline,
+            underlineCombo,
+          )}
         >
           <Underline className="h-3.5 w-3.5" />
         </Button>
@@ -153,7 +190,11 @@ export default function Toolbar() {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
           }
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isStrikethrough ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_strikethrough()}
+          title={comboTitle(
+            m.lexical_tooltip_strikethrough,
+            m.keyboard_shortcuts_strikethrough,
+            strikethroughCombo,
+          )}
         >
           <Strikethrough className="h-3.5 w-3.5" />
         </Button>
@@ -163,7 +204,11 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isCode ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_code()}
+          title={comboTitle(
+            m.lexical_tooltip_code,
+            m.keyboard_shortcuts_code,
+            codeCombo,
+          )}
         >
           <Code className="h-3.5 w-3.5" />
         </Button>
@@ -179,7 +224,11 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatParagraphBlock(editor)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'paragraph' ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_paragraph()}
+          title={comboTitle(
+            m.lexical_tooltip_paragraph,
+            m.lexical_shortcuts_normal_text,
+            paragraphCombo,
+          )}
         >
           <Text className="h-3.5 w-3.5" />
         </Button>
@@ -189,7 +238,11 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatHeadingBlock(editor, 'h1')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'h1' ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_heading1()}
+          title={comboTitle(
+            m.lexical_tooltip_heading1,
+            m.lexical_shortcuts_heading1,
+            heading1Combo,
+          )}
         >
           <Heading1 className="h-3.5 w-3.5" />
         </Button>
@@ -199,7 +252,11 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatHeadingBlock(editor, 'h2')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'h2' ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_heading2()}
+          title={comboTitle(
+            m.lexical_tooltip_heading2,
+            m.lexical_shortcuts_heading2,
+            heading2Combo,
+          )}
         >
           <Heading2 className="h-3.5 w-3.5" />
         </Button>
@@ -209,7 +266,11 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatHeadingBlock(editor, 'h3')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'h3' ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_heading3()}
+          title={comboTitle(
+            m.lexical_tooltip_heading3,
+            m.lexical_shortcuts_heading3,
+            heading3Combo,
+          )}
         >
           <Heading3 className="h-3.5 w-3.5" />
         </Button>
@@ -227,7 +288,11 @@ export default function Toolbar() {
             editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
           }
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'ul' ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_bullet_list()}
+          title={comboTitle(
+            m.lexical_tooltip_bullet_list,
+            m.lexical_shortcuts_bullet_list,
+            bulletListCombo,
+          )}
         >
           <List className="h-3.5 w-3.5" />
         </Button>
@@ -239,7 +304,11 @@ export default function Toolbar() {
             editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
           }
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'ol' ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_numbered_list()}
+          title={comboTitle(
+            m.lexical_tooltip_numbered_list,
+            m.lexical_shortcuts_numbered_list,
+            numberedListCombo,
+          )}
         >
           <ListOrdered className="h-3.5 w-3.5" />
         </Button>
@@ -249,7 +318,11 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatQuoteBlock(editor)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'quote' ? activeBtnClass : inactiveBtnClass}`}
-          title={m.lexical_tooltip_quote()}
+          title={comboTitle(
+            m.lexical_tooltip_quote,
+            m.lexical_shortcuts_block_quote,
+            quoteCombo,
+          )}
         >
           <Quote className="h-3.5 w-3.5" />
         </Button>
@@ -265,7 +338,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(UNDO_COMMAND, undefined)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${inactiveBtnClass}`}
-          title={m.lexical_tooltip_undo()}
+          title={m.lexical_tooltip_undo({ combo: formatForDisplay('mod+z') })}
         >
           <Undo2 className="h-3.5 w-3.5" />
         </Button>
@@ -275,7 +348,9 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(REDO_COMMAND, undefined)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${inactiveBtnClass}`}
-          title={m.lexical_tooltip_redo()}
+          title={m.lexical_tooltip_redo({
+            combo: formatForDisplay('mod+shift+z'),
+          })}
         >
           <Redo2 className="h-3.5 w-3.5" />
         </Button>

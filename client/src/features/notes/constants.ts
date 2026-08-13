@@ -42,7 +42,7 @@ export const NOTE_VIEW_FILTERS = {
 
 export const DEFAULT_NOTES_QUERY_PARAMS: NotesQueryParams = {
   sort: 'updatedAt,desc',
-  pageSize: 20,
+  pageSize: 10,
   page: 1,
   q: null,
 };
@@ -52,7 +52,7 @@ export const EMPTY_PAGINATED: PaginatedData<Note> = {
   totalPages: 1,
   isLast: true,
   items: [],
-  size: 20,
+  size: 10,
   page: 0,
 };
 

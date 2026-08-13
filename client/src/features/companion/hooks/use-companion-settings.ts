@@ -36,13 +36,15 @@ export function useUpdateCompanionSettingsMutation() {
 
       toast.success(m.settings_page_toast_saved());
     },
+    onError: () => {
+      toast.error(m.settings_page_save_failed(), {
+        description: m.common_error_connection(),
+      });
+    },
     mutationFn: async (args) => {
       const result = await $fetch.api.v1.ai.settings.$put(args);
 
       return result.data;
-    },
-    onError: () => {
-      toast.error(m.settings_page_save_failed());
     },
   });
 }

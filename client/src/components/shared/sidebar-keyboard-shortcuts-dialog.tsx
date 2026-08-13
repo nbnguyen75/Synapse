@@ -33,7 +33,7 @@ export default function KeyboardShortcutsDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={children} />
-      <DialogContent className="sm:max-w-2xl bg-background border border-border shadow-flat-lg rounded-md p-6">
+      <DialogContent className="sm:max-w-4xl bg-background border border-border shadow-flat-lg rounded-md p-6">
         <DialogHeader>
           <DialogTitle className="text-base font-semibold tracking-tight flex items-center gap-2 text-foreground">
             <Keyboard className="h-4 w-4 text-primary" />

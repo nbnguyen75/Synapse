@@ -9,11 +9,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 
-import {
-  useDeleteNote,
-  useGenerateNoteTitle,
-  useGetNote,
-} from '@/features/notes/hooks/api';
+import { useDeleteNote, useGetNote } from '@/features/notes/hooks/api';
 import { noteKeys } from '@/features/notes/keys';
 
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
@@ -48,7 +44,11 @@ export function useNoteDetails(initialData: Note) {
     },
   });
 
-  const { handleSubmit, setValue, control } = form;
+  const {
+    formState: { isDirty },
+    handleSubmit,
+    control,
+  } = form;
 
   const [watchedContent, watchedTitle] = useWatch({
     name: ['content', 'title'],
@@ -70,19 +70,19 @@ export function useNoteDetails(initialData: Note) {
         description: m.notes_page_toast_updated_desc({ title }),
       });
     },
+    onError: () => {
+      toast.error(m.notes_page_toast_update_failed(), {
+        description: m.common_error_connection(),
+      });
+    },
     mutationFn: async (args) => {
       const result = await $fetch.api.v1.notes[':id'].$put(args);
 
       return result.data;
     },
-    onError: () => {
-      toast.error(m.notes_page_toast_update_failed());
-    },
   });
 
   const { isPending: isDeleting, mutate: deleteNote } = useDeleteNote();
-  const { isPending: isGeneratingTitle, mutate: _generateNoteTitle } =
-    useGenerateNoteTitle();
 
   const updateNote = (data: NoteInputPayload) => {
     _updateNote(
@@ -115,19 +115,6 @@ export function useNoteDetails(initialData: Note) {
     );
   };
 
-  const generateNoteTitle = () => {
-    if (!watchedContent?.trim() || isGeneratingTitle) return;
-
-    _generateNoteTitle(
-      { body: { content: watchedContent } },
-      {
-        onSuccess: ({ title }) => {
-          setValue('title', title, { shouldDirty: true });
-        },
-      },
-    );
-  };
-
   const backToNotesPage = () => {
     const to = search.from ? `/${search.from}` : '/notes';
     void navigate({ to });
@@ -136,6 +123,7 @@ export function useNoteDetails(initialData: Note) {
   useFormSaveShortcut({
     isSubmitting: isUpdating || isDeleting,
     onSubmit: updateNote,
+    enabled: isDirty,
     form,
   });
 
@@ -143,21 +131,19 @@ export function useNoteDetails(initialData: Note) {
     actions: {
       saveChanges: handleSubmit(updateNote),
       deleteNotePermanently,
-      generateNoteTitle,
       backToNotesPage,
       setActiveTab,
       updateNote,
-    },
-    status: {
-      isGeneratingTitle,
-      isDeleting,
-      isUpdating,
-      isLoading,
     },
     state: {
       watchedContent,
       watchedTitle,
       activeTab,
+    },
+    status: {
+      isDeleting,
+      isUpdating,
+      isLoading,
     },
     form,
     note,

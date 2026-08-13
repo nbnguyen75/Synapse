@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -28,6 +28,10 @@ export default function CompanionChat({
   const activeConversationId = useCompanionStore(
     (state) => state.activeConversationId,
   );
+  const setActiveConversationId = useCompanionStore(
+    (state) => state.setActiveConversationId,
+  );
+  const capturedConversationIdRef = useRef<string | null>(null);
 
   const { isFetchingNextPage, fetchNextPage, hasNextPage, isLoading, data } =
     useGetConversationMessagesInfiniteQuery(activeConversationId);
@@ -37,11 +41,22 @@ export default function CompanionChat({
     [data],
   );
 
-  const handleConversationId = useCallback(() => {
-    void queryClient.invalidateQueries({
-      queryKey: ['companion-conversations'],
-    });
-  }, [queryClient]);
+  const handleConversationId = useCallback(
+    (conversationId: string) => {
+      capturedConversationIdRef.current = conversationId;
+      void queryClient.invalidateQueries({
+        queryKey: ['companion-conversations'],
+      });
+    },
+    [queryClient],
+  );
+
+  const handleConversationFinish = useCallback(() => {
+    const capturedConversationId = capturedConversationIdRef.current;
+    if (capturedConversationId && activeConversationId === null) {
+      setActiveConversationId(capturedConversationId);
+    }
+  }, [activeConversationId, setActiveConversationId]);
 
   const isLoadingConversation = activeConversationId !== null && isLoading;
 
@@ -66,6 +81,7 @@ export default function CompanionChat({
           messages={activeConversationId ? messages : undefined}
           key={activeConversationId ?? 'new-chat'}
           onConversationId={handleConversationId}
+          onFinish={handleConversationFinish}
           onLoadOlderMessages={
             activeConversationId ? () => fetchNextPage() : undefined
           }

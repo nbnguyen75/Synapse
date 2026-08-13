@@ -25,13 +25,15 @@ export function useDeleteNote() {
         description: m.notes_page_toast_deleted_desc(),
       });
     },
+    onError: () => {
+      toast.error(m.notes_page_toast_delete_failed(), {
+        description: m.common_error_connection(),
+      });
+    },
     mutationFn: async (args) => {
       const result = await $fetch.api.v1.notes[':id'].$delete(args);
 
       return result.data;
-    },
-    onError: () => {
-      toast.error(m.notes_page_toast_delete_failed());
     },
   });
 }

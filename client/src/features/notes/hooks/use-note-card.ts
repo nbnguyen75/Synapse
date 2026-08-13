@@ -13,7 +13,10 @@ import {
   exportMarkdown,
   getMarkdownReadTimeSync,
 } from '@/features/notes/service';
+import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import { noteKeys } from '@/features/notes/keys';
+
+import { useCompanionContextStore } from '@/store/companion-context-store';
 
 import { m } from '@/paraglide/messages';
 import { $fetch } from '@/lib/fetch';
@@ -86,13 +89,34 @@ async function executeNoteAction<T extends NoteActionType>(
 }
 
 const ERROR_TOAST_MAP = {
-  unarchive: () => toast.error(m.notes_page_toast_unarchive_failed()),
-  archive: () => toast.error(m.notes_page_toast_archive_failed()),
-  favorite: () => toast.error(m.notes_page_toast_update_failed()),
-  restore: () => toast.error(m.notes_page_toast_restore_failed()),
-  delete: () => toast.error(m.notes_page_toast_delete_failed()),
-  trash: () => toast.error(m.notes_page_toast_trash_failed()),
-  pin: () => toast.error(m.notes_page_toast_update_failed()),
+  unarchive: () =>
+    toast.error(m.notes_page_toast_unarchive_failed(), {
+      description: m.common_error_connection(),
+    }),
+  archive: () =>
+    toast.error(m.notes_page_toast_archive_failed(), {
+      description: m.common_error_connection(),
+    }),
+  favorite: () =>
+    toast.error(m.notes_page_toast_update_failed(), {
+      description: m.common_error_connection(),
+    }),
+  restore: () =>
+    toast.error(m.notes_page_toast_restore_failed(), {
+      description: m.common_error_connection(),
+    }),
+  delete: () =>
+    toast.error(m.notes_page_toast_delete_failed(), {
+      description: m.common_error_connection(),
+    }),
+  trash: () =>
+    toast.error(m.notes_page_toast_trash_failed(), {
+      description: m.common_error_connection(),
+    }),
+  pin: () =>
+    toast.error(m.notes_page_toast_update_failed(), {
+      description: m.common_error_connection(),
+    }),
 } as const;
 
 type ToastHandler<K extends NoteActionType> = (
@@ -172,8 +196,8 @@ export function useNoteCard({
   // 1. Mutations
   const { mutate: execute, isPending } = useMutation({
     onSuccess: ({ data, type }) => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: noteKeys.detail(note.id) });
+      queryClient.invalidateQueries({ queryKey: noteKeys.all });
+
       (SUCCESS_TOAST_MAP[type] as ToastHandler<typeof type>)?.(data);
     },
     mutationFn: async (type: NoteActionType) => {
@@ -238,6 +262,20 @@ export function useNoteCard({
     });
   };
 
+  const setActiveDocument = useCompanionContextStore(
+    (state) => state.setActiveDocument,
+  );
+  const goToCompanion = useGoToCompanion();
+
+  const includeInChat = useCallback(() => {
+    setActiveDocument({
+      content: note.content ?? '',
+      title: note.title ?? '',
+      id: note.id,
+    });
+    goToCompanion();
+  }, [goToCompanion, note.content, note.id, note.title, setActiveDocument]);
+
   const exportNote = () => {
     exportMarkdown(note);
   };
@@ -259,6 +297,7 @@ export function useNoteCard({
       handleTouchStart,
       handleCardClick,
       handleTouchEnd,
+      includeInChat,
       exportNote,
       openDetail,
       execute,

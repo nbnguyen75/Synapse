@@ -7,7 +7,6 @@ import { useHotkeyRecorder } from '@tanstack/react-hotkeys';
 import { parseHotkey } from '@tanstack/hotkeys';
 
 import { useShortcut } from '@/hooks/use-shortcut';
-import { useIsMac } from '@/hooks/use-is-os';
 
 import { useShortcutsStore } from '@/store/shortcuts-store';
 
@@ -18,20 +17,20 @@ import {
 
 import { m } from '@/paraglide/messages';
 
+import { KeyCombo } from '@/components/shared/key-combo';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Kbd } from '@/components/ui/kbd';
 
 interface ShortcutRemapRowProps {
   entry: KeyboardShortcutEntry;
 }
 
 export function ShortcutRemapRow({ entry }: ShortcutRemapRowProps) {
-  const isMac = useIsMac();
   const overrides = useShortcutsStore((state) => state.overrides);
   const setBinding = useShortcutsStore((state) => state.setBinding);
   const resetBinding = useShortcutsStore((state) => state.resetBinding);
-  const { display, combos } = useShortcut(entry.id);
+  const { combos } = useShortcut(entry.id);
 
   const [isCapturing, setIsCapturing] = useState(false);
   const [attempted, setAttempted] = useState('');
@@ -121,23 +120,7 @@ export function ShortcutRemapRow({ entry }: ShortcutRemapRowProps) {
                 {m.settings_shortcuts_disabled()}
               </span>
             ) : (
-              <span className="flex items-center gap-1">
-                {display.map((token, index) => (
-                  <span
-                    key={`${token}-${index}`}
-                    className="flex items-center gap-1"
-                  >
-                    <Kbd>
-                      {token === 'mod' ? (isMac ? '⌘' : 'Ctrl') : token}
-                    </Kbd>
-                    {index < display.length - 1 && (
-                      <span className="text-[10px] text-muted-foreground">
-                        +
-                      </span>
-                    )}
-                  </span>
-                ))}
-              </span>
+              <KeyCombo combo={combos[0]} />
             )}
 
             <Button

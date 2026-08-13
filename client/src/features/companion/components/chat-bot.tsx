@@ -95,6 +95,7 @@ export interface ChatBotHandle {
 
 interface ChatBotProps {
   onConversationId?: (conversationId: string) => void;
+  onFinish?: (result: { message: UIMessage }) => void;
   isLoadingOlderMessages?: boolean;
   onLoadOlderMessages?: () => void;
   initialConversationId?: string;
@@ -116,6 +117,7 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
     disabled = false,
     centered = false,
     className,
+    onFinish,
   },
   ref,
 ) {
@@ -126,11 +128,15 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
 
   const chat = useCompanionChatSession({
     onError: (error) => {
-      toast.error(m.chat_error_send(), { description: error.message });
+      console.error(error);
+      toast.error(m.chat_error_send(), {
+        description: m.common_error_connection(),
+      });
     },
     initialMessages: loadedMessages,
     initialConversationId,
     onConversationId,
+    onFinish,
   });
 
   useLayoutEffect(() => {

@@ -9,6 +9,7 @@ import {
   getMarkdownReadTimeSync,
   exportMarkdown,
 } from '@/features/notes/service';
+import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import { useNoteDetails } from '@/features/notes/hooks';
 
 import { useCompanionContextStore } from '@/store/companion-context-store';
@@ -37,10 +38,9 @@ import {
   DownloadIcon,
   Edit3Icon,
   EyeIcon,
-  Loader2Icon,
+  MessagesSquareIcon,
   MoreHorizontalIcon,
   SaveIcon,
-  SparklesIcon,
   Trash2Icon,
 } from 'lucide-react';
 
@@ -77,20 +77,19 @@ function NoteDetailsPage() {
   const { actions, status, state, form, note } = useNoteDetails(initialData);
 
   const { watchedContent, watchedTitle, activeTab } = state;
-  const { control } = form;
   const {
-    deleteNotePermanently,
-    generateNoteTitle,
-    backToNotesPage,
-    setActiveTab,
-    saveChanges,
-  } = actions;
-  const { isGeneratingTitle, isDeleting, isUpdating } = status;
+    formState: { isDirty },
+    control,
+  } = form;
+  const { deleteNotePermanently, backToNotesPage, setActiveTab, saveChanges } =
+    actions;
+  const { isDeleting, isUpdating } = status;
 
   const { noteId } = useParams({ from: '/_app/notes/$noteId' });
   const setActiveDocument = useCompanionContextStore(
     (state) => state.setActiveDocument,
   );
+  const goToCompanion = useGoToCompanion();
 
   useEffect(() => {
     setActiveDocument({
@@ -126,7 +125,7 @@ function NoteDetailsPage() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={isUpdating || isDeleting}
+                disabled={isUpdating || isDeleting || !isDirty}
                 className="h-8 gap-1.5 text-xs font-semibold rounded-md"
               >
                 <SaveIcon className="size-3.5" />
@@ -178,16 +177,11 @@ function NoteDetailsPage() {
 
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem
-                    disabled={isGeneratingTitle || !watchedContent.trim()}
-                    onClick={generateNoteTitle}
+                    onClick={goToCompanion}
                     className="cursor-pointer"
                   >
-                    {isGeneratingTitle ? (
-                      <Loader2Icon className="size-4 mr-2 text-violet-500 animate-spin" />
-                    ) : (
-                      <SparklesIcon className="size-4 mr-2 text-violet-500" />
-                    )}
-                    <span>{m.notes_page_ai_generate_title()}</span>
+                    <MessagesSquareIcon className="size-4 mr-2 text-violet-500" />
+                    <span>{m.notes_page_include_in_chat()}</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem

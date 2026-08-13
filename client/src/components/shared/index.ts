@@ -17,3 +17,4 @@ export { default as SelectionToolbar } from './selection-toolbar';
 export { default as AppBreadcrumb } from './app-breadcrumb';
 export { default as SearchInput } from './search-input';
 export { default as Paginator } from './paginator';
+export { KeyCombo } from './key-combo';

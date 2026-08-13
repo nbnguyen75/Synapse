@@ -38,15 +38,42 @@ export function showBulkNoteActionSuccessToast(action: BulkNoteAction) {
 }
 
 const ERROR_TOAST_MAP: Record<BulkNoteAction, () => void> = {
-  DELETE_PERMANENT: () => toast.error(m.notes_page_toast_delete_failed()),
-  UNARCHIVE: () => toast.error(m.notes_page_toast_unarchive_failed()),
-  UNFAVORITE: () => toast.error(m.notes_page_toast_update_failed()),
-  ARCHIVE: () => toast.error(m.notes_page_toast_archive_failed()),
-  FAVORITE: () => toast.error(m.notes_page_toast_update_failed()),
-  RESTORE: () => toast.error(m.notes_page_toast_restore_failed()),
-  UNPIN: () => toast.error(m.notes_page_toast_update_failed()),
-  TRASH: () => toast.error(m.notes_page_toast_trash_failed()),
-  PIN: () => toast.error(m.notes_page_toast_update_failed()),
+  DELETE_PERMANENT: () =>
+    toast.error(m.notes_page_toast_delete_failed(), {
+      description: m.common_error_connection(),
+    }),
+  UNARCHIVE: () =>
+    toast.error(m.notes_page_toast_unarchive_failed(), {
+      description: m.common_error_connection(),
+    }),
+  UNFAVORITE: () =>
+    toast.error(m.notes_page_toast_update_failed(), {
+      description: m.common_error_connection(),
+    }),
+  ARCHIVE: () =>
+    toast.error(m.notes_page_toast_archive_failed(), {
+      description: m.common_error_connection(),
+    }),
+  FAVORITE: () =>
+    toast.error(m.notes_page_toast_update_failed(), {
+      description: m.common_error_connection(),
+    }),
+  RESTORE: () =>
+    toast.error(m.notes_page_toast_restore_failed(), {
+      description: m.common_error_connection(),
+    }),
+  UNPIN: () =>
+    toast.error(m.notes_page_toast_update_failed(), {
+      description: m.common_error_connection(),
+    }),
+  TRASH: () =>
+    toast.error(m.notes_page_toast_trash_failed(), {
+      description: m.common_error_connection(),
+    }),
+  PIN: () =>
+    toast.error(m.notes_page_toast_update_failed(), {
+      description: m.common_error_connection(),
+    }),
 };
 
 export function showBulkNoteActionErrorToast(action: BulkNoteAction) {

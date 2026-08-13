@@ -22,11 +22,13 @@ export function useGenerateNoteTitle() {
 
       return result.data;
     },
+    onError: () => {
+      toast.error(m.notes_page_ai_title_failed(), {
+        description: m.common_error_connection(),
+      });
+    },
     onSuccess: () => {
       toast.success(m.notes_page_ai_title_success());
-    },
-    onError: () => {
-      toast.error(m.notes_page_ai_title_failed());
     },
   });
 }

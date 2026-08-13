@@ -25,7 +25,7 @@ export default function CommandPaletteSearchResults({
   return (
     <div
       ref={resultsRef}
-      className="max-h-[340px] overflow-y-auto p-2 space-y-1 bg-background/20"
+      className="max-h-85 overflow-y-auto p-2 space-y-1 bg-background/20"
     >
       {searchResults.length === 0 ? (
         <div className="py-12 px-4 text-center">
@@ -55,6 +55,11 @@ export default function CommandPaletteSearchResults({
               data-index={idx}
               onClick={item.action}
               onMouseEnter={() => onSelectIndex(idx)}
+              onPointerMove={(e) => {
+                if (e.movementX !== 0 || e.movementY !== 0) {
+                  onSelectIndex(idx);
+                }
+              }}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all ${
                 isSelected
                   ? 'bg-accent text-accent-foreground shadow-sm'

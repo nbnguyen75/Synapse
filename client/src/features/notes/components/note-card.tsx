@@ -40,6 +40,7 @@ import {
   Undo2Icon,
   RotateCcwIcon,
   XCircleIcon,
+  MessagesSquareIcon,
 } from 'lucide-react';
 
 interface NoteWithDetails extends Note {
@@ -73,6 +74,7 @@ function NoteCard({
     handleTouchStart,
     handleCardClick,
     handleTouchEnd,
+    includeInChat,
     exportNote,
     openDetail,
     execute,
@@ -199,6 +201,13 @@ function NoteCard({
                     <FileTextIcon className="mr-2 size-3.5" />
                     {m.notes_page_card_open_doc()}
                   </DropdownMenuItem>
+
+                  {viewMode !== 'trash' && (
+                    <DropdownMenuItem onClick={includeInChat}>
+                      <MessagesSquareIcon className="mr-2 size-3.5 text-violet-500" />
+                      {m.notes_page_include_in_chat()}
+                    </DropdownMenuItem>
+                  )}
 
                   <DropdownMenuItem onClick={exportNote}>
                     <DownloadIcon className="mr-2 size-3.5" />

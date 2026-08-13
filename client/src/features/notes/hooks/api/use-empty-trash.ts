@@ -38,13 +38,15 @@ export function useEmptyTrash(
 
       toast.success(m.notes_page_toast_empty_trash());
     },
+    onError: () => {
+      toast.error(m.notes_page_toast_empty_trash_failed(), {
+        description: m.common_error_connection(),
+      });
+    },
     mutationFn: async () => {
       const result = await $fetch.api.v1.notes.trash.$delete();
 
       return result.data;
-    },
-    onError: () => {
-      toast.error(m.notes_page_toast_trash_failed());
     },
   });
 

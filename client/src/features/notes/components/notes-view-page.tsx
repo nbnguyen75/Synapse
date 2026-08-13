@@ -1,5 +1,7 @@
 import type { NoteViewMode } from '@/features/notes/types';
 
+import { useEffect, useRef } from 'react';
+
 import {
   NotesList,
   NoteCard,
@@ -20,7 +22,6 @@ import {
   PageHeaderTitle,
   PageHeaderToolbar,
 } from '@/components/shared/page-header';
-import { Paginator } from '@/components/shared';
 
 import {
   Select,
@@ -31,14 +32,14 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 
-import { PlusIcon, Trash2Icon } from 'lucide-react';
+import { Loader2Icon, PlusIcon, Trash2Icon } from 'lucide-react';
 
 interface NotesViewPageProps {
   viewMode: NoteViewMode;
 }
 
 export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
-  const { pagination, selection, actions, config, status, state, data } =
+  const { selection, infinite, actions, config, status, state, data } =
     useNotesView(viewMode);
 
   const { isBulkActive, sort } = state;
@@ -49,6 +50,30 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
   const { emptyVariant, description, title } = config;
   const { executeEmptyTrash, executeBulkAction, navigateToCreate, changeSort } =
     actions;
+  const { isFetchingNextPage, fetchNextPage, hasNextPage } = infinite;
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries.some((entry) => entry.isIntersecting) &&
+          !isFetchingNextPage
+        ) {
+          void fetchNextPage();
+        }
+      },
+      { root: scrollRef.current, rootMargin: '200px' },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -104,7 +129,10 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
       {/* <NotesTagFilter /> */}
 
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto scrollbar-none px-6 py-6 @container">
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto scrollbar-none px-6 py-6 @container"
+        >
           <NotesList
             isLoading={isLoading}
             notes={notes}
@@ -128,6 +156,17 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
               />
             )}
           />
+
+          {notes.length > 0 && hasNextPage && (
+            <div
+              ref={sentinelRef}
+              className="flex h-12 items-center justify-center py-4"
+            >
+              {isFetchingNextPage && (
+                <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
+              )}
+            </div>
+          )}
         </div>
 
         <NotesBulkActions
@@ -136,17 +175,6 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
           selectedIds={selectedIds}
           onClearSelection={clearSelection}
           onBulkAction={executeBulkAction}
-        />
-
-        <Paginator
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          isFirstPage={pagination.isFirstPage}
-          isLastPage={pagination.isLastPage}
-          onFirstPage={pagination.firstPage}
-          onPrevPage={pagination.prevPage}
-          onNextPage={pagination.nextPage}
-          onLastPage={pagination.lastPage}
         />
       </div>
 

@@ -20,6 +20,7 @@ import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion
 import { useGetNotes, type Note } from '@/features/notes';
 
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
+import { useDebounce } from '@/hooks/use-debounce';
 
 import { useTheme } from '@/providers/theme-provider';
 
@@ -57,7 +58,13 @@ export default function CommandPalette() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  const { data } = useGetNotes();
+  const debouncedSearch = useDebounce(search, 150);
+  const { data } = useGetNotes({
+    sort: ['updatedAt,desc'],
+    q: debouncedSearch,
+    pageSize: 10,
+    page: 1,
+  });
   const notes = useMemo<Note[]>(() => data.items ?? [], [data.items]);
 
   const focusInput = () => {
@@ -107,7 +114,7 @@ export default function CommandPalette() {
     { allowWhenTyping: true },
   );
 
-  const titlePart = search.replace(/^\/create\s*/i, '').trim();
+  const contentPart = search.replace(/^\/create\s*/i, '').trim();
 
   const slashCommands = useMemo<CommandItem[]>(
     () => [
@@ -199,14 +206,14 @@ export default function CommandPalette() {
         action: () => {
           setIsOpen(false);
           navigate({
-            search: titlePart ? { content: titlePart } : undefined,
+            search: contentPart ? { content: contentPart.trim() } : undefined,
             to: '/notes/create',
           });
         },
-        title: titlePart
-          ? m.command_palette_create_title_with_title({ title: titlePart })
+        title: contentPart
+          ? m.command_palette_create_title_with_title({ content: contentPart })
           : m.command_palette_title_create_note(),
-        subtitle: titlePart
+        subtitle: contentPart
           ? m.command_palette_create_subtitle_with_title()
           : m.command_palette_create_subtitle_empty(),
         command: '/create',
@@ -214,7 +221,7 @@ export default function CommandPalette() {
         icon: PlusIcon,
       },
     ],
-    [theme, notes, search, navigate, toggleTheme, titlePart],
+    [theme, notes, search, navigate, toggleTheme, contentPart],
   );
 
   const staticCommands = useMemo<CommandItem[]>(
@@ -282,10 +289,7 @@ export default function CommandPalette() {
 
   const handleOpenNote = (note: NoteItem) => {
     setIsOpen(false);
-    navigate({ to: '/notes' });
-    setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('open-edit-note', { detail: note }));
-    }, 100);
+    navigate({ params: { noteId: note.id }, to: '/notes/$noteId' });
   };
 
   const searchResults = useMemo<CommandItem[]>(() => {
@@ -302,19 +306,11 @@ export default function CommandPalette() {
       return createCmd ? [createCmd, ...staticCommands] : staticCommands;
     }
 
-    const matchingNotes = notes.filter(
-      (note) =>
-        note.title.toLowerCase().includes(term.toLowerCase()) ||
-        note.content?.toLowerCase().includes(term.toLowerCase()),
-    );
-
-    const MAX_DISPLAY_NOTES = 10;
-    const topNotes = matchingNotes.slice(0, MAX_DISPLAY_NOTES);
-
-    const notesResults: CommandItem[] = topNotes.map((note) => {
+    // 1. Map danh sách notes từ BE với xử lý fallback ngôn ngữ và cắt ngắn preview
+    const notesResults: CommandItem[] = notes.map((note) => {
       const content = note.content ?? '';
       const preview =
-        content.length > 70 ? `${content.slice(0, 70)}...` : content;
+        content.length > 150 ? `${content.slice(0, 150)}...` : content;
 
       return {
         subtitle: preview || m.command_palette_note_no_content(),
@@ -325,6 +321,7 @@ export default function CommandPalette() {
       };
     });
 
+    // 2. Lọc staticCommands theo từ khóa tìm kiếm
     const filteredCommands = staticCommands.filter(
       (cmd) =>
         cmd.title.toLowerCase().includes(term.toLowerCase()) ||
@@ -336,7 +333,8 @@ export default function CommandPalette() {
       ...filteredCommands,
     ];
 
-    if (matchingNotes.length > MAX_DISPLAY_NOTES) {
+    const totalCount = data?.totalElements ?? 0;
+    if (totalCount > 10) {
       combinedResults.push({
         action: () => {
           setIsOpen(false);
@@ -346,7 +344,7 @@ export default function CommandPalette() {
           });
         },
         title: m.command_palette_view_all_title({
-          count: matchingNotes.length,
+          count: totalCount,
           term,
         }),
         subtitle: m.command_palette_view_all_subtitle(),
@@ -356,7 +354,14 @@ export default function CommandPalette() {
     }
 
     return combinedResults;
-  }, [search, notes, staticCommands, slashCommands, navigate]);
+  }, [
+    search,
+    notes,
+    data?.totalElements,
+    staticCommands,
+    slashCommands,
+    navigate,
+  ]);
 
   const boundedSelectedIndex =
     searchResults.length > 0
@@ -376,6 +381,24 @@ export default function CommandPalette() {
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setSelectedIndex(0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev + 1) % (searchResults.length || 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(
+        (prev) =>
+          (prev - 1 + searchResults.length) % (searchResults.length || 1),
+      );
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (searchResults[boundedSelectedIndex]) {
+        void searchResults[boundedSelectedIndex].action();
+      }
+    }
   };
 
   useHotkeys(
@@ -437,7 +460,7 @@ export default function CommandPalette() {
       <DialogContent
         ref={dialogRef}
         showCloseButton={false}
-        className="sm:max-w-2xl max-h-120 h-full bg-popover/95 backdrop-blur-md rounded-2xl border border-border/60 shadow-2xl p-0 overflow-hidden gap-0 flex flex-col"
+        className="sm:max-w-2xl max-h-120 bg-popover/95 backdrop-blur-md rounded-2xl border border-border/60 shadow-2xl p-0 overflow-hidden gap-0 flex flex-col"
       >
         {commandOutput ? (
           <CommandPaletteOutput
@@ -456,6 +479,7 @@ export default function CommandPalette() {
               inputRef={inputRef}
               search={search}
               onSearchChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
             />
 
             <CommandPaletteSearchResults

@@ -1,22 +1,23 @@
 import type { NotesQueryParams } from '@/features/notes/schemas';
 import type { NoteViewMode } from '@/features/notes/types';
 
+import { useMemo } from 'react';
+
 import { useNavigate, useSearch } from '@tanstack/react-router';
 
 import {
   useEmptyTrash,
-  useGetNotes,
+  useInfiniteNotes,
   useNotesBulkAction,
 } from '@/features/notes/hooks/api';
-import { EMPTY_PAGINATED, NOTE_VIEW_CONFIG } from '@/features/notes/constants';
+import { NOTE_VIEW_CONFIG } from '@/features/notes/constants';
 
 import { useMultiSelect } from '@/hooks/use-multi-select';
-import { usePagination } from '@/hooks/use-pagination';
 
 export function useNotesView(viewMode: NoteViewMode) {
   const navigate = useNavigate();
   const search = useSearch({ from: '/_app/notes/_list' });
-  const { q: query, sort, page } = search;
+  const { q: query, sort } = search;
 
   // 1. Config & Param Calculations
   const {
@@ -32,8 +33,15 @@ export function useNotesView(viewMode: NoteViewMode) {
     sort: viewMode === 'active' ? ['pinned,desc', sort] : [sort],
   };
 
-  const { data = EMPTY_PAGINATED, isLoading } = useGetNotes(apiParams);
-  const { totalElements, items: notes, totalPages } = data;
+  const { page, ...stableParams } = apiParams;
+
+  const { isFetchingNextPage, fetchNextPage, hasNextPage, isLoading, data } =
+    useInfiniteNotes(stableParams, page);
+  const notes = useMemo(
+    () => data?.pages.flatMap((page) => page.items) ?? [],
+    [data],
+  );
+  const totalElements = data?.pages[0]?.totalElements ?? 0;
 
   const multiSelect = useMultiSelect();
 
@@ -46,20 +54,7 @@ export function useNotesView(viewMode: NoteViewMode) {
     onSuccess: () => multiSelect.clearSelection(),
   });
 
-  // 4. Pagination
-  const pagination = usePagination({
-    onPageChange: (newPage: number) => {
-      void navigate({
-        search: (prev) => ({ ...prev, page: newPage }),
-        to: '.',
-      });
-    },
-    totalItems: totalElements,
-    currentPage: page,
-    totalPages,
-  });
-
-  // 5. Actions / Navigation Handlers
+  // 4. Actions / Navigation Handlers
   const changeSort = (newSort?: NotesQueryParams['sort']) => {
     void navigate({
       search: (prev) => ({
@@ -90,6 +85,11 @@ export function useNotesView(viewMode: NoteViewMode) {
       navigateToCreate,
       changeSort,
     },
+    infinite: {
+      isFetchingNextPage,
+      fetchNextPage,
+      hasNextPage,
+    },
     data: {
       totalElements,
       notes,
@@ -102,6 +102,5 @@ export function useNotesView(viewMode: NoteViewMode) {
       isLoading,
     },
     selection: multiSelect,
-    pagination,
   };
 }

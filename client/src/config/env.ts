@@ -4,6 +4,8 @@ import { z } from 'zod';
 export const env = createEnv({
   client: {
     VITE_APP_NAME: z.string().min(1).optional().default('Synapse'),
+    VITE_APP_VERSION: z.string().default('v1.0.0-dev'),
+
     VITE_API_URL: z.url().optional(),
   },
 

@@ -68,7 +68,9 @@ export function useRenameConversationMutation() {
       return result.data;
     },
     onError: () => {
-      toast.error(m.chat_conversation_toast_failed());
+      toast.error(m.chat_conversation_toast_failed(), {
+        description: m.common_error_connection(),
+      });
     },
   });
 }
@@ -93,7 +95,9 @@ export function useDeleteConversationMutation() {
       return result.data;
     },
     onError: () => {
-      toast.error(m.chat_conversation_toast_failed());
+      toast.error(m.chat_conversation_delete_failed(), {
+        description: m.common_error_connection(),
+      });
     },
   });
 }
@@ -125,7 +129,9 @@ export function useToggleConversationFavoriteMutation() {
       return result.data;
     },
     onError: () => {
-      toast.error(m.chat_conversation_toast_failed());
+      toast.error(m.chat_conversation_toast_failed(), {
+        description: m.common_error_connection(),
+      });
     },
   });
 }
