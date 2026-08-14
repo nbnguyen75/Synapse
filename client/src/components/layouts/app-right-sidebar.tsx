@@ -2,8 +2,6 @@ import type { ChatBotHandle } from '@/features/companion/components/chat-bot';
 
 import { useRef } from 'react';
 
-import CompanionQuickActions from '@/features/companion/components/companion-quick-actions';
-import CompanionContextBar from '@/features/companion/components/companion-context-bar';
 import CompanionChat from '@/features/companion/components/companion-chat';
 
 import { useSettingsStore } from '@/store/settings-store';
@@ -36,11 +34,6 @@ export default function AppRightSidebar({ className }: { className?: string }) {
         >
           <XIcon className="h-4 w-4" />
         </Button>
-
-        <div className="flex flex-col gap-2 px-1">
-          <CompanionContextBar />
-          <CompanionQuickActions chatRef={chatRef} />
-        </div>
       </div>
 
       <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-auto">

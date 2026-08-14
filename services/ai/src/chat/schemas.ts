@@ -25,6 +25,12 @@ const looseUIMessageSchema = z.object({
 });
 
 export const chatRequestSchema = z.object({
+	parentMessageId: z.string().optional(),
 	conversationId: z.uuid().optional(),
 	message: looseUIMessageSchema
+});
+
+export const regenerateRequestSchema = z.object({
+	assistantMessageId: z.string(),
+	conversationId: z.uuid()
 });

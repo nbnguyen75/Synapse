@@ -1,8 +1,6 @@
 import { Controller } from 'react-hook-form';
 
-import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
-
-import { z } from 'zod/v4';
+import { createFileRoute } from '@tanstack/react-router';
 
 import { useNoteCreate } from '@/features/notes/hooks';
 
@@ -39,20 +37,11 @@ export const Route = createFileRoute('/_app/notes/create')({
   head: () => ({
     meta: [{ title: createTitle(m.notes_page_create_page_title()) }],
   }),
-  search: {
-    middlewares: [stripSearchParams({ content: '' })],
-  },
-  validateSearch: z.object({
-    content: z.string().optional(),
-  }),
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { content } = Route.useSearch();
-  const { actions, status, state, form } = useNoteCreate({
-    initialContent: content,
-  });
+  const { actions, status, state, form } = useNoteCreate();
 
   const { watchedContent } = state;
   const {
@@ -163,7 +152,7 @@ function RouteComponent() {
                   )}
                 />
 
-                <div className="flex flex-wrap items-center gap-1.5 pt-1 pb-3 text-xs text-muted-foreground/80">
+                {/* <div className="flex flex-wrap items-center gap-1.5 pt-1 pb-3 text-xs text-muted-foreground/80">
                   <TagIcon className="size-3.5 text-muted-foreground/60 mr-1" />
                   <Input
                     type="text"
@@ -172,7 +161,7 @@ function RouteComponent() {
                     placeholder={m.notes_page_tags_placeholder()}
                     className="h-6 border-none shadow-none focus-visible:ring-0 p-0 text-xs bg-transparent max-w-70 placeholder:text-muted-foreground/40"
                   />
-                </div>
+                </div> */}
 
                 <TabsContent
                   value="create"

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 
 import { createFileRoute, redirect, useParams } from '@tanstack/react-router';
 
+import { toast } from 'sonner';
 import { z } from 'zod/v4';
 
 import {
@@ -12,6 +13,10 @@ import {
 import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import { useNoteDetails } from '@/features/notes/hooks';
 
+import {
+  buildNoteChatAttachment,
+  useChatNoteAttachmentStore,
+} from '@/store/chat-note-attachment-store';
 import { useCompanionContextStore } from '@/store/companion-context-store';
 
 import { createTitle } from '@/config/metadata';
@@ -35,13 +40,16 @@ import { Input } from '@/components/ui/input';
 import {
   ArrowLeftIcon,
   ClockIcon,
+  CopyIcon,
   DownloadIcon,
   Edit3Icon,
   EyeIcon,
   MessagesSquareIcon,
   MoreHorizontalIcon,
+  RotateCcwIcon,
   SaveIcon,
   Trash2Icon,
+  XCircleIcon,
 } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/notes/$noteId')({
@@ -81,15 +89,41 @@ function NoteDetailsPage() {
     formState: { isDirty },
     control,
   } = form;
-  const { deleteNotePermanently, backToNotesPage, setActiveTab, saveChanges } =
-    actions;
-  const { isDeleting, isUpdating } = status;
+  const {
+    deleteNotePermanently,
+    backToNotesPage,
+    moveNoteToTrash,
+    setActiveTab,
+    restoreNote,
+    saveChanges,
+    copyContent,
+  } = actions;
+  const { isRestoring, isDeleting, isTrashing, isUpdating } = status;
 
   const { noteId } = useParams({ from: '/_app/notes/$noteId' });
   const setActiveDocument = useCompanionContextStore(
     (state) => state.setActiveDocument,
   );
+  const addNoteAttachment = useChatNoteAttachmentStore((state) => state.add);
   const goToCompanion = useGoToCompanion();
+
+  const includeInChat = () => {
+    const added = addNoteAttachment(
+      buildNoteChatAttachment({
+        content: watchedContent ?? '',
+        title: watchedTitle ?? '',
+        id: noteId,
+      }),
+    );
+    if (!added) {
+      toast.error(m.chat_attachments_max());
+      return;
+    }
+    goToCompanion();
+  };
+
+  const isTrashed = note.trashed;
+  const isBusy = isUpdating || isDeleting || isTrashing || isRestoring;
 
   useEffect(() => {
     setActiveDocument({
@@ -109,7 +143,7 @@ function NoteDetailsPage() {
         onValueChange={setActiveTab}
         className="flex h-full flex-col"
       >
-        <div className="flex h-full flex-col">
+        <div className="flex h-full flex-col @container/page-header">
           <div className="flex items-center justify-between border-b border-border/40 bg-background/80 px-4 md:px-8 py-2.5 backdrop-blur-md sticky top-0 z-20">
             <div className="flex items-center gap-3">
               <Button
@@ -125,7 +159,7 @@ function NoteDetailsPage() {
               <Button
                 type="submit"
                 size="sm"
-                disabled={isUpdating || isDeleting || !isDirty}
+                disabled={isBusy || !isDirty}
                 className="h-8 gap-1.5 text-xs font-semibold rounded-md"
               >
                 <SaveIcon className="size-3.5" />
@@ -136,7 +170,7 @@ function NoteDetailsPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="hidden sm:flex text-[11px] font-medium text-muted-foreground items-center gap-1 px-2 py-1 rounded-md">
+              <span className="hidden @2xl/page-header:flex text-[11px] font-medium text-muted-foreground items-center gap-1 px-2 py-1 rounded-md">
                 <ClockIcon className="size-3" />
                 {getMarkdownReadTimeSync(watchedContent)}
               </span>
@@ -145,7 +179,7 @@ function NoteDetailsPage() {
                 <TabsTrigger
                   value="edit"
                   className="h-7 text-xs px-3 gap-1.5 rounded-md font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs"
-                  disabled={isUpdating || isDeleting}
+                  disabled={isBusy}
                 >
                   <Edit3Icon className="size-3.5" />
                   {m.notes_page_edit_tab_edit()}
@@ -154,7 +188,7 @@ function NoteDetailsPage() {
                 <TabsTrigger
                   value="preview"
                   className="h-7 text-xs px-3 gap-1.5 rounded-md font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs"
-                  disabled={isUpdating || isDeleting}
+                  disabled={isBusy}
                 >
                   <EyeIcon className="size-3.5" />
                   {m.notes_page_edit_preview()}
@@ -168,20 +202,29 @@ function NoteDetailsPage() {
                       variant="ghost"
                       size="icon-sm"
                       className="rounded-lg"
-                      disabled={isUpdating || isDeleting}
+                      disabled={isBusy}
                     >
                       <MoreHorizontalIcon className="size-4" />
                     </Button>
                   }
                 />
 
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-52">
                   <DropdownMenuItem
-                    onClick={goToCompanion}
+                    onClick={includeInChat}
                     className="cursor-pointer"
+                    disabled
                   >
                     <MessagesSquareIcon className="size-4 mr-2 text-violet-500" />
                     <span>{m.notes_page_include_in_chat()}</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => copyContent(watchedContent)}
+                    className="cursor-pointer"
+                  >
+                    <CopyIcon className="size-4 mr-2" />
+                    <span>{m.notes_page_card_copy_content()}</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
@@ -201,13 +244,31 @@ function NoteDetailsPage() {
 
                   <DropdownMenuSeparator />
 
+                  {isTrashed ? (
+                    <DropdownMenuItem
+                      onClick={restoreNote}
+                      className="cursor-pointer"
+                    >
+                      <RotateCcwIcon className="size-4 mr-2" />
+                      <span>{m.notes_card_restore()}</span>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      onClick={moveNoteToTrash}
+                      className="cursor-pointer"
+                    >
+                      <Trash2Icon className="size-4 mr-2" />
+                      <span>{m.notes_page_action_trash()}</span>
+                    </DropdownMenuItem>
+                  )}
+
                   <DropdownMenuItem
                     onClick={deleteNotePermanently}
                     variant="destructive"
                     className="cursor-pointer"
                   >
-                    <Trash2Icon className="size-4 mr-2" />
-                    <span>{m.notes_page_delete_title()}</span>
+                    <XCircleIcon className="size-4 mr-2" />
+                    <span>{m.notes_card_delete_permanent()}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -225,7 +286,7 @@ function NoteDetailsPage() {
                       {...field}
                       placeholder={m.notes_page_untitled_placeholder()}
                       className="w-full resize-none bg-transparent text-3xl md:text-4xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7 px-0"
-                      disabled={isUpdating || isDeleting}
+                      disabled={isBusy}
                     />
                   )}
                 />
@@ -238,7 +299,7 @@ function NoteDetailsPage() {
                     value=""
                     placeholder={m.notes_page_tags_placeholder()}
                     className="h-6 border-none shadow-none focus-visible:ring-0 p-0 text-xs bg-transparent max-w-70 placeholder:text-muted-foreground/40"
-                    disabled={isUpdating || isDeleting}
+                    disabled={isBusy}
                   />
                 </div> */}
 
@@ -254,7 +315,7 @@ function NoteDetailsPage() {
                         value={field.value ?? ''}
                         onChange={field.onChange}
                         className="h-full max-h-120"
-                        disabled={isUpdating || isDeleting}
+                        disabled={isBusy}
                         placeholder={m.notes_page_lexical_placeholder()}
                       />
                     )}

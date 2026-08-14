@@ -1,14 +1,14 @@
 import type { UIMessage } from 'ai';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useChat } from '@ai-sdk/react';
 
 import { CompanionChatTransport } from '@/features/companion/config/companion-chat-transport';
 
 export interface UseCompanionChatSessionOptions {
+  onFinish?: (result: { message: UIMessage; isError?: boolean }) => void;
   onConversationId?: (conversationId: string) => void;
-  onFinish?: (result: { message: UIMessage }) => void;
   extraMetadata?: Record<string, unknown>;
   onError?: (error: Error) => void;
   initialConversationId?: string;
@@ -23,14 +23,17 @@ export function useCompanionChatSession({
   onFinish,
   onError,
 }: UseCompanionChatSessionOptions) {
-  const [chatId] = useState(() => initialConversationId ?? 'new-chat');
-  const [transport] = useState(
+  const chatId = initialConversationId ?? 'new-chat';
+  const initializedIdRef = useRef<string | null>(null);
+
+  const transport = useMemo(
     () =>
       new CompanionChatTransport(
         initialConversationId,
         onConversationId,
         extraMetadata ? () => extraMetadata : undefined,
       ),
+    [initialConversationId, onConversationId, extraMetadata],
   );
 
   const chat = useChat({
@@ -40,6 +43,20 @@ export function useCompanionChatSession({
     onFinish,
     onError,
   });
+
+  useEffect(() => {
+    if (!initialConversationId) {
+      initializedIdRef.current = null;
+      return;
+    }
+
+    if (initializedIdRef.current !== initialConversationId) {
+      if (initialMessages && initialMessages.length > 0) {
+        chat.setMessages(initialMessages);
+        initializedIdRef.current = initialConversationId;
+      }
+    }
+  }, [initialConversationId, initialMessages, chat]);
 
   return chat;
 }

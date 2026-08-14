@@ -100,7 +100,7 @@ function AppLayout() {
   const rightPanelOpen = layoutMode === 'agent' && rightSidebar.open;
 
   return (
-    <>
+    <ConfirmProvider>
       <CommandPalette />
 
       <AppGlobalKeybinds />
@@ -117,11 +117,9 @@ function AppLayout() {
                 <div className="flex h-full w-full flex-col overflow-hidden bg-background">
                   <AppTopHeader />
 
-                  <ConfirmProvider>
-                    <main className="overflow-y-auto min-h-0 flex-1 p-3">
-                      <Outlet />
-                    </main>
-                  </ConfirmProvider>
+                  <main className="overflow-y-auto min-h-0 flex-1 p-3">
+                    <Outlet />
+                  </main>
                 </div>
 
                 <Sheet open={rightPanelOpen} onOpenChange={setRightSidebarOpen}>
@@ -142,11 +140,9 @@ function AppLayout() {
                 <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
                   <AppTopHeader />
 
-                  <ConfirmProvider>
-                    <main className="overflow-y-auto min-h-0 flex-1 p-3">
-                      <Outlet />
-                    </main>
-                  </ConfirmProvider>
+                  <main className="overflow-y-auto min-h-0 flex-1 p-3">
+                    <Outlet />
+                  </main>
                 </ResizablePanel>
 
                 <ResizableHandle withHandle />
@@ -166,6 +162,6 @@ function AppLayout() {
           </SidebarInset>
         </SidebarProvider>
       </SidebarManagerProvider>
-    </>
+    </ConfirmProvider>
   );
 }

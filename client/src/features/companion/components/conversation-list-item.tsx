@@ -15,18 +15,10 @@ import { renameConversationSchema } from '@/features/companion/schemas';
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+import { useConfirm } from '@/providers/confirm-provider';
+
 import { m } from '@/paraglide/messages';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,8 +62,8 @@ export function ConversationListItem({
   onSelect,
 }: ConversationListItemProps) {
   const isMobile = useIsMobile();
+  const confirm = useConfirm();
   const [isRenameOpen, setIsRenameOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const { mutate: renameConversation } = useRenameConversationMutation();
   const { mutate: deleteConversation } = useDeleteConversationMutation();
@@ -109,7 +101,19 @@ export function ConversationListItem({
       { params: { id: conversation.id } },
       { onSuccess: () => onDeleted(conversation.id) },
     );
-    setIsDeleteOpen(false);
+  };
+
+  const handleDeleteClick = async () => {
+    const confirmed = await confirm({
+      description: m.chat_conversation_delete_description(),
+      confirmText: m.chat_conversation_delete_confirm(),
+      cancelText: m.chat_conversation_rename_cancel(),
+      title: m.chat_conversation_delete_title(),
+      variant: 'destructive',
+    });
+    if (confirmed) {
+      handleDeleteConfirm();
+    }
   };
 
   const handleToggleFavorite = () => {
@@ -164,10 +168,7 @@ export function ConversationListItem({
             {m.chat_conversation_action_rename()}
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => setIsDeleteOpen(true)}
-          >
+          <DropdownMenuItem variant="destructive" onClick={handleDeleteClick}>
             <Trash2Icon className="size-4" />
             {m.chat_conversation_action_delete()}
           </DropdownMenuItem>
@@ -219,28 +220,6 @@ export function ConversationListItem({
           </form>
         </DialogContent>
       </Dialog>
-
-      <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {m.chat_conversation_delete_title()}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {m.chat_conversation_delete_description()}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter>
-            <AlertDialogCancel>
-              {m.chat_conversation_rename_cancel()}
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>
-              {m.chat_conversation_delete_confirm()}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </SidebarMenuItem>
   );
 }

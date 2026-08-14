@@ -2,14 +2,18 @@ import { Hono } from 'hono';
 
 import {
 	checkConversationOwnership,
+	cloneConversation,
 	deleteConversation,
 	listConversations,
 	loadMessagesPage,
 	renameConversation,
+	setConversationCurrentMessage,
 	setConversationFavorite
 } from '@/conversation/services';
 import {
+	cloneConversationSchema,
 	conversationIdParamSchema,
+	currentMessageSchema,
 	favoriteConversationSchema,
 	messagesQuerySchema,
 	renameConversationSchema
@@ -67,6 +71,30 @@ const conversationRoute = new Hono()
 			const { favorited } = c.req.valid('json');
 
 			await setConversationFavorite(c.get('userId'), id, favorited);
+			return ok(c, null);
+		}
+	)
+	.post(
+		'/:id/clone',
+		zValidator('param', conversationIdParamSchema),
+		zValidator('json', cloneConversationSchema),
+		async (c) => {
+			const { id } = c.req.valid('param');
+			const { upToMessageId } = c.req.valid('json');
+
+			const conversation = await cloneConversation(c.get('userId'), id, upToMessageId);
+			return ok(c, conversation);
+		}
+	)
+	.patch(
+		'/:id/current-message',
+		zValidator('param', conversationIdParamSchema),
+		zValidator('json', currentMessageSchema),
+		async (c) => {
+			const { id } = c.req.valid('param');
+			const { messageId } = c.req.valid('json');
+
+			await setConversationCurrentMessage(c.get('userId'), id, messageId);
 			return ok(c, null);
 		}
 	);

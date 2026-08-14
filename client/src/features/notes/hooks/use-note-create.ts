@@ -1,4 +1,5 @@
 import { useForm, useWatch } from 'react-hook-form';
+import { useEffect } from 'react';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -16,6 +17,8 @@ import { noteKeys } from '@/features/notes/keys';
 
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 
+import { useNoteCreatePrefillStore } from '@/store/note-create-prefill-store';
+
 import {
   $fetch,
   type InferRequestType,
@@ -23,24 +26,15 @@ import {
 } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
 
-interface UseNoteCreateOptions {
-  initialContent?: string;
-  initialTitle?: string;
-}
-
-export function useNoteCreate({
-  initialContent,
-  initialTitle,
-}: UseNoteCreateOptions = {}) {
+export function useNoteCreate() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const form = useForm<NoteFormInput>({
-    defaultValues: {
-      content: initialContent ?? '',
-      title: initialTitle,
-    },
     resolver: standardSchemaResolver(noteInputSchema),
+    defaultValues: {
+      content: '',
+    },
   });
 
   const {
@@ -49,6 +43,18 @@ export function useNoteCreate({
     setValue,
     control,
   } = form;
+
+  const consumePrefill = useNoteCreatePrefillStore((state) => state.consume);
+
+  useEffect(() => {
+    const prefill = consumePrefill();
+    if (prefill) {
+      setValue('content', prefill, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  }, [consumePrefill, setValue]);
 
   const [watchedContent] = useWatch({
     name: ['content'],

@@ -17,10 +17,13 @@ import {
   CommandPaletteSearchResults,
 } from '@/features/command-palette/components';
 import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
+import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
 import { useGetNotes, type Note } from '@/features/notes';
 
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 import { useDebounce } from '@/hooks/use-debounce';
+
+import { useNoteCreatePrefillStore } from '@/store/note-create-prefill-store';
 
 import { useTheme } from '@/providers/theme-provider';
 
@@ -205,8 +208,12 @@ export default function CommandPalette() {
       {
         action: () => {
           setIsOpen(false);
+          if (contentPart) {
+            useNoteCreatePrefillStore
+              .getState()
+              .set(contentPart.trim().slice(0, NOTE_CONTENT_MAX_LENGTH));
+          }
           navigate({
-            search: contentPart ? { content: contentPart.trim() } : undefined,
             to: '/notes/create',
           });
         },

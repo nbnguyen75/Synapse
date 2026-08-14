@@ -2,24 +2,51 @@ import type { PromptInputMessage } from '@/components/ai-elements/prompt-input';
 import type { UIMessage } from 'ai';
 
 import {
+  Fragment,
   forwardRef,
   useCallback,
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 
+import { useNavigate } from '@tanstack/react-router';
+
 import { useStickToBottomContext } from 'use-stick-to-bottom';
 import { toast } from 'sonner';
 
+import {
+  addMessage,
+  buildTree,
+  editUserMessage,
+  getActivePath,
+  getVersionInfo,
+  retryAssistantMessage,
+  switchVersion,
+  type ConversationTreeState,
+  type TreeMessage,
+} from '@/features/companion/lib/message-tree';
+import {
+  useGetConversationsQuery,
+  useCloneConversationMutation,
+  useSetCurrentMessageMutation,
+} from '@/features/companion/hooks/use-companion-conversation';
+import {
+  decodeDataUrl,
+  isTextLikeMediaType,
+} from '@/features/companion/utils/file-parts';
 import { useCompanionChatSession } from '@/features/companion/hooks/use-companion-chat-session';
 import { PromptInputAttachmentsDisplay } from '@/features/companion/components/chat-attachment';
-import { ModelItem } from '@/features/companion/components/chat-model-item';
-import { models, chefs } from '@/features/companion/chat-mock-data';
+import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
 
-import { useCompanionContextStore } from '@/store/companion-context-store';
+import { useNoteCreatePrefillStore } from '@/store/note-create-prefill-store';
+import { MAX_CHAT_ATTACHMENTS } from '@/store/chat-note-attachment-store';
+import { useChatMessageTreeStore } from '@/store/chat-message-tree-store';
+import { useCompanionStore } from '@/store/companion-store';
+import { useSettingsStore } from '@/store/settings-store';
 
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
@@ -39,29 +66,25 @@ import {
   PromptInputTools,
 } from '@/components/ai-elements/prompt-input';
 import {
-  ModelSelector,
-  ModelSelectorContent,
-  ModelSelectorEmpty,
-  ModelSelectorGroup,
-  ModelSelectorInput,
-  ModelSelectorList,
-  ModelSelectorLogo,
-  ModelSelectorName,
-  ModelSelectorTrigger,
-} from '@/components/ai-elements/model-selector';
+  Message,
+  MessageAction,
+  MessageActions,
+  MessageBranch,
+  MessageBranchContent,
+  MessageBranchNext,
+  MessageBranchPage,
+  MessageBranchPrevious,
+  MessageBranchSelector,
+  MessageContent,
+  MessageResponse,
+  MessageToolbar,
+} from '@/components/ai-elements/message';
 import {
   Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
 } from '@/components/ai-elements/conversation';
-import {
-  Message,
-  MessageAction,
-  MessageActions,
-  MessageContent,
-  MessageResponse,
-} from '@/components/ai-elements/message';
 import {
   Source,
   Sources,
@@ -73,20 +96,35 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from '@/components/ai-elements/reasoning';
+import {
+  Attachment,
+  AttachmentPreview,
+  Attachments,
+} from '@/components/ai-elements/attachments';
 import { SpeechInput } from '@/components/ai-elements/speech-input';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Textarea } from '@/components/ui/textarea';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 import {
+  CheckIcon,
   CopyIcon,
   FilePlusIcon,
-  ReplaceIcon,
-  GlobeIcon,
+  GitBranchIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  RefreshCcwIcon,
   SparklesIcon,
+  XIcon,
 } from 'lucide-react';
-
-const SHOW_MODEL_SELECTOR = false;
 
 export interface ChatBotHandle {
   prependMessages: (messages: UIMessage[]) => void;
@@ -94,8 +132,8 @@ export interface ChatBotHandle {
 }
 
 interface ChatBotProps {
+  onFinish?: (result: { message: UIMessage; isError?: boolean }) => void;
   onConversationId?: (conversationId: string) => void;
-  onFinish?: (result: { message: UIMessage }) => void;
   isLoadingOlderMessages?: boolean;
   onLoadOlderMessages?: () => void;
   initialConversationId?: string;
@@ -121,10 +159,37 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
   },
   ref,
 ) {
-  const [model, setModel] = useState<string>(models[0].id);
-  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
   const [text, setText] = useState<string>('');
-  const [useWebSearch, setUseWebSearch] = useState<boolean>(false);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const capturedConversationIdRef = useRef<string | null>(null);
+
+  const navigate = useNavigate();
+  const layoutMode = useSettingsStore((state) => state.layoutMode);
+  const setRightSidebarOpen = useSettingsStore(
+    (state) => state.setRightSidebarOpen,
+  );
+  const setActiveConversationId = useCompanionStore(
+    (state) => state.setActiveConversationId,
+  );
+  const trees = useChatMessageTreeStore((state) => state.trees);
+  const setTree = useChatMessageTreeStore((state) => state.setTree);
+  const getTree = useChatMessageTreeStore((state) => state.getTree);
+  const cloneConversation = useCloneConversationMutation();
+  const setCurrentMessage = useSetCurrentMessageMutation();
+  const { data: conversations } = useGetConversationsQuery();
+
+  const conversation = useMemo(
+    () => conversations?.find((item) => item.id === initialConversationId),
+    [conversations, initialConversationId],
+  );
+
+  const handleConversationId = useCallback(
+    (conversationId: string) => {
+      capturedConversationIdRef.current = conversationId;
+      onConversationId?.(conversationId);
+    },
+    [onConversationId],
+  );
 
   const chat = useCompanionChatSession({
     onError: (error) => {
@@ -133,14 +198,60 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
         description: m.common_error_connection(),
       });
     },
+    onFinish: (result) => handleFinishRef.current(result),
+    onConversationId: handleConversationId,
     initialMessages: loadedMessages,
     initialConversationId,
-    onConversationId,
-    onFinish,
   });
 
+  const status = chat.status;
+  const isGenerating = status === 'submitted' || status === 'streaming';
+
+  const tree = initialConversationId ? trees[initialConversationId] : undefined;
+
+  useEffect(() => {
+    if (!initialConversationId || !loadedMessages || isGenerating) return;
+
+    let nextTree = tree;
+    if (!nextTree) {
+      if (loadedMessages.length === 0) return;
+
+      const rows: TreeMessage[] = loadedMessages.map((message, index) => ({
+        ...message,
+        parentId:
+          (message as TreeMessage).parentId ??
+          loadedMessages[index - 1]?.id ??
+          null,
+      }));
+      const leaf = conversation?.currentMessageId ?? rows.at(-1)?.id ?? null;
+      nextTree = buildTree(rows, leaf);
+      setTree(initialConversationId, nextTree);
+    }
+
+    const path = getActivePath(nextTree);
+    if (path.length === 0) return;
+
+    const pathIds = path.map((node) => node.id);
+    const isSynced =
+      chat.messages.length === pathIds.length &&
+      chat.messages.every((message, index) => message.id === pathIds[index]);
+    if (!isSynced) {
+      chat.setMessages(path.map((node) => node.message));
+    }
+  }, [
+    chat.setMessages,
+    conversation?.currentMessageId,
+    initialConversationId,
+    isGenerating,
+    loadedMessages,
+    setTree,
+    tree,
+  ]);
+
   useLayoutEffect(() => {
-    if (!loadedMessages || loadedMessages.length === 0) return;
+    if (tree || !loadedMessages || loadedMessages.length === 0) {
+      return;
+    }
     if (chat.messages.length >= loadedMessages.length) return;
 
     const knownIds = new Set(chat.messages.map((message) => message.id));
@@ -150,7 +261,198 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
     if (olderMessages.length === 0) return;
 
     chat.setMessages((prev) => [...olderMessages, ...prev]);
-  }, [loadedMessages, chat.messages, chat.setMessages]);
+  }, [loadedMessages, chat.messages, chat.setMessages, tree]);
+
+  const retrySnapshotRef = useRef<{
+    assistantMessageId: string;
+    snapshot: UIMessage[];
+  } | null>(null);
+
+  const handleFinish = useCallback(
+    (result: { message: UIMessage; isError?: boolean }) => {
+      const conversationId =
+        initialConversationId ?? capturedConversationIdRef.current;
+
+      if (result.isError) {
+        const pending = retrySnapshotRef.current;
+        retrySnapshotRef.current = null;
+        if (pending && conversationId) {
+          chat.setMessages(pending.snapshot);
+          const existingTree = getTree(conversationId);
+          if (existingTree) {
+            setTree(
+              conversationId,
+              switchVersion(existingTree, pending.assistantMessageId),
+            );
+          }
+        }
+        return;
+      }
+      retrySnapshotRef.current = null;
+
+      if (conversationId) {
+        const existingTree = getTree(conversationId);
+        if (existingTree) {
+          const previous = chat.messages.at(-2);
+          if (previous) {
+            let nextTree = existingTree;
+            if (!nextTree.nodes[previous.id]) {
+              nextTree = addMessage(
+                nextTree,
+                previous,
+                chat.messages.at(-3)?.id ?? null,
+              );
+            }
+            setTree(
+              conversationId,
+              addMessage(nextTree, result.message, previous.id),
+            );
+          }
+        } else {
+          const rows: TreeMessage[] = chat.messages.map((message, index) => ({
+            ...message,
+            parentId:
+              index === 0 ? null : (chat.messages[index - 1]?.id ?? null),
+          }));
+          setTree(conversationId, buildTree(rows, rows.at(-1)?.id ?? null));
+        }
+      }
+      onFinish?.(result);
+    },
+    [
+      chat.messages,
+      chat.setMessages,
+      getTree,
+      initialConversationId,
+      onFinish,
+      setTree,
+    ],
+  );
+  const handleFinishRef = useRef(handleFinish);
+  useEffect(() => {
+    handleFinishRef.current = handleFinish;
+  });
+
+  const handleRetry = useCallback(
+    (assistantMessageId: string) => {
+      if (!initialConversationId) return;
+
+      const tree = getTree(initialConversationId);
+      if (!tree) return;
+
+      const target = tree.nodes[assistantMessageId];
+      if (!target || target.role !== 'assistant' || !target.parentId) {
+        toast.error(m.chat_message_retry_failed());
+        return;
+      }
+
+      const { userPromptId, state } = retryAssistantMessage(
+        tree,
+        assistantMessageId,
+      );
+      if (!userPromptId) return;
+
+      retrySnapshotRef.current = {
+        snapshot: chat.messages,
+        assistantMessageId,
+      };
+      setTree(initialConversationId, state);
+      void chat.regenerate({ messageId: assistantMessageId });
+    },
+    [chat, getTree, initialConversationId, setTree],
+  );
+
+  const handleEditSave = useCallback(
+    (userMessageId: string, newText: string) => {
+      if (!initialConversationId) return;
+
+      const tree = getTree(initialConversationId);
+      if (!tree) return;
+
+      const result = editUserMessage(tree, userMessageId, newText);
+      if (!result.editedMessage) return;
+
+      setTree(initialConversationId, result.state);
+      chat.setMessages(getActivePath(result.state).map((node) => node.message));
+      setEditingMessageId(null);
+      void chat.sendMessage({
+        messageId: result.editedMessage.id,
+        text: newText,
+      });
+    },
+    [chat, getTree, initialConversationId, setTree],
+  );
+
+  const handleBranch = useCallback(
+    (assistantMessageId: string) => {
+      const conversationId = initialConversationId;
+      if (!conversationId) return;
+
+      cloneConversation.mutate(
+        {
+          body: { upToMessageId: assistantMessageId },
+          params: { id: conversationId },
+        },
+        {
+          onSuccess: (newConversation) => {
+            setActiveConversationId(newConversation.id);
+            if (layoutMode === 'chat') {
+              void navigate({
+                params: { conversationId: newConversation.id },
+                to: '/chat/$conversationId',
+              });
+            } else {
+              setRightSidebarOpen(true);
+            }
+          },
+        },
+      );
+    },
+    [
+      cloneConversation,
+      initialConversationId,
+      layoutMode,
+      navigate,
+      setActiveConversationId,
+      setRightSidebarOpen,
+    ],
+  );
+
+  const handleSwitchVersion = useCallback(
+    (targetMessageId: string) => {
+      const conversationId = initialConversationId;
+      if (!conversationId) return;
+
+      const tree = getTree(conversationId);
+      if (!tree) return;
+
+      const nextTree: ConversationTreeState = switchVersion(
+        tree,
+        targetMessageId,
+      );
+      if (nextTree === tree) return;
+
+      setTree(conversationId, nextTree);
+      chat.setMessages(getActivePath(nextTree).map((node) => node.message));
+      setCurrentMessage.mutate({
+        body: { messageId: nextTree.currentLeafId ?? targetMessageId },
+        params: { id: conversationId },
+      });
+    },
+    [chat, getTree, initialConversationId, setCurrentMessage, setTree],
+  );
+
+  const handleCreateNote = useCallback(
+    (message: UIMessage) => {
+      const content = getCopyableMessageText(message);
+      if (!content) return;
+      useNoteCreatePrefillStore
+        .getState()
+        .set(content.slice(0, NOTE_CONTENT_MAX_LENGTH));
+      void navigate({ to: '/notes/create' });
+    },
+    [navigate],
+  );
 
   useImperativeHandle(
     ref,
@@ -166,9 +468,7 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
     [chat],
   );
 
-  const status = chat.status;
   const liveMessages = chat.messages;
-  const isGenerating = status === 'submitted' || status === 'streaming';
 
   const lastMessage = liveMessages[liveMessages.length - 1];
   const isAwaitingResponse =
@@ -178,18 +478,12 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
 
   const handleSubmit = useCallback(
     (message: PromptInputMessage) => {
-      const hasAttachments = Boolean(message.files?.length);
-      if (hasAttachments) {
-        toast.error(m.chat_attachments_not_supported());
-        return;
-      }
-
       const content = message.text?.trim();
-      if (!content) {
+      if (!content && message.files.length === 0) {
         return;
       }
 
-      void chat.sendMessage({ text: content });
+      void chat.sendMessage({ files: message.files, text: content });
       setText('');
     },
     [chat],
@@ -205,17 +499,6 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
     },
     [],
   );
-
-  const toggleWebSearch = useCallback(() => {
-    setUseWebSearch((prev) => !prev);
-  }, []);
-
-  const handleModelSelect = useCallback((modelId: string) => {
-    setModel(modelId);
-    setModelSelectorOpen(false);
-  }, []);
-
-  const selectedModelData = models.find((item) => item.id === model);
 
   const isSubmitDisabled = (!text.trim() && !isGenerating) || disabled;
 
@@ -239,9 +522,21 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
           >
             {liveMessages.map((message, index) => (
               <MessageView
+                conversationId={initialConversationId}
+                editingMessageId={editingMessageId}
+                isGenerating={isGenerating}
                 isStreaming={isGenerating && index === liveMessages.length - 1}
                 key={message.id}
                 message={message}
+                onBranch={handleBranch}
+                onCreateNote={handleCreateNote}
+                onEditCancel={() => setEditingMessageId(null)}
+                onEditSave={handleEditSave}
+                onEditStart={(userMessageId) =>
+                  setEditingMessageId(userMessageId)
+                }
+                onRetry={handleRetry}
+                onSwitchVersion={handleSwitchVersion}
               />
             ))}
             {isAwaitingResponse && (
@@ -263,99 +558,55 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
       )}
 
       <div className="shrink-0 px-4 py-5">
-        <div className={cn('w-full', centered && 'mx-auto max-w-6xl')}>
-          <PromptInput globalDrop multiple onSubmit={handleSubmit}>
-            <PromptInputHeader>
-              <PromptInputAttachmentsDisplay />
-            </PromptInputHeader>
-            <PromptInputBody>
-              <PromptInputTextarea
-                disabled={disabled}
-                onChange={handleTextChange}
-                value={text}
-              />
-            </PromptInputBody>
-            <PromptInputFooter>
-              <PromptInputTools>
-                <PromptInputActionMenu>
-                  <PromptInputActionMenuTrigger disabled={disabled} />
-                  <PromptInputActionMenuContent className={'max-w-56 w-full'}>
-                    <PromptInputActionAddAttachments className={'w-full'} />
-                  </PromptInputActionMenuContent>
-                </PromptInputActionMenu>
-                <SpeechInput
-                  className="shrink-0"
-                  onTranscriptionChange={handleTranscriptionChange}
-                  size="icon-sm"
-                  variant="ghost"
-                  {...(disabled ? { disabled: true } : {})}
-                />
-                <PromptInputButton
+        <div className="flex flex-col gap-4">
+          <div className={cn('w-full', centered && 'mx-auto max-w-6xl')}>
+            <PromptInput
+              globalDrop
+              maxFiles={MAX_CHAT_ATTACHMENTS}
+              multiple
+              onError={(error) => {
+                if (error.code === 'max_files') {
+                  toast.error(m.chat_attachments_max());
+                }
+              }}
+              onSubmit={handleSubmit}
+            >
+              <PromptInputHeader>
+                <PromptInputAttachmentsDisplay />
+              </PromptInputHeader>
+              <PromptInputBody>
+                <PromptInputTextarea
                   disabled={disabled}
-                  onClick={toggleWebSearch}
-                  variant={useWebSearch ? 'default' : 'ghost'}
-                >
-                  <GlobeIcon size={16} />
-                  <span>{m.chat_search_toggle()}</span>
-                </PromptInputButton>
-                {SHOW_MODEL_SELECTOR && (
-                  <ModelSelector
-                    onOpenChange={setModelSelectorOpen}
-                    open={modelSelectorOpen}
-                  >
-                    <ModelSelectorTrigger
-                      render={
-                        <PromptInputButton>
-                          {selectedModelData?.chefSlug && (
-                            <ModelSelectorLogo
-                              provider={selectedModelData.chefSlug}
-                            />
-                          )}
-                          {selectedModelData?.name && (
-                            <ModelSelectorName>
-                              {selectedModelData.name}
-                            </ModelSelectorName>
-                          )}
-                        </PromptInputButton>
-                      }
-                    />
+                  onChange={handleTextChange}
+                  value={text}
+                />
+              </PromptInputBody>
+              <PromptInputFooter>
+                <PromptInputTools>
+                  <PromptInputActionMenu>
+                    <PromptInputActionMenuTrigger disabled={disabled} />
+                    <PromptInputActionMenuContent className={'max-w-56 w-full'}>
+                      <PromptInputActionAddAttachments className={'w-full'} />
+                    </PromptInputActionMenuContent>
+                  </PromptInputActionMenu>
+                  <SpeechInput
+                    className="shrink-0"
+                    onTranscriptionChange={handleTranscriptionChange}
+                    size="icon-sm"
+                    variant="ghost"
+                    // {...(disabled ? { disabled: true } : {})}
+                    disabled // disable for now
+                  />
+                </PromptInputTools>
 
-                    <ModelSelectorContent showCloseButton={false}>
-                      <ModelSelectorInput
-                        placeholder={m.chat_search_models_placeholder()}
-                      />
-
-                      <ModelSelectorList>
-                        <ModelSelectorEmpty>
-                          {m.chat_search_models_empty()}
-                        </ModelSelectorEmpty>
-                        {chefs.map((chef) => (
-                          <ModelSelectorGroup heading={chef} key={chef}>
-                            {models
-                              .filter((item) => item.chef === chef)
-                              .map((item) => (
-                                <ModelItem
-                                  isSelected={model === item.id}
-                                  key={item.id}
-                                  m={item}
-                                  onSelect={handleModelSelect}
-                                />
-                              ))}
-                          </ModelSelectorGroup>
-                        ))}
-                      </ModelSelectorList>
-                    </ModelSelectorContent>
-                  </ModelSelector>
-                )}
-              </PromptInputTools>
-
-              <PromptInputSubmit
-                disabled={isSubmitDisabled}
-                onStop={chat.stop}
-                status={status}
-              />
-            </PromptInputFooter>
-          </PromptInput>
+                <PromptInputSubmit
+                  disabled={isSubmitDisabled}
+                  onStop={chat.stop}
+                  status={status}
+                />
+              </PromptInputFooter>
+            </PromptInput>
+          </div>
         </div>
       </div>
     </div>
@@ -423,11 +674,194 @@ type ChatPart = UIMessage['parts'][number];
 type SourcePart = Extract<ChatPart, { type: 'source-url' | 'source-document' }>;
 
 interface MessageViewProps {
+  onEditSave: (userMessageId: string, newText: string) => void;
+  onSwitchVersion: (targetMessageId: string) => void;
+  onBranch: (assistantMessageId: string) => void;
+  onRetry: (assistantMessageId: string) => void;
+  onEditStart: (userMessageId: string) => void;
+  onCreateNote: (message: UIMessage) => void;
+  editingMessageId: string | null;
+  onEditCancel: () => void;
+  conversationId?: string;
+  isGenerating: boolean;
   isStreaming: boolean;
   message: UIMessage;
 }
 
-function MessageView({ isStreaming, message }: MessageViewProps) {
+function MessageView({
+  editingMessageId,
+  onSwitchVersion,
+  conversationId,
+  isGenerating,
+  onEditCancel,
+  onCreateNote,
+  isStreaming,
+  onEditStart,
+  onEditSave,
+  onBranch,
+  message,
+  onRetry,
+}: MessageViewProps) {
+  const copyableText = useMemo(
+    () => getCopyableMessageText(message),
+    [message],
+  );
+
+  const isAssistant = message.role === 'assistant';
+  const isUser = message.role === 'user';
+  const isEditing = editingMessageId === message.id;
+  const actionsDisabled = isGenerating || isStreaming;
+  const tree = useChatMessageTreeStore(
+    (state) => state.trees[conversationId ?? ''],
+  );
+  const versionInfo = useMemo(
+    () => (tree ? getVersionInfo(tree, message.id) : null),
+    [message.id, tree],
+  );
+
+  if (versionInfo) {
+    return (
+      <Message from={message.role}>
+        <MessageBranch
+          defaultBranch={versionInfo.current}
+          onBranchChange={(branchIndex) => {
+            const target = versionInfo.siblings[branchIndex];
+            if (target && target !== message.id) {
+              onSwitchVersion(target);
+            }
+          }}
+        >
+          <MessageBranchContent>
+            {versionInfo.siblings.map((siblingId) => {
+              const siblingMessage =
+                siblingId === message.id
+                  ? message
+                  : tree?.nodes[siblingId]?.message;
+              if (!siblingMessage) return null;
+
+              return (
+                <Fragment key={siblingId}>
+                  <MessageBody
+                    isEditing={editingMessageId === siblingMessage.id}
+                    isStreaming={isStreaming && siblingId === message.id}
+                    message={siblingMessage}
+                    onEditCancel={onEditCancel}
+                    onEditSave={(newText) =>
+                      onEditSave(siblingMessage.id, newText)
+                    }
+                  />
+                </Fragment>
+              );
+            })}
+          </MessageBranchContent>
+          {!isStreaming && !isEditing && (
+            <MessageToolbar
+              className={cn({
+                'justify-start': isAssistant,
+                'justify-end': isUser,
+              })}
+            >
+              <MessageBranchSelector>
+                <MessageBranchPrevious />
+                <MessageBranchPage />
+                <MessageBranchNext />
+              </MessageBranchSelector>
+              <MessageActions>
+                {isAssistant && (
+                  <MessageAction
+                    disabled={actionsDisabled}
+                    label={m.chat_message_retry()}
+                    onClick={() => onRetry(message.id)}
+                    tooltip={m.chat_message_retry()}
+                  >
+                    <RefreshCcwIcon />
+                  </MessageAction>
+                )}
+                {isUser && (
+                  <MessageAction
+                    disabled={actionsDisabled}
+                    label={m.chat_message_edit()}
+                    onClick={() => onEditStart(message.id)}
+                    tooltip={m.chat_message_edit()}
+                  >
+                    <PencilIcon />
+                  </MessageAction>
+                )}
+                {copyableText && <MessageCopyAction text={copyableText} />}
+                {isAssistant && (
+                  <MessageMoreMenu
+                    disabled={actionsDisabled}
+                    onBranch={() => onBranch(message.id)}
+                    onCreateNote={() => onCreateNote(message)}
+                  />
+                )}
+              </MessageActions>
+            </MessageToolbar>
+          )}
+        </MessageBranch>
+      </Message>
+    );
+  }
+
+  return (
+    <Message from={message.role}>
+      <MessageBody
+        isEditing={isEditing && isUser}
+        isStreaming={isStreaming}
+        message={message}
+        onEditCancel={onEditCancel}
+        onEditSave={(newText) => onEditSave(message.id, newText)}
+      />
+
+      {!isEditing && !isStreaming && (
+        <MessageActions>
+          {isAssistant && (
+            <MessageAction
+              disabled={actionsDisabled}
+              label={m.chat_message_retry()}
+              onClick={() => onRetry(message.id)}
+              tooltip={m.chat_message_retry()}
+            >
+              <RefreshCcwIcon />
+            </MessageAction>
+          )}
+          {isUser && (
+            <MessageAction
+              disabled={actionsDisabled}
+              label={m.chat_message_edit()}
+              onClick={() => onEditStart(message.id)}
+              tooltip={m.chat_message_edit()}
+            >
+              <PencilIcon />
+            </MessageAction>
+          )}
+          {copyableText && <MessageCopyAction text={copyableText} />}
+          {isAssistant && (
+            <MessageMoreMenu
+              disabled={actionsDisabled || !conversationId}
+              onBranch={() => onBranch(message.id)}
+              onCreateNote={() => onCreateNote(message)}
+            />
+          )}
+        </MessageActions>
+      )}
+    </Message>
+  );
+}
+
+function MessageBody({
+  onEditCancel,
+  isStreaming,
+  onEditSave,
+  isEditing,
+  message,
+}: {
+  onEditSave?: (newText: string) => void;
+  onEditCancel?: () => void;
+  isStreaming: boolean;
+  isEditing?: boolean;
+  message: UIMessage;
+}) {
   const sourceParts = message.parts.filter(
     (part): part is SourcePart =>
       part.type === 'source-url' || part.type === 'source-document',
@@ -439,9 +873,12 @@ function MessageView({ isStreaming, message }: MessageViewProps) {
   const textParts = message.parts.filter(
     (part): part is Extract<ChatPart, { type: 'text' }> => part.type === 'text',
   );
+  const fileParts = message.parts.filter(
+    (part): part is Extract<ChatPart, { type: 'file' }> => part.type === 'file',
+  );
 
   return (
-    <Message from={message.role}>
+    <>
       {sourceParts.length > 0 && (
         <Sources>
           <SourcesTrigger count={sourceParts.length} />
@@ -466,58 +903,172 @@ function MessageView({ isStreaming, message }: MessageViewProps) {
           <ReasoningContent>{part.text}</ReasoningContent>
         </Reasoning>
       ))}
-      {textParts.map((part, index) => (
-        <MessageContent key={index}>
-          <MessageResponse isAnimating={isStreaming}>
-            {part.text}
-          </MessageResponse>
+      {fileParts.map((part) => (
+        <MessageContent key={part.url}>
+          <Attachments variant="inline" className="w-full">
+            <Attachment
+              data={{
+                mediaType: part.mediaType,
+                filename: part.filename,
+                url: part.url,
+                id: part.url,
+                type: 'file',
+              }}
+            >
+              <AttachmentPreview />
+            </Attachment>
+          </Attachments>
         </MessageContent>
       ))}
-
-      {message.role === 'assistant' && textParts.length > 0 && (
-        <MessageActions>
-          <MessageAssistantActions
-            text={textParts.map((part) => part.text).join('\n\n')}
-          />
-        </MessageActions>
+      {isEditing && onEditSave && onEditCancel ? (
+        <MessageEditForm
+          initialText={textParts.map((part) => part.text).join('\n\n')}
+          key={message.id}
+          onCancel={onEditCancel}
+          onSave={onEditSave}
+        />
+      ) : (
+        textParts.map((part, index) => (
+          <MessageContent key={index}>
+            <MessageResponse isAnimating={isStreaming}>
+              {part.text}
+            </MessageResponse>
+          </MessageContent>
+        ))
       )}
-    </Message>
+    </>
   );
 }
 
-function MessageAssistantActions({ text }: { text: string }) {
-  const editorBridge = useCompanionContextStore((state) => state.editorBridge);
+function MessageMoreMenu({
+  onCreateNote,
+  disabled,
+  onBranch,
+}: {
+  onCreateNote: () => void;
+  onBranch: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        disabled={disabled}
+        render={
+          <Button
+            aria-label={m.chat_message_more()}
+            size="icon-sm"
+            type="button"
+            variant="ghost"
+          >
+            <MoreHorizontalIcon />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuItem onClick={onBranch}>
+          <GitBranchIcon className="size-4" />
+          {m.chat_message_branch()}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onCreateNote}>
+          <FilePlusIcon className="size-4" />
+          {m.chat_message_create_note()}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
-  const handleCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(text);
-    toast.success(m.companion_message_copied());
-  }, [text]);
+function MessageEditForm({
+  initialText,
+  onCancel,
+  onSave,
+}: {
+  onSave: (newText: string) => void;
+  onCancel: () => void;
+  initialText: string;
+}) {
+  const [draft, setDraft] = useState(initialText);
 
-  if (!editorBridge) return null;
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        const trimmed = draft.trim();
+        if (trimmed) onSave(trimmed);
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCancel();
+      }
+    },
+    [draft, onCancel, onSave],
+  );
 
   return (
-    <>
-      <MessageAction
-        tooltip={m.companion_message_insert()}
-        label={m.companion_message_insert()}
-        onClick={() => editorBridge.insert(text)}
-      >
-        <FilePlusIcon />
-      </MessageAction>
-      <MessageAction
-        tooltip={m.companion_message_replace()}
-        label={m.companion_message_replace()}
-        onClick={() => editorBridge.replace(text)}
-      >
-        <ReplaceIcon />
-      </MessageAction>
-      <MessageAction
-        tooltip={m.companion_message_copy()}
-        label={m.companion_message_copy()}
-        onClick={handleCopy}
-      >
-        <CopyIcon />
-      </MessageAction>
-    </>
+    <MessageContent className="w-full">
+      <Textarea
+        autoFocus
+        className="min-h-24 w-full"
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={handleKeyDown}
+        value={draft}
+      />
+      <MessageActions>
+        <MessageAction
+          label={m.chat_message_edit_save()}
+          onClick={() => {
+            const trimmed = draft.trim();
+            if (trimmed) onSave(trimmed);
+          }}
+          tooltip={m.chat_message_edit_save()}
+        >
+          <CheckIcon />
+        </MessageAction>
+        <MessageAction
+          label={m.chat_message_edit_cancel()}
+          onClick={onCancel}
+          tooltip={m.chat_message_edit_cancel()}
+        >
+          <XIcon />
+        </MessageAction>
+      </MessageActions>
+    </MessageContent>
+  );
+}
+
+function getCopyableMessageText(message: UIMessage): string {
+  const sections: string[] = [];
+
+  for (const part of message.parts) {
+    if (part.type === 'text') {
+      sections.push(part.text);
+    } else if (
+      part.type === 'file' &&
+      part.url.startsWith('data:') &&
+      isTextLikeMediaType(part.mediaType)
+    ) {
+      sections.push(
+        `[${part.filename ?? 'Attachment'}]\n${decodeDataUrl(part.url)}`,
+      );
+    }
+  }
+
+  return sections.join('\n\n');
+}
+
+function MessageCopyAction({ text }: { text: string }) {
+  const handleCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(text);
+    toast.success(m.chat_message_copied());
+  }, [text]);
+
+  return (
+    <MessageAction
+      tooltip={m.chat_message_copy()}
+      label={m.chat_message_copy()}
+      onClick={handleCopy}
+    >
+      <CopyIcon />
+    </MessageAction>
   );
 }

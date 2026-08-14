@@ -8,6 +8,8 @@ import type { PaginatedData } from '@/types/response';
 
 import { m } from '@/paraglide/messages';
 
+export const NOTE_CONTENT_MAX_LENGTH = 1500;
+
 export const NOTE_BULK_ACTIONS = [
   'PIN',
   'UNPIN',

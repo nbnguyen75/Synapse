@@ -22,6 +22,13 @@ export type CompanionFetchRouter = EnsureRouter<{
       params: ConversationIdParams;
     };
   };
+  '/api/v1/ai/conversations/:id/messages': {
+    $get: {
+      response: ApiSuccessResponse<(UIMessage & { parentId: string | null })[]>;
+      query: { offset?: number; limit?: number };
+      params: ConversationIdParams;
+    };
+  };
   '/api/v1/ai/settings': {
     $put: {
       response: ApiSuccessResponse<CompanionSettings>;
@@ -31,11 +38,18 @@ export type CompanionFetchRouter = EnsureRouter<{
       response: ApiSuccessResponse<CompanionSettings>;
     };
   };
-  '/api/v1/ai/conversations/:id/messages': {
-    $get: {
-      query: { offset?: number; limit?: number };
-      response: ApiSuccessResponse<UIMessage[]>;
+  '/api/v1/ai/conversations/:id/clone': {
+    $post: {
+      response: ApiSuccessResponse<CompanionConversation>;
+      body: { upToMessageId?: string };
       params: ConversationIdParams;
+    };
+  };
+  '/api/v1/ai/conversations/:id/current-message': {
+    $patch: {
+      response: ApiSuccessResponse<null>;
+      params: ConversationIdParams;
+      body: { messageId: string };
     };
   };
   '/api/v1/ai/conversations/:id/favorite': {

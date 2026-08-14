@@ -14,6 +14,7 @@ export interface CompanionSettings {
 }
 
 export interface CompanionConversation {
+  currentMessageId: string | null;
   title: string | null;
   favorited: boolean;
   createdAt: string;

@@ -2,6 +2,7 @@ import type { Note, NoteViewMode } from '@/features/notes/types';
 
 import { memo } from 'react';
 
+import { NoteCardDropdown } from '@/features/notes/components/note-card-dropdown';
 import { useNoteCard } from '@/features/notes/hooks';
 
 import { m } from '@/paraglide/messages';
@@ -9,13 +10,6 @@ import { cn } from '@/lib/utils';
 
 import MarkdownRenderer from '@/components/shared/markdown-renderer';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Card,
   CardContent,
@@ -27,21 +21,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-import {
-  MoreVerticalIcon,
-  Trash2Icon,
-  ArchiveIcon,
-  DownloadIcon,
-  FileTextIcon,
-  StarIcon,
-  PinIcon,
-  CalendarIcon,
-  BookOpenIcon,
-  Undo2Icon,
-  RotateCcwIcon,
-  XCircleIcon,
-  MessagesSquareIcon,
-} from 'lucide-react';
+import { BookOpenIcon, CalendarIcon, PinIcon, StarIcon } from 'lucide-react';
 
 interface NoteWithDetails extends Note {
   tags?: string[];
@@ -75,6 +55,7 @@ function NoteCard({
     handleCardClick,
     handleTouchEnd,
     includeInChat,
+    copyContent,
     exportNote,
     openDetail,
     execute,
@@ -179,91 +160,17 @@ function NoteCard({
                 </Button>
               )}
 
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  onClick={(e) => e.stopPropagation()}
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="cursor-pointer rounded-md h-6 w-6 text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-90 hover:scale-105"
-                    >
-                      <MoreVerticalIcon className="size-3.5" />
-                    </Button>
-                  }
-                />
-                <DropdownMenuContent
-                  align="end"
-                  className="w-52"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <DropdownMenuItem onClick={openDetail}>
-                    <FileTextIcon className="mr-2 size-3.5" />
-                    {m.notes_page_card_open_doc()}
-                  </DropdownMenuItem>
-
-                  {viewMode !== 'trash' && (
-                    <DropdownMenuItem onClick={includeInChat}>
-                      <MessagesSquareIcon className="mr-2 size-3.5 text-violet-500" />
-                      {m.notes_page_include_in_chat()}
-                    </DropdownMenuItem>
-                  )}
-
-                  <DropdownMenuItem onClick={exportNote}>
-                    <DownloadIcon className="mr-2 size-3.5" />
-                    {m.notes_page_action_export()}
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-
-                  {viewMode === 'trash' ? (
-                    <>
-                      <DropdownMenuItem onClick={() => execute('restore')}>
-                        <RotateCcwIcon className="mr-2 size-3.5" />
-                        {m.notes_card_restore()}
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        onClick={() => execute('delete')}
-                        variant="destructive"
-                      >
-                        <XCircleIcon className="mr-2 size-3.5" />
-                        {m.notes_card_delete_permanent()}
-                      </DropdownMenuItem>
-                    </>
-                  ) : viewMode === 'archive' ? (
-                    <>
-                      <DropdownMenuItem onClick={() => execute('unarchive')}>
-                        <Undo2Icon className="mr-2 size-3.5" />
-                        {m.notes_card_unarchive()}
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        onClick={() => execute('trash')}
-                        variant="destructive"
-                      >
-                        <Trash2Icon className="mr-2 size-3.5" />
-                        {m.notes_page_action_delete()}
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <>
-                      <DropdownMenuItem onClick={() => execute('archive')}>
-                        <ArchiveIcon className="mr-2 size-3.5" />
-                        {m.notes_page_action_archive()}
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        onClick={() => execute('delete')}
-                        variant="destructive"
-                      >
-                        <Trash2Icon className="mr-2 size-3.5" />
-                        {m.notes_page_action_delete()}
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <NoteCardDropdown
+                actions={{
+                  includeInChat,
+                  copyContent,
+                  exportNote,
+                  openDetail,
+                  execute,
+                }}
+                note={note}
+                viewMode={viewMode}
+              />
             </div>
           </div>
 

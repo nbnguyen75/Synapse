@@ -23,6 +23,7 @@ plugins:
         - X-Requested-With
       exposed_headers:
         - X-Conversation-Id
+        - X-Accel-Buffering
       credentials: true
       preflight_continue: false
 

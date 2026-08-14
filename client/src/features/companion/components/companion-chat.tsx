@@ -25,6 +25,7 @@ export default function CompanionChat({
   chatRef,
 }: CompanionChatProps) {
   const queryClient = useQueryClient();
+
   const activeConversationId = useCompanionStore(
     (state) => state.activeConversationId,
   );
@@ -53,8 +54,17 @@ export default function CompanionChat({
 
   const handleConversationFinish = useCallback(() => {
     const capturedConversationId = capturedConversationIdRef.current;
-    if (capturedConversationId && activeConversationId === null) {
+
+    if (capturedConversationId && !activeConversationId) {
       setActiveConversationId(capturedConversationId);
+
+      if (window.location.pathname === '/chat') {
+        window.history.replaceState(
+          null,
+          '',
+          `/chat/${capturedConversationId}`,
+        );
+      }
     }
   }, [activeConversationId, setActiveConversationId]);
 

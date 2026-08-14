@@ -2,6 +2,10 @@ import type { UIMessage } from 'ai';
 
 import { DefaultChatTransport } from 'ai';
 
+import { flattenFilePartsToText } from '@/features/companion/utils/file-parts';
+
+import { useChatMessageTreeStore } from '@/store/chat-message-tree-store';
+
 import { env } from '@/config/env';
 
 import { authClient } from '@/lib/auth';
@@ -28,7 +32,7 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
     getExtraMetadata?: () => Record<string, unknown>,
   ) {
     super({
-      prepareSendMessagesRequest: async ({ messages }) => {
+      prepareSendMessagesRequest: async ({ messageId, messages, trigger }) => {
         const lastUserMessage = [...messages]
           .reverse()
           .find((message) => message.role === 'user');
@@ -44,6 +48,19 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
           headers.Authorization = `Bearer ${data.token}`;
         }
 
+        const api = `${env.VITE_API_URL}/api/v1/ai`;
+
+        if (trigger === 'regenerate-message') {
+          return {
+            body: {
+              conversationId: this.conversationId,
+              assistantMessageId: messageId,
+            },
+            api: `${api}/regenerate`,
+            headers,
+          };
+        }
+
         const messageWithMetadata = {
           ...lastUserMessage,
           metadata: {
@@ -52,14 +69,22 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
               Record<string, unknown> | undefined),
             ...(getExtraMetadata ? getExtraMetadata() : {}),
           },
+          parts: flattenFilePartsToText(lastUserMessage.parts),
         };
+
+        const treeParentId = this.conversationId
+          ? useChatMessageTreeStore.getState().getTree(this.conversationId)
+              ?.nodes[lastUserMessage.id]?.parentId
+          : undefined;
 
         return {
           body: {
+            parentMessageId: treeParentId ?? messages.at(-2)?.id,
             conversationId: this.conversationId,
             message: messageWithMetadata,
           },
           headers,
+          api,
         };
       },
       fetch: async (input, init) => {

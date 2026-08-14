@@ -43,3 +43,11 @@ export const renameConversationSchema = z.object({
 export const favoriteConversationSchema = z.object({
   favorited: z.boolean(),
 });
+
+export const cloneConversationSchema = z.object({
+  upToMessageId: z.string().trim().optional(),
+});
+
+export const currentMessageSchema = z.object({
+  messageId: z.string().trim().min(1),
+});

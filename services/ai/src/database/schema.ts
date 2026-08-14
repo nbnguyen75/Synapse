@@ -35,6 +35,7 @@ export const userAiSettings = pgTable('user_ai_settings', {
 export const conversations = pgTable(
 	'conversations',
 	{
+		currentMessageId: d.text().references(() => messages.id, { onDelete: 'set null' }),
 		createdAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
 		updatedAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
 		favorited: d.boolean().notNull().default(false),
@@ -63,6 +64,7 @@ export const messages = pgTable(
 			.uuid()
 			.notNull()
 			.references(() => conversations.id, { onDelete: 'cascade' }),
+		parentId: d.text().references(() => messages.id, { onDelete: 'cascade' }),
 		createdAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
 		metadata: d.jsonb().$type<MessageMetadata>(),
 		parts: d.jsonb().notNull(),
@@ -73,7 +75,8 @@ export const messages = pgTable(
 	},
 	(t) => [
 		d.index('messages_conversation_id_idx').on(t.conversationId),
-		d.index('messages_search_text_trgm_idx').using('gin', sql`${t.searchText} gin_trgm_ops`)
+		d.index('messages_search_text_trgm_idx').using('gin', sql`${t.searchText} gin_trgm_ops`),
+		d.index('messages_parent_id_idx').on(t.parentId)
 	]
 );
 

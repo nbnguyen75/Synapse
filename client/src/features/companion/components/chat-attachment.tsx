@@ -1,7 +1,17 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+
+import { toast } from 'sonner';
+
+import {
+  MAX_CHAT_ATTACHMENTS,
+  useChatNoteAttachmentStore,
+} from '@/store/chat-note-attachment-store';
+
+import { m } from '@/paraglide/messages';
 
 import {
   Attachment,
+  AttachmentInfo,
   AttachmentPreview,
   AttachmentRemove,
   Attachments,
@@ -21,8 +31,9 @@ export const AttachmentItem = ({
   }, [onRemove, attachment.id]);
 
   return (
-    <Attachment data={attachment} onRemove={handleRemove}>
+    <Attachment className="max-w-44" data={attachment} onRemove={handleRemove}>
       <AttachmentPreview />
+      <AttachmentInfo />
       <AttachmentRemove />
     </Attachment>
   );
@@ -30,6 +41,23 @@ export const AttachmentItem = ({
 
 export const PromptInputAttachmentsDisplay = () => {
   const attachments = usePromptInputAttachments();
+  const pending = useChatNoteAttachmentStore((state) => state.attachments);
+  const clear = useChatNoteAttachmentStore((state) => state.clear);
+
+  useEffect(() => {
+    if (pending.length === 0) return;
+
+    const capacity = Math.max(
+      0,
+      MAX_CHAT_ATTACHMENTS - attachments.files.length,
+    );
+    if (capacity <= 0) {
+      toast.error(m.chat_attachments_max());
+    } else {
+      attachments.add(pending.slice(0, capacity).map((note) => note.file));
+    }
+    clear();
+  }, [attachments, clear, pending]);
 
   const handleRemove = useCallback(
     (id: string) => {

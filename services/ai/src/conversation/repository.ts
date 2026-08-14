@@ -77,7 +77,11 @@ function extractPlainTextFromParts(parts: UIMessage['parts']): string {
 		.trim();
 }
 
-export async function insertMessage(conversationId: string, message: UIMessage) {
+export async function insertMessage(
+	conversationId: string,
+	message: UIMessage,
+	parentId?: string | null
+) {
 	const plainText = extractPlainTextFromParts(message.parts);
 
 	await db.insert(messages).values({
@@ -86,6 +90,62 @@ export async function insertMessage(conversationId: string, message: UIMessage) 
 		parts: message.parts,
 		role: message.role,
 		conversationId,
-		id: message.id
+		id: message.id,
+		parentId
+	});
+}
+
+export async function findMessageById(id: string) {
+	const [row] = await db.select().from(messages).where(eq(messages.id, id)).limit(1);
+
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	if (!row) return null;
+
+	return row;
+}
+
+export async function updateCurrentMessage(id: string, messageId: string) {
+	await db
+		.update(conversations)
+		.set({ currentMessageId: messageId, updatedAt: new Date() })
+		.where(eq(conversations.id, id));
+}
+
+export async function createConversationWithId(values: {
+	title?: string | null;
+	favorited?: boolean;
+	userId: string;
+	id: string;
+}) {
+	const [row] = await db.insert(conversations).values(values).returning();
+	return row;
+}
+
+export async function insertMessagesBulk(
+	conversationId: string,
+	rows: Array<{
+		metadata: MessageMetadata | null;
+		parts: UIMessage['parts'];
+		parentId: string | null;
+		createdAt: Date;
+		role: string;
+		id: string;
+	}>
+) {
+	if (rows.length === 0) return;
+
+	await db.transaction(async (tx) => {
+		for (const row of rows) {
+			await tx.insert(messages).values({
+				searchText: extractPlainTextFromParts(row.parts),
+				role: row.role as UIMessage['role'],
+				createdAt: row.createdAt,
+				metadata: row.metadata,
+				parentId: row.parentId,
+				parts: row.parts,
+				conversationId,
+				id: row.id
+			});
+		}
 	});
 }

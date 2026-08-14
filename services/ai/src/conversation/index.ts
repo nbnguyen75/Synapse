@@ -1,6 +1,7 @@
 export {
 	appendMessage,
 	getOrCreateConversation,
+	loadActivePath,
 	loadHistory,
 	loadMessagesPage,
 	checkConversationOwnership

@@ -16,10 +16,15 @@ import {
 import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import { noteKeys } from '@/features/notes/keys';
 
-import { useCompanionContextStore } from '@/store/companion-context-store';
+import {
+  buildNoteChatAttachment,
+  useChatNoteAttachmentStore,
+} from '@/store/chat-note-attachment-store';
 
 import { m } from '@/paraglide/messages';
 import { $fetch } from '@/lib/fetch';
+
+import { useConfirm } from '@/providers';
 
 export interface NoteWithDetails extends Note {
   tags?: string[];
@@ -71,7 +76,7 @@ const NOTE_ACTIONS = {
     }),
 } as const;
 
-type NoteActionType = keyof typeof NOTE_ACTIONS;
+export type NoteActionType = keyof typeof NOTE_ACTIONS;
 
 type NoteActionResultData<T extends NoteActionType> = Awaited<
   ReturnType<(typeof NOTE_ACTIONS)[T]>
@@ -192,9 +197,10 @@ export function useNoteCard({
 }: UseNoteCardOptions) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
 
   // 1. Mutations
-  const { mutate: execute, isPending } = useMutation({
+  const { mutate: _execute, isPending } = useMutation({
     onSuccess: ({ data, type }) => {
       queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
@@ -262,19 +268,34 @@ export function useNoteCard({
     });
   };
 
-  const setActiveDocument = useCompanionContextStore(
-    (state) => state.setActiveDocument,
-  );
+  const addNoteAttachment = useChatNoteAttachmentStore((state) => state.add);
   const goToCompanion = useGoToCompanion();
 
   const includeInChat = useCallback(() => {
-    setActiveDocument({
-      content: note.content ?? '',
-      title: note.title ?? '',
-      id: note.id,
-    });
+    const added = addNoteAttachment(
+      buildNoteChatAttachment({
+        content: note.content ?? '',
+        title: note.title ?? '',
+        id: note.id,
+      }),
+    );
+    if (!added) {
+      toast.error(m.chat_attachments_max());
+      return;
+    }
     goToCompanion();
-  }, [goToCompanion, note.content, note.id, note.title, setActiveDocument]);
+  }, [addNoteAttachment, goToCompanion, note.content, note.id, note.title]);
+
+  const copyContent = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(note.content ?? '');
+      toast.success(m.notes_page_toast_copy_content());
+    } catch {
+      toast.error(m.notes_page_toast_copy_content_failed(), {
+        description: m.common_error_connection(),
+      });
+    }
+  }, [note.content]);
 
   const exportNote = () => {
     exportMarkdown(note);
@@ -292,12 +313,29 @@ export function useNoteCard({
     [note.updatedAt],
   );
 
+  const execute = async (type: NoteActionType) => {
+    if (type === 'delete') {
+      const ok = await confirm({
+        description: m.notes_page_delete_desc({ title: note.title }),
+        confirmText: m.notes_page_delete_confirm(),
+        cancelText: m.notes_page_delete_cancel(),
+        title: m.notes_page_delete_title(),
+        variant: 'destructive',
+      });
+
+      if (!ok) return;
+    }
+
+    _execute(type);
+  };
+
   return {
     actions: {
       handleTouchStart,
       handleCardClick,
       handleTouchEnd,
       includeInChat,
+      copyContent,
       exportNote,
       openDetail,
       execute,

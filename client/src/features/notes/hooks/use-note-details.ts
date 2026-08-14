@@ -9,7 +9,12 @@ import { useNavigate, useSearch } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 
-import { useDeleteNote, useGetNote } from '@/features/notes/hooks/api';
+import {
+  useDeleteNote,
+  useGetNote,
+  useRestoreNote,
+  useTrashNote,
+} from '@/features/notes/hooks/api';
 import { noteKeys } from '@/features/notes/keys';
 
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
@@ -83,6 +88,8 @@ export function useNoteDetails(initialData: Note) {
   });
 
   const { isPending: isDeleting, mutate: deleteNote } = useDeleteNote();
+  const { isPending: isTrashing, mutate: trashNote } = useTrashNote();
+  const { isPending: isRestoring, mutate: restoreNote } = useRestoreNote();
 
   const updateNote = (data: NoteInputPayload) => {
     _updateNote(
@@ -115,13 +122,42 @@ export function useNoteDetails(initialData: Note) {
     );
   };
 
+  const moveNoteToTrash = () => {
+    trashNote(
+      { body: { status: 'TRASHED' }, params: { id: note.id } },
+      {
+        onSuccess: () => navigate({ to: '/notes' }),
+      },
+    );
+  };
+
+  const restoreNoteFromTrash = () => {
+    restoreNote(
+      { body: { status: 'ACTIVE' }, params: { id: note.id } },
+      {
+        onSuccess: () => navigate({ to: '/notes' }),
+      },
+    );
+  };
+
+  const copyContent = async (content = note.content ?? '') => {
+    try {
+      await navigator.clipboard.writeText(content);
+      toast.success(m.notes_page_toast_copy_content());
+    } catch {
+      toast.error(m.notes_page_toast_copy_content_failed(), {
+        description: m.common_error_connection(),
+      });
+    }
+  };
+
   const backToNotesPage = () => {
-    const to = search.from ? `/${search.from}` : '/notes';
+    const to = search.from ? `/notes/${search.from}` : '/notes';
     void navigate({ to });
   };
 
   useFormSaveShortcut({
-    isSubmitting: isUpdating || isDeleting,
+    isSubmitting: isUpdating || isDeleting || isTrashing || isRestoring,
     onSubmit: updateNote,
     enabled: isDirty,
     form,
@@ -130,20 +166,25 @@ export function useNoteDetails(initialData: Note) {
   return {
     actions: {
       saveChanges: handleSubmit(updateNote),
+      restoreNote: restoreNoteFromTrash,
       deleteNotePermanently,
+      moveNoteToTrash,
       backToNotesPage,
       setActiveTab,
+      copyContent,
       updateNote,
+    },
+    status: {
+      isRestoring,
+      isDeleting,
+      isTrashing,
+      isUpdating,
+      isLoading,
     },
     state: {
       watchedContent,
       watchedTitle,
       activeTab,
-    },
-    status: {
-      isDeleting,
-      isUpdating,
-      isLoading,
     },
     form,
     note,

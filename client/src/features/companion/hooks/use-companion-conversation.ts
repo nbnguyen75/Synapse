@@ -135,3 +135,66 @@ export function useToggleConversationFavoriteMutation() {
     },
   });
 }
+
+export function useCloneConversationMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    InferResponseType<
+      (typeof $fetch.api.v1.ai.conversations)[':id']['clone']['$post']
+    >['data'],
+    Error,
+    InferRequestType<
+      (typeof $fetch.api.v1.ai.conversations)[':id']['clone']['$post']
+    >
+  >({
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['companion-conversations'] });
+      toast.success(m.chat_message_branch_created());
+    },
+    mutationFn: async (args) => {
+      const result =
+        await $fetch.api.v1.ai.conversations[':id'].clone.$post(args);
+
+      return result.data;
+    },
+    onError: () => {
+      toast.error(m.chat_message_branch_failed(), {
+        description: m.common_error_connection(),
+      });
+    },
+  });
+}
+
+export function useSetCurrentMessageMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    InferResponseType<
+      (typeof $fetch.api.v1.ai.conversations)[':id']['current-message']['$patch']
+    >['data'],
+    Error,
+    InferRequestType<
+      (typeof $fetch.api.v1.ai.conversations)[':id']['current-message']['$patch']
+    >
+  >({
+    mutationFn: async (args) => {
+      const result =
+        await $fetch.api.v1.ai.conversations[':id']['current-message'].$patch(
+          args,
+        );
+
+      return result.data;
+    },
+    onError: () => {
+      toast.error(m.chat_message_switch_failed(), {
+        description: m.common_error_connection(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['companion-conversations'],
+      });
+    },
+  });
+}

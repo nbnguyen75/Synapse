@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 
 import { useGetConversationsQuery } from '@/features/companion/hooks/use-companion-conversation';
@@ -26,6 +27,7 @@ import {
 
 export default function NavCompanion() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { setRightSidebarOpen, setLayoutMode, layoutMode } = useSettingsStore();
   const activeConversationId = useCompanionStore(
     (state) => state.activeConversationId,
@@ -56,12 +58,26 @@ export default function NavCompanion() {
   const handleLayoutModeChange = (checked: boolean) => {
     setLayoutMode(checked ? 'chat' : 'agent');
     if (checked) {
-      if (activeConversationId) {
+      const hasMessages =
+        (activeConversationId != null &&
+          conversations.some(
+            (conversation) => conversation.id === activeConversationId,
+          )) ||
+        (activeConversationId != null &&
+          (queryClient
+            .getQueryData<{
+              pages: { length: number }[];
+            }>(['companion-conversation-messages', activeConversationId])
+            ?.pages.some((page) => page.length > 0) ??
+            false));
+
+      if (activeConversationId && hasMessages) {
         navigate({
           params: { conversationId: activeConversationId },
           to: '/chat/$conversationId',
         });
       } else {
+        setActiveConversationId(null);
         navigate({ to: '/chat' });
       }
     }

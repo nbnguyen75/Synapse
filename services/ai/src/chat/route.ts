@@ -1,33 +1,26 @@
-import type { MessageMetadata } from '@/database/schema';
-
-import {
-	convertToModelMessages,
-	createIdGenerator,
-	createUIMessageStreamResponse,
-	isStepCount,
-	smoothStream,
-	streamText,
-	toUIMessageStream
-} from 'ai';
-
 import { Hono } from 'hono';
 
 import {
-	buildSystemPrompt,
+	createChatStreamResponse,
 	extractQuestionText,
-	getChatTools,
 	prepareChatTurn,
-	sanitizeMessages,
-	saveAssistantReply,
 	validateChatMessages
 } from '@/chat/services';
-import { CHAT_TEMPERATURE, MAX_QUESTION_LENGTH, RECENT_HISTORY_LIMIT } from '@/chat/constants';
-import { getUserSettings, MAX_OUTPUT_TOKENS } from '@/settings';
+import { chatRequestSchema, regenerateRequestSchema } from '@/chat/schemas';
+import { checkConversationOwnership, loadActivePath } from '@/conversation';
+import { NotFoundError, ValidationError } from '@/lib/errors';
+import { findMessageById } from '@/conversation/repository';
+import { MAX_QUESTION_LENGTH } from '@/chat/constants';
 import { authJwksMiddleware } from '@/middleware/auth';
 import { zValidator } from '@/middleware/validation';
-import { chatRequestSchema } from '@/chat/schemas';
-import { ValidationError } from '@/lib/errors';
-import { chatModel } from '@/lib/ai';
+import { getUserSettings } from '@/settings';
+
+function assertQuestionValid(question: string) {
+	if (!question.trim()) throw new ValidationError('Empty question');
+	if (question.length > MAX_QUESTION_LENGTH) {
+		throw new ValidationError(`Question too long (max ${MAX_QUESTION_LENGTH} characters)`);
+	}
+}
 
 const chatRoute = new Hono()
 	.use(authJwksMiddleware)
@@ -41,73 +34,58 @@ const chatRoute = new Hono()
 		const { data: messages } = validated;
 		const lastUserMessage = messages[0];
 		const question = extractQuestionText(lastUserMessage);
-		if (!question.trim()) throw new ValidationError('Empty question');
-		if (question.length > MAX_QUESTION_LENGTH) {
-			throw new ValidationError(`Question too long (max ${MAX_QUESTION_LENGTH} characters)`);
-		}
+		assertQuestionValid(question);
 
-		const [{ conversation, history }, settings] = await Promise.all([
-			prepareChatTurn(userId, body.conversationId, lastUserMessage),
-			getUserSettings(userId)
+		const [settings, { conversation, history }] = await Promise.all([
+			getUserSettings(userId),
+			prepareChatTurn(userId, body.conversationId, lastUserMessage, body.parentMessageId)
 		]);
 
-		const systemPrompt = buildSystemPrompt(settings, lastUserMessage.metadata as MessageMetadata);
-
-		const recentHistory = history.slice(RECENT_HISTORY_LIMIT);
-		const rawMessages = [...recentHistory, lastUserMessage].filter((m) => m.role !== 'system');
-
-		const cleanMessages = sanitizeMessages(rawMessages);
-
-		const segmenterLocale = settings.language === 'en' ? 'en' : 'vi';
-		const segmenter = new Intl.Segmenter(segmenterLocale, { granularity: 'word' });
-
-		const result = streamText({
-			experimental_transform: smoothStream({
-				chunking: segmenter,
-				delayInMs: 5
-			}),
-			onError: ({ error }) => {
-				console.error('[Chat streamText error]:', error);
-			},
-			maxOutputTokens: MAX_OUTPUT_TOKENS[settings.responseLength],
-			messages: await convertToModelMessages(cleanMessages),
-			tools: getChatTools(userId, conversation.id),
-			temperature: CHAT_TEMPERATURE,
-			instructions: systemPrompt,
-			stopWhen: isStepCount(5),
-			model: chatModel
+		return createChatStreamResponse({
+			conversationId: conversation.id,
+			contextMessages: history,
+			lastUserMessage,
+			settings,
+			userId
 		});
+	})
+	.post('/regenerate', zValidator('json', regenerateRequestSchema), async (c) => {
+		const userId = c.get('userId');
+		const { assistantMessageId, conversationId } = c.req.valid('json');
 
-		const uiStream = toUIMessageStream({
-			onEnd: async ({ messages }) => {
-				try {
-					const assistantMsg = messages.at(-1);
-					if (assistantMsg?.role === 'assistant') {
-						const usage = await result.usage;
+		await checkConversationOwnership(userId, conversationId);
 
-						await saveAssistantReply(conversation.id, assistantMsg, {
-							tokens: {
-								outputTokens: usage.outputTokens,
-								inputTokens: usage.inputTokens,
-								totalTokens: usage.totalTokens
-							},
-							responseLength: settings.responseLength,
-							model: chatModel.modelId
-						});
-					}
-				} catch (error) {
-					console.error('[Save Assistant Reply Failed]:', error);
-				}
-			},
-			generateMessageId: createIdGenerator({ prefix: 'msg', size: 16 }),
-			originalMessages: [...history, lastUserMessage],
-			stream: result.stream
+		const assistantMessage = await findMessageById(assistantMessageId);
+		if (
+			!assistantMessage ||
+			assistantMessage.conversationId !== conversationId ||
+			assistantMessage.role !== 'assistant'
+		) {
+			throw new NotFoundError('Tin nhắn không tồn tại trong cuộc trò chuyện này');
+		}
+
+		if (!assistantMessage.parentId) {
+			throw new ValidationError('Tin nhắn này không thể tạo lại');
+		}
+
+		const context = await loadActivePath(conversationId, assistantMessage.parentId);
+		const lastUserMessage = context.at(-1);
+		if (!lastUserMessage) {
+			throw new ValidationError('Không tìm thấy tin nhắn gốc');
+		}
+
+		const question = extractQuestionText(lastUserMessage);
+		assertQuestionValid(question);
+
+		const settings = await getUserSettings(userId);
+
+		return createChatStreamResponse({
+			contextMessages: context.slice(0, -1),
+			lastUserMessage,
+			conversationId,
+			settings,
+			userId
 		});
-
-		const response = createUIMessageStreamResponse({ stream: uiStream });
-		response.headers.set('X-Conversation-Id', conversation.id);
-
-		return response;
 	});
 
 export default chatRoute;
