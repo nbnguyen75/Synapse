@@ -75,8 +75,8 @@ export function NoteCardDropdown({
         </DropdownMenuItem>
 
         {viewMode !== 'trash' && (
-          <DropdownMenuItem onClick={includeInChat} disabled>
-            <MessagesSquareIcon className="mr-2 size-3.5 text-violet-500" />
+          <DropdownMenuItem onClick={includeInChat}>
+            <MessagesSquareIcon className="mr-2 size-3.5 text-violet-400 dark:text-violet-600" />
             {m.notes_page_include_in_chat()}
           </DropdownMenuItem>
         )}

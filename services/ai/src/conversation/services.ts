@@ -116,7 +116,13 @@ export async function loadActivePath(
 		current = current.parentId ? byId.get(current.parentId) : undefined;
 	}
 
-	return path.reverse().map((r) => toUIMessage(r));
+	return path
+		.reverse()
+		.map((r) => toUIMessage(r))
+		.filter((msg) => {
+			if (!Array.isArray(msg.parts) || msg.parts.length === 0) return false;
+			return true;
+		});
 }
 
 export async function loadMessagesPage(

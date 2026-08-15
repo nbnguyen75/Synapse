@@ -1,5 +1,5 @@
 import type { PromptInputMessage } from '@/components/ai-elements/prompt-input';
-import type { UIMessage } from 'ai';
+import type { FileUIPart, UIMessage } from 'ai';
 
 import {
   Fragment,
@@ -80,6 +80,17 @@ import {
   MessageToolbar,
 } from '@/components/ai-elements/message';
 import {
+  Attachment,
+  AttachmentHoverCard,
+  AttachmentHoverCardContent,
+  AttachmentHoverCardTrigger,
+  AttachmentInfo,
+  AttachmentPreview,
+  Attachments,
+  getAttachmentLabel,
+  getMediaCategory,
+} from '@/components/ai-elements/attachments';
+import {
   Conversation,
   ConversationContent,
   ConversationEmptyState,
@@ -96,11 +107,6 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from '@/components/ai-elements/reasoning';
-import {
-  Attachment,
-  AttachmentPreview,
-  Attachments,
-} from '@/components/ai-elements/attachments';
 import { SpeechInput } from '@/components/ai-elements/speech-input';
 import { Shimmer } from '@/components/ai-elements/shimmer';
 
@@ -372,11 +378,16 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
       const result = editUserMessage(tree, userMessageId, newText);
       if (!result.editedMessage) return;
 
+      const fileParts = (tree.nodes[userMessageId]?.message.parts ?? []).filter(
+        (part): part is FileUIPart => part.type === 'file',
+      );
+
       setTree(initialConversationId, result.state);
       chat.setMessages(getActivePath(result.state).map((node) => node.message));
       setEditingMessageId(null);
       void chat.sendMessage({
         messageId: result.editedMessage.id,
+        files: fileParts,
         text: newText,
       });
     },
@@ -903,23 +914,63 @@ function MessageBody({
           <ReasoningContent>{part.text}</ReasoningContent>
         </Reasoning>
       ))}
-      {fileParts.map((part) => (
-        <MessageContent key={part.url}>
-          <Attachments variant="inline" className="w-full">
-            <Attachment
-              data={{
+      {fileParts.length > 0 && (
+        <MessageContent className="group-[.is-user]:bg-transparent">
+          <Attachments variant="inline">
+            {fileParts.map((part) => {
+              const attachmentData = {
+                filename: part.filename ?? 'Untitled',
                 mediaType: part.mediaType,
-                filename: part.filename,
+                type: 'file' as const,
                 url: part.url,
                 id: part.url,
-                type: 'file',
-              }}
-            >
-              <AttachmentPreview />
-            </Attachment>
+              };
+
+              const mediaCategory = getMediaCategory(attachmentData);
+              const label = getAttachmentLabel(attachmentData);
+
+              return (
+                <AttachmentHoverCard key={part.url}>
+                  <AttachmentHoverCardTrigger
+                    render={
+                      <Attachment data={attachmentData}>
+                        <div className="relative size-5 shrink-0">
+                          <AttachmentPreview />
+                        </div>
+                        <AttachmentInfo />
+                      </Attachment>
+                    }
+                  />
+
+                  <AttachmentHoverCardContent className="rounded-md">
+                    <div className="space-y-3">
+                      {mediaCategory === 'image' && part.url && (
+                        <div className="flex max-h-96 w-80 items-center justify-center overflow-hidden rounded-md border">
+                          <img
+                            alt={label}
+                            className="max-h-full max-w-full object-contain"
+                            src={part.url}
+                          />
+                        </div>
+                      )}
+                      <div className="space-y-1 px-0.5">
+                        <h4 className="font-semibold text-sm leading-none">
+                          {label}
+                        </h4>
+                        {part.mediaType && (
+                          <p className="font-mono text-muted-foreground text-xs">
+                            {part.mediaType}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </AttachmentHoverCardContent>
+                </AttachmentHoverCard>
+              );
+            })}
           </Attachments>
         </MessageContent>
-      ))}
+      )}
       {isEditing && onEditSave && onEditCancel ? (
         <MessageEditForm
           initialText={textParts.map((part) => part.text).join('\n\n')}

@@ -36,30 +36,3 @@ export function decodeDataUrl(dataUrl: string): string {
     return '';
   }
 }
-
-export function flattenFilePartsToText(
-  parts: UIMessagePart[],
-): UIMessagePart[] {
-  return parts.flatMap((part) => {
-    if (part.type !== 'file') {
-      return [part];
-    }
-
-    const filename = part.filename || 'attachment';
-    if (part.url.startsWith('data:') && isTextLikeMediaType(part.mediaType)) {
-      return [
-        {
-          text: `\n\n[Attachment: ${filename}]\n${decodeDataUrl(part.url)}`,
-          type: 'text',
-        },
-      ];
-    }
-
-    return [
-      {
-        text: `\n\n[Attachment: ${filename} (${part.mediaType})]`,
-        type: 'text',
-      },
-    ];
-  });
-}

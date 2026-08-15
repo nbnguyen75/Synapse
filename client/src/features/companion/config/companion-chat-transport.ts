@@ -2,8 +2,6 @@ import type { UIMessage } from 'ai';
 
 import { DefaultChatTransport } from 'ai';
 
-import { flattenFilePartsToText } from '@/features/companion/utils/file-parts';
-
 import { useChatMessageTreeStore } from '@/store/chat-message-tree-store';
 
 import { env } from '@/config/env';
@@ -69,7 +67,7 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
               Record<string, unknown> | undefined),
             ...(getExtraMetadata ? getExtraMetadata() : {}),
           },
-          parts: flattenFilePartsToText(lastUserMessage.parts),
+          parts: lastUserMessage.parts,
         };
 
         const treeParentId = this.conversationId

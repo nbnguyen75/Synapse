@@ -213,7 +213,6 @@ function NoteDetailsPage() {
                   <DropdownMenuItem
                     onClick={includeInChat}
                     className="cursor-pointer"
-                    disabled // TODO: include notes attachment later
                   >
                     <MessagesSquareIcon className="size-4 mr-2 text-violet-400 dark:text-violet-600" />
                     <span>{m.notes_page_include_in_chat()}</span>

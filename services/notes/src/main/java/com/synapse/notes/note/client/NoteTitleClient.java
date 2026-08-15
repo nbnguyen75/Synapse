@@ -2,6 +2,7 @@ package com.synapse.notes.note.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.synapse.notes.common.interceptor.AuthenticationInterceptor;
+import com.synapse.notes.note.model.Note;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
@@ -48,11 +49,17 @@ public class NoteTitleClient {
     this.circuitBreaker = circuitBreakerFactory.create("aiService");
   }
 
-  public String fallbackGenerateTitle(String content, Throwable throwable) {
-    log.warn(
-        "AI Service is unavailable. Reason: {}. Returning default title.", throwable.getMessage());
+  public String initialTitle(String content) {
+    return extractTitleFromMarkdown(content);
+  }
 
-    return "Untitled";
+  public String fallbackGenerateTitle(String content, Throwable throwable) {
+    String reason = throwable != null ? throwable.getMessage() : "N/A";
+    log.warn(
+        "AI Service is unavailable. Reason: {}. Falling back to Markdown title extraction.",
+        reason);
+
+    return extractTitleFromMarkdown(content);
   }
 
   public String generateTitle(String content) {
@@ -77,7 +84,7 @@ public class NoteTitleClient {
             },
             throwable -> fallbackGenerateTitle(content, throwable));
 
-    return truncate(rawTitle, FALLBACK_TITLE_MAX_LENGTH);
+    return truncate(rawTitle, Note.MAX_TITLE_LENGTH);
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)

@@ -10,6 +10,7 @@ import com.synapse.notes.note.dto.request.NoteQueryParams;
 import com.synapse.notes.note.dto.request.PatchNoteRequest;
 import com.synapse.notes.note.dto.request.UpdateNoteRequest;
 import com.synapse.notes.note.dto.response.NoteResponse;
+import com.synapse.notes.note.event.NoteCreatedEvent;
 import com.synapse.notes.note.event.NoteEventPublisher;
 import com.synapse.notes.note.model.Note;
 import com.synapse.notes.note.repository.NoteRepository;
@@ -18,6 +19,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ public class NoteService {
   private final NoteRepository noteRepository;
   private final NoteEventPublisher eventPublisher;
   private final NoteTitleClient titleClient;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   public PageResponse<NoteResponse> getNotes(String userId, NoteQueryParams query) {
     final var pageable = query.toPageable(ALLOWED_SORT_FIELDS);
@@ -54,17 +57,19 @@ public class NoteService {
 
   @Transactional
   public NoteResponse createNote(String userId, CreateNoteRequest req) {
-    // TODO: use async
-    String title =
-        (req.title() != null && !req.title().isBlank())
-            ? req.title()
-            : titleClient.generateTitle(req.content());
+    boolean isCustomTitle = req.title() != null && !req.title().isBlank();
+    String title = isCustomTitle ? req.title() : titleClient.initialTitle(req.content());
 
     final var note =
         noteRepository.save(
             Note.builder().userId(userId).title(title).content(req.content()).build());
 
     eventPublisher.publishCreated(note);
+
+    if (!isCustomTitle) {
+      applicationEventPublisher.publishEvent(new NoteCreatedEvent(note.getId(), note.getContent()));
+    }
+
     return NoteResponse.from(note);
   }
 

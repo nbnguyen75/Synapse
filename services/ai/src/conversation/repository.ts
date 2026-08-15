@@ -72,7 +72,8 @@ function extractPlainTextFromParts(parts: UIMessage['parts']): string {
 	if (!Array.isArray(parts)) return '';
 	return parts
 		.filter((p) => p.type === 'text' && 'text' in p && typeof p.text === 'string')
-		.map((p) => (p as { text: string; type: 'text' }).text)
+		.map((p) => (p as { text: string; type: 'text' }).text.trim())
+		.filter(Boolean)
 		.join(' ')
 		.trim();
 }

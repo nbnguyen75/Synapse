@@ -113,19 +113,44 @@ export async function prepareChatTurn(
 	return { history: context, conversation };
 }
 
+function cleanPartsForStorage(parts: UIMessage['parts']): UIMessage['parts'] {
+	if (!Array.isArray(parts)) return [];
+
+	return parts.filter((part) => {
+		if ((part.type as string) === 'step-start' || (part.type as string) === 'step-finish') {
+			return false;
+		}
+
+		if (part.type === 'text') {
+			return typeof part.text === 'string' && part.text.trim().length > 0;
+		}
+
+		if (part.type === 'tool-invocation') {
+			return true;
+		}
+
+		return false;
+	});
+}
+
 export async function saveAssistantReply(
 	conversationId: string,
 	message: UIMessage,
 	metadata?: Record<string, unknown>,
 	parentMessageId?: string
 ) {
+	const cleanedParts = cleanPartsForStorage(message.parts);
+
+	if (cleanedParts.length === 0) return;
+
 	const messageWithMetadata: UIMessage = {
 		...message,
 		metadata: {
 			...(message.metadata as MessageMetadata),
 			...metadata,
 			createdAt: Date.now()
-		}
+		},
+		parts: cleanedParts
 	};
 
 	await appendMessage(conversationId, messageWithMetadata, parentMessageId);
@@ -144,10 +169,13 @@ export async function createChatStreamResponse(options: CreateChatStreamOptions)
 
 	const systemPrompt = buildSystemPrompt(settings, lastUserMessage.metadata as MessageMetadata);
 
-	const recentHistory = contextMessages.slice(RECENT_HISTORY_LIMIT);
+	const recentHistory = contextMessages.slice(-RECENT_HISTORY_LIMIT);
 	const rawMessages = [...recentHistory, lastUserMessage].filter((m) => m.role !== 'system');
 
-	const cleanMessages = sanitizeMessages(rawMessages);
+	const cleanMessages = sanitizeMessages(rawMessages, {
+		maxHistory: RECENT_HISTORY_LIMIT,
+		stripOldAttachments: false
+	});
 
 	const segmenterLocale = settings.language === 'en' ? 'en' : 'vi';
 	const segmenter = new Intl.Segmenter(segmenterLocale, { granularity: 'word' });
@@ -216,11 +244,10 @@ interface SanitizeOptions {
 }
 
 export function sanitizeMessages(messages: UIMessage[], options: SanitizeOptions = {}) {
-	const { stripOldAttachments = true, maxHistory = 15 } = options;
+	const { stripOldAttachments = true, maxHistory = 10 } = options;
 
 	if (messages.length === 0) return [];
 
-	// 1. Sliding Window: Chỉ lấy N tin nhắn gần nhất
 	const recentMessages = messages.slice(-maxHistory);
 	const sanitized: UIMessage[] = [];
 	const lastIndex = recentMessages.length - 1;
@@ -240,12 +267,11 @@ export function sanitizeMessages(messages: UIMessage[], options: SanitizeOptions
 				return false;
 			}
 
-			if (part.type === 'tool-invocation' && part.state !== 'output-available') {
-				console.warn(`[sanitizeMessages] Stripping incomplete tool call: ${part.toolCallId}`);
-				return false;
+			if (part.type === 'tool-invocation') {
+				return part.state === 'output-available';
 			}
 
-			return true;
+			return false;
 		});
 
 		if (cleanedParts.length === 0) continue;
@@ -257,5 +283,14 @@ export function sanitizeMessages(messages: UIMessage[], options: SanitizeOptions
 		});
 	}
 
-	return sanitized;
+	let trimmed = sanitized.slice(-maxHistory);
+
+	const firstUserIdx = trimmed.findIndex((m) => m.role === 'user');
+	if (firstUserIdx > 0) {
+		trimmed = trimmed.slice(firstUserIdx);
+	} else if (firstUserIdx === -1) {
+		return [];
+	}
+
+	return trimmed;
 }

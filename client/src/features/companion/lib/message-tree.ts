@@ -1,4 +1,4 @@
-import type { UIMessage } from 'ai';
+import type { FileUIPart, UIMessage } from 'ai';
 
 export interface MessageNode {
   parentId: string | null;
@@ -155,12 +155,16 @@ export function editUserMessage(
     return { editedMessage: null, state };
   }
 
+  const fileParts = target.message.parts.filter(
+    (part): part is FileUIPart => part.type === 'file',
+  );
+
   const editedMessage: UIMessage = {
     metadata: {
       ...(target.message.metadata as Record<string, unknown> | undefined),
       createdAt: Date.now(),
     },
-    parts: [{ text: newText, type: 'text' }],
+    parts: [...fileParts, { text: newText, type: 'text' }],
     id: `msg_${crypto.randomUUID()}`,
     role: 'user',
   };
