@@ -7,6 +7,7 @@ import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import tailwindcss from '@tailwindcss/vite';
 import babel from '@rolldown/plugin-babel';
+import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
@@ -27,10 +28,48 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
+    VitePWA({
+      manifest: {
+        icons: [
+          {
+            src: 'manifest-icon-192.maskable.png',
+            type: 'image/png',
+            sizes: '192x192',
+          },
+          {
+            src: 'manifest-icon-512.maskable.png',
+            type: 'image/png',
+            sizes: '512x512',
+          },
+          {
+            src: 'manifest-icon-512.maskable.png',
+            purpose: 'any maskable',
+            type: 'image/png',
+            sizes: '512x512',
+          },
+        ],
+        description: 'Personal Knowledge Assistant',
+        background_color: '#ffffff',
+        theme_color: '#ffffff',
+        display: 'standalone',
+        short_name: 'Synapse',
+        name: 'Synapse',
+        start_url: '/',
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        navigateFallback: '/index.html',
+      },
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      devOptions: {
+        enabled: true,
+      },
+      registerType: 'autoUpdate',
+    }),
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
     tsconfigPaths: true,
   },

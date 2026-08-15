@@ -20,6 +20,8 @@ import NavSecondary from './nav-secondary';
 import NavMain from './nav-main';
 import NavUser from './nav-user';
 
+import Logo from '@/assets/images/logo.png';
+
 export default function AppLeftSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
@@ -36,7 +38,7 @@ export default function AppLeftSidebar({
                 <Link to="/">
                   <div className="flex aspect-square size-8 items-center justify-center">
                     <img
-                      src="/images/logo.png"
+                      src={Logo}
                       className="rounded-sm"
                       width={32}
                       height={32}

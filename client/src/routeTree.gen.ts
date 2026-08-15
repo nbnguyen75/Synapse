@@ -16,7 +16,6 @@ import { Route as AppChatRouteRouteImport } from './routes/_app/chat/route'
 import { Route as AppNotesRouteRouteImport } from './routes/_app/notes/route'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
-import { Route as AppTagsRouteImport } from './routes/_app/tags'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AppChatIndexRouteImport } from './routes/_app/chat/index'
@@ -60,11 +59,6 @@ const AppProfileRoute = AppProfileRouteImport.update({
 const AppSettingsRoute = AppSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppTagsRoute = AppTagsRouteImport.update({
-  id: '/tags',
-  path: '/tags',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -128,7 +122,6 @@ export interface FileRoutesByFullPath {
   '/notes': typeof AppNotesRouteRouteWithChildren
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
-  '/tags': typeof AppTagsRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/chat/$conversationId': typeof AppChatConversationIdRoute
@@ -145,7 +138,6 @@ export interface FileRoutesByTo {
   '/notes': typeof AppNotesListIndexRoute
   '/profile': typeof AppProfileRoute
   '/settings': typeof AppSettingsRoute
-  '/tags': typeof AppTagsRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/chat/$conversationId': typeof AppChatConversationIdRoute
@@ -165,7 +157,6 @@ export interface FileRoutesById {
   '/_app/notes': typeof AppNotesRouteRouteWithChildren
   '/_app/profile': typeof AppProfileRoute
   '/_app/settings': typeof AppSettingsRoute
-  '/_app/tags': typeof AppTagsRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_app/notes/_list': typeof AppNotesListRouteRouteWithChildren
@@ -186,7 +177,6 @@ export interface FileRouteTypes {
     | '/notes'
     | '/profile'
     | '/settings'
-    | '/tags'
     | '/login'
     | '/register'
     | '/chat/$conversationId'
@@ -203,7 +193,6 @@ export interface FileRouteTypes {
     | '/notes'
     | '/profile'
     | '/settings'
-    | '/tags'
     | '/login'
     | '/register'
     | '/chat/$conversationId'
@@ -222,7 +211,6 @@ export interface FileRouteTypes {
     | '/_app/notes'
     | '/_app/profile'
     | '/_app/settings'
-    | '/_app/tags'
     | '/_auth/login'
     | '/_auth/register'
     | '/_app/notes/_list'
@@ -291,13 +279,6 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AppSettingsRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/_app/tags': {
-      id: '/_app/tags'
-      path: '/tags'
-      fullPath: '/tags'
-      preLoaderRoute: typeof AppTagsRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_auth/login': {
@@ -432,7 +413,6 @@ interface AppRouteRouteChildren {
   AppNotesRouteRoute: typeof AppNotesRouteRouteWithChildren
   AppProfileRoute: typeof AppProfileRoute
   AppSettingsRoute: typeof AppSettingsRoute
-  AppTagsRoute: typeof AppTagsRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
@@ -440,7 +420,6 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppNotesRouteRoute: AppNotesRouteRouteWithChildren,
   AppProfileRoute: AppProfileRoute,
   AppSettingsRoute: AppSettingsRoute,
-  AppTagsRoute: AppTagsRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(

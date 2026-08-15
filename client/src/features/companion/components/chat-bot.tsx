@@ -40,7 +40,7 @@ import {
 } from '@/features/companion/utils/file-parts';
 import { useCompanionChatSession } from '@/features/companion/hooks/use-companion-chat-session';
 import { PromptInputAttachmentsDisplay } from '@/features/companion/components/chat-attachment';
-import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
+import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes';
 
 import { useNoteCreatePrefillStore } from '@/store/note-create-prefill-store';
 import { MAX_CHAT_ATTACHMENTS } from '@/store/chat-note-attachment-store';

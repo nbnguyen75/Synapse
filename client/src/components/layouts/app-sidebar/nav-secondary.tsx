@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { m } from '@/paraglide/messages';
 
 import KeyboardShortcutsDialog from '@/components/shared/sidebar-keyboard-shortcuts-dialog';
+import { KeyCombo } from '@/components/shared';
 
 import {
   SidebarGroup,
@@ -24,6 +25,8 @@ export default function NavSecondary() {
               <SidebarMenuButton size="sm" className="text-xs font-medium">
                 <KeyboardIcon className="size-4" />
                 <span>{m.sidebar_keyboard_shortcuts()}</span>
+
+                <KeyCombo combo="mod+/" className="ml-auto" />
               </SidebarMenuButton>
             </KeyboardShortcutsDialog>
           </SidebarMenuItem>

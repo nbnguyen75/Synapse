@@ -46,7 +46,7 @@ function toUIMessage(r: MessageRow): { parentId: string | null } & UIMessage {
 
 export async function getOrCreateConversation(userId: string, conversationId?: string) {
 	if (!conversationId) {
-		return await createNewConversation(userId);
+		return createNewConversation(userId);
 	}
 
 	const conversation = await findConversationById(conversationId);
@@ -146,7 +146,7 @@ export async function setConversationCurrentMessage(
 	await checkConversationOwnership(userId, conversationId);
 
 	const message = await findMessageById(messageId);
-	if (!message || message.conversationId !== conversationId) {
+	if (message?.conversationId !== conversationId) {
 		throw new NotFoundError('Tin nhắn không tồn tại trong cuộc trò chuyện này');
 	}
 

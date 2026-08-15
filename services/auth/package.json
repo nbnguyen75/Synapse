@@ -18,14 +18,14 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
-		"@better-auth/drizzle-adapter": "^1.6.23",
+		"@better-auth/drizzle-adapter": "^1.6.29",
 		"@t3-oss/env-core": "^0.13.11",
 		"bcrypt": "^6.0.0",
-		"better-auth": "^1.6.23",
+		"better-auth": "^1.6.29",
 		"drizzle-orm": "^1.0.0-rc.4",
-		"hono": "^4.12.32",
+		"hono": "^4.13.2",
 		"http-status-codes": "^2.3.0",
-		"pg": "^8.22.0",
+		"pg": "^8.23.0",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
@@ -33,18 +33,18 @@
 		"@hono/eslint-config": "^2.1.1",
 		"@types/bcrypt": "^6.0.0",
 		"@types/bun": "latest",
-		"@types/node": "^26.1.2",
-		"@types/pg": "^8.20.0",
+		"@types/node": "^26.2.0",
+		"@types/pg": "^8.21.0",
 		"drizzle-kit": "^1.0.0-rc.4",
-		"eslint": "^10.8.0",
+		"eslint": "^10.8.1",
 		"eslint-config-prettier": "^10.1.8",
-		"eslint-plugin-oxlint": "^1.76.0",
-		"eslint-plugin-perfectionist": "^5.10.0",
-		"globals": "^17.8.0",
+		"eslint-plugin-oxlint": "^1.78.0",
+		"eslint-plugin-perfectionist": "^5.10.1",
+		"globals": "^17.11.0",
 		"husky": "^9.1.7",
-		"lint-staged": "^17.2.0",
-		"oxlint": "^1.76.0",
+		"lint-staged": "^17.3.0",
+		"oxlint": "^1.78.0",
 		"prettier": "^3.9.6",
-		"typescript-eslint": "^8.65.0"
+		"typescript-eslint": "^8.67.0"
 	}
 }

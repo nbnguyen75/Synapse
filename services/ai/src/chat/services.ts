@@ -12,12 +12,12 @@ import {
 	type UIMessage
 } from 'ai';
 
-import { buildSystemInstruction, MAX_OUTPUT_TOKENS, type UserAiSettings } from '@/settings';
 import {
 	createSearchChatHistoriesTool,
 	createSearchNotesTool,
 	createSearchWebTool
 } from '@/chat/tools';
+import { buildSystemInstruction, MAX_OUTPUT_TOKENS, type UserAiSettings } from '@/settings';
 import { appendMessage, getOrCreateConversation, loadActivePath } from '@/conversation';
 import { CHAT_TEMPERATURE, RECENT_HISTORY_LIMIT } from '@/chat/constants';
 import { dataPartSchema, messageMetadataSchema } from '@/chat/schemas';

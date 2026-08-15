@@ -16,6 +16,7 @@ import { DefaultLoaderPage } from '@/components/app/pages';
 
 import { Toaster } from '@/components/ui/sonner';
 
+import Favicon from '@/assets/images/favicon.ico';
 import appCss from '@/assets/styles.css?url';
 
 interface RouterContext {
@@ -41,6 +42,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       {
         rel: 'stylesheet',
         href: appCss,
+      },
+      {
+        type: 'image/favicon',
+        href: Favicon,
+        rel: 'icon',
       },
     ],
   }),

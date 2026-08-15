@@ -21,7 +21,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Field, FieldError } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 import {
   ArrowLeftIcon,
@@ -30,7 +29,6 @@ import {
   Loader2Icon,
   SaveIcon,
   SparklesIcon,
-  TagIcon,
 } from 'lucide-react';
 
 export const Route = createFileRoute('/_app/notes/create')({

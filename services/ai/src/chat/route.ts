@@ -57,8 +57,7 @@ const chatRoute = new Hono()
 
 		const assistantMessage = await findMessageById(assistantMessageId);
 		if (
-			!assistantMessage ||
-			assistantMessage.conversationId !== conversationId ||
+			assistantMessage?.conversationId !== conversationId ||
 			assistantMessage.role !== 'assistant'
 		) {
 			throw new NotFoundError('Tin nhắn không tồn tại trong cuộc trò chuyện này');

@@ -1,6 +1,6 @@
 import type { UIMessage } from 'ai';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { useChat } from '@ai-sdk/react';
 

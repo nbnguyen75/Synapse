@@ -1,4 +1,4 @@
-import { useRouter } from '@tanstack/react-router';
+import { Link, useRouter } from '@tanstack/react-router';
 
 import {
   Style as DiceBearStyle,
@@ -32,7 +32,6 @@ import {
   BellIcon,
   ChevronsUpDown,
   LogOutIcon,
-  SparklesIcon,
 } from 'lucide-react';
 
 function Loading() {
@@ -129,20 +128,16 @@ export default function NavUser() {
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <SparklesIcon />
-                {m.sidebar_upgrade_pro()}
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+              <DropdownMenuItem
+                render={
+                  <Link to="/profile">
+                    <BadgeCheckIcon />
+                    {m.sidebar_account()}
+                  </Link>
+                }
+              />
 
-            <DropdownMenuSeparator />
-
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheckIcon />
-                {m.sidebar_account()}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <BellIcon />
                 {m.sidebar_notifications()}
               </DropdownMenuItem>
