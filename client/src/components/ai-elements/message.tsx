@@ -13,10 +13,10 @@ import {
   useState,
 } from 'react';
 
+import { Streamdown, type PluginConfig } from 'streamdown';
 import { mermaid } from '@streamdown/mermaid';
 import { code } from '@streamdown/code';
 import { math } from '@streamdown/math';
-import { Streamdown } from 'streamdown';
 import { cjk } from '@streamdown/cjk';
 
 import { cn } from '@/lib/utils';
@@ -338,7 +338,7 @@ export const MessageResponse = memo(
         'size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
         className,
       )}
-      plugins={streamdownPlugins}
+      plugins={streamdownPlugins as PluginConfig}
       {...props}
     />
   ),

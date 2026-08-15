@@ -13,10 +13,10 @@ import {
   useState,
 } from 'react';
 
+import { Streamdown, type PluginConfig } from 'streamdown';
 import { mermaid } from '@streamdown/mermaid';
 import { code } from '@streamdown/code';
 import { math } from '@streamdown/math';
-import { Streamdown } from 'streamdown';
 import { cjk } from '@streamdown/cjk';
 
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
@@ -222,7 +222,9 @@ export const ReasoningContent = memo(
       )}
       {...props}
     >
-      <Streamdown plugins={streamdownPlugins}>{children}</Streamdown>
+      <Streamdown plugins={streamdownPlugins as PluginConfig}>
+        {children}
+      </Streamdown>
     </CollapsibleContent>
   ),
 );
