@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: notes
+  name: notes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notes
+  template:
+    metadata:
+      labels:
+        app: notes
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z postgres 5432; do echo waiting for postgres...; sleep 2; done;",
+            ]
+        - name: wait-for-rabbitmq
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z rabbitmq 5672; do echo waiting for rabbitmq...; sleep 2; done;",
+            ]
+      containers:
+        - envFrom:
+            - secretRef:
+                name: notes-secrets
+          image: notes
+          name: synapse-notes
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+      restartPolicy: Always

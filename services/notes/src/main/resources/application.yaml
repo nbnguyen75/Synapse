@@ -18,9 +18,9 @@ spring:
     resources:
       add-mappings: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/notes_db
-    username: synapse
-    password: root
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/notes_db}
+    username: ${SPRING_DATASOURCE_USERNAME:synapse}
+    password: ${SPRING_DATASOURCE_PASSWORD:root}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
@@ -28,6 +28,12 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 5000
       leak-detection-threshold: 30000
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:rabbitmq}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    virtual-host: ${SPRING_RABBITMQ_VHOST:synapse-vhost}
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
   jpa:
     open-in-view: false
     hibernate:
@@ -37,7 +43,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:5001/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_JWKS_URL:http://auth:5001/.well-known/jwks.json}
 
 management:
   endpoint:

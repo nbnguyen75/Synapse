@@ -10,10 +10,10 @@ export const env = createEnv({
 			)
 			.optional()
 			.default([]),
-		TAVILY_API_KEY: z.string().optional(),
-		AUTH_JWKS_URL: z.url(),
-		DATABASE_URL: z.url(),
-		RABBITMQ_URL: z.url()
+		DATABASE_URL: z.url().trim().default('postgresql://synapse:root@postgres:5432/ai_db'),
+		AUTH_JWKS_URL: z.url().trim().default('http://auth:5001/.well-known/jwks.json'),
+		RABBITMQ_URL: z.url().trim().default('amqp://guest:guest@rabbitmq:5672'),
+		TAVILY_API_KEY: z.string().trim().optional()
 	},
 
 	client: {

@@ -1,0 +1,63 @@
+apiVersion: v1
+data:
+  kong.yml: |
+    _format_version: "3.0"
+
+    plugins:
+      - name: cors
+        config:
+          origins:
+            - http://localhost:5173
+            - http://127.0.0.1:5173
+            - http://localhost:4173
+            - http://127.0.0.1:4173
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Authorization
+            - Content-Type
+            - Origin
+            - X-Requested-With
+          exposed_headers:
+            - X-Conversation-Id
+            - X-Accel-Buffering
+          credentials: true
+          preflight_continue: false
+
+    services:
+      - name: auth-service
+        url: http://auth:5001
+        routes:
+          - name: auth-route
+            paths:
+              - /api/v1/auth
+            strip_path: true
+
+      - name: notes-service
+        url: http://notes:8082
+        routes:
+          - name: notes-route
+            paths:
+              - /api/v1/notes
+            strip_path: true
+
+      - name: ai-service
+        url: http://ai:5002
+        routes:
+          - name: ai-route
+            paths:
+              - /api/v1/ai
+            strip_path: true
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    app: kong
+  name: kong-cm0

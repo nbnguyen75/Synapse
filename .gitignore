@@ -1,3 +1,6 @@
 **/.env
 **/.env.*
 !**/.env.example.*
+infra/k8s/secrets/*
+!infra/k8s/secrets/*.example
+infra/docker/rabbitmq/definitions.json

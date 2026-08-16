@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: postgres
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - envFrom:
+            - secretRef:
+                name: postgres-secrets
+          image: pgvector/pgvector:pg16
+          livenessProbe:
+            exec:
+              command:
+              - pg_isready
+              - -U
+              - synapse
+              - -d
+              - postgres
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: synapse-postgres
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pgdata
+            - mountPath: /docker-entrypoint-initdb.d/init-multi-db.sh
+              name: postgres-cm1
+              subPath: init-multi-db.sh
+      restartPolicy: Always
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pgdata
+        - configMap:
+            items:
+              - key: init-multi-db.sh
+                path: init-multi-db.sh
+            name: postgres-cm1
+          name: postgres-cm1

@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: auth-seed-demo-acc
+  labels:
+    app: auth-seed-demo-acc
+spec:
+  template:
+    metadata:
+      labels:
+        app: auth-seed-demo-acc
+    spec:
+      serviceAccountName: job-watcher-sa
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z postgres 5432; do echo waiting for postgres...; sleep 2; done;",
+            ]
+        - name: wait-for-auth-migrate
+          image: bitnami/kubectl:latest
+          command:
+            - sh
+            - -c
+            - |
+              until kubectl get job auth-migrate >/dev/null 2>&1; do 
+                echo "Waiting for job auth-migrate to be created..."; 
+                sleep 2; 
+              done;
+              kubectl wait --for=condition=complete job/auth-migrate --timeout=120s
+      containers:
+        - name: synapse-auth-seed-demo-acc
+          image: auth-migrate
+          imagePullPolicy: IfNotPresent
+          command: ["bun", "--bun", "run", "./seed/demo-account.ts"]
+          env:
+            - name: SEED_DEMO_ACCOUNT
+              value: "true"
+          envFrom:
+            - secretRef:
+                name: auth-secrets
+      restartPolicy: OnFailure

@@ -25,17 +25,11 @@ public class RabbitMQConfiguration {
   public static final String ROUTING_KEY_UPDATED = "note.updated";
   public static final String ROUTING_KEY_DELETED = "note.deleted";
 
-  // * Queues & DLQs
-  public static final String QUEUE_TITLE = "note.title.queue";
-  public static final String QUEUE_TITLE_DLQ = "note.title.dlq";
-
+  // * Queue & DLQ dành riêng cho AI Sync (Vector Embedding)
   public static final String QUEUE_AI_SYNC = "note.ai-sync.queue";
   public static final String QUEUE_AI_SYNC_DLQ = "note.ai-sync.dlq";
-
-  public static final String DLQ_ROUTING_KEY_TITLE = "note.title.dlq.routing.key";
   public static final String DLQ_ROUTING_KEY_AI_SYNC = "note.ai-sync.dlq.routing.key";
 
-  // 1. Exchanges
   @Bean
   public DirectExchange mainExchange() {
     return new DirectExchange(MAIN_EXCHANGE);
@@ -46,22 +40,7 @@ public class RabbitMQConfiguration {
     return new DirectExchange(DLX_EXCHANGE);
   }
 
-  // 2. Queue & Bindings cho Sinh Tiêu Đề (Title Queue)
-  @Bean
-  public Queue titleQueue() {
-    return QueueBuilder.durable(QUEUE_TITLE)
-        .withArgument("x-dead-letter-exchange", DLX_EXCHANGE)
-        .withArgument("x-dead-letter-routing-key", DLQ_ROUTING_KEY_TITLE)
-        .build();
-  }
-
-  @Bean
-  public Binding titleBinding() {
-    return BindingBuilder.bind(titleQueue()).to(mainExchange()).with(ROUTING_KEY_CREATED);
-  }
-
-  // 3. Queue & Bindings cho Đồng bộ Vector Embedding (AI Sync Queue - nhận cả
-  // Created, Updated, Deleted)
+  // Bindings cho AI Sync Queue
   @Bean
   public Queue aiSyncQueue() {
     return QueueBuilder.durable(QUEUE_AI_SYNC)
@@ -85,17 +64,7 @@ public class RabbitMQConfiguration {
     return BindingBuilder.bind(aiSyncQueue()).to(mainExchange()).with(ROUTING_KEY_DELETED);
   }
 
-  // 4. Dead Letter Queues (DLQ)
-  @Bean
-  public Queue titleDlq() {
-    return QueueBuilder.durable(QUEUE_TITLE_DLQ).build();
-  }
-
-  @Bean
-  public Binding titleDlqBinding() {
-    return BindingBuilder.bind(titleDlq()).to(deadLetterExchange()).with(DLQ_ROUTING_KEY_TITLE);
-  }
-
+  // DLQ cho AI Sync
   @Bean
   public Queue aiSyncDlq() {
     return QueueBuilder.durable(QUEUE_AI_SYNC_DLQ).build();
@@ -106,7 +75,6 @@ public class RabbitMQConfiguration {
     return BindingBuilder.bind(aiSyncDlq()).to(deadLetterExchange()).with(DLQ_ROUTING_KEY_AI_SYNC);
   }
 
-  // 5. Converter & Recoverer
   @Bean
   public MessageConverter jsonMessageConverter() {
     return new JacksonJsonMessageConverter();
@@ -114,6 +82,6 @@ public class RabbitMQConfiguration {
 
   @Bean
   public MessageRecoverer messageRecoverer(RabbitTemplate rabbitTemplate) {
-    return new RepublishMessageRecoverer(rabbitTemplate, DLX_EXCHANGE, DLQ_ROUTING_KEY_TITLE);
+    return new RepublishMessageRecoverer(rabbitTemplate, DLX_EXCHANGE, DLQ_ROUTING_KEY_AI_SYNC);
   }
 }

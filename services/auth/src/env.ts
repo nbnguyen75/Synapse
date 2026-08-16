@@ -1,5 +1,5 @@
 import { createEnv } from '@t3-oss/env-core';
-import { z } from 'zod';
+import z from 'zod/v4';
 
 export const env = createEnv({
 	server: {
@@ -9,12 +9,12 @@ export const env = createEnv({
 				z.array(z.string())
 			)
 			.optional()
-			.default([]),
-		GOOGLE_CLIENT_SECRET: z.string().nonempty(),
-		GOOGLE_CLIENT_ID: z.string().nonempty(),
-		BETTER_AUTH_URL: z.url().optional(),
-		BETTER_AUTH_SECRET: z.string(),
-		DATABASE_URL: z.url()
+			.default(['*']),
+		DATABASE_URL: z.url().trim().default('postgresql://synapse:root@postgres:5432/auth_db'),
+		BETTER_AUTH_URL: z.url().trim().default('http://auth:5001'),
+		GOOGLE_CLIENT_SECRET: z.string().trim().nonempty(),
+		BETTER_AUTH_SECRET: z.string().trim().nonempty(),
+		GOOGLE_CLIENT_ID: z.string().trim().nonempty()
 	},
 
 	client: {

@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: ai-migrate
+  name: ai-migrate
+spec:
+  template:
+    metadata:
+      labels:
+        app: ai-migrate
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z postgres 5432; do echo waiting for postgres...; sleep 2; done;",
+            ]
+      containers:
+        - args:
+            - bun
+            - --bun
+            - db:push
+          envFrom:
+            - secretRef:
+                name: ai-secrets
+          image: ai-migrate
+          name: synapse-ai-migrate
+          imagePullPolicy: IfNotPresent
+      restartPolicy: OnFailure

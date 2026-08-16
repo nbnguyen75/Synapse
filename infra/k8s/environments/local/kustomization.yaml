@@ -1,0 +1,26 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+secretGenerator:
+  - name: auth-secrets
+    envs:
+      - ../../../../services/auth/.env.docker
+    type: Opaque
+
+  - name: ai-secrets
+    envs:
+      - ../../../../services/ai/.env.docker
+    type: Opaque
+
+  - name: notes-secrets
+    envs:
+      - ../../../../services/notes/.env.docker
+    type: Opaque
+
+  - name: postgres-secrets
+    envs:
+      - ../../../../infra/docker/postgres/.env.docker
+    type: Opaque

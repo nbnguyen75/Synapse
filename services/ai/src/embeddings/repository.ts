@@ -14,7 +14,7 @@ export type UpsertNoteParams = {
 };
 
 export type UpsertNoteEmbeddingParams = {
-	embedding: number[];
+	embedding: number[] | null;
 	noteId: string;
 	userId: string;
 };

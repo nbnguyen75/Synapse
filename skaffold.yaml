@@ -1,0 +1,54 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: synapse
+build:
+  artifacts:
+    # --- AUTH SERVICE ---
+    - image: auth
+      context: services/auth
+      docker:
+        target: app
+    - image: auth-migrate
+      context: services/auth
+      docker:
+        target: migrate
+
+    # --- AI SERVICE ---
+    - image: ai
+      context: services/ai
+      docker:
+        target: app
+    - image: ai-migrate
+      context: services/ai
+      docker:
+        target: migrate
+
+    # --- NOTES SERVICE ---
+    - image: notes
+      context: services/notes
+
+manifests:
+  rawYaml:
+    - infra/k8s/secrets/*.secret.yaml
+  kustomize:
+    paths:
+      - infra/k8s/environments/local
+    buildArgs:
+      - --load-restrictor=LoadRestrictionsNone
+
+portForward:
+  - resourceType: Service
+    resourceName: rabbitmq
+    port: 15672
+    localPort: 15672
+
+  - resourceType: Service
+    resourceName: kong
+    port: 8000
+    localPort: 8000
+
+  - resourceType: Service
+    resourceName: postgres
+    port: 5432
+    localPort: 5432
