@@ -11,8 +11,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 import { useSettingsStore } from '@/store/settings-store';
 
-import { ConfirmProvider } from '@/providers/confirm-provider';
-
 import {
   AppLeftSidebar,
   AppRightSidebar,
@@ -32,6 +30,8 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+
+import { ConfirmProvider } from '@/providers';
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: ({ location, context }) => {

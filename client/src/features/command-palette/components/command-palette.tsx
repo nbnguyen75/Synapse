@@ -1,13 +1,10 @@
-import type {
-  CommandItem,
-  CommandOutput,
-  NoteItem,
-} from '@/features/command-palette/types';
+import type { GroupedCommandItem } from '@/features/command-palette/components/command-palette-search-results';
+import type { CommandOutput, NoteItem } from '@/features/command-palette/types';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 
-import { useNavigate, useRouter } from '@tanstack/react-router';
-import { useHotkeys } from '@tanstack/react-hotkeys';
+import { formatForDisplay, useHotkeys } from '@tanstack/react-hotkeys';
+import { useNavigate } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 
@@ -15,6 +12,7 @@ import {
   CommandPaletteOutput,
   CommandPaletteSearchInput,
   CommandPaletteSearchResults,
+  CommandPaletteFooter,
 } from '@/features/command-palette/components';
 import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
@@ -27,8 +25,9 @@ import { useNoteCreatePrefillStore } from '@/store/note-create-prefill-store';
 
 import { useTheme } from '@/providers/theme-provider';
 
+import { KEYBOARD_SHORTCUTS } from '@/config/keyboard-shortcuts';
+
 import { m } from '@/paraglide/messages';
-import { signOut } from '@/lib/auth';
 
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
@@ -38,10 +37,10 @@ import {
   PlusIcon,
   MoonIcon,
   SunIcon,
-  LogOutIcon,
   HelpCircleIcon,
   BarChart2Icon,
   ArrowRightIcon,
+  TagIcon,
 } from 'lucide-react';
 
 export default function CommandPalette() {
@@ -52,7 +51,6 @@ export default function CommandPalette() {
     null,
   );
 
-  const router = useRouter();
   const navigate = useNavigate();
   const { toggleTheme, theme } = useTheme();
   const goToCompanion = useGoToCompanion();
@@ -63,8 +61,8 @@ export default function CommandPalette() {
 
   const debouncedSearch = useDebounce(search, 150);
   const { data } = useGetNotes({
+    q: debouncedSearch.replace(/^([#>/])/, '').trim(),
     sort: ['updatedAt,desc'],
-    q: debouncedSearch,
     pageSize: 10,
     page: 1,
   });
@@ -117,9 +115,10 @@ export default function CommandPalette() {
     { allowWhenTyping: true },
   );
 
-  const contentPart = search.replace(/^\/create\s*/i, '').trim();
+  const contentPart = search.replace(/^\/(create|note)\s*/i, '').trim();
 
-  const slashCommands = useMemo<CommandItem[]>(
+  // 1. Slash Commands (/help, /theme, /stats, /notes, /create)
+  const slashCommands = useMemo<GroupedCommandItem[]>(
     () => [
       {
         action: () => {
@@ -132,6 +131,7 @@ export default function CommandPalette() {
         },
         subtitle: m.command_palette_subtitle_help(),
         icon: HelpCircleIcon,
+        group: 'commands',
         command: '/help',
         id: 'cmd_help',
         title: '/help',
@@ -151,6 +151,7 @@ export default function CommandPalette() {
         }),
         icon: theme === 'dark' ? SunIcon : MoonIcon,
         command: '/theme',
+        group: 'commands',
         id: 'cmd_theme',
         title: '/theme',
       },
@@ -187,6 +188,7 @@ export default function CommandPalette() {
         subtitle: m.command_palette_subtitle_stats(),
         icon: BarChart2Icon,
         command: '/stats',
+        group: 'commands',
         id: 'cmd_stats',
         title: '/stats',
       },
@@ -202,6 +204,7 @@ export default function CommandPalette() {
         subtitle: m.command_palette_subtitle_notes(),
         icon: FileTextIcon,
         command: '/notes',
+        group: 'commands',
         id: 'cmd_notes',
         title: '/notes',
       },
@@ -213,9 +216,7 @@ export default function CommandPalette() {
               .getState()
               .set(contentPart.trim().slice(0, NOTE_CONTENT_MAX_LENGTH));
           }
-          navigate({
-            to: '/notes/create',
-          });
+          navigate({ to: '/notes/create' });
         },
         title: contentPart
           ? m.command_palette_create_title_with_title({ content: contentPart })
@@ -223,15 +224,20 @@ export default function CommandPalette() {
         subtitle: contentPart
           ? m.command_palette_create_subtitle_with_title()
           : m.command_palette_create_subtitle_empty(),
+        shortcut: formatForDisplay(
+          KEYBOARD_SHORTCUTS['go-to-create-note'].combos[0],
+        ),
         command: '/create',
         id: 'cmd_create',
         icon: PlusIcon,
+        group: 'quick',
       },
     ],
-    [theme, notes, search, navigate, toggleTheme, contentPart],
+    [theme, notes, contentPart, navigate, toggleTheme],
   );
 
-  const staticCommands = useMemo<CommandItem[]>(
+  // 2. Static Commands (Tích hợp lại)
+  const staticCommands = useMemo<GroupedCommandItem[]>(
     () => [
       {
         action: () => {
@@ -241,6 +247,7 @@ export default function CommandPalette() {
         subtitle: m.command_palette_subtitle_go_notes(),
         title: m.command_palette_title_go_notes(),
         icon: FileTextIcon,
+        group: 'commands',
         id: 'go_notes',
       },
       {
@@ -252,6 +259,7 @@ export default function CommandPalette() {
         title: m.command_palette_title_go_companion(),
         icon: MessageSquareIcon,
         id: 'go_companion',
+        group: 'commands',
       },
       {
         action: () => {
@@ -268,27 +276,9 @@ export default function CommandPalette() {
         }),
         icon: theme === 'dark' ? SunIcon : MoonIcon,
         title: m.command_palette_title_theme(),
+        shortcut: 'Shift + T',
         id: 'toggle_theme',
-      },
-      {
-        action: async () => {
-          if (window.confirm(m.command_palette_confirm_logout())) {
-            setIsOpen(false);
-            await signOut({
-              fetchOptions: {
-                onSuccess: async () => {
-                  await router.invalidate();
-
-                  window.location.reload();
-                },
-              },
-            });
-          }
-        },
-        subtitle: m.command_palette_subtitle_logout(),
-        title: m.command_palette_title_logout(),
-        icon: LogOutIcon,
-        id: 'logout',
+        group: 'commands',
       },
     ],
     [navigate, goToCompanion, theme, toggleTheme],
@@ -299,74 +289,132 @@ export default function CommandPalette() {
     navigate({ params: { noteId: note.id }, to: '/notes/$noteId' });
   };
 
-  const searchResults = useMemo<CommandItem[]>(() => {
+  // 3. Tổng hợp danh sách kết quả hiển thị
+  const searchResults = useMemo<GroupedCommandItem[]>(() => {
     const term = search.trim();
 
-    if (term.startsWith('/')) {
-      return slashCommands.filter((cmd) =>
-        cmd.command?.toLowerCase().startsWith(term.split(' ')[0].toLowerCase()),
+    // 3.1. Lọc theo Tag (#)
+    if (term.startsWith('#')) {
+      const tagQuery = term.slice(1).toLowerCase();
+      const tagsMap = new Map<string, number>();
+
+      notes.forEach((note) => {
+        const matches = note.content?.match(/#[\w-]+/g);
+        matches?.forEach((tag) => {
+          const tagName = tag.replace('#', '');
+          if (!tagQuery || tagName.toLowerCase().includes(tagQuery)) {
+            tagsMap.set(tagName, (tagsMap.get(tagName) || 0) + 1);
+          }
+        });
+      });
+
+      return Array.from(tagsMap.entries()).map(([tag, count]) => ({
+        action: () => {
+          setIsOpen(false);
+          navigate({ search: { q: `#${tag}` }, to: '/notes' });
+        },
+        meta: `${count} notes`,
+        id: `tag_${tag}`,
+        title: `#${tag}`,
+        icon: TagIcon,
+        group: 'tags',
+      }));
+    }
+
+    // 3.2. Lọc theo Lệnh (>/)
+    if (term.startsWith('>') || term.startsWith('/')) {
+      const cmdQuery = term.slice(1).toLowerCase();
+      const allCmds = [...slashCommands, ...staticCommands];
+      return allCmds.filter(
+        (cmd) =>
+          cmd.title.toLowerCase().includes(cmdQuery) ||
+          cmd.command?.toLowerCase().includes(cmdQuery),
       );
     }
 
+    // 3.3. Mặc định khi chưa nhập ô tìm kiếm (Default Layout)
     if (term === '') {
       const createCmd = slashCommands.find((cmd) => cmd.id === 'cmd_create');
-      return createCmd ? [createCmd, ...staticCommands] : staticCommands;
-    }
+      const quickItems: GroupedCommandItem[] = createCmd ? [createCmd] : [];
 
-    // 1. Map danh sách notes từ BE với xử lý fallback ngôn ngữ và cắt ngắn preview
-    const notesResults: CommandItem[] = notes.map((note) => {
-      const content = note.content ?? '';
-      const preview =
-        content.length > 150 ? `${content.slice(0, 150)}...` : content;
+      if (notes.length > 0) {
+        const recentNote = notes[0];
+        quickItems.push({
+          title: recentNote.title || m.command_palette_note_untitled(),
+          action: () => handleOpenNote(recentNote),
+          meta: 'Workspace • 1 min read',
+          id: `recent_${recentNote.id}`,
+          icon: FileTextIcon,
+          group: 'quick',
+        });
+      }
 
-      return {
-        subtitle: preview || m.command_palette_note_no_content(),
+      quickItems.push({
+        action: () => {
+          setIsOpen(false);
+          navigate({ search: { q: '#work' }, to: '/notes' });
+        },
+        id: 'tag_work_default',
+        meta: '12 notes',
+        title: '#work',
+        group: 'quick',
+        icon: TagIcon,
+      });
+
+      const noteItems: GroupedCommandItem[] = notes.slice(0, 3).map((note) => ({
+        meta: `Projects • ${new Date(note.updatedAt).toLocaleDateString()}`,
         title: note.title || m.command_palette_note_untitled(),
         action: () => handleOpenNote(note),
         id: `note_${note.id}`,
         icon: FileTextIcon,
-      };
-    });
+        group: 'notes',
+      }));
 
-    // 2. Lọc staticCommands theo từ khóa tìm kiếm
-    const filteredCommands = staticCommands.filter(
+      return [...quickItems, ...staticCommands, ...noteItems];
+    }
+
+    // 3.4. Tìm kiếm nội dung tổng hợp khi gõ từ khóa
+    const notesResults: GroupedCommandItem[] = notes.map((note) => ({
+      subtitle:
+        note.content?.slice(0, 80) || m.command_palette_note_no_content(),
+      title: note.title || m.command_palette_note_untitled(),
+      meta: new Date(note.updatedAt).toLocaleDateString(),
+      action: () => handleOpenNote(note),
+      id: `note_${note.id}`,
+      icon: FileTextIcon,
+      group: 'notes',
+    }));
+
+    const filteredStaticCmds = staticCommands.filter(
       (cmd) =>
         cmd.title.toLowerCase().includes(term.toLowerCase()) ||
-        cmd.subtitle.toLowerCase().includes(term.toLowerCase()),
+        cmd.subtitle?.toLowerCase().includes(term.toLowerCase()),
     );
 
-    const combinedResults: CommandItem[] = [
-      ...notesResults,
-      ...filteredCommands,
-    ];
+    const combined = [...notesResults, ...filteredStaticCmds];
 
     const totalCount = data?.totalElements ?? 0;
     if (totalCount > 10) {
-      combinedResults.push({
+      combined.push({
         action: () => {
           setIsOpen(false);
-          navigate({
-            search: { q: term },
-            to: '/notes',
-          });
+          navigate({ search: { q: term }, to: '/notes' });
         },
-        title: m.command_palette_view_all_title({
-          count: totalCount,
-          term,
-        }),
+        title: m.command_palette_view_all_title({ count: totalCount, term }),
         subtitle: m.command_palette_view_all_subtitle(),
         id: 'view_all_results',
         icon: ArrowRightIcon,
+        group: 'notes',
       });
     }
 
-    return combinedResults;
+    return combined;
   }, [
     search,
     notes,
-    data?.totalElements,
-    staticCommands,
     slashCommands,
+    staticCommands,
+    data?.totalElements,
     navigate,
   ]);
 
@@ -467,7 +515,7 @@ export default function CommandPalette() {
       <DialogContent
         ref={dialogRef}
         showCloseButton={false}
-        className="sm:max-w-2xl max-h-120 bg-popover/95 backdrop-blur-md rounded-2xl border border-border/60 shadow-2xl p-0 overflow-hidden gap-0 flex flex-col"
+        className="sm:max-w-2xl max-h-130 bg-popover/95 backdrop-blur-md rounded-2xl border border-border/60 shadow-2xl p-0 overflow-hidden gap-0 flex flex-col"
       >
         {commandOutput ? (
           <CommandPaletteOutput
@@ -496,6 +544,8 @@ export default function CommandPalette() {
               onSelectIndex={setSelectedIndex}
               search={search}
             />
+
+            <CommandPaletteFooter />
           </>
         )}
       </DialogContent>

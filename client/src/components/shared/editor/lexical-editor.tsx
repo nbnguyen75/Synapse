@@ -1,12 +1,18 @@
+import {
+  LexicalComposer,
+  type InitialConfigType,
+} from '@lexical/react/LexicalComposer';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
-import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import { ListNode, ListItemNode } from '@lexical/list';
+import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
@@ -16,12 +22,28 @@ import {
   InitialStatePlugin,
   SyncStatePlugin,
   EditorOnChangePlugin,
+  ALLOWED_NODES,
+  MATCHERS,
 } from './lexical-plugins';
+import BulletListShortcutPlugin from './lexical-bullet-list-shortcut-plugin';
 import KeyboardShortcutsPlugin from './lexical-keyboard-shortcuts';
+import LinkShortcutPlugin from './lexical-link-shortcut-plugin';
 import CompanionBridgePlugin from './companion-bridge-plugin';
+import MarkdownPastePlugin from './markdown-paste-plugin';
 import Toolbar from './lexical-toolbar';
 
 const editorTheme = {
+  list: {
+    ol: 'list-decimal pl-5 mb-2 space-y-1 marker:text-muted-foreground',
+    ul: 'list-disc pl-5 mb-2 space-y-1 marker:text-muted-foreground',
+    listitem: 'text-sm text-foreground/90 leading-relaxed my-0.5',
+    nested: {
+      listitem: 'list-none pl-4',
+    },
+    listitemChecked: 'line-through opacity-60',
+    checklist: 'list-none pl-0 my-1',
+    listitemUnchecked: '',
+  },
   text: {
     code: 'font-body bg-neutral-100 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded text-xs text-primary font-medium border border-border/40',
     underline: 'underline underline-offset-4',
@@ -29,22 +51,17 @@ const editorTheme = {
     bold: 'font-semibold text-foreground',
     italic: 'italic',
   },
-  list: {
-    ol: 'list-decimal pl-5 mb-2 space-y-1 marker:text-muted-foreground',
-    ul: 'list-disc pl-5 mb-2 space-y-1 marker:text-muted-foreground',
-    listitem: 'text-sm text-foreground/90 leading-relaxed',
-    nested: {
-      listitem: 'list-none pl-4',
-    },
-  },
   heading: {
     h3: 'text-base font-semibold mt-3 mb-1.5 text-foreground tracking-tight',
     h1: 'text-xl font-bold mt-5 mb-2.5 text-foreground tracking-tight',
     h2: 'text-lg font-bold mt-4 mb-2 text-foreground tracking-tight',
   },
+  mark: 'bg-yellow-200/80 dark:bg-yellow-500/30 text-foreground dark:text-yellow-200 px-1 py-0.5 rounded-sm font-medium',
   quote:
     'border-l-2 border-primary/80 pl-4 py-1 my-3 italic text-muted-foreground bg-primary/5 rounded-r-lg',
+  code: 'bg-muted px-1.5 py-0.5 rounded-md font-mono text-xs text-foreground',
   paragraph: 'text-sm text-foreground/90 mb-2.5 leading-relaxed',
+  link: 'text-primary underline cursor-pointer hover:opacity-80',
 };
 
 export default function LexicalEditor({
@@ -64,12 +81,12 @@ export default function LexicalEditor({
   value: string;
   id?: string;
 }) {
-  const initialConfig = {
+  const initialConfig: InitialConfigType = {
     onError: (error: Error) => {
       console.error('Lexical Error:', error);
     },
-    nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode],
     namespace: 'NoteEditor',
+    nodes: ALLOWED_NODES,
     theme: editorTheme,
   };
 
@@ -88,7 +105,7 @@ export default function LexicalEditor({
           <RichTextPlugin
             contentEditable={
               <ContentEditable
-                className="min-h-60 max-h-125 overflow-y-auto px-4 py-3.5 outline-none focus:ring-0 text-sm scrollbar-none"
+                className="min-h-60 max-h-125 overflow-y-auto px-4 py-3.5 outline-none focus:ring-0 text-sm scrollbar-none **:[[style]]:text-inherit! **:[[style]]:bg-transparent!"
                 disabled={disabled}
               />
             }
@@ -105,9 +122,17 @@ export default function LexicalEditor({
           <EditorOnChangePlugin onChange={onChange} />
           <CompanionBridgePlugin />
           <KeyboardShortcutsPlugin />
+          <LinkShortcutPlugin />
           <HistoryPlugin />
           <ListPlugin />
+          <LinkPlugin />
+          <ClickableLinkPlugin />
+          <TabIndentationPlugin />
+          <CheckListPlugin />
+          <MarkdownPastePlugin />
+          <AutoLinkPlugin matchers={MATCHERS} />
           <MarkdownShortcutPlugin transformers={CUSTOM_TRANSFORMERS} />
+          <BulletListShortcutPlugin />
         </div>
       </LexicalComposer>
     </div>

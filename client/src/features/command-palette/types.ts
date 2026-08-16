@@ -20,7 +20,7 @@ export type CommandOutput =
 export interface CommandItem {
   action: () => void | Promise<void>;
   icon: ElementType;
-  subtitle: string;
+  subtitle?: string;
   command?: string;
   title: string;
   id: string;

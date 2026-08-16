@@ -1,7 +1,3 @@
-import type { UIMessage } from 'ai';
-
-type UIMessagePart = UIMessage['parts'][number];
-
 const TEXT_FILE_MEDIA_PREFIXES = [
   'text/',
   'application/json',

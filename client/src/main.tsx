@@ -13,7 +13,7 @@ import { useSession } from '@/lib/auth';
 
 import { DefaultLoaderPage, ErrorPage } from '@/components/app/pages';
 
-import { ThemeProvider } from '@/providers';
+import { ThemeProvider, GlobalShortcutsProvider } from '@/providers';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,7 +73,9 @@ if (!rootElement.innerHTML) {
       >
         <ThemeProvider defaultTheme="system" storageKey="synapse-app-theme">
           <QueryClientProvider client={queryClient}>
-            <InnerApp />
+            <GlobalShortcutsProvider>
+              <InnerApp />
+            </GlobalShortcutsProvider>
           </QueryClientProvider>
         </ThemeProvider>
       </HotkeysProvider>

@@ -23,7 +23,9 @@ export type ShortcutId =
   | 'editor-normal-text'
   | 'editor-bullet-list'
   | 'editor-numbered-list'
-  | 'editor-blockquote';
+  | 'editor-blockquote'
+  | 'editor-link'
+  | 'editor-highlight';
 
 export interface KeyboardShortcutEntry {
   section: ShortcutSectionId;
@@ -84,6 +86,13 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     section: 'editor',
     group: 'lists',
   },
+  'editor-highlight': {
+    label: () => m.keyboard_shortcuts_highlight(),
+    combos: ['mod+shift+h'],
+    id: 'editor-highlight',
+    section: 'editor',
+    group: 'text',
+  },
   'editor-heading1': {
     label: () => m.lexical_shortcuts_heading1(),
     id: 'editor-heading1',
@@ -142,6 +151,13 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     id: 'go-to-create-note',
     combos: ['mod+alt+n'],
     section: 'global',
+  },
+  'editor-link': {
+    label: () => m.keyboard_shortcuts_link(),
+    id: 'editor-link',
+    combos: ['mod+k'],
+    section: 'editor',
+    group: 'text',
   },
   'editor-bold': {
     label: () => m.keyboard_shortcuts_bold(),

@@ -1,7 +1,5 @@
 import type { RefObject } from 'react';
 
-import { m } from '@/paraglide/messages';
-
 import { Input } from '@/components/ui/input';
 import { Kbd } from '@/components/ui/kbd';
 
@@ -26,11 +24,11 @@ export default function CommandPaletteSearchInput({
       <Input
         ref={inputRef}
         type="text"
-        placeholder={m.command_palette_placeholder()}
+        placeholder="Type a command (>), search note, or use # for tags..."
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
         onKeyDown={onKeyDown}
-        className="w-full text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto bg-transparent placeholder:text-muted-foreground/70 text-foreground"
+        className="w-full text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto bg-transparent placeholder:text-muted-foreground/60 text-foreground"
         autoFocus
       />
       <Kbd className="hidden sm:inline-flex text-[10px] font-medium opacity-60">

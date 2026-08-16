@@ -6,6 +6,7 @@ import { normalizeHotkey, normalizeHotkeyFromEvent } from '@tanstack/hotkeys';
 
 import {
   $createParagraphNode,
+  $findMatchingParent,
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
@@ -22,12 +23,19 @@ import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
+import {
+  $isMarkNode,
+  $unwrapMarkNode,
+  $wrapSelectionInMarkNode,
+} from '@lexical/mark';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $setBlocksType } from '@lexical/selection';
 
 import { useShortcutsStore } from '@/store/shortcuts-store';
 
 import { getEffectiveCombos } from '@/config/keyboard-shortcuts';
+
+import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-shortcut-plugin';
 
 export type { HeadingTagType };
 
@@ -44,9 +52,13 @@ const EDITOR_SHORTCUT_IDS = [
   'editor-bullet-list',
   'editor-numbered-list',
   'editor-blockquote',
+  'editor-link',
+  'editor-highlight',
 ] as const satisfies readonly ShortcutId[];
 
 type EditorShortcutId = (typeof EDITOR_SHORTCUT_IDS)[number];
+
+const HIGHLIGHT_MARK_ID = 'synapse-highlight';
 
 export function formatHeadingBlock(
   editor: LexicalEditorType,
@@ -78,7 +90,30 @@ export function formatQuoteBlock(editor: LexicalEditorType) {
   });
 }
 
+function formatHighlightBlock(editor: LexicalEditorType) {
+  editor.update(() => {
+    const selection = $getSelection();
+    if (!$isRangeSelection(selection)) return;
+
+    const anchorNode = selection.anchor.getNode();
+    const existingMark = $findMatchingParent(anchorNode, $isMarkNode);
+    if (existingMark !== null) {
+      $unwrapMarkNode(existingMark);
+      return;
+    }
+
+    $wrapSelectionInMarkNode(selection, false, HIGHLIGHT_MARK_ID);
+  });
+}
+
+/**
+ * Matches a keyboard event against the candidate combos. Events emitted while
+ * an IME composition is active (`event.isComposing`) never match — modifiers
+ * and keys during Vietnamese/other composition must not trigger editor
+ * shortcuts.
+ */
 function matchesCombo(event: KeyboardEvent, candidates: string[]): boolean {
+  if (event.isComposing) return false;
   const hotkey = normalizeHotkeyFromEvent(event);
   return candidates.some((candidate) => normalizeHotkey(candidate) === hotkey);
 }
@@ -144,6 +179,12 @@ export default function KeyboardShortcutsPlugin() {
         case 'editor-blockquote':
           formatQuoteBlock(editor);
           break;
+        case 'editor-link':
+          editor.dispatchCommand(TOGGLE_LINK_DIALOG_COMMAND, undefined);
+          break;
+        case 'editor-highlight':
+          formatHighlightBlock(editor);
+          break;
       }
     };
   }, [editor]);
@@ -155,6 +196,7 @@ export default function KeyboardShortcutsPlugin() {
         for (const id of EDITOR_SHORTCUT_IDS) {
           if (!matchesCombo(event, actionCombosRef.current[id])) continue;
           event.preventDefault();
+          event.stopPropagation();
           dispatchRef.current(id);
           return true;
         }
