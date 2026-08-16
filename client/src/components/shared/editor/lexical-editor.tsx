@@ -1,3 +1,5 @@
+import type { HTMLAttributes } from 'react';
+
 import {
   LexicalComposer,
   type InitialConfigType,
@@ -64,6 +66,17 @@ const editorTheme = {
   link: 'text-primary underline cursor-pointer hover:opacity-80',
 };
 
+type LexicalEditorProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
+  onChange: (val: string) => void;
+  'aria-placeholder'?: void; // ! Fix TS Error
+  placeholder?: string;
+  onBlur?: () => void;
+  className?: string;
+  disabled?: boolean;
+  value: string;
+  id?: string;
+};
+
 export default function LexicalEditor({
   placeholder = m.lexical_placeholder_default(),
   disabled = false,
@@ -72,15 +85,8 @@ export default function LexicalEditor({
   onBlur,
   value,
   id,
-}: {
-  onChange: (val: string) => void;
-  placeholder?: string;
-  onBlur?: () => void;
-  className?: string;
-  disabled?: boolean;
-  value: string;
-  id?: string;
-}) {
+  ...restProps
+}: LexicalEditorProps) {
   const initialConfig: InitialConfigType = {
     onError: (error: Error) => {
       console.error('Lexical Error:', error);
@@ -105,6 +111,7 @@ export default function LexicalEditor({
           <RichTextPlugin
             contentEditable={
               <ContentEditable
+                {...restProps}
                 className="min-h-60 max-h-125 overflow-y-auto px-4 py-3.5 outline-none focus:ring-0 text-sm scrollbar-none **:[[style]]:text-inherit! **:[[style]]:bg-transparent!"
                 disabled={disabled}
               />

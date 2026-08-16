@@ -199,7 +199,7 @@
   "notes_page_toast_updated_desc": "\"{title}\" đã được lưu.",
   "notes_page_toast_deleted": "Đã xóa ghi chú",
   "notes_page_toast_deleted_desc": "Ghi chú đã bị xóa vĩnh viễn.",
-  "notes_page_toast_title_required": "Tiêu đề là bắt buộc",
+  "notes_page_toast_content_required": "Nội dung là bắt buộc",
   "notes_page_toast_create_failed": "Không thể tạo ghi chú",
   "notes_page_toast_update_failed": "Không thể cập nhật ghi chú",
   "notes_page_toast_delete_failed": "Không thể xóa ghi chú",

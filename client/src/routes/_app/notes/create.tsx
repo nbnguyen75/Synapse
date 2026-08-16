@@ -171,6 +171,7 @@ function RouteComponent() {
                     render={({ fieldState, field }) => (
                       <Field data-invalid={fieldState.invalid}>
                         <LexicalEditor
+                          {...field}
                           value={field.value ?? ''}
                           onChange={field.onChange}
                           id="details-note-content"

@@ -199,7 +199,7 @@
   "notes_page_toast_updated_desc": "\"{title}\" was saved.",
   "notes_page_toast_deleted": "Note deleted",
   "notes_page_toast_deleted_desc": "The note has been permanently removed.",
-  "notes_page_toast_title_required": "Title is required",
+  "notes_page_toast_content_required": "Content is required",
   "notes_page_toast_create_failed": "Failed to create note",
   "notes_page_toast_update_failed": "Failed to update note",
   "notes_page_toast_delete_failed": "Failed to delete note",

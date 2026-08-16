@@ -29,7 +29,7 @@ import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
 export const noteInputSchema = z.object({
   content: z
     .string()
-    .min(1, { message: m.notes_page_toast_title_required() })
+    .min(1, { message: m.notes_page_toast_content_required() })
     .max(NOTE_CONTENT_MAX_LENGTH, { message: m.validation_content_max() }),
   title: z
     .string()
