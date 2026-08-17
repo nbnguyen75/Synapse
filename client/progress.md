@@ -2,9 +2,24 @@
 
 ## Current State
 
-**Last Updated:** 2026-08-16
-**Session ID:** global-shortcuts-provider
-**Active Feature:** feat-059 — Centralized global shortcuts provider + editor link (mod+k) / highlight (mod+shift+h) shortcuts + Vietnamese IME bullet-list (`- `) fix — **DONE**, verified (bun --bun install, generate-translation, bun --bun check exit 0, bunx tsc -b clean, bun --bun run build OK).
+**Last Updated:** 2026-08-17
+**Session ID:** shortcuts-overhaul-060
+**Active Feature:** feat-060 — Shortcut mapping overhaul (g n → notes, c/mod+n → create, mod+alt+t → theme) + bulk-bar trash semantics + Markdown link in toolbar + scoped shortcuts dialogs — **DONE**, verified (generate-translation, bun --bun check exit 0, bunx tsc -b clean, bun --bun run build OK).
+
+## Status
+
+### What's Done (feat-060 — shortcut mapping overhaul + bulk trash semantics + toolbar Markdown link)
+
+- [x] **Shortcut mapping (per user spec)** — registry (`src/config/keyboard-shortcuts.ts`): `go-to-notes` (NEW, `['g n']` sequence → navigate `/notes`), `go-to-create-note` now `['c', 'mod+n']` (was `['mod+alt+n']`), `toggle-theme` (NEW, `['mod+alt+t']` = Ctrl+Alt+T → `useTheme().toggleTheme()`). `quick-note` (mod+alt+n popup) **dropped per user** ("remove quick note cause app dont have") — no registry entry, no dialog. `ShortcutId` union updated; `app-global-keybinds.tsx` wires go-to-notes + toggle-theme.
+- [x] **Sequence support in GlobalShortcutsProvider** — `getHotkeyManager().register()` does NOT accept multi-key sequences (verified in source); combos containing whitespace now register via `getSequenceManager().register(combo.split(/\s+/) as Hotkey[], invoke, { conflictBehavior: 'allow', preventDefault, stopPropagation, meta })` (its own listener + 1000ms timeout state machine). Handles map retyped as structural `HotkeyHandleLike { setOptions({enabled?, ignoreInputs?}); unregister() }` — shared by HotkeyRegistrationHandle and SequenceRegistrationHandle (setOptions merge verified in sequence-manager.js).
+- [x] **Input protection (verified, no extra code needed)** — `manager.utils.js` `shouldIgnoreInputEvent` checks the focused element, event composedPath, and target against input/textarea/select/**contentEditable**; `useHotkeyShortcut` registers `ignoreInputs: true` by default → `c`, `g n`, `mod+n`, `mod+alt+t` all inert while typing in the editor or any field (stricter than the spec's single-key requirement). `mod+k` palette + `mod+s` save keep `allowWhenTyping: true` and still fire in inputs.
+- [x] **Bulk bar trash semantics** — the TRASH button in `notes-bulk-actions.tsx` performed move-to-trash but was labeled `notes_bulk_delete` ("Delete") — relabeled to new key `notes_bulk_move_to_trash` ("Move to trash" / "Chuyển vào thùng rác"); orphaned `notes_bulk_delete` removed from en/vi. Audit of the rest confirmed already correct: per-card dropdown (`notes_page_action_trash` neutral vs `notes_card_delete_permanent` destructive), `$noteId` inline buttons, trash view (Restore + `DELETE_PERMANENT`), bulk TRASH toast → `notes_page_toast_trashed`.
+- [x] **Markdown info moved to toolbar** — InfoIcon + Tooltip removed from the shortcuts dialog title (`lexical-shortcuts-dialog.tsx`); small ghost "Markdown" link button (new key `lexical_shortcuts_markdown`, title = existing `lexical_shortcuts_tooltip_info`) rendered next to `<ShortcutsHelpDialog />` in `lexical-toolbar.tsx` → markdownguide.org/basic-syntax.
+- [x] **Dialogs scoped** — `sidebar-keyboard-shortcuts-dialog.tsx` → `sections={['global']}` (was global+editor); editor dialog already `['editor']`. Settings > Shortcuts remap page intentionally unchanged (full remap editor).
+- [x] **Conflict check sequence-aware** — `findShortcutConflict` normalizes each combo token-wise (`'g n'` → `'g n'` via per-token `normalizeHotkey`), so sequence steps and single keys compare correctly.
+- [x] **i18n** — new en/vi keys: `keyboard_shortcuts_go_to_notes` ("Go to Notes"/"Đi tới ghi chú"), `keyboard_shortcuts_toggle_theme` ("Toggle Theme"/"Chuyển chủ đề"), `notes_bulk_move_to_trash`, `lexical_shortcuts_markdown`; removed `notes_bulk_delete`. `generate-translation` ✓.
+- [x] **Verification** — `bun run generate-translation` ✓, `bun --bun check` ✓ (exit 0), `bunx tsc -b` ✓ (one fix: sequence steps cast `as Hotkey[]` — HotkeySequence is `Array<Hotkey>` branded), `bun --bun run build` ✓. feature_list.json feat-060 → done (59 features, JSON valid).
+- [ ] **Known notes** — (1) Manual smoke pending: `g` then `n` (within 1s) navigates /notes and does nothing while the editor/inputs are focused; `c` and `mod+n` open /notes/create (browser Ctrl+N new-window suppressed); Ctrl+Alt+T toggles theme; dialogs now scoped (global-only from sidebar, editor-only from toolbar); Markdown link opens markdownguide.org in a new tab; bulk bar shows "Move to trash" for the trash action. (2) Remapping `go-to-notes` in Settings replaces the sequence with a single chord (recorder limitation, sequences can't be captured). (3) `g`/`c` single keys cannot be re-captured in Settings (modifier required) but can be reset to default — same as `focus-search` `/`. (4) Not committed (user manages git).
 
 ## Status
 

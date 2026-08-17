@@ -136,7 +136,9 @@ export default function NotesBulkActions({
             onClick={() => onBulkAction('TRASH')}
           >
             <Trash2Icon className="size-3.5" />
-            <span className="hidden sm:inline">{m.notes_bulk_delete()}</span>
+            <span className="hidden sm:inline">
+              {m.notes_bulk_move_to_trash()}
+            </span>
           </Button>
         </>
       )}

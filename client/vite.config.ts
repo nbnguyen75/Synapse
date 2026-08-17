@@ -57,7 +57,9 @@ export default defineConfig({
         start_url: '/',
       },
       workbox: {
+        globIgnores: ['**/assets/shiki-*.js', '**/assets/vendor-shiki-*.js'],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // * 6MB
         navigateFallback: '/index.html',
       },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
@@ -67,13 +69,63 @@ export default defineConfig({
       registerType: 'autoUpdate',
     }),
   ],
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              test: /node_modules\/(react|react-dom|scheduler)/,
+              name: 'vendor-react',
+              priority: 50,
+            },
+            {
+              test: /node_modules\/@tanstack\/(react-router|react-query|react-virtual)/,
+              name: 'vendor-tanstack',
+              priority: 40,
+            },
+            {
+              test: /node_modules\/(ai|@ai-sdk)/,
+              name: 'vendor-ai-core',
+              priority: 30,
+            },
+            {
+              test: /node_modules\/(lexical|@lexical)/,
+              name: 'vendor-lexical',
+              priority: 30,
+            },
+            {
+              test: /node_modules\/(@rive-app|@xyflow|recharts|motion)/,
+              name: 'vendor-graphics',
+              priority: 25,
+            },
+            {
+              test: /node_modules\/(@base-ui|@iconify|lucide-react|cmdk|embla-carousel-react)/,
+              name: 'vendor-ui-icons',
+              priority: 20,
+            },
+            {
+              test: /node_modules\/(better-auth|zod|date-fns|lodash)/,
+              name: 'vendor-auth-utils',
+              priority: 15,
+            },
+          ],
+          minShareCount: 2,
+          minSize: 25000,
+        },
+      },
+      treeshake: {
+        moduleSideEffects: (id) => (id.endsWith('.css') ? true : undefined),
+        propertyReadSideEffects: false,
+        annotations: true,
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
     },
     tsconfigPaths: true,
-  },
-  build: {
-    chunkSizeWarningLimit: 5000,
   },
 });

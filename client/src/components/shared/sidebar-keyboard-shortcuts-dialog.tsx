@@ -42,7 +42,7 @@ export default function KeyboardShortcutsDialog({
         </DialogHeader>
 
         <div className="max-h-96 overflow-y-auto pr-1">
-          <KeyboardShortcutsList sections={['global', 'editor']} />
+          <KeyboardShortcutsList sections={['global']} />
         </div>
       </DialogContent>
     </Dialog>

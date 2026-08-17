@@ -5,6 +5,7 @@ import { formatForDisplay } from '@tanstack/hotkeys';
 import {
   $getSelection,
   $isRangeSelection,
+  $findMatchingParent,
   FORMAT_TEXT_COMMAND,
   UNDO_COMMAND,
   REDO_COMMAND,
@@ -18,6 +19,7 @@ import {
 } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
+import { $isLinkNode } from '@lexical/link';
 
 import { useShortcut } from '@/hooks/use-shortcut';
 
@@ -30,6 +32,7 @@ import {
   formatParagraphBlock,
   formatQuoteBlock,
 } from './lexical-keyboard-shortcuts';
+import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-shortcut-dialog-plugin';
 import ShortcutsHelpDialog from './lexical-shortcuts-dialog';
 
 import {
@@ -47,6 +50,8 @@ import {
   Redo2,
   Text,
   Quote,
+  Link,
+  InfoIcon,
 } from 'lucide-react';
 
 function comboTitle(
@@ -64,6 +69,7 @@ export default function Toolbar() {
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
   const [isCode, setIsCode] = useState(false);
+  const [isLink, setIsLink] = useState(false);
   const [blockType, setBlockType] = useState<
     'paragraph' | 'h1' | 'h2' | 'h3' | 'quote' | 'ul' | 'ol'
   >('paragraph');
@@ -73,6 +79,7 @@ export default function Toolbar() {
   const underlineCombo = useShortcut('editor-underline').combos[0];
   const strikethroughCombo = useShortcut('editor-strikethrough').combos[0];
   const codeCombo = useShortcut('editor-code').combos[0];
+  const linkCombo = useShortcut('editor-link').combos[0];
   const paragraphCombo = useShortcut('editor-normal-text').combos[0];
   const heading1Combo = useShortcut('editor-heading1').combos[0];
   const heading2Combo = useShortcut('editor-heading2').combos[0];
@@ -91,6 +98,9 @@ export default function Toolbar() {
       setIsCode(selection.hasFormat('code'));
 
       const anchorNode = selection.anchor.getNode();
+      const hasLink = $findMatchingParent(anchorNode, $isLinkNode) !== null;
+      setIsLink(hasLink);
+
       const element =
         anchorNode.getKey() === 'root'
           ? anchorNode
@@ -211,6 +221,22 @@ export default function Toolbar() {
           )}
         >
           <Code className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="xs"
+          onClick={() =>
+            editor.dispatchCommand(TOGGLE_LINK_DIALOG_COMMAND, undefined)
+          }
+          className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isLink ? activeBtnClass : inactiveBtnClass}`}
+          title={comboTitle(
+            m.lexical_tooltip_link,
+            m.keyboard_shortcuts_link,
+            linkCombo,
+          )}
+        >
+          <Link className="h-3.5 w-3.5" />
         </Button>
       </div>
 
@@ -355,6 +381,19 @@ export default function Toolbar() {
           <Redo2 className="h-3.5 w-3.5" />
         </Button>
       </div>
+
+      <a
+        href="https://www.markdownguide.org/basic-syntax"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="h-7 px-2 flex items-center gap-1 rounded text-neutral-400 hover:text-foreground hover:bg-neutral-200/50 dark:hover:bg-neutral-800 transition-colors text-[10px] font-mono cursor-pointer"
+        title={m.lexical_shortcuts_tooltip_info()}
+      >
+        <InfoIcon className="h-3.5 w-3.5" />
+        <span className="hidden sm:inline">
+          {m.lexical_shortcuts_markdown()}
+        </span>
+      </a>
 
       <ShortcutsHelpDialog />
     </div>

@@ -24,7 +24,7 @@ export default function CommandPaletteSearchInput({
       <Input
         ref={inputRef}
         type="text"
-        placeholder="Type a command (>), search note, or use # for tags..."
+        placeholder="Type a command (>), search note..."
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
         onKeyDown={onKeyDown}

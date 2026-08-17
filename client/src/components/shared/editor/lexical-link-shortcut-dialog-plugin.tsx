@@ -1,6 +1,7 @@
 import type { LexicalCommand } from 'lexical';
 
 import { useCallback, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
 import {
   $findMatchingParent,
@@ -11,6 +12,8 @@ import {
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { TOGGLE_LINK_COMMAND, $isLinkNode } from '@lexical/link';
+import { zodResolver } from '@hookform/resolvers/zod';
+import z from 'zod/v4';
 
 import { m } from '@/paraglide/messages';
 
@@ -21,6 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Field, FieldError } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -28,17 +32,33 @@ export const TOGGLE_LINK_DIALOG_COMMAND: LexicalCommand<void> = createCommand(
   'TOGGLE_LINK_DIALOG_COMMAND',
 );
 
-/**
- * Opens a URL dialog for the current selection (shortcut: `editor-link`,
- * default `mod+k`). Save dispatches `TOGGLE_LINK_COMMAND` (`null` removes the
- * link, so clearing the input unlinks). The dialog only opens when there is
- * selected text or the caret sits inside an existing link — `$toggleLink`
- * needs a target to wrap or edit.
- */
+const URL_REGEX =
+  /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/;
+
+const linkFormSchema = z.object({
+  url: z
+    .string()
+    .trim()
+    .refine((val) => val === '' || URL_REGEX.test(val), {
+      message: m.lexical_link_dialog_url_invalid(),
+    }),
+});
+
+type LinkFormValues = z.infer<typeof linkFormSchema>;
+
 export default function LinkShortcutPlugin() {
   const [editor] = useLexicalComposerContext();
   const [isOpen, setIsOpen] = useState(false);
-  const [url, setUrl] = useState('');
+
+  // Khởi tạo React Hook Form với Zod Resolver
+  const form = useForm<LinkFormValues>({
+    resolver: zodResolver(linkFormSchema),
+    defaultValues: {
+      url: '',
+    },
+  });
+
+  const { isDirty } = form.formState;
 
   const openLinkDialog = useCallback(() => {
     const canEditLink = editor.getEditorState().read(() => {
@@ -61,9 +81,10 @@ export default function LinkShortcutPlugin() {
       return linkNode?.getURL() ?? '';
     });
 
-    setUrl(currentUrl);
+    // Reset form với giá trị hiện tại và đặt isDirty = false
+    form.reset({ url: currentUrl });
     setIsOpen(true);
-  }, [editor]);
+  }, [editor, form]);
 
   useEffect(() => {
     return editor.registerCommand(
@@ -76,8 +97,15 @@ export default function LinkShortcutPlugin() {
     );
   }, [editor, openLinkDialog]);
 
-  const handleSave = () => {
-    editor.dispatchCommand(TOGGLE_LINK_COMMAND, url.trim() || null);
+  const onSubmit = (values: LinkFormValues) => {
+    let targetUrl = values.url.trim();
+
+    // Tự động thêm https:// nếu người dùng nhập domain không có protocol (ví dụ: google.com)
+    if (targetUrl && !/^https?:\/\//i.test(targetUrl)) {
+      targetUrl = `https://${targetUrl}`;
+    }
+
+    editor.dispatchCommand(TOGGLE_LINK_COMMAND, targetUrl || null);
     setIsOpen(false);
   };
 
@@ -97,19 +125,31 @@ export default function LinkShortcutPlugin() {
           className="space-y-4"
           onSubmit={(event) => {
             event.preventDefault();
-            handleSave();
+            event.stopPropagation();
+            form.handleSubmit(onSubmit)(event);
           }}
         >
-          <Input
-            autoFocus
-            placeholder={m.lexical_link_dialog_placeholder()}
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') {
-                setIsOpen(false);
-              }
-            }}
+          <Controller
+            control={form.control}
+            name="url"
+            render={({ fieldState, field }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <Input
+                  {...field}
+                  autoFocus
+                  placeholder={m.lexical_link_dialog_placeholder()}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Escape') {
+                      setIsOpen(false);
+                    }
+                  }}
+                />
+
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
           />
 
           <DialogFooter>
@@ -120,7 +160,10 @@ export default function LinkShortcutPlugin() {
             >
               {m.lexical_link_dialog_cancel()}
             </Button>
-            <Button type="submit">{m.lexical_link_dialog_save()}</Button>
+
+            <Button type="submit" disabled={!isDirty}>
+              {m.lexical_link_dialog_save()}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

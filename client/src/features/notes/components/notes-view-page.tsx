@@ -93,6 +93,7 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
                   variant="destructive"
                   size="sm"
                   className="h-9 gap-1.5 text-xs cursor-pointer"
+                  disabled={selectedIds.size < 1}
                   onClick={executeEmptyTrash}
                 >
                   <Trash2Icon className="size-3.5" />

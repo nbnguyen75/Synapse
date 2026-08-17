@@ -9,14 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 
-import { InfoIcon, Keyboard } from 'lucide-react';
+import { Keyboard } from 'lucide-react';
 
 export default function ShortcutsHelpDialog() {
   return (
@@ -41,23 +36,6 @@ export default function ShortcutsHelpDialog() {
           <DialogTitle className="text-base font-semibold tracking-tight flex items-center gap-2 text-foreground">
             <Keyboard className="h-4 w-4 text-primary" />
             <span>{m.lexical_shortcuts_dialog_title()}</span>
-
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <a
-                    href="https://www.markdownguide.org/basic-syntax"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <InfoIcon className="h-4 w-4" />
-                  </a>
-                }
-              />
-              <TooltipContent>
-                {m.lexical_shortcuts_tooltip_info()}
-              </TooltipContent>
-            </Tooltip>
           </DialogTitle>
         </DialogHeader>
 

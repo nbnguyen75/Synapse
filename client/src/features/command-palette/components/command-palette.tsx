@@ -16,6 +16,7 @@ import {
 } from '@/features/command-palette/components';
 import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
+import { getMarkdownReadTimeSync } from '@/features/notes/service';
 import { useGetNotes, type Note } from '@/features/notes';
 
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
@@ -40,7 +41,6 @@ import {
   HelpCircleIcon,
   BarChart2Icon,
   ArrowRightIcon,
-  TagIcon,
 } from 'lucide-react';
 
 export default function CommandPalette() {
@@ -61,7 +61,7 @@ export default function CommandPalette() {
 
   const debouncedSearch = useDebounce(search, 150);
   const { data } = useGetNotes({
-    q: debouncedSearch.replace(/^([#>/])/, '').trim(),
+    q: debouncedSearch.replace(/^([>/])/, '').trim(),
     sort: ['updatedAt,desc'],
     pageSize: 10,
     page: 1,
@@ -164,16 +164,10 @@ export default function CommandPalette() {
             (n) => !n.title || n.title.trim().toLowerCase() === 'untitled',
           ).length;
 
-          const tagsSet = new Set<string>();
-          notes.forEach((note) => {
-            const matches = note.content?.match(/#[\w-]+/g);
-            matches?.forEach((tag) => tagsSet.add(tag.replace('#', '')));
-          });
-
           setCommandOutput({
             data: {
-              tagsList: Array.from(tagsSet),
-              tagsCount: tagsSet.size,
+              tagsList: [],
+              tagsCount: 0,
               pinned,
               active,
               drafts,
@@ -236,7 +230,7 @@ export default function CommandPalette() {
     [theme, notes, contentPart, navigate, toggleTheme],
   );
 
-  // 2. Static Commands (Tích hợp lại)
+  // 2. Static Commands
   const staticCommands = useMemo<GroupedCommandItem[]>(
     () => [
       {
@@ -274,9 +268,11 @@ export default function CommandPalette() {
         subtitle: m.command_palette_subtitle_toggle_theme({
           mode: theme === 'dark' ? 'Light' : 'Dark',
         }),
+        shortcut: formatForDisplay(
+          KEYBOARD_SHORTCUTS['toggle-theme'].combos[0],
+        ),
         icon: theme === 'dark' ? SunIcon : MoonIcon,
         title: m.command_palette_title_theme(),
-        shortcut: 'Shift + T',
         id: 'toggle_theme',
         group: 'commands',
       },
@@ -293,35 +289,7 @@ export default function CommandPalette() {
   const searchResults = useMemo<GroupedCommandItem[]>(() => {
     const term = search.trim();
 
-    // 3.1. Lọc theo Tag (#)
-    if (term.startsWith('#')) {
-      const tagQuery = term.slice(1).toLowerCase();
-      const tagsMap = new Map<string, number>();
-
-      notes.forEach((note) => {
-        const matches = note.content?.match(/#[\w-]+/g);
-        matches?.forEach((tag) => {
-          const tagName = tag.replace('#', '');
-          if (!tagQuery || tagName.toLowerCase().includes(tagQuery)) {
-            tagsMap.set(tagName, (tagsMap.get(tagName) || 0) + 1);
-          }
-        });
-      });
-
-      return Array.from(tagsMap.entries()).map(([tag, count]) => ({
-        action: () => {
-          setIsOpen(false);
-          navigate({ search: { q: `#${tag}` }, to: '/notes' });
-        },
-        meta: `${count} notes`,
-        id: `tag_${tag}`,
-        title: `#${tag}`,
-        icon: TagIcon,
-        group: 'tags',
-      }));
-    }
-
-    // 3.2. Lọc theo Lệnh (>/)
+    // 3.1. Lọc theo Lệnh (>/)
     if (term.startsWith('>') || term.startsWith('/')) {
       const cmdQuery = term.slice(1).toLowerCase();
       const allCmds = [...slashCommands, ...staticCommands];
@@ -332,7 +300,7 @@ export default function CommandPalette() {
       );
     }
 
-    // 3.3. Mặc định khi chưa nhập ô tìm kiếm (Default Layout)
+    // 3.2. Mặc định khi chưa nhập ô tìm kiếm (Default Layout)
     if (term === '') {
       const createCmd = slashCommands.find((cmd) => cmd.id === 'cmd_create');
       const quickItems: GroupedCommandItem[] = createCmd ? [createCmd] : [];
@@ -341,28 +309,16 @@ export default function CommandPalette() {
         const recentNote = notes[0];
         quickItems.push({
           title: recentNote.title || m.command_palette_note_untitled(),
+          meta: getMarkdownReadTimeSync(recentNote.content),
           action: () => handleOpenNote(recentNote),
-          meta: 'Workspace • 1 min read',
           id: `recent_${recentNote.id}`,
           icon: FileTextIcon,
           group: 'quick',
         });
       }
 
-      quickItems.push({
-        action: () => {
-          setIsOpen(false);
-          navigate({ search: { q: '#work' }, to: '/notes' });
-        },
-        id: 'tag_work_default',
-        meta: '12 notes',
-        title: '#work',
-        group: 'quick',
-        icon: TagIcon,
-      });
-
       const noteItems: GroupedCommandItem[] = notes.slice(0, 3).map((note) => ({
-        meta: `Projects • ${new Date(note.updatedAt).toLocaleDateString()}`,
+        meta: `${new Date(note.updatedAt).toLocaleDateString()}`,
         title: note.title || m.command_palette_note_untitled(),
         action: () => handleOpenNote(note),
         id: `note_${note.id}`,
@@ -373,7 +329,7 @@ export default function CommandPalette() {
       return [...quickItems, ...staticCommands, ...noteItems];
     }
 
-    // 3.4. Tìm kiếm nội dung tổng hợp khi gõ từ khóa
+    // 3.3. Tìm kiếm nội dung tổng hợp khi gõ từ khóa
     const notesResults: GroupedCommandItem[] = notes.map((note) => ({
       subtitle:
         note.content?.slice(0, 80) || m.command_palette_note_no_content(),

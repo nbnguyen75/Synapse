@@ -1,5 +1,5 @@
-import type { Hotkey, HotkeyRegistrationHandle } from '@tanstack/hotkeys';
 import type { ShortcutId } from '@/config/keyboard-shortcuts';
+import type { Hotkey } from '@tanstack/hotkeys';
 
 import {
   createContext,
@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 
-import { getHotkeyManager } from '@tanstack/hotkeys';
+import { getHotkeyManager, getSequenceManager } from '@tanstack/hotkeys';
 
 import { useShortcutsStore } from '@/store/shortcuts-store';
 
@@ -24,6 +24,16 @@ interface GlobalShortcutRegistration {
   handler: (event: KeyboardEvent) => void;
   ignoreInputs: boolean;
   enabled: boolean;
+}
+
+/**
+ * Structural handle shared by `HotkeyRegistrationHandle` and
+ * `SequenceRegistrationHandle` — both expose `setOptions`/`unregister` with
+ * the same shape for the options we manage.
+ */
+interface HotkeyHandleLike {
+  setOptions(options: { ignoreInputs?: boolean; enabled?: boolean }): void;
+  unregister(): void;
 }
 
 interface GlobalShortcutsContextValue {
@@ -71,7 +81,7 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
   const registrationsRef = useRef(
     new Map<ShortcutId, GlobalShortcutRegistration[]>(),
   );
-  const handlesRef = useRef(new Map<ShortcutId, HotkeyRegistrationHandle[]>());
+  const handlesRef = useRef(new Map<ShortcutId, HotkeyHandleLike[]>());
 
   const syncRowOptions = useCallback((id: ShortcutId) => {
     const handles = handlesRef.current.get(id);
@@ -110,30 +120,42 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    const allHandles: HotkeyRegistrationHandle[] = [];
-    const handlesByShortcut = new Map<ShortcutId, HotkeyRegistrationHandle[]>();
+    const allHandles: HotkeyHandleLike[] = [];
+    const handlesByShortcut = new Map<ShortcutId, HotkeyHandleLike[]>();
 
     for (const entry of getShortcutsBySection('global')) {
-      const comboHandles: HotkeyRegistrationHandle[] = [];
+      const comboHandles: HotkeyHandleLike[] = [];
       for (const combo of getEffectiveCombos(entry.id, overrides)) {
-        const handle = getHotkeyManager().register(
-          combo as Hotkey,
-          (event) => {
-            const registrations = registrationsRef.current.get(entry.id);
-            if (!registrations) return;
-            for (const registration of registrations) {
-              if (registration.enabled) {
-                registration.handler(event);
-              }
+        const invoke = (event: KeyboardEvent) => {
+          const registrations = registrationsRef.current.get(entry.id);
+          if (!registrations) return;
+          for (const registration of registrations) {
+            if (registration.enabled) {
+              registration.handler(event);
             }
-          },
-          {
-            meta: { name: entry.label() },
-            conflictBehavior: 'allow',
-            stopPropagation: true,
-            preventDefault: true,
-          },
-        );
+          }
+        };
+
+        // Multi-key sequences (e.g. `g n`) go through the SequenceManager,
+        // which has its own listener + timeout state machine; single combos
+        // register on the HotkeyManager.
+        const handle = combo.includes(' ')
+          ? getSequenceManager().register(
+              combo.split(/\s+/) as Hotkey[],
+              invoke,
+              {
+                meta: { name: entry.label() },
+                conflictBehavior: 'allow',
+                stopPropagation: true,
+                preventDefault: true,
+              },
+            )
+          : getHotkeyManager().register(combo as Hotkey, invoke, {
+              meta: { name: entry.label() },
+              conflictBehavior: 'allow',
+              stopPropagation: true,
+              preventDefault: true,
+            });
         comboHandles.push(handle);
         allHandles.push(handle);
       }

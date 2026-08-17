@@ -93,7 +93,7 @@ function RouteComponent() {
     try {
       await signIn.social(
         {
-          callbackURL: '/',
+          callbackURL: `${window.location.origin}/`,
           provider,
         },
         {
@@ -189,7 +189,7 @@ function RouteComponent() {
           variant="outline"
           type="button"
           onClick={() => handleSocialLogin('github')}
-          disabled={isPending}
+          disabled={true}
           className="cursor-pointer h-9 font-medium transition-all text-xs"
         >
           <Icon icon="simple-icons:github" className="h-4 w-4" />

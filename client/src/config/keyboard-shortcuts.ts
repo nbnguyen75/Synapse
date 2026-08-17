@@ -8,10 +8,12 @@ export type ShortcutId =
   | 'command-palette'
   | 'toggle-left-sidebar'
   | 'toggle-right-sidebar'
+  | 'go-to-notes'
   | 'go-to-create-note'
   | 'focus-search'
   | 'save-note'
   | 'show-keyboard-shortcuts'
+  | 'toggle-theme'
   | 'editor-bold'
   | 'editor-italic'
   | 'editor-underline'
@@ -146,12 +148,6 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     section: 'global',
     combos: ['mod+b'],
   },
-  'go-to-create-note': {
-    label: () => m.keyboard_shortcuts_create_note(),
-    id: 'go-to-create-note',
-    combos: ['mod+alt+n'],
-    section: 'global',
-  },
   'editor-link': {
     label: () => m.keyboard_shortcuts_link(),
     id: 'editor-link',
@@ -173,17 +169,35 @@ export const KEYBOARD_SHORTCUTS: Record<ShortcutId, KeyboardShortcutEntry> = {
     combos: ['mod+e'],
     group: 'text',
   },
+  'go-to-create-note': {
+    label: () => m.keyboard_shortcuts_create_note(),
+    id: 'go-to-create-note',
+    section: 'global',
+    combos: ['c n'],
+  },
   'command-palette': {
     label: () => m.keyboard_shortcuts_cmd_palette(),
     id: 'command-palette',
     section: 'global',
     combos: ['mod+k'],
   },
+  'toggle-theme': {
+    label: () => m.keyboard_shortcuts_toggle_theme(),
+    combos: ['mod+alt+t'],
+    id: 'toggle-theme',
+    section: 'global',
+  },
   'focus-search': {
     label: () => m.keyboard_shortcuts_focus_search(),
     id: 'focus-search',
     section: 'global',
     combos: ['/'],
+  },
+  'go-to-notes': {
+    label: () => m.keyboard_shortcuts_go_to_notes(),
+    id: 'go-to-notes',
+    section: 'global',
+    combos: ['g n'],
   },
   'save-note': {
     label: () => m.keyboard_shortcuts_save_note(),
@@ -225,9 +239,22 @@ export function toRegistryCombo(hotkey: string): string {
 }
 
 /**
+ * Normalizes a combo for conflict comparison. Sequence combos (`'g n'`) are
+ * compared token-wise against single-key combos and other sequences, so a
+ * sequence's steps participate in the same conflict rules as chords.
+ */
+function normalizeComboForCompare(combo: string): string {
+  return combo
+    .split(/\s+/)
+    .map((token) => normalizeHotkey(token))
+    .join(' ');
+}
+
+/**
  * Returns the first shortcut (other than `targetId`) whose effective combos
  * collide with `proposedCombos`, comparing on the TanStack canonical form
- * (case-insensitive, alias- and platform-aware).
+ * (case-insensitive, alias- and platform-aware). Sequence steps are compared
+ * individually against single-key combos.
  */
 export function findShortcutConflict(
   proposedCombos: string[],
@@ -235,7 +262,7 @@ export function findShortcutConflict(
   overrides: Partial<Record<ShortcutId, string[]>>,
 ): KeyboardShortcutEntry | null {
   const proposed = new Set(
-    proposedCombos.map((combo) => normalizeHotkey(combo)),
+    proposedCombos.map((combo) => normalizeComboForCompare(combo)),
   );
 
   for (const entry of Object.values(KEYBOARD_SHORTCUTS)) {
@@ -243,7 +270,7 @@ export function findShortcutConflict(
 
     const combos = getEffectiveCombos(entry.id, overrides);
     for (const combo of combos) {
-      if (proposed.has(normalizeHotkey(combo))) return entry;
+      if (proposed.has(normalizeComboForCompare(combo))) return entry;
     }
   }
 

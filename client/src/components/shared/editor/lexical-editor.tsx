@@ -1,3 +1,4 @@
+import type { EditorThemeClasses } from 'lexical';
 import type { HTMLAttributes } from 'react';
 
 import {
@@ -28,30 +29,76 @@ import {
   MATCHERS,
 } from './lexical-plugins';
 import BulletListShortcutPlugin from './lexical-bullet-list-shortcut-plugin';
+import LinkShortcutDialogPlugin from './lexical-link-shortcut-dialog-plugin';
 import KeyboardShortcutsPlugin from './lexical-keyboard-shortcuts';
-import LinkShortcutPlugin from './lexical-link-shortcut-plugin';
 import CompanionBridgePlugin from './companion-bridge-plugin';
 import MarkdownPastePlugin from './markdown-paste-plugin';
 import Toolbar from './lexical-toolbar';
 
-const editorTheme = {
-  list: {
-    ol: 'list-decimal pl-5 mb-2 space-y-1 marker:text-muted-foreground',
-    ul: 'list-disc pl-5 mb-2 space-y-1 marker:text-muted-foreground',
-    listitem: 'text-sm text-foreground/90 leading-relaxed my-0.5',
-    nested: {
-      listitem: 'list-none pl-4',
-    },
-    listitemChecked: 'line-through opacity-60',
-    checklist: 'list-none pl-0 my-1',
-    listitemUnchecked: '',
+export const editorTheme: EditorThemeClasses = {
+  codeHighlight: {
+    'class-name': 'text-amber-600 dark:text-amber-400 font-semibold',
+    keyword: 'text-purple-600 dark:text-purple-400 font-semibold',
+    atrule: 'text-purple-600 dark:text-purple-400 font-medium',
+    class: 'text-amber-600 dark:text-amber-400 font-semibold',
+    comment: 'text-neutral-400 dark:text-neutral-500 italic',
+    doctype: 'text-neutral-500 dark:text-neutral-400 italic',
+    function: 'text-blue-600 dark:text-blue-400 font-medium',
+    cdata: 'text-neutral-500 dark:text-neutral-400 italic',
+    constant: 'text-red-600 dark:text-red-400 font-medium',
+    boolean: 'text-red-600 dark:text-red-400 font-medium',
+    important: 'text-red-600 dark:text-red-400 font-bold',
+    punctuation: 'text-neutral-500 dark:text-neutral-400',
+    tag: 'text-rose-600 dark:text-rose-400 font-medium',
+    inserted: 'text-emerald-600 dark:text-emerald-400',
+    selector: 'text-emerald-600 dark:text-emerald-400',
+    builtin: 'text-emerald-600 dark:text-emerald-400',
+    string: 'text-emerald-600 dark:text-emerald-400',
+    variable: 'text-orange-600 dark:text-orange-400',
+    char: 'text-emerald-600 dark:text-emerald-400',
+    entity: 'text-orange-600 dark:text-orange-400',
+    regex: 'text-orange-600 dark:text-orange-400',
+    number: 'text-amber-600 dark:text-amber-400',
+    operator: 'text-teal-600 dark:text-teal-400',
+    property: 'text-blue-600 dark:text-blue-400',
+    symbol: 'text-amber-600 dark:text-amber-400',
+    deleted: 'text-red-600 dark:text-red-400',
+    attr: 'text-blue-600 dark:text-blue-400',
   },
   text: {
-    code: 'font-body bg-neutral-100 dark:bg-neutral-800/80 px-1.5 py-0.5 rounded text-xs text-primary font-medium border border-border/40',
+    boldItalicUnderlineStrikethrough:
+      'font-semibold text-foreground italic underline line-through underline-offset-4 opacity-80',
+    boldUnderlineStrikethrough:
+      'font-semibold text-foreground underline line-through underline-offset-4 opacity-80',
+    code: 'font-mono bg-muted px-1.5 py-0.5 rounded text-xs text-foreground font-medium border border-border/40',
+    italicUnderlineStrikethrough:
+      'italic underline line-through underline-offset-4 opacity-80',
+    boldItalicUnderline:
+      'font-semibold text-foreground italic underline underline-offset-4',
+    boldItalicStrikethrough:
+      'font-semibold text-foreground italic line-through opacity-70',
+    underlineStrikethrough:
+      'underline line-through underline-offset-4 opacity-80',
+    boldUnderline: 'font-semibold text-foreground underline underline-offset-4',
+    boldStrikethrough: 'font-semibold text-foreground line-through opacity-70',
+    italicUnderline: 'italic underline underline-offset-4',
+    italicStrikethrough: 'italic line-through opacity-70',
     underline: 'underline underline-offset-4',
     strikethrough: 'line-through opacity-70',
     bold: 'font-semibold text-foreground',
     italic: 'italic',
+  },
+  list: {
+    nested: {
+      list: 'list-none pl-4 my-0.5',
+      listitem: 'list-none pl-4',
+    },
+    ol: 'list-decimal pl-5 mb-2 space-y-1 marker:text-muted-foreground',
+    ul: 'list-disc pl-5 mb-2 space-y-1 marker:text-muted-foreground',
+    listitem: 'text-sm text-foreground/90 leading-relaxed my-0.5',
+    listitemChecked: 'line-through opacity-60',
+    checklist: 'list-none pl-0 my-1',
+    listitemUnchecked: '',
   },
   heading: {
     h3: 'text-base font-semibold mt-3 mb-1.5 text-foreground tracking-tight',
@@ -112,6 +159,7 @@ export default function LexicalEditor({
             contentEditable={
               <ContentEditable
                 {...restProps}
+                spellCheck={false}
                 className="min-h-60 max-h-125 overflow-y-auto px-4 py-3.5 outline-none focus:ring-0 text-sm scrollbar-none **:[[style]]:text-inherit! **:[[style]]:bg-transparent!"
                 disabled={disabled}
               />
@@ -129,7 +177,7 @@ export default function LexicalEditor({
           <EditorOnChangePlugin onChange={onChange} />
           <CompanionBridgePlugin />
           <KeyboardShortcutsPlugin />
-          <LinkShortcutPlugin />
+          <LinkShortcutDialogPlugin />
           <HistoryPlugin />
           <ListPlugin />
           <LinkPlugin />

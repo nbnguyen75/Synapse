@@ -599,6 +599,17 @@
       ],
       "status": "done",
       "evidence": "client/src/providers/global-shortcuts-provider.tsx (NEW) + providers/index.ts, client/src/hooks/use-hotkey-shortcut.ts (wrapper), client/src/routes/_app/route.tsx (provider mount), client/src/config/keyboard-shortcuts.ts (editor-link/editor-highlight), client/src/components/shared/editor/lexical-keyboard-shortcuts.tsx (isComposing guard + preventDefault/stopPropagation + link/highlight dispatch), lexical-link-shortcut-plugin.tsx (NEW), lexical-bullet-list-shortcut-plugin.tsx (NEW), lexical-editor.tsx (plugin mounts), messages/en.json, messages/vi.json"
+    },
+    {
+      "id": "feat-060",
+      "name": "Shortcut Mapping Overhaul + Bulk-Bar Trash Semantics + Markdown Link in Toolbar (2026-08-17)",
+      "description": "DONE (per user spec): (1) New global shortcut mapping: go-to-notes = 'g n' sequence (G then N, navigate /notes), go-to-create-note = ['c', 'mod+n'] (was mod+alt+n), toggle-theme = 'mod+alt+t' (Ctrl+Alt+T → useTheme().toggleTheme()); quick-note (mod+alt+n popup) DROPPED per user (app has no quick-note feature). Sequence support added to GlobalShortcutsProvider: combos containing whitespace register via getSequenceManager().register(steps, ...) (HotkeyManager.register does not accept sequences); handles map typed structurally (setOptions/unregister shared by both handle types). Input protection verified in library source (manager.utils.js): shouldIgnoreInputEvent covers input/textarea/select/contentEditable via focused element + composedPath, so 'c'/'g n'/'mod+n' stay inert while typing (useHotkeyShortcut registers ignoreInputs: true by default). findShortcutConflict now normalizes sequences token-wise. (2) Bulk bar semantics: TRASH button in notes-bulk-actions.tsx said notes_bulk_delete ('Delete') but performs move-to-trash — relabeled to new notes_bulk_move_to_trash ('Move to trash'/'Chuyển vào thùng rác'), orphaned notes_bulk_delete removed; audit of per-card dropdown, $noteId inline actions, trash view, and TRASH toast (notes_page_toast_trashed) confirmed already correct. (3) Markdown info moved OUT of the shortcuts dialog title into the toolbar as a small 'Markdown' link (new key lexical_shortcuts_markdown, title = lexical_shortcuts_tooltip_info) next to ShortcutsHelpDialog; dialog title cleaned up. (4) Shortcuts dialogs scoped: sidebar-keyboard-shortcuts-dialog now shows ['global'] only (editor dialog was already ['editor']). New i18n en/vi: keyboard_shortcuts_go_to_notes, keyboard_shortcuts_toggle_theme, notes_bulk_move_to_trash, lexical_shortcuts_markdown. Verified: generate-translation, bun --bun check (exit 0), bunx tsc -b, bun --bun run build.",
+      "dependencies": [
+        "feat-049",
+        "feat-059"
+      ],
+      "status": "done",
+      "evidence": "client/src/config/keyboard-shortcuts.ts (go-to-notes 'g n', go-to-create-note ['c','mod+n'], toggle-theme, token-wise conflict), client/src/providers/global-shortcuts-provider.tsx (SequenceManager branch + HotkeyHandleLike), client/src/components/shared/app-global-keybinds.tsx (go-to-notes + toggle-theme), client/src/features/notes/components/notes-bulk-actions.tsx (notes_bulk_move_to_trash), client/src/components/shared/editor/lexical-toolbar.tsx (Markdown link), lexical-shortcuts-dialog.tsx (title cleanup), client/src/components/shared/sidebar-keyboard-shortcuts-dialog.tsx (global-only), messages/en.json, messages/vi.json"
     }
   ]
 }

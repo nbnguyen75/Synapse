@@ -11,9 +11,6 @@ export default function CommandPaletteFooter() {
           <Kbd className="text-[10px] px-1 py-0.5">↵</Kbd> Select
         </span>
         <span className="flex items-center gap-1">
-          <Kbd className="text-[10px] px-1 py-0.5">#</Kbd> Tag Filter
-        </span>
-        <span className="flex items-center gap-1">
           <Kbd className="text-[10px] px-1 py-0.5">&gt;</Kbd> Cmd Filter
         </span>
       </div>

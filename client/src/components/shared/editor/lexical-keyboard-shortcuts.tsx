@@ -35,7 +35,7 @@ import { useShortcutsStore } from '@/store/shortcuts-store';
 
 import { getEffectiveCombos } from '@/config/keyboard-shortcuts';
 
-import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-shortcut-plugin';
+import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-shortcut-dialog-plugin';
 
 export type { HeadingTagType };
 

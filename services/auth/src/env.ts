@@ -11,10 +11,10 @@ export const env = createEnv({
 			.optional()
 			.default(['*']),
 		DATABASE_URL: z.url().trim().default('postgresql://synapse:root@postgres:5432/auth_db'),
-		BETTER_AUTH_URL: z.url().trim().default('http://auth:5001'),
 		GOOGLE_CLIENT_SECRET: z.string().trim().nonempty(),
 		BETTER_AUTH_SECRET: z.string().trim().nonempty(),
-		GOOGLE_CLIENT_ID: z.string().trim().nonempty()
+		GOOGLE_CLIENT_ID: z.string().trim().nonempty(),
+		BETTER_AUTH_URL: z.url().trim().default('')
 	},
 
 	client: {

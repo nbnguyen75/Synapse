@@ -21,9 +21,11 @@ plugins:
         - Content-Type
         - Origin
         - X-Requested-With
+        - Cookie
       exposed_headers:
         - X-Conversation-Id
         - X-Accel-Buffering
+        - Set-Cookie
       credentials: true
       preflight_continue: false
 
@@ -35,6 +37,7 @@ services:
         paths:
           - /api/v1/auth
         strip_path: true
+        preserve_host: true
 
   - name: notes-service
     url: http://notes:8082
