@@ -1,1 +1,0 @@
-ALTER TABLE "conversations" ADD COLUMN "favorited" boolean DEFAULT false NOT NULL;

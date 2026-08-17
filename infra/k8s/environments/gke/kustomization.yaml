@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+  - cloudflared.yaml
+
+patches:
+  - path: kong-service-patch.yaml
+
+images:
+  - name: auth
+    newName: asia-southeast1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/synapse/auth
+  - name: auth-migrate
+    newName: asia-southeast1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/synapse/auth-migrate
+  - name: ai
+    newName: asia-southeast1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/synapse/ai
+  - name: ai-migrate
+    newName: asia-southeast1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/synapse/ai-migrate
+  - name: notes
+    newName: asia-southeast1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/synapse/notes
+
+secretGenerator:
+  - name: auth-secrets
+    behavior: create
+    envs:
+      - auth.env
+  - name: ai-secrets
+    behavior: create
+    envs:
+      - ai.env
+  - name: notes-secrets
+    behavior: create
+    envs:
+      - notes.env
+  - name: postgres-secrets
+    behavior: create
+    envs:
+      - postgres.env

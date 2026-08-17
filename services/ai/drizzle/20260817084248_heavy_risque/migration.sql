@@ -3,8 +3,10 @@ CREATE TYPE "personality_preset" AS ENUM('concise', 'friendly', 'professional', 
 CREATE TYPE "response_length" AS ENUM('short', 'balanced', 'detailed');--> statement-breakpoint
 CREATE TYPE "message_role" AS ENUM('user', 'assistant', 'system', 'data', 'tool');--> statement-breakpoint
 CREATE TABLE "conversations" (
+	"current_message_id" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"favorited" boolean DEFAULT false NOT NULL,
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 	"user_id" text NOT NULL,
 	"title" text
@@ -12,6 +14,7 @@ CREATE TABLE "conversations" (
 --> statement-breakpoint
 CREATE TABLE "messages" (
 	"conversation_id" uuid NOT NULL,
+	"parent_id" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"metadata" jsonb,
 	"parts" jsonb NOT NULL,
@@ -52,6 +55,9 @@ CREATE TABLE "user_ai_settings" (
 CREATE INDEX "conversations_user_id_idx" ON "conversations" ("user_id");--> statement-breakpoint
 CREATE INDEX "messages_conversation_id_idx" ON "messages" ("conversation_id");--> statement-breakpoint
 CREATE INDEX "messages_search_text_trgm_idx" ON "messages" USING gin ("search_text" gin_trgm_ops);--> statement-breakpoint
+CREATE INDEX "messages_parent_id_idx" ON "messages" ("parent_id");--> statement-breakpoint
 CREATE INDEX "note_embeddings_embedding_idx" ON "note_embeddings" USING hnsw ("embedding" vector_cosine_ops);--> statement-breakpoint
 CREATE INDEX "note_embeddings_user_id_idx" ON "note_embeddings" ("user_id");--> statement-breakpoint
-ALTER TABLE "messages" ADD CONSTRAINT "messages_conversation_id_conversations_id_fkey" FOREIGN KEY ("conversation_id") REFERENCES "conversations"("id") ON DELETE CASCADE;
+ALTER TABLE "conversations" ADD CONSTRAINT "conversations_current_message_id_messages_id_fkey" FOREIGN KEY ("current_message_id") REFERENCES "messages"("id") ON DELETE SET NULL;--> statement-breakpoint
+ALTER TABLE "messages" ADD CONSTRAINT "messages_conversation_id_conversations_id_fkey" FOREIGN KEY ("conversation_id") REFERENCES "conversations"("id") ON DELETE CASCADE;--> statement-breakpoint
+ALTER TABLE "messages" ADD CONSTRAINT "messages_parent_id_messages_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "messages"("id") ON DELETE CASCADE;

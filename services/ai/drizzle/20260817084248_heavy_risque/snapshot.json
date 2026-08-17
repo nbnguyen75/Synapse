@@ -1,9 +1,9 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "90745916-13fa-4bff-b66c-33cc97e90235",
+  "id": "12d3b1f5-55ef-44f6-9fa0-2b47015bc48b",
   "prevIds": [
-    "d323f4b0-d668-479f-94b1-29df2d34015d"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
@@ -79,6 +79,19 @@
       "name": "user_ai_settings",
       "entityType": "tables",
       "schema": "public"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "current_message_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "conversations"
     },
     {
       "type": "timestamp with time zone",
@@ -167,6 +180,19 @@
       "generated": null,
       "identity": null,
       "name": "conversation_id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "messages"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "parent_id",
       "entityType": "columns",
       "schema": "public",
       "table": "messages"
@@ -576,6 +602,27 @@
       "nameExplicit": true,
       "columns": [
         {
+          "value": "parent_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "messages_parent_id_idx",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "messages"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        {
           "value": "embedding",
           "isExpression": false,
           "asc": true,
@@ -620,6 +667,23 @@
     {
       "nameExplicit": false,
       "columns": [
+        "current_message_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "messages",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "SET NULL",
+      "name": "conversations_current_message_id_messages_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "conversations"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
         "conversation_id"
       ],
       "schemaTo": "public",
@@ -630,6 +694,23 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "messages_conversation_id_conversations_id_fkey",
+      "entityType": "fks",
+      "schema": "public",
+      "table": "messages"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "parent_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "messages",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "messages_parent_id_messages_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "messages"

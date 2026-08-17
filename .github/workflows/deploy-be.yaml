@@ -1,0 +1,121 @@
+name: Build and Deploy Backend to GKE
+
+on:
+  push:
+    tags:
+      - "be-v*"
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GKE_CLUSTER: synapse-cluster
+  GKE_ZONE: asia-southeast1-a
+  GAR_LOCATION: asia-southeast1
+  GAR_REPO: synapse
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authorize Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+
+      # Build and Push Docker Images
+      - name: Build and Push Docker Images
+        run: |
+          REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
+          TAG="${{ github.ref_name }}"
+
+          docker build -t $REGISTRY/auth:$TAG ./services/auth
+          docker push $REGISTRY/auth:$TAG
+
+          docker build -t $REGISTRY/auth-migrate:$TAG ./services/auth/migrate
+          docker push $REGISTRY/auth-migrate:$TAG
+
+          docker build -t $REGISTRY/ai:$TAG ./services/ai
+          docker push $REGISTRY/ai:$TAG
+
+          docker build -t $REGISTRY/ai-migrate:$TAG ./services/ai/migrate
+          docker push $REGISTRY/ai-migrate:$TAG
+
+          docker build -t $REGISTRY/notes:$TAG ./services/notes
+          docker push $REGISTRY/notes:$TAG
+
+      - name: Get GKE Credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+
+      - name: Deploy Manifests to GKE
+        run: |
+          # Chuyển đến thư mục k8s gke trong dự án của bạn (chỉnh lại đường dẫn nếu nằm trong infra/)
+          cd infra/k8s/environments/gke || cd k8s/environments/gke
+
+          # 1. AI SERVICE ENV
+          cat << EOF > ai.env
+          PORT=5002
+          DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/ai_db
+          RABBITMQ_URL=amqp://${{ secrets.RABBITMQ_USER }}:${{ secrets.RABBITMQ_PASSWORD }}@rabbitmq:5672/synapse-vhost
+          AUTH_JWKS_URL=http://auth:5001/.well-known/jwks.json
+          ORIGINS=http://localhost:5173,http://localhost:8000
+          GOOGLE_GENERATIVE_AI_API_KEY=${{ secrets.AI_GOOGLE_GENERATIVE_AI_API_KEY }}
+          TAVILY_API_KEY=${{ secrets.AI_TAVILY_API_KEY }}
+          EOF
+
+          # 2. AUTH SERVICE ENV
+          cat << EOF > auth.env
+          PORT=5001
+          DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/auth_db
+          BETTER_AUTH_URL=http://localhost:8000
+          ORIGINS=http://localhost:5173,http://localhost:8000
+          BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}
+          GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}
+          EOF
+
+          # 3. NOTES SERVICE ENV
+          cat << EOF > notes.env
+          PORT=8082
+          SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/notes_db
+          SPRING_DATASOURCE_USERNAME=${{ secrets.POSTGRES_USER }}
+          SPRING_DATASOURCE_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          SPRING_RABBITMQ_HOST=rabbitmq
+          SPRING_RABBITMQ_VHOST=synapse-vhost
+          SPRING_RABBITMQ_PORT=5672
+          SPRING_RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USER }}
+          SPRING_RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}
+          AUTH_JWKS_URL=http://auth:5001/.well-known/jwks.json
+          SYNAPSE_AI_SERVICE_URL=http://ai:5002
+          EOF
+
+          # 4. POSTGRES SECRETS
+          cat << EOF > postgres.env
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=postgres
+          EOF
+
+          # Xóa migration jobs cũ
+          kubectl delete job auth-migrate auth-seed-demo-acc ai-migrate --ignore-not-found
+
+          # Cập nhật tag image trong Kustomize theo tên Tag Git (ví dụ: be-v1.0.0)
+          REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
+          TAG="${{ github.ref_name }}"
+          kustomize edit set image auth=$REGISTRY/auth:$TAG
+          kustomize edit set image auth-migrate=$REGISTRY/auth-migrate:$TAG
+          kustomize edit set image ai=$REGISTRY/ai:$TAG
+          kustomize edit set image ai-migrate=$REGISTRY/ai-migrate:$TAG
+          kustomize edit set image notes=$REGISTRY/notes:$TAG
+
+          kubectl apply -k .
