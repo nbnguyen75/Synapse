@@ -5,6 +5,18 @@ import { env } from '@/config/env';
 
 import { m } from '@/paraglide/messages';
 
+const guardedFetch: typeof fetch = (input, init) => {
+  if (!env.VITE_API_URL) {
+    return Promise.resolve(
+      new Response(null, {
+        statusText: 'Where should I call ?',
+        status: 404,
+      }),
+    );
+  }
+  return fetch(input, init);
+};
+
 export const authClient = createAuthClient({
   plugins: [
     jwtClient({
@@ -13,6 +25,9 @@ export const authClient = createAuthClient({
       },
     }),
   ],
+  fetchOptions: {
+    customFetchImpl: guardedFetch,
+  },
   baseURL: env.VITE_API_URL,
   basePath: '/api/v1/auth',
 });
