@@ -7,11 +7,11 @@ COPY build.gradle.kts settings.gradle.kts ./
 RUN chmod +x gradlew
 
 RUN --mount=type=cache,target=/root/.gradle/caches \
-    ./gradlew dependencies -q --no-daemon
+    ./gradlew dependencies --no-daemon > /dev/null 2>&1 || true
 
 COPY src ./src
 RUN --mount=type=cache,target=/root/.gradle/caches \
-    ./gradlew build -x test -x spotlessApply -x spotlessCheck -q --no-daemon
+    ./gradlew build -x test -x spotlessApply -x spotlessCheck --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
