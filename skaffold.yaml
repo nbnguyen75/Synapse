@@ -4,7 +4,6 @@ metadata:
   name: synapse
 build:
   artifacts:
-    # --- AUTH SERVICE ---
     - image: auth
       context: services/auth
       docker:
@@ -14,7 +13,6 @@ build:
       docker:
         target: migrate
 
-    # --- AI SERVICE ---
     - image: ai
       context: services/ai
       docker:
@@ -24,7 +22,6 @@ build:
       docker:
         target: migrate
 
-    # --- NOTES SERVICE ---
     - image: notes
       context: services/notes
 

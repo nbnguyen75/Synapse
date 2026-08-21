@@ -34,6 +34,8 @@ spring:
     virtual-host: ${SPRING_RABBITMQ_VHOST:synapse-vhost}
     username: ${SPRING_RABBITMQ_USERNAME:guest}
     password: ${SPRING_RABBITMQ_PASSWORD:guest}
+    ssl:
+      enabled: ${SPRING_RABBITMQ_SSL_ENABLED:false}
   jpa:
     open-in-view: false
     hibernate:
