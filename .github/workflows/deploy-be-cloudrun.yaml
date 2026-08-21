@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -52,7 +52,7 @@ jobs:
             --region ${{ env.GAR_LOCATION }} \
             --set-env-vars "DATABASE_URL=${{ secrets.NEON_AUTH_DB_URL }}" \
             --command "bun" \
-            --args "--bun,db:push"
+            --args="run,db:push"
 
           gcloud run jobs execute auth-migrate --region ${{ env.GAR_LOCATION }} --wait
 
@@ -89,7 +89,7 @@ jobs:
             --region ${{ env.GAR_LOCATION }} \
             --set-env-vars "DATABASE_URL=${{ secrets.NEON_AI_DB_URL }}" \
             --command "bun" \
-            --args "--bun,db:push"
+            --args="--bun,db:push"
 
           gcloud run jobs execute ai-migrate --region ${{ env.GAR_LOCATION }} --wait
 
