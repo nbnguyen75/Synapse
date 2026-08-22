@@ -74,7 +74,7 @@ jobs:
             --port 5001 \
             --memory 256Mi \
             --allow-unauthenticated \
-            --set-env-vars "PORT=5001,DATABASE_URL=${{ secrets.NEON_AUTH_POOLED_URL }},BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }},GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }},GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }},ORIGINS=${{ secrets.CLIENT_ORIGINS }}"
+            --set-env-vars "DATABASE_URL=${{ secrets.NEON_AUTH_POOLED_URL }},BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }},GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }},GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }},ORIGINS=${{ secrets.CLIENT_ORIGINS }}"
 
       - name: Fetch Auth Service URL
         run: |
@@ -116,7 +116,7 @@ jobs:
             --port 5002 \
             --memory 512Mi \
             --allow-unauthenticated \
-            --set-env-vars "PORT=5002,DATABASE_URL=${{ secrets.NEON_AI_POOLED_URL }},RABBITMQ_URL=${{ secrets.CLOUDAMQP_URL }},AUTH_JWKS_URL=${{ env.AUTH_URL }}/.well-known/jwks.json,ORIGINS=${{ secrets.CLIENT_ORIGINS }},GOOGLE_GENERATIVE_AI_API_KEY=${{ secrets.AI_GOOGLE_GENERATIVE_AI_API_KEY }},TAVILY_API_KEY=${{ secrets.AI_TAVILY_API_KEY }}"
+            --set-env-vars "DATABASE_URL=${{ secrets.NEON_AI_POOLED_URL }},RABBITMQ_URL=${{ secrets.CLOUDAMQP_URL }},AUTH_JWKS_URL=${{ env.AUTH_URL }}/.well-known/jwks.json,ORIGINS=${{ secrets.CLIENT_ORIGINS }},GOOGLE_GENERATIVE_AI_API_KEY=${{ secrets.AI_GOOGLE_GENERATIVE_AI_API_KEY }},TAVILY_API_KEY=${{ secrets.AI_TAVILY_API_KEY }}"
 
       - name: Fetch AI Service URL
         run: |
@@ -138,7 +138,7 @@ jobs:
             --port 8082 \
             --memory 512Mi \
             --allow-unauthenticated \
-            --set-env-vars "PORT=8082,SPRING_DATASOURCE_URL=${{ secrets.NEON_NOTES_DB_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.NEON_NOTES_DB_USER }},SPRING_DATASOURCE_PASSWORD=${{ secrets.NEON_NOTES_DB_PASS }},SPRING_RABBITMQ_HOST=${{ secrets.CLOUDAMQP_HOST }},SPRING_RABBITMQ_PORT=5671,SPRING_RABBITMQ_USERNAME=${{ secrets.CLOUDAMQP_USER }},SPRING_RABBITMQ_PASSWORD=${{ secrets.CLOUDAMQP_PASS }},SPRING_RABBITMQ_VHOST=${{ secrets.CLOUDAMQP_VHOST }},SPRING_RABBITMQ_SSL_ENABLED=true,AUTH_JWKS_URL=${{ env.AUTH_URL }}/.well-known/jwks.json,SYNAPSE_AI_SERVICE_URL=${{ env.AI_URL }}"
+            --set-env-vars "SPRING_DATASOURCE_URL=${{ secrets.NEON_NOTES_DB_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.NEON_NOTES_DB_USER }},SPRING_DATASOURCE_PASSWORD=${{ secrets.NEON_NOTES_DB_PASS }},SPRING_RABBITMQ_HOST=${{ secrets.CLOUDAMQP_HOST }},SPRING_RABBITMQ_PORT=5671,SPRING_RABBITMQ_USERNAME=${{ secrets.CLOUDAMQP_USER }},SPRING_RABBITMQ_PASSWORD=${{ secrets.CLOUDAMQP_PASS }},SPRING_RABBITMQ_VHOST=${{ secrets.CLOUDAMQP_VHOST }},SPRING_RABBITMQ_SSL_ENABLED=true,AUTH_JWKS_URL=${{ env.AUTH_URL }}/.well-known/jwks.json,SYNAPSE_AI_SERVICE_URL=${{ env.AI_URL }}"
 
       # ==========================================
       # 5. KONG GATEWAY CONFIG & DEPLOY
