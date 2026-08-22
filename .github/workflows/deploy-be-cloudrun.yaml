@@ -56,7 +56,9 @@ jobs:
             --region ${{ env.GAR_LOCATION }} \
             --set-env-vars "DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}" \
             --command "bun" \
-            --args="run,db:push"
+            --args="run,db:push" \
+            --max-retries 0 \
+            --task-timeout 300
 
           gcloud run jobs execute auth-migrate --region ${{ env.GAR_LOCATION }} --wait
 
@@ -78,7 +80,7 @@ jobs:
         run: |
           AUTH_URL=$(gcloud run services describe synapse-auth --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
           echo "AUTH_URL=$AUTH_URL" >> $GITHUB_ENV
-          
+
           gcloud run services update synapse-auth \
             --region ${{ env.GAR_LOCATION }} \
             --update-env-vars "BETTER_AUTH_URL=$AUTH_URL"
@@ -96,7 +98,9 @@ jobs:
             --region ${{ env.GAR_LOCATION }} \
             --set-env-vars "DATABASE_URL=${{ secrets.NEON_AI_DIRECT_URL }}" \
             --command "bun" \
-            --args="run,db:push"
+            --args="run,db:push" \
+            --max-retries 0 \
+            --task-timeout 300
 
           gcloud run jobs execute ai-migrate --region ${{ env.GAR_LOCATION }} --wait
 
