@@ -10,16 +10,16 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
 
 jobs:
-  deploy:
+  build-and-deploy-web-to-vercel:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6.1.0
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: 1.3.14
 
       - name: Install dependencies
         working-directory: ./client
@@ -31,6 +31,14 @@ jobs:
       - name: Pull Vercel environment
         working-directory: ./client
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Inject Version Environment Variable
+        working-directory: ./client
+        run: |
+          RAW_TAG="${{ github.ref_name }}"
+          TAG_NAME="${RAW_TAG#web-}"
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "VITE_APP_VERSION=${TAG_NAME} (${SHORT_SHA})" >> .env.production.local
 
       - name: Build project
         working-directory: ./client
