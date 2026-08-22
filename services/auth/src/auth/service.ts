@@ -63,6 +63,22 @@ export const auth = betterAuth({
 			}
 		}
 	},
+	advanced: {
+		cookies: {
+			sessionToken: {
+				attributes: {
+					sameSite: 'none',
+					secure: true
+				}
+			}
+		}
+	},
+	session: {
+		cookieCache: {
+			maxAge: 5 * 60, // cache 5 mins
+			enabled: true
+		}
+	},
 	database: drizzleAdapter(db, {
 		provider: 'pg',
 		schema

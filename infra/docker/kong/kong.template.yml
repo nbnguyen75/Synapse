@@ -4,7 +4,7 @@ _transform: true
 services:
   - name: auth-service
     url: ${AUTH_SERVICE_URL}
-    connect_timeout: 10000
+    connect_timeout: 30000
     read_timeout: 30000
     write_timeout: 30000
     routes:
@@ -16,7 +16,7 @@ services:
 
   - name: ai-service
     url: ${AI_SERVICE_URL}
-    connect_timeout: 10000
+    connect_timeout: 30000
     read_timeout: 120000
     write_timeout: 60000
     routes:
@@ -28,7 +28,7 @@ services:
 
   - name: notes-service
     url: ${NOTES_SERVICE_URL}
-    connect_timeout: 10000
+    connect_timeout: 30000
     read_timeout: 30000
     write_timeout: 30000
     routes:

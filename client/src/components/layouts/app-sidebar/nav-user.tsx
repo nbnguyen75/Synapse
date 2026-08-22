@@ -7,6 +7,7 @@ import {
 import definition from '@dicebear/styles/identicon.json' with { type: 'json' };
 
 import { signOut, useSession } from '@/lib/auth';
+import { clearTokenCache } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
 
 import {
@@ -75,6 +76,8 @@ export default function NavUser() {
         },
       },
     });
+
+    clearTokenCache();
   };
 
   return (
