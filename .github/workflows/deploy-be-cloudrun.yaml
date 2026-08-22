@@ -28,17 +28,25 @@ jobs:
       - name: Authorize Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
 
-      # 1. Build & Push All Docker Images
+      # ==========================================
+      # 1. BUILD & PUSH ALL DOCKER IMAGES
+      # ==========================================
       - name: Build and Push Docker Images
         run: |
           REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
           TAG="${{ github.ref_name }}"
 
-          docker build -t $REGISTRY/auth:$TAG ./services/auth
+          docker build --target app -t $REGISTRY/auth:$TAG ./services/auth
           docker push $REGISTRY/auth:$TAG
 
-          docker build -t $REGISTRY/ai:$TAG ./services/ai
+          docker build --target migrate -t $REGISTRY/auth-migrate:$TAG ./services/auth
+          docker push $REGISTRY/auth-migrate:$TAG
+
+          docker build --target app -t $REGISTRY/ai:$TAG ./services/ai
           docker push $REGISTRY/ai:$TAG
+
+          docker build --target migrate -t $REGISTRY/ai-migrate:$TAG ./services/ai
+          docker push $REGISTRY/ai-migrate:$TAG
 
           docker build -t $REGISTRY/notes:$TAG ./services/notes
           docker push $REGISTRY/notes:$TAG
@@ -52,11 +60,9 @@ jobs:
           TAG="${{ github.ref_name }}"
 
           gcloud run jobs deploy auth-migrate \
-            --image $REGISTRY/auth:$TAG \
+            --image $REGISTRY/auth-migrate:$TAG \
             --region ${{ env.GAR_LOCATION }} \
             --set-env-vars "DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}" \
-            --command "bun" \
-            --args="run,db:push" \
             --max-retries 0 \
             --task-timeout 300
 
@@ -81,10 +87,6 @@ jobs:
           AUTH_URL=$(gcloud run services describe synapse-auth --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
           echo "AUTH_URL=$AUTH_URL" >> $GITHUB_ENV
 
-          gcloud run services update synapse-auth \
-            --region ${{ env.GAR_LOCATION }} \
-            --update-env-vars "BETTER_AUTH_URL=$AUTH_URL"
-
       # ==========================================
       # 3. AI SERVICE: MIGRATE (DIRECT) & DEPLOY (POOLED)
       # ==========================================
@@ -94,11 +96,9 @@ jobs:
           TAG="${{ github.ref_name }}"
 
           gcloud run jobs deploy ai-migrate \
-            --image $REGISTRY/ai:$TAG \
+            --image $REGISTRY/ai-migrate:$TAG \
             --region ${{ env.GAR_LOCATION }} \
             --set-env-vars "DATABASE_URL=${{ secrets.NEON_AI_DIRECT_URL }}" \
-            --command "bun" \
-            --args="run,db:push" \
             --max-retries 0 \
             --task-timeout 300
 
@@ -169,3 +169,14 @@ jobs:
             --memory 256Mi \
             --allow-unauthenticated \
             --set-env-vars "KONG_DATABASE=off,KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml,KONG_PROXY_LISTEN=0.0.0.0:8000"
+
+      # ==========================================
+      # 6. UPDATE AUTH WITH FINAL KONG URL (must run last)
+      # ==========================================
+      - name: Update Auth with Kong URL
+        run: |
+          KONG_URL=$(gcloud run services describe synapse-kong --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
+
+          gcloud run services update synapse-auth \
+            --region ${{ env.GAR_LOCATION }} \
+            --update-env-vars "BETTER_AUTH_URL=$KONG_URL"
