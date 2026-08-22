@@ -4,7 +4,7 @@
     "target": "es2023",
     "lib": ["ES2023", "DOM"],
     "module": "esnext",
-    "types": ["vite/client"],
+    "types": ["vite/client", "vite-imagetools"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
     "allowJs": true,
@@ -24,6 +24,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "src/**/*", "deprecated"],
+  "include": ["src", "src/**/*"],
   "exclude": ["node_modules", "dev-dist"]
 }

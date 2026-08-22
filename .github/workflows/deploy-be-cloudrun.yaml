@@ -155,7 +155,7 @@ jobs:
           export AI_SERVICE_URL=${{ env.AI_URL }}
           export NOTES_SERVICE_URL=$(gcloud run services describe synapse-notes --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
 
-          export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | tr ',' '\n' | sed 's/^/        - "/' | sed 's/$/"/')
+          export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | jq -c -R 'split(",")')
 
           envsubst < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
 

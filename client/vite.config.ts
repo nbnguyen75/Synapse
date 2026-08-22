@@ -5,6 +5,7 @@ import { devtools } from '@tanstack/devtools-vite';
 
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
+import { imagetools } from 'vite-imagetools';
 import tailwindcss from '@tailwindcss/vite';
 import babel from '@rolldown/plugin-babel';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -12,7 +13,76 @@ import { defineConfig } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              test: /node_modules\/(react|react-dom|scheduler)/,
+              name: 'vendor-react',
+              priority: 50,
+            },
+            {
+              test: /node_modules\/@tanstack\/(react-router|react-query|react-virtual)/,
+              name: 'vendor-tanstack',
+              priority: 40,
+            },
+            {
+              test: /node_modules\/(ai|@ai-sdk)/,
+              name: 'vendor-ai-core',
+              priority: 30,
+            },
+            {
+              test: /node_modules\/(lexical|@lexical)/,
+              name: 'vendor-lexical',
+              priority: 30,
+            },
+            {
+              test: /node_modules\/(@rive-app|@xyflow|recharts|motion)/,
+              name: 'vendor-graphics',
+              priority: 25,
+            },
+            {
+              test: /node_modules\/(@base-ui|@iconify|lucide-react|cmdk|embla-carousel-react)/,
+              name: 'vendor-ui-icons',
+              priority: 20,
+            },
+            {
+              test: /node_modules\/(better-auth|zod|date-fns|lodash)/,
+              name: 'vendor-auth-utils',
+              priority: 15,
+            },
+            {
+              test: /node_modules\/shiki\/(dist\/)?langs\//,
+              name: 'shiki-lang',
+              priority: 10,
+            },
+            {
+              test: /node_modules\/shiki\/(dist\/)?themes\//,
+              name: 'shiki-theme',
+              priority: 10,
+            },
+            {
+              test: /node_modules\/mermaid\/dist\/diagrams\//,
+              name: 'mermaid-diagram',
+              priority: 10,
+            },
+          ],
+          minShareCount: 2,
+          minSize: 25000,
+        },
+      },
+      treeshake: {
+        moduleSideEffects: (id) => (id.endsWith('.css') ? true : undefined),
+        propertyReadSideEffects: false,
+        annotations: true,
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
   plugins: [
+    imagetools(),
     devtools(),
     paraglideVitePlugin({
       strategy: ['cookie', 'baseLocale'],
@@ -57,7 +127,11 @@ export default defineConfig({
         start_url: '/',
       },
       workbox: {
-        globIgnores: ['**/assets/shiki-*.js', '**/assets/vendor-shiki-*.js'],
+        globIgnores: [
+          '**/assets/shiki-lang-*.js',
+          '**/assets/shiki-theme-*.js',
+          '**/assets/mermaid-diagram-*.js',
+        ],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // * 6MB
         navigateFallback: '/index.html',
@@ -69,59 +143,6 @@ export default defineConfig({
       registerType: 'autoUpdate',
     }),
   ],
-  build: {
-    rolldownOptions: {
-      output: {
-        codeSplitting: {
-          groups: [
-            {
-              test: /node_modules\/(react|react-dom|scheduler)/,
-              name: 'vendor-react',
-              priority: 50,
-            },
-            {
-              test: /node_modules\/@tanstack\/(react-router|react-query|react-virtual)/,
-              name: 'vendor-tanstack',
-              priority: 40,
-            },
-            {
-              test: /node_modules\/(ai|@ai-sdk)/,
-              name: 'vendor-ai-core',
-              priority: 30,
-            },
-            {
-              test: /node_modules\/(lexical|@lexical)/,
-              name: 'vendor-lexical',
-              priority: 30,
-            },
-            {
-              test: /node_modules\/(@rive-app|@xyflow|recharts|motion)/,
-              name: 'vendor-graphics',
-              priority: 25,
-            },
-            {
-              test: /node_modules\/(@base-ui|@iconify|lucide-react|cmdk|embla-carousel-react)/,
-              name: 'vendor-ui-icons',
-              priority: 20,
-            },
-            {
-              test: /node_modules\/(better-auth|zod|date-fns|lodash)/,
-              name: 'vendor-auth-utils',
-              priority: 15,
-            },
-          ],
-          minShareCount: 2,
-          minSize: 25000,
-        },
-      },
-      treeshake: {
-        moduleSideEffects: (id) => (id.endsWith('.css') ? true : undefined),
-        propertyReadSideEffects: false,
-        annotations: true,
-      },
-    },
-    chunkSizeWarningLimit: 1000,
-  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),

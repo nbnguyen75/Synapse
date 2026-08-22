@@ -4,6 +4,8 @@ import { env } from '@/config/env';
 
 import { m } from '@/paraglide/messages';
 
+import { AppLogo } from '@/components/app/logo';
+
 import {
   SidebarHeader,
   SidebarContent,
@@ -20,8 +22,6 @@ import NavSecondary from './nav-secondary';
 import NavMain from './nav-main';
 import NavUser from './nav-user';
 
-import Logo from '@/assets/images/logo.png';
-
 export default function AppLeftSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
@@ -37,12 +37,7 @@ export default function AppLeftSidebar({
               render={
                 <Link to="/">
                   <div className="flex aspect-square size-8 items-center justify-center">
-                    <img
-                      src={Logo}
-                      className="rounded-sm"
-                      width={32}
-                      height={32}
-                    />
+                    <AppLogo className="rounded-sm" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">

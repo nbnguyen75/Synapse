@@ -9,7 +9,7 @@ import {
 
 import { m } from '@/paraglide/messages';
 
-import { HEADER_BREADCRUMB_COLLAPSE_WIDTH } from '@/components/layouts/constants';
+import { HEADER_BREADCRUMB_COLLAPSE_WIDTH } from '@/components/app/breadcrumbs/constants';
 
 import {
   Breadcrumb,

@@ -1,4 +1,4 @@
-import type { LayoutMode } from '@/components/layouts/types';
+import type { LayoutMode } from '@/components/app/types';
 
 import { persist } from 'zustand/middleware';
 import { create } from 'zustand';

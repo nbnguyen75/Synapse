@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
-import Logo from '@/assets/images/logo.png';
+import { AppLogo } from '@/components/app/logo';
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: ({ context }) => {
@@ -17,13 +17,7 @@ function RouteComponent() {
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12 transition-colors duration-300">
       <div className="w-full max-w-95 flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="mb-4 flex h-10 w-10 items-center justify-center">
-          <img
-            src={Logo}
-            className="rounded-md"
-            alt=""
-            width={40}
-            height={40}
-          />
+          <AppLogo size={40} />
         </div>
 
         <Outlet />

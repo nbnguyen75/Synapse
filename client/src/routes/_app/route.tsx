@@ -11,12 +11,10 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 import { useSettingsStore } from '@/store/settings-store';
 
-import {
-  AppLeftSidebar,
-  AppRightSidebar,
-  AppTopHeader,
-} from '@/components/layouts';
-import { AppGlobalKeybinds } from '@/components/shared';
+import { AppGlobalKeybinds } from '@/components/app/keyboard-shortcuts';
+import { AppRightSidebar } from '@/components/app/right-sidebar';
+import { AppLeftSidebar } from '@/components/app/left-sidebar';
+import { AppTopHeader } from '@/components/app/header';
 
 import {
   SidebarInset,

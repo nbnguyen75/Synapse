@@ -10,7 +10,8 @@ import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
 
-import { LexicalEditor, MarkdownRenderer, KeyCombo } from '@/components/shared';
+import { MarkdownRenderer, KeyCombo } from '@/components/shared';
+import { LexicalEditor } from '@/components/shared/editor';
 
 import {
   InputGroup,

@@ -1,4 +1,4 @@
-import type { AppTab } from '@/components/layouts/types';
+import type { AppTab } from '@/components/app/types';
 
 import { m } from '@/paraglide/messages';
 

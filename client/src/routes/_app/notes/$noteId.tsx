@@ -24,7 +24,8 @@ import { createTitle } from '@/config/metadata';
 import { m } from '@/paraglide/messages';
 import { $fetch } from '@/lib/fetch';
 
-import { LexicalEditor, MarkdownRenderer } from '@/components/shared';
+import { LexicalEditor } from '@/components/shared/editor';
+import { MarkdownRenderer } from '@/components/shared';
 
 import {
   DropdownMenu,

@@ -6,7 +6,7 @@ import { Controller, type UseFormReturn } from 'react-hook-form';
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
 
-import { LexicalEditor, MarkdownRenderer } from '@/components/shared';
+import { MarkdownRenderer } from '@/components/shared';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Field, FieldLabel, FieldError } from '@/components/ui/field';
@@ -82,7 +82,7 @@ export default function NoteForm({
 
             <TabsContent value="edit">
               <Field data-invalid={fieldState.invalid}>
-                <LexicalEditor
+                {/* <LexicalEditor
                   value={field.value ?? ''}
                   onChange={field.onChange}
                   id="create-note-content"
@@ -90,7 +90,7 @@ export default function NoteForm({
                   className="min-h-40 max-h-80"
                   onBlur={field.onBlur}
                   // disabled={isSubmitting || isPending}
-                />
+                /> */}
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}

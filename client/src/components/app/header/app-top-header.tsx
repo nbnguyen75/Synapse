@@ -13,7 +13,8 @@ import { useTheme } from '@/providers/theme-provider';
 import { getLocale, setLocale, type Locale } from '@/paraglide/runtime';
 import { m } from '@/paraglide/messages';
 
-import { AppBreadcrumb, KeyCombo } from '@/components/shared';
+import { AppBreadcrumb } from '@/components/app/breadcrumbs';
+import { KeyCombo } from '@/components/shared';
 
 import {
   DropdownMenu,

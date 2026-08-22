@@ -21,7 +21,7 @@ import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 
 import { m } from '@/paraglide/messages';
 
-import { LexicalEditor } from '@/components/shared';
+import { LexicalEditor } from '@/components/shared/editor';
 
 import {
   Select,

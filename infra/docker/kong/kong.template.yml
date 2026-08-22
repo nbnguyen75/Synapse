@@ -41,8 +41,7 @@ services:
 plugins:
   - name: cors
     config:
-      origins: 
-        ${CORS_ORIGINS_FORMATTED}
+      origins: ${CORS_ORIGINS_FORMATTED}
       methods:
         - GET
         - POST
