@@ -187,4 +187,6 @@ jobs:
 
           gcloud run services update synapse-auth \
             --region ${{ env.GAR_LOCATION }} \
+            --min-instances 0 \
+            --max-instances 1 \
             --update-env-vars "BETTER_AUTH_URL=$KONG_URL"
