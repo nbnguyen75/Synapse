@@ -147,7 +147,7 @@ jobs:
 
           export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | tr ',' '\n' | sed 's/^/        - "/' | sed 's/$/"/')
 
-          envsubst < ./infra/docker/kong/kong.yml.template > ./infra/docker/kong/kong.yml
+          envsubst < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
 
       - name: Build and Deploy Kong Gateway
         run: |
