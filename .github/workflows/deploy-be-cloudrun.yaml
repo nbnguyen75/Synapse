@@ -15,7 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v6.1.0
+        uses: actions/checkout@v4
+
+      # Setup Bun runtime để chạy DB migration trên Runner
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -29,7 +35,7 @@ jobs:
         run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
 
       # ==========================================
-      # 1. BUILD & PUSH ALL DOCKER IMAGES
+      # 1. BUILD & PUSH APP DOCKER IMAGES ONLY
       # ==========================================
       - name: Build and Push Docker Images
         run: |
@@ -39,34 +45,22 @@ jobs:
           docker build --target app -t $REGISTRY/auth:$TAG ./services/auth
           docker push $REGISTRY/auth:$TAG
 
-          docker build --target migrate -t $REGISTRY/auth-migrate:$TAG ./services/auth
-          docker push $REGISTRY/auth-migrate:$TAG
-
           docker build --target app -t $REGISTRY/ai:$TAG ./services/ai
           docker push $REGISTRY/ai:$TAG
-
-          docker build --target migrate -t $REGISTRY/ai-migrate:$TAG ./services/ai
-          docker push $REGISTRY/ai-migrate:$TAG
 
           docker build -t $REGISTRY/notes:$TAG ./services/notes
           docker push $REGISTRY/notes:$TAG
 
       # ==========================================
-      # 2. AUTH SERVICE: MIGRATE (DIRECT) & DEPLOY (POOLED)
+      # 2. AUTH SERVICE: MIGRATE (RUNNER) & DEPLOY
       # ==========================================
       - name: Run Auth DB Migration
+        env:
+          DATABASE_URL: ${{ secrets.NEON_AUTH_DIRECT_URL }}
         run: |
-          REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
-          TAG="${{ github.ref_name }}"
-
-          gcloud run jobs deploy auth-migrate \
-            --image $REGISTRY/auth-migrate:$TAG \
-            --region ${{ env.GAR_LOCATION }} \
-            --set-env-vars "DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}" \
-            --max-retries 0 \
-            --task-timeout 300
-
-          gcloud run jobs execute auth-migrate --region ${{ env.GAR_LOCATION }} --wait
+          cd services/auth
+          bun install
+          bun run db:push
 
       - name: Deploy Auth Service
         run: |
@@ -90,21 +84,15 @@ jobs:
           echo "AUTH_URL=$AUTH_URL" >> $GITHUB_ENV
 
       # ==========================================
-      # 3. AI SERVICE: MIGRATE (DIRECT) & DEPLOY (POOLED)
+      # 3. AI SERVICE: MIGRATE (RUNNER) & DEPLOY
       # ==========================================
       - name: Run AI DB Migration
+        env:
+          DATABASE_URL: ${{ secrets.NEON_AI_DIRECT_URL }}
         run: |
-          REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
-          TAG="${{ github.ref_name }}"
-
-          gcloud run jobs deploy ai-migrate \
-            --image $REGISTRY/ai-migrate:$TAG \
-            --region ${{ env.GAR_LOCATION }} \
-            --set-env-vars "DATABASE_URL=${{ secrets.NEON_AI_DIRECT_URL }}" \
-            --max-retries 0 \
-            --task-timeout 300
-
-          gcloud run jobs execute ai-migrate --region ${{ env.GAR_LOCATION }} --wait
+          cd services/ai
+          bun install
+          bun run db:push
 
       - name: Deploy AI Service
         run: |
@@ -176,10 +164,10 @@ jobs:
             --min-instances 0 \
             --max-instances 1 \
             --allow-unauthenticated \
-            --set-env-vars "KONG_DATABASE=off,KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml,KONG_PROXY_LISTEN=0.0.0.0:8000"
+            --set-env-vars "^@@@^KONG_DATABASE=off@@@KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml@@@KONG_PROXY_LISTEN=0.0.0.0:8000@@@KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=16k@@@KONG_NGINX_PROXY_PROXY_BUFFERS=4 16k"
 
       # ==========================================
-      # 6. UPDATE AUTH WITH FINAL KONG URL (must run last)
+      # 6. UPDATE AUTH WITH FINAL KONG URL
       # ==========================================
       - name: Update Auth with Kong URL
         run: |

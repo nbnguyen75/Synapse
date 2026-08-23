@@ -7,6 +7,7 @@ services:
     connect_timeout: 30000
     read_timeout: 30000
     write_timeout: 30000
+    retries: 0
     routes:
       - name: auth-route
         paths:
@@ -65,3 +66,11 @@ plugins:
       credentials: true
       max_age: 3600
       preflight_continue: false
+
+  - name: rate-limiting
+    route: auth-route
+    config:
+      minute: 20
+      policy: local
+      fault_tolerant: true
+      hide_client_headers: false
