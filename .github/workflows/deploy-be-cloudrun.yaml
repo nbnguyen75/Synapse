@@ -168,7 +168,7 @@ jobs:
             --ingress all \
             --network default \
             --subnet default \
-            --vpc-egress private-ranges-only \
+            --vpc-egress all-traffic \
             --allow-unauthenticated \
             --set-env-vars "^@@@^KONG_DATABASE=off@@@KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml@@@KONG_PROXY_LISTEN=0.0.0.0:8000@@@KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=16k@@@KONG_NGINX_PROXY_PROXY_BUFFERS=4 16k"
 
