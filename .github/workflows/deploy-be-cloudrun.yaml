@@ -181,7 +181,9 @@ jobs:
       # ==========================================
       - name: Update Auth with Gateway URL
         run: |
-          GATEWAY_URL=$(gcloud run services describe synapse-api-gateway --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
+          GATEWAY_URL=$(gcloud run services describe synapse-api-gateway \
+            --region ${{ env.GAR_LOCATION }} \
+            --format='value(metadata.annotations."run.googleapis.com/urls")' | jq -r '.[0]')
 
           gcloud run services update synapse-auth \
             --region ${{ env.GAR_LOCATION }} \
