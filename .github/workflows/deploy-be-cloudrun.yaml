@@ -76,7 +76,7 @@ jobs:
             --max-instances 1 \
             --ingress internal \
             --allow-unauthenticated \
-            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_POOLED_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}"
+            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}"
 
       - name: Fetch Auth Service URL
         run: |
