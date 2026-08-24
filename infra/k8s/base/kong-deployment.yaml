@@ -2,19 +2,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: kong
-  name: kong
+    app: api-gateway
+  name: api-gateway
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kong
+      app: api-gateway
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: kong
+        app: api-gateway
     spec:
       initContainers:
         - name: wait-for-auth
@@ -55,7 +55,7 @@ spec:
               value: "1"
             - name: KONG_PROXY_LISTEN
               value: 0.0.0.0:8000
-          image: kong:3.7
+          image: kong:3.9
           name: synapse-kong
           ports:
             - containerPort: 8000

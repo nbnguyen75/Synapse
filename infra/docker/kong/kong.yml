@@ -4,7 +4,7 @@ _transform: true
 plugins:
   - name: cors
     config:
-      origins:
+      origins: 
         - http://localhost:5173
         - http://127.0.0.1:5173
         - http://localhost:4173
@@ -18,27 +18,56 @@ plugins:
         - OPTIONS
       headers:
         - Accept
-        - Authorization
+        - Accept-Version
         - Content-Type
-        - Origin
+        - Authorization
         - X-Requested-With
-        - Cookie
+        - X-Request-Id
       exposed_headers:
         - X-Conversation-Id
         - X-Accel-Buffering
-        - Set-Cookie
+        - X-Request-Id
+        - X-RateLimit-Limit-Minute
+        - X-RateLimit-Remaining-Minute
+        - Retry-After
       credentials: true
+      max_age: 3600
       preflight_continue: false
+
+  - name: rate-limiting
+    config:
+      minute: 100
+      policy: local
+      fault_tolerant: true
+      hide_client_headers: false
+
+  - name: rate-limiting
+    route: ai-route
+    config:
+      minute: 15
+      policy: local
+      fault_tolerant: true
+      hide_client_headers: false
+
+  - name: response-transformer
+    config:
+      remove:
+        headers:
+          - Via
+          - X-Kong-Upstream-Latency
+          - X-Kong-Proxy-Latency
+          - X-Kong-Request-Id
 
 services:
   - name: auth-service
     url: http://auth:5001
+    retries: 0
     routes:
       - name: auth-route
         paths:
           - /api/v1/auth
         strip_path: true
-        preserve_host: true
+        preserve_host: false
 
   - name: notes-service
     url: http://notes:8082
@@ -47,6 +76,7 @@ services:
         paths:
           - /api/v1/notes
         strip_path: true
+        preserve_host: false
 
   - name: ai-service
     url: http://ai:5002
@@ -55,3 +85,4 @@ services:
         paths:
           - /api/v1/ai
         strip_path: true
+        preserve_host: false

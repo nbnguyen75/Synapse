@@ -41,7 +41,7 @@ portForward:
     localPort: 15672
 
   - resourceType: Service
-    resourceName: kong
+    resourceName: api-gateway
     port: 8000
     localPort: 8000
 

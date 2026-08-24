@@ -53,16 +53,17 @@ plugins:
       headers:
         - Accept
         - Accept-Version
-        - Content-Length
         - Content-Type
         - Authorization
-        - Origin
         - X-Requested-With
-        - Cookie
+        - X-Request-Id
       exposed_headers:
         - X-Conversation-Id
         - X-Accel-Buffering
-        - Set-Cookie
+        - X-Request-Id
+        - X-RateLimit-Limit-Minute
+        - X-RateLimit-Remaining-Minute
+        - Retry-After
       credentials: true
       max_age: 3600
       preflight_continue: false
@@ -81,3 +82,12 @@ plugins:
       policy: local
       fault_tolerant: true
       hide_client_headers: false
+
+  - name: response-transformer
+    config:
+      remove:
+        headers:
+          - Via
+          - X-Kong-Upstream-Latency
+          - X-Kong-Proxy-Latency
+          - X-Kong-Request-Id

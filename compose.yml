@@ -150,9 +150,9 @@ services:
     networks:
       - synapse-net
 
-  kong:
-    image: kong:3.7
-    container_name: synapse-kong
+  api-gateway:
+    image: kong:3.9
+    container_name: synapse-api-gateway
     restart: unless-stopped
     environment:
       KONG_MEM_CACHE_SIZE: "32m"

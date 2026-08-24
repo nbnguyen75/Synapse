@@ -1,3 +1,4 @@
+# TODO: read from file kong.yml
 apiVersion: v1
 data:
   kong.yml: |
@@ -62,5 +63,5 @@ metadata:
   annotations:
     use-subpath: "true"
   labels:
-    app: kong
+    app: api-gateway
   name: kong-cm0
