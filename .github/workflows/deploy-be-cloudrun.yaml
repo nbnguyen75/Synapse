@@ -51,7 +51,7 @@ jobs:
           docker push $REGISTRY/notes:$TAG
 
       # ==========================================
-      # 2. AUTH SERVICE: MIGRATE (RUNNER) & DEPLOY (INTERNAL)
+      # 2. AUTH SERVICE: MIGRATE & DEPLOY
       # ==========================================
       - name: Run Auth DB Migration
         env:
@@ -84,7 +84,7 @@ jobs:
           echo "AUTH_URL=$AUTH_URL" >> $GITHUB_ENV
 
       # ==========================================
-      # 3. AI SERVICE: MIGRATE (RUNNER) & DEPLOY (INTERNAL)
+      # 3. AI SERVICE: MIGRATE & DEPLOY
       # ==========================================
       - name: Run AI DB Migration
         env:
@@ -117,7 +117,7 @@ jobs:
           echo "AI_URL=$AI_URL" >> $GITHUB_ENV
 
       # ==========================================
-      # 4. NOTES SERVICE DEPLOY (INTERNAL)
+      # 4. NOTES SERVICE DEPLOY
       # ==========================================
       - name: Deploy Notes Service
         run: |
@@ -136,6 +136,11 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars "SPRING_DATASOURCE_URL=${{ secrets.NEON_NOTES_DB_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.NEON_NOTES_DB_USER }},SPRING_DATASOURCE_PASSWORD=${{ secrets.NEON_NOTES_DB_PASS }},SPRING_RABBITMQ_HOST=${{ secrets.CLOUDAMQP_HOST }},SPRING_RABBITMQ_PORT=5671,SPRING_RABBITMQ_USERNAME=${{ secrets.CLOUDAMQP_USER }},SPRING_RABBITMQ_PASSWORD=${{ secrets.CLOUDAMQP_PASS }},SPRING_RABBITMQ_VHOST=${{ secrets.CLOUDAMQP_VHOST }},SPRING_RABBITMQ_SSL_ENABLED=true,AUTH_JWKS_URL=${{ env.AUTH_URL }}/.well-known/jwks.json,SYNAPSE_AI_SERVICE_URL=${{ env.AI_URL }}"
 
+      - name: Fetch Notes Service URL
+        run: |
+          NOTES_URL=$(gcloud run services describe synapse-notes --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
+          echo "NOTES_URL=$NOTES_URL" >> $GITHUB_ENV
+
       # ==========================================
       # 5. KONG GATEWAY CONFIG & DEPLOY (PUBLIC + DIRECT VPC EGRESS)
       # ==========================================
@@ -143,8 +148,7 @@ jobs:
         run: |
           export AUTH_SERVICE_URL=${{ env.AUTH_URL }}
           export AI_SERVICE_URL=${{ env.AI_URL }}
-          export NOTES_SERVICE_URL=$(gcloud run services describe synapse-notes --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
-
+          export NOTES_SERVICE_URL=${{ env.NOTES_URL }}
           export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | jq -c -R 'split(",")')
 
           envsubst < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
