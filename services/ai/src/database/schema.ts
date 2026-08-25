@@ -1,33 +1,42 @@
-import * as d from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
-
-export const { table: pgTable } = d.snakeCase;
+import {
+	pgTable,
+	pgEnum,
+	text,
+	timestamp,
+	boolean,
+	uuid,
+	jsonb,
+	index,
+	vector,
+	type AnyPgColumn
+} from 'drizzle-orm/pg-core';
+import { sql, relations } from 'drizzle-orm';
 
 // ==================== Enums ====================
 
-export const presetEnum = d.pgEnum('personality_preset', [
+export const presetEnum = pgEnum('personality_preset', [
 	'concise',
 	'friendly',
 	'professional',
 	'socratic',
 	'custom'
 ]);
-export const languageEnum = d.pgEnum('language_pref', ['vi', 'en', 'auto']);
-export const responseLengthEnum = d.pgEnum('response_length', ['short', 'balanced', 'detailed']);
+export const languageEnum = pgEnum('language_pref', ['vi', 'en', 'auto']);
+export const responseLengthEnum = pgEnum('response_length', ['short', 'balanced', 'detailed']);
 
-export const roleEnum = d.pgEnum('message_role', ['user', 'assistant', 'system', 'data', 'tool']);
+export const roleEnum = pgEnum('message_role', ['user', 'assistant', 'system', 'data', 'tool']);
 
 // ==================== User AI Settings ====================
 
 export const userAiSettings = pgTable('user_ai_settings', {
-	updatedAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
-	responseLength: responseLengthEnum().notNull().default('balanced'),
-	language: languageEnum().notNull().default('auto'),
-	preset: presetEnum().notNull().default('friendly'),
-	botName: d.text().notNull().default('Synapse'),
-	useEmoji: d.boolean().notNull().default(false),
-	userId: d.text().primaryKey(),
-	customInstructions: d.text()
+	responseLength: responseLengthEnum('response_length').notNull().default('balanced'),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+	language: languageEnum('language').notNull().default('auto'),
+	preset: presetEnum('preset').notNull().default('friendly'),
+	useEmoji: boolean('use_emoji').notNull().default(false),
+	botName: text('bot_name').notNull().default('Synapse'),
+	customInstructions: text('custom_instructions'),
+	userId: text('user_id').primaryKey()
 });
 
 // ==================== Conversations & Messages ====================
@@ -35,17 +44,17 @@ export const userAiSettings = pgTable('user_ai_settings', {
 export const conversations = pgTable(
 	'conversations',
 	{
-		currentMessageId: d
-			.text()
-			.references((): d.AnyPgColumn => messages.id, { onDelete: 'set null' }),
-		createdAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
-		updatedAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
-		favorited: d.boolean().notNull().default(false),
-		id: d.uuid().primaryKey().defaultRandom(),
-		userId: d.text().notNull(),
-		title: d.text()
+		currentMessageId: text('current_message_id').references((): AnyPgColumn => messages.id, {
+			onDelete: 'set null'
+		}),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+		favorited: boolean('favorited').notNull().default(false),
+		id: uuid('id').primaryKey().defaultRandom(),
+		userId: text('user_id').notNull(),
+		title: text('title')
 	},
-	(t) => [d.index('conversations_user_id_idx').on(t.userId)]
+	(t) => [index('conversations_user_id_idx').on(t.userId)]
 );
 
 export type MessageMetadata = {
@@ -62,36 +71,37 @@ export type MessageMetadata = {
 export const messages = pgTable(
 	'messages',
 	{
-		conversationId: d
-			.uuid()
+		conversationId: uuid('conversation_id')
 			.notNull()
 			.references(() => conversations.id, { onDelete: 'cascade' }),
-		parentId: d.text().references((): d.AnyPgColumn => messages.id, { onDelete: 'cascade' }),
-		createdAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
-		metadata: d.jsonb().$type<MessageMetadata>(),
-		parts: d.jsonb().notNull(),
-		role: roleEnum().notNull(),
-		id: d.text().primaryKey(),
-		searchText: d.text(),
-		content: d.text()
+		parentId: text('parent_id').references((): AnyPgColumn => messages.id, {
+			onDelete: 'cascade'
+		}),
+		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+		metadata: jsonb('metadata').$type<MessageMetadata>(),
+		role: roleEnum('role').notNull(),
+		parts: jsonb('parts').notNull(),
+		searchText: text('search_text'),
+		id: text('id').primaryKey(),
+		content: text('content')
 	},
 	(t) => [
-		d.index('messages_conversation_id_idx').on(t.conversationId),
-		d.index('messages_search_text_trgm_idx').using('gin', sql`${t.searchText} gin_trgm_ops`),
-		d.index('messages_parent_id_idx').on(t.parentId)
+		index('messages_conversation_id_idx').on(t.conversationId),
+		index('messages_search_text_trgm_idx').using('gin', sql`${t.searchText} gin_trgm_ops`),
+		index('messages_parent_id_idx').on(t.parentId)
 	]
 );
 
 // ==================== Notes (read-only mirror) ====================
 
 export const notes = pgTable('notes', {
-	createdAt: d.timestamp({ withTimezone: true }),
-	updatedAt: d.timestamp({ withTimezone: true }),
-	trashed: d.boolean().notNull().default(false),
-	content: d.text().notNull(),
-	userId: d.text().notNull(),
-	id: d.uuid().primaryKey(),
-	title: d.text()
+	createdAt: timestamp('created_at', { withTimezone: true }),
+	updatedAt: timestamp('updated_at', { withTimezone: true }),
+	trashed: boolean('trashed').notNull().default(false),
+	content: text('content').notNull(),
+	userId: text('user_id').notNull(),
+	id: uuid('id').primaryKey(),
+	title: text('title')
 });
 
 // ==================== Note Embeddings ====================
@@ -99,13 +109,38 @@ export const notes = pgTable('notes', {
 export const noteEmbeddings = pgTable(
 	'note_embeddings',
 	{
-		updatedAt: d.timestamp({ withTimezone: true }).notNull().defaultNow(),
-		embedding: d.vector({ dimensions: 768 }),
-		noteId: d.uuid().primaryKey(),
-		userId: d.text().notNull()
+		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+		embedding: vector('embedding', { dimensions: 768 }),
+		noteId: uuid('note_id').primaryKey(),
+		userId: text('user_id').notNull()
 	},
 	(t) => [
-		d.index('note_embeddings_embedding_idx').using('hnsw', t.embedding.op('vector_cosine_ops')),
-		d.index('note_embeddings_user_id_idx').on(t.userId)
+		index('note_embeddings_embedding_idx').using('hnsw', t.embedding.op('vector_cosine_ops')),
+		index('note_embeddings_user_id_idx').on(t.userId)
 	]
 );
+
+// ==================== Relations ====================
+
+export const conversationsRelations = relations(conversations, ({ many, one }) => ({
+	currentMessage: one(messages, {
+		fields: [conversations.currentMessageId],
+		references: [messages.id]
+	}),
+	messages: many(messages)
+}));
+
+export const messagesRelations = relations(messages, ({ many, one }) => ({
+	parent: one(messages, {
+		relationName: 'parent_child',
+		fields: [messages.parentId],
+		references: [messages.id]
+	}),
+	conversation: one(conversations, {
+		fields: [messages.conversationId],
+		references: [conversations.id]
+	}),
+	children: many(messages, {
+		relationName: 'parent_child'
+	})
+}));
