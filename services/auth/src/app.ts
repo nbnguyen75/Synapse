@@ -20,7 +20,7 @@ app.notFound(notFoundHandler);
 
 app.get('/health', (c) => c.json({ status: 'ok' }));
 
-app.on(['POST', 'GET'], '*', (c) => {
+app.on(['POST', 'GET'], '/*', (c) => {
 	return auth.handler(c.req.raw);
 });
 

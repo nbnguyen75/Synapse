@@ -57,7 +57,7 @@ export const authClient = createAuthClient({
   fetchOptions: {
     customFetchImpl: guardedFetch,
   },
-  basePath: '/api/v1/auth',
+  basePath: '/api/auth',
 });
 
 export const { useSession, signOut, signIn, signUp } = authClient;

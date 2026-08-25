@@ -44,14 +44,6 @@ export const auth = betterAuth({
 		},
 		enabled: true
 	},
-	socialProviders: {
-		google: {
-			redirectURI: `${env.BETTER_AUTH_URL}/api/v1/auth/callback/google`,
-			clientSecret: env.GOOGLE_CLIENT_SECRET,
-			prompt: 'select_account consent',
-			clientId: env.GOOGLE_CLIENT_ID
-		}
-	},
 	databaseHooks: {
 		account: {
 			create: {
@@ -61,6 +53,14 @@ export const auth = betterAuth({
 					}
 				}
 			}
+		}
+	},
+	socialProviders: {
+		google: {
+			clientSecret: env.GOOGLE_CLIENT_SECRET,
+			redirectURI: env.GOOGLE_REDIRECT_URI,
+			prompt: 'select_account consent',
+			clientId: env.GOOGLE_CLIENT_ID
 		}
 	},
 	session: {

@@ -254,7 +254,7 @@ jobs:
             --subnet default \
             --vpc-egress private-ranges-only \
             --allow-unauthenticated \
-            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}"
+            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}@@@GOOGLE_REDIRECT_URI=${{ secrets.AUTH_GOOGLE_REDIRECT_URI }}"
 
   deploy-ai-service:
     name: "🤖 Deploy | Send It to Production and Pray"
@@ -368,7 +368,7 @@ jobs:
             --region ${{ env.GAR_LOCATION }} \
             --min-instances 0 \
             --max-instances 1 \
-            --update-env-vars "BETTER_AUTH_URL=${{ vars.VERCEL_APP_URL }}"
+            --update-env-vars "BETTER_AUTH_URL=${{ needs.setup.outputs.gateway_url }}"
 
   deploy-web-to-vercel:
     name: '📐 Deploy | "CSS is my passion" 🎨'
@@ -391,7 +391,7 @@ jobs:
           {
             "rewrites": [
               {
-                "source": "/api/v1/auth/:path*",
+                "source": "/api/auth/:path*",
                 "destination": "${{ needs.setup.outputs.gateway_url }}/api/v1/auth/:path*"
               },
               {
