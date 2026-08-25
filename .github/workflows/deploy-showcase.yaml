@@ -45,6 +45,15 @@ jobs:
           PROJECT_NUMBER="${{ secrets.GCP_PROJECT_NUMBER }}"
           REGION="${{ env.GAR_LOCATION }}"
 
+          if [ -z "$PROJECT_NUMBER" ]; then
+            echo "::error::GCP_PROJECT_NUMBER secret is empty — set it in repo secrets"
+            exit 1
+          fi
+          if [ -z "$REGION" ]; then
+            echo "::error::GAR_LOCATION var is empty"
+            exit 1
+          fi
+
           echo "auth_url=https://synapse-auth-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
           echo "ai_url=https://synapse-ai-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
           echo "notes_url=https://synapse-notes-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
@@ -223,6 +232,9 @@ jobs:
             --min-instances 0 \
             --max-instances 1 \
             --ingress internal \
+            --network default \
+            --subnet default \
+            --vpc-egress private-ranges-only \
             --allow-unauthenticated \
             --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}"
 
