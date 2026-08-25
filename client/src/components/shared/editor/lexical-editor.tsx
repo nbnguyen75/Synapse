@@ -1,5 +1,6 @@
 import type { EditorThemeClasses } from 'lexical';
-import type { HTMLAttributes } from 'react';
+
+import { useEffect, type HTMLAttributes } from 'react';
 
 import {
   LexicalComposer,
@@ -7,6 +8,7 @@ import {
 } from '@lexical/react/LexicalComposer';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -134,6 +136,8 @@ export default function LexicalEditor({
   id,
   ...restProps
 }: LexicalEditorProps) {
+  const [editor] = useLexicalComposerContext();
+
   const initialConfig: InitialConfigType = {
     onError: (error: Error) => {
       console.error('Lexical Error:', error);
@@ -142,6 +146,10 @@ export default function LexicalEditor({
     nodes: ALLOWED_NODES,
     theme: editorTheme,
   };
+
+  useEffect(() => {
+    editor.setEditable(!disabled);
+  }, [editor, disabled]);
 
   return (
     <div
@@ -161,7 +169,6 @@ export default function LexicalEditor({
                 {...restProps}
                 spellCheck={false}
                 className="min-h-60 max-h-125 overflow-y-auto px-4 py-3.5 outline-none focus:ring-0 text-sm scrollbar-none **:[[style]]:text-inherit! **:[[style]]:bg-transparent!"
-                disabled={disabled}
               />
             }
             placeholder={
