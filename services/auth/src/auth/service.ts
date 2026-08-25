@@ -74,8 +74,7 @@ export const auth = betterAuth({
 		defaultCookieAttributes: {
 			sameSite: 'none',
 			secure: true
-		},
-		// trustedProxyHeaders: true
+		}
 	},
 	database: drizzleAdapter(db, {
 		provider: 'pg',

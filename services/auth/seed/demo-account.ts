@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { eq } from 'drizzle-orm';
 
-import { user } from '../src/database/schema';
+import { user } from '../src/database/schema.old';
 import { auth } from '../src/auth/service';
 import { db } from '../src/database';
 

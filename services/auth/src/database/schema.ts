@@ -1,8 +1,5 @@
-import * as d from 'drizzle-orm/pg-core';
-
-export const { table: pgTable } = d.snakeCase;
-
-const { timestamp, boolean, index, text } = d;
+import { pgTable, text, timestamp, boolean, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
 export const user = pgTable('user', {
 	updatedAt: timestamp('updated_at')
@@ -51,12 +48,16 @@ export const account = pgTable(
 		accountId: text('account_id').notNull(),
 		refreshToken: text('refresh_token'),
 		accessToken: text('access_token'),
+		issuer: text('issuer').notNull(),
 		id: text('id').primaryKey(),
 		password: text('password'),
 		idToken: text('id_token'),
 		scope: text('scope')
 	},
-	(table) => [index('account_userId_idx').on(table.userId)]
+	(table) => [
+		uniqueIndex('account_issuer_accountId_uidx').on(table.issuer, table.accountId),
+		index('account_userId_idx').on(table.userId)
+	]
 );
 
 export const verification = pgTable(
@@ -79,5 +80,26 @@ export const jwks = pgTable('jwks', {
 	privateKey: text('private_key').notNull(),
 	publicKey: text('public_key').notNull(),
 	expiresAt: timestamp('expires_at'),
-	id: text('id').primaryKey()
+	id: text('id').primaryKey(),
+	alg: text('alg'),
+	crv: text('crv')
 });
+
+export const userRelations = relations(user, ({ many }) => ({
+	accounts: many(account),
+	sessions: many(session)
+}));
+
+export const sessionRelations = relations(session, ({ one }) => ({
+	user: one(user, {
+		fields: [session.userId],
+		references: [user.id]
+	})
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
+	user: one(user, {
+		fields: [account.userId],
+		references: [user.id]
+	})
+}));
