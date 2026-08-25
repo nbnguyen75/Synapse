@@ -300,6 +300,10 @@ jobs:
               {
                 "source": "/api/auth/:path*",
                 "destination": "${GATEWAY_URL}/api/auth/:path*"
+              },
+              {
+                "source": "/((?!api/.*).*)",
+                "destination": "/index.html"
               }
             ]
           }
