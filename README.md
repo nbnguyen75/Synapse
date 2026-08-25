@@ -30,12 +30,12 @@
   <h3 align="center">🧠 Synapse</h3>
 
   <p align="center">
-    An AI-powered personal knowledge assistant — capture notes, chat with them via RAG, and let agentic tools handle reminders for you.
+    An AI-powered personal knowledge assistant - capture notes, chat with them via RAG, and let agentic tools handle reminders for you.
     <br />
     <a href="https://github.com/nbnguyen75/Synapse"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://synapse-ten-sand.vercel.app">View Demo</a>
+    <a href="https://try-synapse-vault.vercel.app">View Demo</a>
     ·
     <a href="https://github.com/nbnguyen75/Synapse/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·

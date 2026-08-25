@@ -198,7 +198,7 @@ jobs:
             --subnet default \
             --vpc-egress all-traffic \
             --allow-unauthenticated \
-            --set-env-vars "SPRING_DATASOURCE_URL=${{ secrets.NEON_NOTES_DB_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.NEON_NOTES_DB_USER }},SPRING_DATASOURCE_PASSWORD=${{ secrets.NEON_NOTES_DB_PASS }},SPRING_RABBITMQ_HOST=${{ secrets.CLOUDAMQP_HOST }},SPRING_RABBITMQ_PORT=5671,SPRING_RABBITMQ_USERNAME=${{ secrets.CLOUDAMQP_USER }},SPRING_RABBITMQ_PASSWORD=${{ secrets.CLOUDAMQP_PASS }},SPRING_RABBITMQ_VHOST=${{ secrets.CLOUDAMQP_VHOST }},SPRING_RABBITMQ_SSL_ENABLED=true,AUTH_JWKS_URL=${{ env.AUTH_URL }}/.well-known/jwks.json,SYNAPSE_AI_SERVICE_URL=${{ env.AI_URL }}"
+            --set-env-vars "^@@@^SPRING_DATASOURCE_URL=${{ secrets.NEON_NOTES_DB_URL }}@@@SPRING_DATASOURCE_USERNAME=${{ secrets.NEON_NOTES_DB_USER }}@@@SPRING_DATASOURCE_PASSWORD=${{ secrets.NEON_NOTES_DB_PASS }}@@@HIKARI_MAXIMUM_POOL_SIZE=2@@@HIKARI_MINIMUM_IDLE=1@@@HIKARI_CONNECTION_TIMEOUT=10000@@@SPRING_RABBITMQ_HOST=${{ secrets.CLOUDAMQP_HOST }}@@@SPRING_RABBITMQ_PORT=5671@@@SPRING_RABBITMQ_USERNAME=${{ secrets.CLOUDAMQP_USER }}@@@SPRING_RABBITMQ_PASSWORD=${{ secrets.CLOUDAMQP_PASS }}@@@SPRING_RABBITMQ_VHOST=${{ secrets.CLOUDAMQP_VHOST }}@@@SPRING_RABBITMQ_SSL_ENABLED=true@@@AUTH_JWKS_URL=${{ env.AUTH_URL }}/.well-known/jwks.json@@@SYNAPSE_AI_SERVICE_URL=${{ env.AI_URL }}"
 
   deploy-api-gateway-service:
     name: "🌐 Kong Gateway | Traffic Cop 🚦"
@@ -255,17 +255,13 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars "^@@@^KONG_DATABASE=off@@@KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml@@@KONG_PROXY_LISTEN=0.0.0.0:8000@@@KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=16k@@@KONG_NGINX_PROXY_PROXY_BUFFERS=4 16k@@@KONG_VIA_HEADER=off@@@KONG_HEADERS=off"
 
-      - name: Patch Auth Service with Gateway URL (Completing the circular dependency)
+      - name: Patch Auth Service with Vercel Domain
         run: |
-          GATEWAY_URL=$(gcloud run services describe synapse-api-gateway \
-            --region ${{ env.GAR_LOCATION }} \
-            --format='value(metadata.annotations."run.googleapis.com/urls")' | jq -r '.[0]')
-
           gcloud run services update synapse-auth \
             --region ${{ env.GAR_LOCATION }} \
             --min-instances 0 \
             --max-instances 1 \
-            --update-env-vars "BETTER_AUTH_URL=$GATEWAY_URL"
+            --update-env-vars "BETTER_AUTH_URL=${{ vars.VERCEL_APP_URL }}"
 
   deploy-web-to-vercel:
     name: '📐 Vercel Edge | "CSS is my passion" 🎨'
@@ -279,6 +275,35 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.3.14
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Generate vercel.json dynamically
+        run: |
+          GATEWAY_URL=$(gcloud run services describe synapse-api-gateway \
+            --region ${{ env.GAR_LOCATION }} \
+            --format='value(status.url)' 2>/dev/null || echo '')
+
+          mkdir -p ./client
+          cat <<EOF > ./client/vercel.json
+          {
+            "rewrites": [
+              {
+                "source": "/api/auth/:path*",
+                "destination": "${GATEWAY_URL}/api/auth/:path*"
+              }
+            ]
+          }
+          EOF
+
+          echo "Generated vercel.json:"
+          cat ./client/vercel.json
 
       - name: Download node_modules (Downloading the entire Internet)
         working-directory: ./client
