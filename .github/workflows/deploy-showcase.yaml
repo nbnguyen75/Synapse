@@ -3,13 +3,13 @@ name: "Ship to Prod 🚀 | GCP Cloud Run & Vercel"
 on:
   push:
     tags:
-      - "be-v*"
-      - "web-v*"
-      - "v*"
+      - "be-v*" # Trigger all backend services
+      - "web-v*" # Trigger web client only
+      - "v*" # Trigger EVERYTHING (Ship it all!)
   workflow_dispatch:
     inputs:
       target:
-        description: "Where are we sending this code today?"
+        description: "Where are we pushing bugs today?"
         required: true
         default: "all"
         type: choice
@@ -30,9 +30,64 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
 
 jobs:
-  deploy-gcp-cloudrun:
-    name: '☁️ GCP Cloud Run | Backend Services ("It works on my container")'
-    if: ${{ startsWith(github.ref_name, 'be-v') || startsWith(github.ref_name, 'v') || (github.event_name == 'workflow_dispatch' && inputs.target != 'web') }}
+  deploy-auth-service:
+    name: '🔐 Auth Service | "It works on my container"'
+    if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'auth' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pray and Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun Environment
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authorize Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+
+      - name: "[Auth] Turning Bun into Docker Layers"
+        run: |
+          REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
+          TAG="${{ github.ref_name }}"
+          docker build --target app -t $REGISTRY/auth:$TAG ./services/auth
+          docker push $REGISTRY/auth:$TAG
+
+      - name: "[Auth] DB Migration (YOLO mode)"
+        env:
+          DATABASE_URL: ${{ secrets.NEON_AUTH_DIRECT_URL }}
+        run: |
+          cd services/auth
+          bun install
+          bun run db:push
+
+      - name: "[Auth] Deploy to Cloud Run (synapse-auth)"
+        run: |
+          REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
+          TAG="${{ github.ref_name }}"
+          gcloud run deploy synapse-auth \
+            --image $REGISTRY/auth:$TAG \
+            --region ${{ env.GAR_LOCATION }} \
+            --platform managed \
+            --port 5001 \
+            --memory 256Mi \
+            --min-instances 0 \
+            --max-instances 1 \
+            --ingress internal \
+            --allow-unauthenticated \
+            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}"
+
+  deploy-ai-service:
+    name: "🤖 AI Service | Artificial Unintelligence"
+    if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'ai' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
@@ -54,60 +109,19 @@ jobs:
       - name: Authorize Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
 
-      - name: Fetch Existing Service URLs (Preventing Empty ENV Disasters)
+      - name: Fetch Auth Service URL (Politely asking Cloud Run)
         run: |
-          echo "AUTH_URL=$(gcloud run services describe synapse-auth --region ${{ env.GAR_LOCATION }} --format='value(status.url)' 2>/dev/null || echo '')" >> $GITHUB_ENV
-          echo "AI_URL=$(gcloud run services describe synapse-ai --region ${{ env.GAR_LOCATION }} --format='value(status.url)' 2>/dev/null || echo '')" >> $GITHUB_ENV
-          echo "NOTES_URL=$(gcloud run services describe synapse-notes --region ${{ env.GAR_LOCATION }} --format='value(status.url)' 2>/dev/null || echo '')" >> $GITHUB_ENV
-
-      - name: "[Auth] Build & Push Docker Image"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'auth' }}
-        run: |
-          REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
-          TAG="${{ github.ref_name }}"
-          docker build --target app -t $REGISTRY/auth:$TAG ./services/auth
-          docker push $REGISTRY/auth:$TAG
-
-      - name: "[Auth] Run Database Migrations"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'auth' }}
-        env:
-          DATABASE_URL: ${{ secrets.NEON_AUTH_DIRECT_URL }}
-        run: |
-          cd services/auth
-          bun install
-          bun run db:push
-
-      - name: "[Auth] Deploy to Cloud Run (synapse-auth)"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'auth' }}
-        run: |
-          REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
-          TAG="${{ github.ref_name }}"
-
-          gcloud run deploy synapse-auth \
-            --image $REGISTRY/auth:$TAG \
-            --region ${{ env.GAR_LOCATION }} \
-            --platform managed \
-            --port 5001 \
-            --memory 256Mi \
-            --min-instances 0 \
-            --max-instances 1 \
-            --ingress internal \
-            --allow-unauthenticated \
-            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}"
-
-          AUTH_URL=$(gcloud run services describe synapse-auth --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
+          AUTH_URL=$(gcloud run services describe synapse-auth --region ${{ env.GAR_LOCATION }} --format='value(status.url)' 2>/dev/null || echo '')
           echo "AUTH_URL=$AUTH_URL" >> $GITHUB_ENV
 
       - name: "[AI] Build & Push Docker Image"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'ai' }}
         run: |
           REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
           TAG="${{ github.ref_name }}"
           docker build --target app -t $REGISTRY/ai:$TAG ./services/ai
           docker push $REGISTRY/ai:$TAG
 
-      - name: "[AI] Run Database Migrations"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'ai' }}
+      - name: "[AI] DB Migration (Hope no deadlock)"
         env:
           DATABASE_URL: ${{ secrets.NEON_AI_DIRECT_URL }}
         run: |
@@ -116,11 +130,9 @@ jobs:
           bun run db:push
 
       - name: "[AI] Deploy to Cloud Run (synapse-ai)"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'ai' }}
         run: |
           REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
           TAG="${{ github.ref_name }}"
-
           gcloud run deploy synapse-ai \
             --image $REGISTRY/ai:$TAG \
             --region ${{ env.GAR_LOCATION }} \
@@ -133,11 +145,33 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AI_POOLED_URL }}@@@RABBITMQ_URL=${{ secrets.CLOUDAMQP_URL }}@@@AUTH_JWKS_URL=${{ env.AUTH_URL }}/.well-known/jwks.json@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}@@@GOOGLE_GENERATIVE_AI_API_KEY=${{ secrets.AI_GOOGLE_GENERATIVE_AI_API_KEY }}@@@TAVILY_API_KEY=${{ secrets.AI_TAVILY_API_KEY }}"
 
-          AI_URL=$(gcloud run services describe synapse-ai --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
+  deploy-notes-service:
+    name: "📝 Notes Service | Java Memory Eater ☕"
+    if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'notes' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authorize Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+
+      - name: Fetch Dependent Service URLs
+        run: |
+          AUTH_URL=$(gcloud run services describe synapse-auth --region ${{ env.GAR_LOCATION }} --format='value(status.url)' 2>/dev/null || echo '')
+          AI_URL=$(gcloud run services describe synapse-ai --region ${{ env.GAR_LOCATION }} --format='value(status.url)' 2>/dev/null || echo '')
+          echo "AUTH_URL=$AUTH_URL" >> $GITHUB_ENV
           echo "AI_URL=$AI_URL" >> $GITHUB_ENV
 
-      - name: "[Notes] Build & Push Docker Image"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'notes' }}
+      - name: "[Notes] Build & Push Spring Boot Monster"
         run: |
           REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
           TAG="${{ github.ref_name }}"
@@ -145,11 +179,9 @@ jobs:
           docker push $REGISTRY/notes:$TAG
 
       - name: "[Notes] Deploy to Cloud Run (synapse-notes)"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'notes' }}
         run: |
           REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
           TAG="${{ github.ref_name }}"
-
           gcloud run deploy synapse-notes \
             --image $REGISTRY/notes:$TAG \
             --region ${{ env.GAR_LOCATION }} \
@@ -162,25 +194,43 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars "SPRING_DATASOURCE_URL=${{ secrets.NEON_NOTES_DB_URL }},SPRING_DATASOURCE_USERNAME=${{ secrets.NEON_NOTES_DB_USER }},SPRING_DATASOURCE_PASSWORD=${{ secrets.NEON_NOTES_DB_PASS }},SPRING_RABBITMQ_HOST=${{ secrets.CLOUDAMQP_HOST }},SPRING_RABBITMQ_PORT=5671,SPRING_RABBITMQ_USERNAME=${{ secrets.CLOUDAMQP_USER }},SPRING_RABBITMQ_PASSWORD=${{ secrets.CLOUDAMQP_PASS }},SPRING_RABBITMQ_VHOST=${{ secrets.CLOUDAMQP_VHOST }},SPRING_RABBITMQ_SSL_ENABLED=true,AUTH_JWKS_URL=${{ env.AUTH_URL }}/.well-known/jwks.json,SYNAPSE_AI_SERVICE_URL=${{ env.AI_URL }}"
 
-          NOTES_URL=$(gcloud run services describe synapse-notes --region ${{ env.GAR_LOCATION }} --format='value(status.url)')
-          echo "NOTES_URL=$NOTES_URL" >> $GITHUB_ENV
+  deploy-api-gateway-service:
+    name: "🌐 Kong Gateway | Traffic Cop 🚦"
+    needs: [deploy-auth-service, deploy-ai-service, deploy-notes-service]
+    if: |
+      !cancelled() &&
+      (github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'api-gateway')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
 
-      - name: "[Gateway] Generate Kong Configuration"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'api-gateway' }}
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authorize Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+
+      - name: Fetch All Backend URLs
         run: |
-          export AUTH_SERVICE_URL=${{ env.AUTH_URL }}
-          export AI_SERVICE_URL=${{ env.AI_URL }}
-          export NOTES_SERVICE_URL=${{ env.NOTES_URL }}
-          export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | jq -c -R 'split(",")')
+          echo "AUTH_SERVICE_URL=$(gcloud run services describe synapse-auth --region ${{ env.GAR_LOCATION }} --format='value(status.url)' 2>/dev/null || echo '')" >> $GITHUB_ENV
+          echo "AI_SERVICE_URL=$(gcloud run services describe synapse-ai --region ${{ env.GAR_LOCATION }} --format='value(status.url)' 2>/dev/null || echo '')" >> $GITHUB_ENV
+          echo "NOTES_SERVICE_URL=$(gcloud run services describe synapse-notes --region ${{ env.GAR_LOCATION }} --format='value(status.url)' 2>/dev/null || echo '')" >> $GITHUB_ENV
 
+      - name: Templating Kong Config (Applying envsubst magic)
+        run: |
+          export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | jq -c -R 'split(",")')
           envsubst < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
 
-      - name: "[Gateway] Build & Deploy to Cloud Run (synapse-api-gateway)"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'api-gateway' }}
+      - name: "[Gateway] Build & Deploy Kong to Cloud Run"
         run: |
           REGISTRY="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPO }}"
           TAG="${{ github.ref_name }}"
-
           docker build -t $REGISTRY/api-gateway:$TAG ./infra/docker/kong
           docker push $REGISTRY/api-gateway:$TAG
 
@@ -199,8 +249,7 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars "^@@@^KONG_DATABASE=off@@@KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml@@@KONG_PROXY_LISTEN=0.0.0.0:8000@@@KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=16k@@@KONG_NGINX_PROXY_PROXY_BUFFERS=4 16k@@@KONG_VIA_HEADER=off@@@KONG_HEADERS=off"
 
-      - name: "[Gateway] Patch Auth Service with Gateway URL"
-        if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'auth' || inputs.target == 'api-gateway' }}
+      - name: Patch Auth Service with Gateway URL (Completing the circular dependency)
         run: |
           GATEWAY_URL=$(gcloud run services describe synapse-api-gateway \
             --region ${{ env.GAR_LOCATION }} \
@@ -212,8 +261,8 @@ jobs:
             --max-instances 1 \
             --update-env-vars "BETTER_AUTH_URL=$GATEWAY_URL"
 
-  deploy-vercel-web:
-    name: '📐 Vercel Edge | Web Client ("CSS is my passion")'
+  deploy-web-to-vercel:
+    name: '📐 Vercel Edge | "CSS is my passion" 🎨'
     if: ${{ startsWith(github.ref_name, 'web-v') || startsWith(github.ref_name, 'v') || (github.event_name == 'workflow_dispatch' && (inputs.target == 'all' || inputs.target == 'web')) }}
     runs-on: ubuntu-latest
     steps:
@@ -225,29 +274,21 @@ jobs:
         with:
           bun-version: 1.3.14
 
-      - name: Install Client Dependencies
-        working-directory: ./client
-        run: bun install --frozen-lockfile
-
-      - name: Install Vercel CLI
-        run: bun install --global vercel@latest
-
-      - name: Pull Vercel Environment Config
-        working-directory: ./client
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Inject Version Tag & Commit SHA
+      - name: Download node_modules (Downloading the entire Internet)
         working-directory: ./client
         run: |
+          bun install --frozen-lockfile
+          bun install --global vercel@latest
+
+      - name: Ship Frontend to Vercel
+        working-directory: ./client
+        run: |
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
           RAW_TAG="${{ github.ref_name }}"
           TAG_NAME="${RAW_TAG#web-}"
           SHORT_SHA=$(git rev-parse --short HEAD)
           echo "VITE_APP_VERSION=${TAG_NAME} (${SHORT_SHA})" >> .env.production.local
 
-      - name: Build Web Artifacts
-        working-directory: ./client
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Ship Prebuilt App to Vercel
-        working-directory: ./client
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
