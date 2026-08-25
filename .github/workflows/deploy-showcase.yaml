@@ -59,7 +59,7 @@ jobs:
           echo "ai_url=https://synapse-ai-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
           echo "notes_url=https://synapse-notes-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
           echo "gateway_url=https://synapse-api-gateway-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
-          echo "auth_jwks_url=https://synapse-auth-${PROJECT_NUMBER}.${REGION}.run.app/.well-known/jwks.json" >> $GITHUB_OUTPUT
+          echo "auth_jwks_url=https://synapse-api-gateway-${PROJECT_NUMBER}.${REGION}.run.app/api/v1/auth/.well-known/jwks.json" >> $GITHUB_OUTPUT
 
   # ───────────────────────── BUILD PHASE ─────────────────────────
 
@@ -393,7 +393,11 @@ jobs:
               {
                 "source": "/api/v1/auth/:path*",
                 "destination": "${{ needs.setup.outputs.gateway_url }}/api/v1/auth/:path*"
-              }
+              },
+              {
+                "source": "/(.*)",
+                "destination": "/index.html"
+              }              
             ]
           }
           EOF
