@@ -389,7 +389,6 @@ jobs:
           mkdir -p ./client
           cat <<EOF > ./client/vercel.json
           {
-            "$schema": "https://openapi.vercel.sh/vercel.json",
             "rewrites": [
               {
                 "source": "/api/v1/auth/:path*",
