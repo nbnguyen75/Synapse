@@ -199,8 +199,7 @@ jobs:
           export NOTES_SERVICE_URL=$(echo "${{ needs.setup.outputs.notes_url }}" | tr -d '[:space:]')
           export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | jq -c -R 'split(",")')
 
-          ENVS='$AUTH_SERVICE_URL $AI_SERVICE_URL $NOTES_SERVICE_URL $CORS_ORIGINS_FORMATTED'
-          envsubst "$ENVS" < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
+          envsubst < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
 
       - name: "[Gateway] Build & Push (config baked in, no take-backs)"
         run: |
