@@ -193,11 +193,18 @@ jobs:
 
       - name: Templating Kong Config (envsubst go brrr)
         run: |
+          # Sanitize outputs to ensure no newlines or spaces corrupt the URL
+          export AUTH_SERVICE_URL=$(echo "${{ needs.setup.outputs.auth_url }}" | tr -d '[:space:]')
+          export AI_SERVICE_URL=$(echo "${{ needs.setup.outputs.ai_url }}" | tr -d '[:space:]')
+          export NOTES_SERVICE_URL=$(echo "${{ needs.setup.outputs.notes_url }}" | tr -d '[:space:]')
           export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | jq -c -R 'split(",")')
-          export AUTH_SERVICE_URL="${{ needs.setup.outputs.auth_url }}"
-          export AI_SERVICE_URL="${{ needs.setup.outputs.ai_url }}"
-          export NOTES_SERVICE_URL="${{ needs.setup.outputs.notes_url }}"
-          envsubst < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
+
+          # Explicitly pass allowed variables into envsubst
+          ENVS='$AUTH_SERVICE_URL:$AI_SERVICE_URL:$NOTES_SERVICE_URL:$CORS_ORIGINS_FORMATTED'
+          envsubst "$ENVS" < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
+
+          echo "--- Rendered kong.yml ---"
+          cat ./infra/docker/kong/kong.yml
 
       - name: "[Gateway] Build & Push (config baked in, no take-backs)"
         run: |
