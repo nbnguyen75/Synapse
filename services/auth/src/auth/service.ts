@@ -26,7 +26,7 @@ export const auth = betterAuth({
 			},
 			jwks: {
 				keyPairConfig: {
-					alg: 'RS256' // Spring Boot natively supports RS256 / ES256
+					alg: 'RS256'
 				},
 				jwksPath: '/.well-known/jwks.json'
 			},
@@ -46,7 +46,7 @@ export const auth = betterAuth({
 	},
 	socialProviders: {
 		google: {
-			redirectURI: `${env.BETTER_AUTH_URL}/api/auth/callback/google`,
+			redirectURI: `${env.BETTER_AUTH_URL}/api/v1/auth/callback/google`,
 			clientSecret: env.GOOGLE_CLIENT_SECRET,
 			prompt: 'select_account consent',
 			clientId: env.GOOGLE_CLIENT_ID
