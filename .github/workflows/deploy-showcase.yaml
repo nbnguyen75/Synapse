@@ -43,15 +43,11 @@ jobs:
       - name: Build Deterministic URLs
         id: build_urls
         run: |
-          PROJECT_NUMBER=$(echo "${{ secrets.GCP_PROJECT_NUMBER }}" | tr -d '[:space:]')
+          PROJECT_NUMBER=$(echo "${{ vars.GCP_PROJECT_NUMBER }}" | tr -d '[:space:]')
           REGION=$(echo "${{ env.GAR_LOCATION }}" | tr -d '[:space:]')
 
-          echo "=== 🔍 [DEBUG SETUP STEP] INPUT CHECK ==="
-          echo "PROJECT_NUMBER char length: ${#PROJECT_NUMBER}"
-          echo "GAR_LOCATION value: '$REGION'"
-
           if [ -z "$PROJECT_NUMBER" ]; then
-            echo "::error::GCP_PROJECT_NUMBER secret is empty — set it in repo secrets"
+            echo "::error::GCP_PROJECT_NUMBER variable is empty — set it in repo variables"
             exit 1
           fi
           if [ -z "$REGION" ]; then
@@ -59,26 +55,11 @@ jobs:
             exit 1
           fi
 
-          AUTH_URL="https://synapse-auth-${PROJECT_NUMBER}.${REGION}.run.app"
-          AI_URL="https://synapse-ai-${PROJECT_NUMBER}.${REGION}.run.app"
-          NOTES_URL="https://synapse-notes-${PROJECT_NUMBER}.${REGION}.run.app"
-          GATEWAY_URL="https://synapse-api-gateway-${PROJECT_NUMBER}.${REGION}.run.app"
-          AUTH_JWKS_URL="https://synapse-auth-${PROJECT_NUMBER}.${REGION}.run.app/.well-known/jwks.json"
-
-          echo "auth_url=${AUTH_URL}" >> $GITHUB_OUTPUT
-          echo "ai_url=${AI_URL}" >> $GITHUB_OUTPUT
-          echo "notes_url=${NOTES_URL}" >> $GITHUB_OUTPUT
-          echo "gateway_url=${GATEWAY_URL}" >> $GITHUB_OUTPUT
-          echo "auth_jwks_url=${AUTH_JWKS_URL}" >> $GITHUB_OUTPUT
-
-          echo "=== 🔍 [DEBUG SETUP STEP] WRITTEN TO GITHUB_OUTPUT ==="
-          echo "Generated AUTH_URL: '$AUTH_URL'"
-
-      - name: 🔍 Debug Step Outputs (Inside setup Job)
-        run: |
-          echo "=== 🔍 [DEBUG SETUP JOB] STEP OUTPUT EVALUATION ==="
-          echo "steps.build_urls.outputs.auth_url = '${{ steps.build_urls.outputs.auth_url }}'"
-          echo "steps.build_urls.outputs.ai_url   = '${{ steps.build_urls.outputs.ai_url }}'"
+          echo "auth_url=https://synapse-auth-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
+          echo "ai_url=https://synapse-ai-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
+          echo "notes_url=https://synapse-notes-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
+          echo "gateway_url=https://synapse-api-gateway-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
+          echo "auth_jwks_url=https://synapse-auth-${PROJECT_NUMBER}.${REGION}.run.app/.well-known/jwks.json" >> $GITHUB_OUTPUT
 
   # ───────────────────────── BUILD PHASE ─────────────────────────
 
@@ -88,11 +69,6 @@ jobs:
     if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'auth' }}
     runs-on: ubuntu-latest
     steps:
-      - name: 🔍 Debug Needs Context
-        run: |
-          echo "=== 🔍 [DEBUG BUILD AUTH] RECEIVED FROM SETUP ==="
-          echo "needs.setup.outputs.auth_url = '${{ needs.setup.outputs.auth_url }}'"
-
       - name: Pray and Checkout Source Code
         uses: actions/checkout@v4
 
@@ -200,13 +176,6 @@ jobs:
     if: ${{ github.event_name == 'push' || inputs.target == 'all' || inputs.target == 'backend-all' || inputs.target == 'api-gateway' }}
     runs-on: ubuntu-latest
     steps:
-      - name: 🔍 Debug Needs Context (In Gateway Build)
-        run: |
-          echo "=== 🔍 [DEBUG BUILD GATEWAY] RAW NEEDS CONTEXT ==="
-          echo "RAW needs.setup.outputs.auth_url  = '${{ needs.setup.outputs.auth_url }}'"
-          echo "RAW needs.setup.outputs.ai_url    = '${{ needs.setup.outputs.ai_url }}'"
-          echo "RAW needs.setup.outputs.notes_url = '${{ needs.setup.outputs.notes_url }}'"
-
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
@@ -223,22 +192,9 @@ jobs:
 
       - name: Templating Kong Config (envsubst go brrr)
         run: |
-          echo "=== 🔍 [DEBUG SHELL EVALUATION] ==="
-          RAW_AUTH="${{ needs.setup.outputs.auth_url }}"
-          RAW_AI="${{ needs.setup.outputs.ai_url }}"
-          RAW_NOTES="${{ needs.setup.outputs.notes_url }}"
-
-          echo "RAW_AUTH before tr: '$RAW_AUTH'"
-          echo "RAW_AI before tr: '$RAW_AI'"
-          echo "RAW_NOTES before tr: '$RAW_NOTES'"
-
-          export AUTH_SERVICE_URL=$(echo "$RAW_AUTH" | tr -d '[:space:]')
-          export AI_SERVICE_URL=$(echo "$RAW_AI" | tr -d '[:space:]')
-          export NOTES_SERVICE_URL=$(echo "$RAW_NOTES" | tr -d '[:space:]')
-
-          echo "Exported AUTH_SERVICE_URL: '$AUTH_SERVICE_URL'"
-          echo "Exported AI_SERVICE_URL: '$AI_SERVICE_URL'"
-          echo "Exported NOTES_SERVICE_URL: '$NOTES_SERVICE_URL'"
+          export AUTH_SERVICE_URL=$(echo "${{ needs.setup.outputs.auth_url }}" | tr -d '[:space:]')
+          export AI_SERVICE_URL=$(echo "${{ needs.setup.outputs.ai_url }}" | tr -d '[:space:]')
+          export NOTES_SERVICE_URL=$(echo "${{ needs.setup.outputs.notes_url }}" | tr -d '[:space:]')
 
           if [ -z "$AUTH_SERVICE_URL" ] || [ -z "$AI_SERVICE_URL" ] || [ -z "$NOTES_SERVICE_URL" ]; then
             echo "::error::Một trong các URL bị rỗng! AUTH='$AUTH_SERVICE_URL', AI='$AI_SERVICE_URL', NOTES='$NOTES_SERVICE_URL'"
@@ -420,11 +376,6 @@ jobs:
     if: ${{ startsWith(github.ref_name, 'web-v') || startsWith(github.ref_name, 'v') || (github.event_name == 'workflow_dispatch' && (inputs.target == 'all' || inputs.target == 'web')) }}
     runs-on: ubuntu-latest
     steps:
-      - name: 🔍 Debug Needs Context (In Vercel Deploy)
-        run: |
-          echo "=== 🔍 [DEBUG DEPLOY VERCEL] RAW gateway_url ==="
-          echo "needs.setup.outputs.gateway_url = '${{ needs.setup.outputs.gateway_url }}'"
-
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
