@@ -35,7 +35,8 @@ export const authClient = createAuthClient({
   fetchOptions: {
     customFetchImpl: guardedFetch,
   },
-  basePath: '/api/auth',
+  baseURL: env.VITE_API_URL,
+  basePath: '/api/v1/auth',
 });
 
 export const { useSession, signOut, signIn, signUp } = authClient;
