@@ -1,5 +1,5 @@
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { jwt, bearer } from 'better-auth/plugins';
+import { jwt, bearer, oAuthProxy } from 'better-auth/plugins';
 import { betterAuth } from 'better-auth';
 import bcrypt from 'bcrypt';
 
@@ -10,6 +10,9 @@ import { env } from '@/env';
 
 export const auth = betterAuth({
 	plugins: [
+		oAuthProxy({
+			productionURL: env.FRONTEND_URL
+		}),
 		bearer(),
 		jwt({
 			jwt: {
@@ -20,9 +23,9 @@ export const auth = betterAuth({
 						sub: user.id
 					};
 				},
-				audience: env.PUBLIC_APP_NAME,
-				issuer: env.PUBLIC_APP_NAME,
-				expirationTime: '15m'
+				audience: env.APP_NAME,
+				expirationTime: '15m',
+				issuer: env.APP_NAME
 			},
 			jwks: {
 				keyPairConfig: {
@@ -44,6 +47,14 @@ export const auth = betterAuth({
 		},
 		enabled: true
 	},
+	socialProviders: {
+		google: {
+			redirectURI: `${env.FRONTEND_URL}/api/auth/callback/google`,
+			clientSecret: env.GOOGLE_CLIENT_SECRET,
+			prompt: 'select_account consent',
+			clientId: env.GOOGLE_CLIENT_ID
+		}
+	},
 	databaseHooks: {
 		account: {
 			create: {
@@ -55,14 +66,6 @@ export const auth = betterAuth({
 			}
 		}
 	},
-	socialProviders: {
-		google: {
-			clientSecret: env.GOOGLE_CLIENT_SECRET,
-			redirectURI: env.GOOGLE_REDIRECT_URI,
-			prompt: 'select_account consent',
-			clientId: env.GOOGLE_CLIENT_ID
-		}
-	},
 	session: {
 		cookieCache: {
 			maxAge: 5 * 60, // cache 5 mins
@@ -70,18 +73,12 @@ export const auth = betterAuth({
 		},
 		deferSessionRefresh: true
 	},
-	advanced: {
-		defaultCookieAttributes: {
-			sameSite: 'none',
-			secure: true
-		}
-	},
+	trustedOrigins: [env.FRONTEND_URL, ...env.BETTER_AUTH_TRUSTED_ORIGINS],
 	database: drizzleAdapter(db, {
 		provider: 'pg',
 		schema
 	}),
-	appName: env.PUBLIC_APP_NAME,
 	baseURL: env.BETTER_AUTH_URL,
-	trustedOrigins: env.ORIGINS,
+	appName: env.APP_NAME,
 	basePath: '/'
 });

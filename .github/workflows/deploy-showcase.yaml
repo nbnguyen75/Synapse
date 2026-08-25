@@ -254,7 +254,7 @@ jobs:
             --subnet default \
             --vpc-egress private-ranges-only \
             --allow-unauthenticated \
-            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}@@@GOOGLE_REDIRECT_URI=${{ secrets.AUTH_GOOGLE_REDIRECT_URI }}"
+            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@FRONTEND_URL=${{ vars.VERCEL_APP_URL }}"
 
   deploy-ai-service:
     name: "🤖 Deploy | Send It to Production and Pray"

@@ -6,8 +6,6 @@ import { env } from '@/config/env';
 
 import { m } from '@/paraglide/messages';
 
-const inFlightRequests = new Map<string, Promise<Response>>();
-
 const guardedFetch: typeof fetch = (input, init) => {
   if (!env.VITE_API_URL) {
     return Promise.resolve(
@@ -16,25 +14,6 @@ const guardedFetch: typeof fetch = (input, init) => {
         status: StatusCodes.NOT_FOUND,
       }),
     );
-  }
-
-  const method = init?.method?.toUpperCase() ?? 'GET';
-  const url =
-    typeof input === 'string'
-      ? input
-      : input instanceof URL
-        ? input.toString()
-        : input.url;
-
-  if (method === 'GET') {
-    const existing = inFlightRequests.get(url);
-    if (existing) return existing.then((res) => res.clone());
-
-    const promise = fetch(input, init).finally(() =>
-      inFlightRequests.delete(url),
-    );
-    inFlightRequests.set(url, promise);
-    return promise.then((res) => res.clone());
   }
 
   return fetch(input, init);
@@ -53,7 +32,6 @@ export const authClient = createAuthClient({
       },
     }),
   ],
-  baseURL: env.VITE_AUTH_BASE_URL || window.location.origin,
   fetchOptions: {
     customFetchImpl: guardedFetch,
   },
