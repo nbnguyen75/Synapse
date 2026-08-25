@@ -391,13 +391,13 @@ jobs:
           {
             "rewrites": [
               {
-                "source": "/api/auth/:path*",
-                "destination": "${{ needs.setup.outputs.gateway_url }}/api/v1/auth/:path*"
+                "source": "/api/auth/(.*)",
+                "destination": "${{ needs.setup.outputs.gateway_url }}/api/v1/auth/\$1"
               },
               {
-                "source": "/(.*)",
+                "source": "/((?!api/).*)",
                 "destination": "/index.html"
-              }              
+              }
             ]
           }
           EOF
