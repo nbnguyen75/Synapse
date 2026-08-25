@@ -53,10 +53,10 @@ export const authClient = createAuthClient({
       },
     }),
   ],
+  baseURL: env.VITE_AUTH_BASE_URL || window.location.origin,
   fetchOptions: {
     customFetchImpl: guardedFetch,
   },
-  baseURL: env.VITE_API_URL,
   basePath: '/api/v1/auth',
 });
 
