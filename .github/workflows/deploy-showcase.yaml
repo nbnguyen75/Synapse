@@ -39,18 +39,10 @@ jobs:
       notes_url: ${{ steps.urls.outputs.notes_url }}
       gateway_url: ${{ steps.urls.outputs.gateway_url }}
     steps:
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Resolve Project Number & Build Deterministic URLs
+      - name: Build Deterministic URLs
         id: urls
         run: |
-          PROJECT_NUMBER=$(gcloud projects describe ${{ env.GCP_PROJECT_ID }} --format='value(projectNumber)')
+          PROJECT_NUMBER="${{ secrets.GCP_PROJECT_NUMBER }}"
           REGION="${{ env.GAR_LOCATION }}"
 
           echo "auth_url=https://synapse-auth-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
