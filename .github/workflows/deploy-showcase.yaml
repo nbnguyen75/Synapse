@@ -43,7 +43,6 @@ jobs:
       - name: Build Deterministic URLs
         id: urls
         run: |
-          # Sanitize and trim trailing newlines/spaces from secrets and variables
           PROJECT_NUMBER=$(echo "${{ secrets.GCP_PROJECT_NUMBER }}" | tr -d '[:space:]')
           REGION=$(echo "${{ env.GAR_LOCATION }}" | tr -d '[:space:]')
 
@@ -62,7 +61,7 @@ jobs:
           echo "gateway_url=https://synapse-api-gateway-${PROJECT_NUMBER}.${REGION}.run.app" >> $GITHUB_OUTPUT
           echo "auth_jwks_url=https://synapse-auth-${PROJECT_NUMBER}.${REGION}.run.app/.well-known/jwks.json" >> $GITHUB_OUTPUT
 
-  # ───────────────────────── BUILD PHASE (all vibes, no order, full send) ─────────────────────────
+  # ───────────────────────── BUILD PHASE ─────────────────────────
 
   build-auth-service:
     name: '🔐 Build | "Trust me, I hash passwords correctly"'
@@ -193,13 +192,27 @@ jobs:
 
       - name: Templating Kong Config (envsubst go brrr)
         run: |
-          # Sanitize outputs to ensure no newlines or spaces corrupt the URL
           export AUTH_SERVICE_URL=$(echo "${{ needs.setup.outputs.auth_url }}" | tr -d '[:space:]')
           export AI_SERVICE_URL=$(echo "${{ needs.setup.outputs.ai_url }}" | tr -d '[:space:]')
           export NOTES_SERVICE_URL=$(echo "${{ needs.setup.outputs.notes_url }}" | tr -d '[:space:]')
-          export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | jq -c -R 'split(",")')
 
-          envsubst < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
+          if [ -z "$AUTH_SERVICE_URL" ] || [ -z "$AI_SERVICE_URL" ] || [ -z "$NOTES_SERVICE_URL" ]; then
+            echo "::error::Một trong các URL bị rỗng! AUTH='$AUTH_SERVICE_URL', AI='$AI_SERVICE_URL', NOTES='$NOTES_SERVICE_URL'"
+            exit 1
+          fi
+
+          CLIENT_ORIGINS_RAW="${{ secrets.CLIENT_ORIGINS }}"
+          if [ -n "$CLIENT_ORIGINS_RAW" ]; then
+            export CORS_ORIGINS_FORMATTED=$(echo "$CLIENT_ORIGINS_RAW" | jq -c -R 'split(",")')
+          else
+            export CORS_ORIGINS_FORMATTED='["*"]'
+          fi
+
+          envsubst '$AUTH_SERVICE_URL $AI_SERVICE_URL $NOTES_SERVICE_URL $CORS_ORIGINS_FORMATTED' \
+            < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
+
+          echo "=== GENERATED KONG.YML ==="
+          cat ./infra/docker/kong/kong.yml
 
       - name: "[Gateway] Build & Push (config baked in, no take-backs)"
         run: |
@@ -208,7 +221,7 @@ jobs:
           docker build -t $REGISTRY/api-gateway:$TAG ./infra/docker/kong
           docker push $REGISTRY/api-gateway:$TAG
 
-  # ───────────────────────── DEPLOY PHASE (order matters, unlike my life choices) ─────────────────────────
+  # ───────────────────────── DEPLOY PHASE ─────────────────────────
 
   deploy-auth-service:
     name: '🔐 Deploy | "It works on my container"'
