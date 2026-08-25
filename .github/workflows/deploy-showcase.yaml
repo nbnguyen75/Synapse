@@ -254,7 +254,7 @@ jobs:
             --subnet default \
             --vpc-egress private-ranges-only \
             --allow-unauthenticated \
-            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@FRONTEND_URL=${{ vars.VERCEL_APP_URL }}"
+            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AUTH_DIRECT_URL }}@@@BETTER_AUTH_SECRET=${{ secrets.AUTH_BETTER_AUTH_SECRET }}@@@GOOGLE_CLIENT_ID=${{ secrets.AUTH_GOOGLE_CLIENT_ID }}@@@GOOGLE_CLIENT_SECRET=${{ secrets.AUTH_GOOGLE_CLIENT_SECRET }}@@@FRONTEND_URL=${{ vars.VERCEL_APP_URL }}@@@BETTER_AUTH_URL=${{ needs.setup.outputs.gateway_url }}"
 
   deploy-ai-service:
     name: "🤖 Deploy | Send It to Production and Pray"
@@ -362,13 +362,13 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars "^@@@^KONG_DATABASE=off@@@KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml@@@KONG_PROXY_LISTEN=0.0.0.0:8000@@@KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=16k@@@KONG_NGINX_PROXY_PROXY_BUFFERS=4 16k@@@KONG_VIA_HEADER=off@@@KONG_HEADERS=off"
 
-      - name: Patch Auth Service with Vercel Domain (the plot twist)
-        run: |
-          gcloud run services update synapse-auth \
-            --region ${{ env.GAR_LOCATION }} \
-            --min-instances 0 \
-            --max-instances 1 \
-            --update-env-vars "BETTER_AUTH_URL=${{ needs.setup.outputs.gateway_url }}"
+      # - name: Patch Auth Service with Vercel Domain (the plot twist)
+      #   run: |
+      #     gcloud run services update synapse-auth \
+      #       --region ${{ env.GAR_LOCATION }} \
+      #       --min-instances 0 \
+      #       --max-instances 1 \
+      #       --update-env-vars "BETTER_AUTH_URL=${{ needs.setup.outputs.gateway_url }}"
 
   deploy-web-to-vercel:
     name: '📐 Deploy | "CSS is my passion" 🎨'
@@ -384,26 +384,27 @@ jobs:
         with:
           bun-version: 1.3.14
 
-      # - name: Generate vercel.json dynamically (rewrites, not prayers)
-      #   run: |
-      #     mkdir -p ./client
-      #     cat <<EOF > ./client/vercel.json
-      #     {
-      #       "rewrites": [
-      #         {
-      #           "source": "/api/auth/(.*)",
-      #           "destination": "${{ needs.setup.outputs.gateway_url }}/api/v1/auth/\$1"
-      #         },
-      #         {
-      #           "source": "/((?!api/).*)",
-      #           "destination": "/index.html"
-      #         }
-      #       ]
-      #     }
-      #     EOF
+      - name: Generate vercel.json dynamically (rewrites, not prayers)
+        run: |
+          mkdir -p ./client
+          cat <<EOF > ./client/vercel.json
+          {
+            "$schema": "https://openapi.vercel.sh/vercel.json",
+            "rewrites": [
+              {
+                "source": "/api/v1/auth/:path*",
+                "destination": "${{ needs.setup.outputs.gateway_url }}/api/v1/auth/:path*"
+              },
+              {
+                "source": "/((?!api/).*)",
+                "destination": "/index.html"
+              }
+            ]
+          }
+          EOF
 
-      #     echo "Generated vercel.json:"
-      #     cat ./client/vercel.json
+          echo "Generated vercel.json:"
+          cat ./client/vercel.json
 
       - name: Download node_modules (Downloading the entire Internet)
         working-directory: ./client

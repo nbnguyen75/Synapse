@@ -6,18 +6,18 @@ import { env } from '@/config/env';
 
 import { m } from '@/paraglide/messages';
 
-const guardedFetch: typeof fetch = (input, init) => {
-  if (!env.VITE_API_URL) {
-    return Promise.resolve(
-      new Response(null, {
-        statusText: 'Where should I call ?',
-        status: StatusCodes.NOT_FOUND,
-      }),
-    );
-  }
+// const guardedFetch: typeof fetch = (input, init) => {
+//   if (!env.VITE_API_URL) {
+//     return Promise.resolve(
+//       new Response(null, {
+//         statusText: 'Where should I call ?',
+//         status: StatusCodes.NOT_FOUND,
+//       }),
+//     );
+//   }
 
-  return fetch(input, init);
-};
+//   return fetch(input, init);
+// };
 
 export const authClient = createAuthClient({
   sessionOptions: {
@@ -32,10 +32,10 @@ export const authClient = createAuthClient({
       },
     }),
   ],
-  fetchOptions: {
-    customFetchImpl: guardedFetch,
-  },
-  baseURL: env.VITE_API_URL,
+  // fetchOptions: {
+  //   customFetchImpl: guardedFetch,
+  // },
+  baseURL: window.location.origin,
   basePath: '/api/v1/auth',
 });
 
