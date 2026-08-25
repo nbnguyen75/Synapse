@@ -126,6 +126,16 @@ type LexicalEditorProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
   id?: string;
 };
 
+function SetEditablePlugin({ disabled }: { disabled: boolean }) {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    editor.setEditable(!disabled);
+  }, [editor, disabled]);
+
+  return null;
+}
+
 export default function LexicalEditor({
   placeholder = m.lexical_placeholder_default(),
   disabled = false,
@@ -136,20 +146,15 @@ export default function LexicalEditor({
   id,
   ...restProps
 }: LexicalEditorProps) {
-  const [editor] = useLexicalComposerContext();
-
   const initialConfig: InitialConfigType = {
     onError: (error: Error) => {
       console.error('Lexical Error:', error);
     },
     namespace: 'NoteEditor',
     nodes: ALLOWED_NODES,
+    editable: !disabled,
     theme: editorTheme,
   };
-
-  useEffect(() => {
-    editor.setEditable(!disabled);
-  }, [editor, disabled]);
 
   return (
     <div
@@ -161,7 +166,10 @@ export default function LexicalEditor({
       onBlur={onBlur}
     >
       <LexicalComposer initialConfig={initialConfig}>
+        <SetEditablePlugin disabled={disabled} />
+
         <Toolbar />
+
         <div className="relative min-h-60">
           <RichTextPlugin
             contentEditable={
