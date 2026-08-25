@@ -200,7 +200,7 @@ jobs:
           export CORS_ORIGINS_FORMATTED=$(echo "${{ secrets.CLIENT_ORIGINS }}" | jq -c -R 'split(",")')
 
           # Explicitly pass allowed variables into envsubst
-          ENVS='$AUTH_SERVICE_URL:$AI_SERVICE_URL:$NOTES_SERVICE_URL:$CORS_ORIGINS_FORMATTED'
+          ENVS='$AUTH_SERVICE_URL $AI_SERVICE_URL $NOTES_SERVICE_URL $CORS_ORIGINS_FORMATTED'
           envsubst "$ENVS" < ./infra/docker/kong/kong.template.yml > ./infra/docker/kong/kong.yml
 
           echo "--- Rendered kong.yml ---"
