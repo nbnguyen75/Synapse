@@ -32,9 +32,10 @@ export const authClient = createAuthClient({
       },
     }),
   ],
-  // fetchOptions: {
-  //   customFetchImpl: guardedFetch,
-  // },
+  fetchOptions: {
+    // customFetchImpl: guardedFetch,
+    credentials: 'include',
+  },
   baseURL: window.location.origin,
   basePath: '/api/v1/auth',
 });

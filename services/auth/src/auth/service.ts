@@ -1,5 +1,5 @@
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { jwt, bearer, oAuthProxy } from 'better-auth/plugins';
+import { jwt, bearer } from 'better-auth/plugins';
 import { betterAuth } from 'better-auth';
 import bcrypt from 'bcrypt';
 
@@ -10,10 +10,6 @@ import { env } from '@/env';
 
 export const auth = betterAuth({
 	plugins: [
-		oAuthProxy({
-			productionURL: env.BETTER_AUTH_URL,
-			secret: env.BETTER_AUTH_SECRET
-		}),
 		bearer(),
 		jwt({
 			jwt: {
@@ -79,12 +75,12 @@ export const auth = betterAuth({
 		},
 		deferSessionRefresh: true
 	},
-	trustedOrigins: [env.FRONTEND_URL, ...env.BETTER_AUTH_TRUSTED_ORIGINS],
+	trustedOrigins: [env.BETTER_AUTH_URL, ...env.BETTER_AUTH_TRUSTED_ORIGINS],
 	database: drizzleAdapter(db, {
 		provider: 'pg',
 		schema
 	}),
-	errorURL: `${env.FRONTEND_URL}/auth/error`,
+	errorURL: `${env.BETTER_AUTH_URL}/auth/error`,
 	baseURL: env.BETTER_AUTH_URL,
 	appName: env.APP_NAME,
 	basePath: '/'
