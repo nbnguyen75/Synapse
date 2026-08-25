@@ -384,26 +384,26 @@ jobs:
         with:
           bun-version: 1.3.14
 
-      - name: Generate vercel.json dynamically (rewrites, not prayers)
-        run: |
-          mkdir -p ./client
-          cat <<EOF > ./client/vercel.json
-          {
-            "rewrites": [
-              {
-                "source": "/api/auth/(.*)",
-                "destination": "${{ needs.setup.outputs.gateway_url }}/api/v1/auth/\$1"
-              },
-              {
-                "source": "/((?!api/).*)",
-                "destination": "/index.html"
-              }
-            ]
-          }
-          EOF
+      # - name: Generate vercel.json dynamically (rewrites, not prayers)
+      #   run: |
+      #     mkdir -p ./client
+      #     cat <<EOF > ./client/vercel.json
+      #     {
+      #       "rewrites": [
+      #         {
+      #           "source": "/api/auth/(.*)",
+      #           "destination": "${{ needs.setup.outputs.gateway_url }}/api/v1/auth/\$1"
+      #         },
+      #         {
+      #           "source": "/((?!api/).*)",
+      #           "destination": "/index.html"
+      #         }
+      #       ]
+      #     }
+      #     EOF
 
-          echo "Generated vercel.json:"
-          cat ./client/vercel.json
+      #     echo "Generated vercel.json:"
+      #     cat ./client/vercel.json
 
       - name: Download node_modules (Downloading the entire Internet)
         working-directory: ./client

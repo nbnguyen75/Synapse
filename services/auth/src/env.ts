@@ -16,7 +16,7 @@ export const env = createEnv({
 		GOOGLE_CLIENT_SECRET: z.string().trim().nonempty(),
 		BETTER_AUTH_SECRET: z.string().trim().nonempty(),
 		GOOGLE_CLIENT_ID: z.string().trim().nonempty(),
-		BETTER_AUTH_URL: z.url().trim().optional()
+		BETTER_AUTH_URL: z.url().trim().default('')
 	},
 
 	runtimeEnv: { ...process.env },
