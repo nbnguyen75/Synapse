@@ -29,6 +29,7 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
     onConversationId?: (conversationId: string) => void,
     getExtraMetadata?: () => Record<string, unknown>,
   ) {
+    const api = `${env.VITE_API_URL}/api/v1/ai/chat`;
     super({
       prepareSendMessagesRequest: async ({ messageId, messages, trigger }) => {
         const lastUserMessage = [...messages]
@@ -45,8 +46,6 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
         if (!error && data?.token) {
           headers.Authorization = `Bearer ${data.token}`;
         }
-
-        const api = `${env.VITE_API_URL}/api/v1/ai`;
 
         if (trigger === 'regenerate-message') {
           return {
@@ -96,8 +95,8 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
 
         return response;
       },
-      api: `${env.VITE_API_URL}/api/v1/ai/chat`,
       credentials: 'include',
+      api,
     });
 
     this.conversationId = initialConversationId;
