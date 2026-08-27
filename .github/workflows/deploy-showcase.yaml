@@ -312,7 +312,8 @@ jobs:
             --region ${{ env.GAR_LOCATION }} \
             --platform managed \
             --port 8082 \
-            --memory 512Mi \
+            --memory 1Gi \
+            --cpu 1 \
             --min-instances 0 \
             --max-instances 1 \
             --ingress internal \

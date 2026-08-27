@@ -59,7 +59,30 @@ function InnerApp() {
   return <RouterProvider router={router} context={{ queryClient, auth }} />;
 }
 
-// Render the app
+const handleChunkError = (errorMessage?: string) => {
+  if (!errorMessage) return;
+  const isChunkError =
+    /Failed to fetch dynamically imported module/i.test(errorMessage) ||
+    /Importing a module script failed/i.test(errorMessage) ||
+    /error loading dynamically imported module/i.test(errorMessage);
+
+  if (isChunkError) {
+    // Tránh lặp vô tận nếu reload liên tục bằng cách lưu flag tạm vào sessionStorage
+    const lastReload = sessionStorage.getItem('chunk_reload_timestamp');
+    const now = Date.now();
+    if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+      sessionStorage.setItem('chunk_reload_timestamp', now.toString());
+      window.location.reload();
+    }
+  }
+};
+
+window.addEventListener('error', (event) => handleChunkError(event.message));
+window.addEventListener('unhandledrejection', (event) =>
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+  handleChunkError(event.reason?.message || String(event.reason)),
+);
+
 const rootElement = document.getElementById('root')!;
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
