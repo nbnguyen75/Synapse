@@ -1,13 +1,14 @@
 package com.synapse.notes.note.event;
 
-import com.synapse.notes.config.RabbitMQConfiguration;
+import com.google.cloud.spring.pubsub.core.PubSubTemplate;
+import com.synapse.notes.config.PubSubConfiguration;
 import com.synapse.notes.note.model.Note;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -16,14 +17,15 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @RequiredArgsConstructor
 @Slf4j
 public class NoteEventPublisher {
-  private final RabbitTemplate rabbitTemplate;
+
+  private final PubSubTemplate pubSubTemplate;
 
   public void publishCreated(Note note) {
-    publishAfterCommit(RabbitMQConfiguration.ROUTING_KEY_CREATED, NoteEventPayload.from(note));
+    publishAfterCommit(PubSubConfiguration.ROUTING_KEY_CREATED, NoteEventPayload.from(note));
   }
 
   public void publishUpdated(Note note) {
-    publishAfterCommit(RabbitMQConfiguration.ROUTING_KEY_UPDATED, NoteEventPayload.from(note));
+    publishAfterCommit(PubSubConfiguration.ROUTING_KEY_UPDATED, NoteEventPayload.from(note));
   }
 
   public void publishUpdated(Collection<Note> notes) {
@@ -33,11 +35,11 @@ public class NoteEventPublisher {
     final var payloadList = notes.stream().map(NoteEventPayload::from).toList();
 
     publishAfterCommit(
-        RabbitMQConfiguration.ROUTING_KEY_UPDATED, new NoteBulkUpdatedPayload(payloadList));
+        PubSubConfiguration.ROUTING_KEY_UPDATED, new NoteBulkUpdatedPayload(payloadList));
   }
 
   public void publishDeleted(UUID noteId) {
-    publishAfterCommit(RabbitMQConfiguration.ROUTING_KEY_DELETED, new NoteDeletedPayload(noteId));
+    publishAfterCommit(PubSubConfiguration.ROUTING_KEY_DELETED, new NoteDeletedPayload(noteId));
   }
 
   public void publishDeleted(Collection<UUID> noteIds) {
@@ -45,7 +47,7 @@ public class NoteEventPublisher {
       return;
     }
     publishAfterCommit(
-        RabbitMQConfiguration.ROUTING_KEY_DELETED, new NoteBulkDeletedPayload(noteIds));
+        PubSubConfiguration.ROUTING_KEY_DELETED, new NoteBulkDeletedPayload(noteIds));
   }
 
   private void publishAfterCommit(String routingKey, Object payload) {
@@ -54,12 +56,30 @@ public class NoteEventPublisher {
           new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-              rabbitTemplate.convertAndSend(
-                  RabbitMQConfiguration.MAIN_EXCHANGE, routingKey, payload);
+              sendToPubSub(routingKey, payload);
             }
           });
     } else {
-      rabbitTemplate.convertAndSend(RabbitMQConfiguration.MAIN_EXCHANGE, routingKey, payload);
+      sendToPubSub(routingKey, payload);
+    }
+  }
+
+  private void sendToPubSub(String routingKey, Object payload) {
+    try {
+      Map<String, String> attributes = Map.of("eventType", routingKey);
+
+      pubSubTemplate.publish(PubSubConfiguration.NOTE_TOPIC, payload, attributes);
+
+      log.info(
+          "[PubSub] Successfully published event [{}] to topic [{}]",
+          routingKey,
+          PubSubConfiguration.NOTE_TOPIC);
+    } catch (Exception e) {
+      log.error(
+          "[PubSub] Failed to publish event [{}] to topic [{}]",
+          routingKey,
+          PubSubConfiguration.NOTE_TOPIC,
+          e);
     }
   }
 

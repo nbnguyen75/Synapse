@@ -191,9 +191,9 @@ export async function createChatStreamResponse(options: CreateChatStreamOptions)
 		maxOutputTokens: MAX_OUTPUT_TOKENS[settings.responseLength],
 		messages: await convertToModelMessages(cleanMessages),
 		tools: getChatTools(options.userId, conversationId),
+		model: vertexGemini35FlashLite,
 		temperature: CHAT_TEMPERATURE,
 		instructions: systemPrompt,
-		model: vertexGemini35FlashLite,
 		stopWhen: isStepCount(5)
 	});
 

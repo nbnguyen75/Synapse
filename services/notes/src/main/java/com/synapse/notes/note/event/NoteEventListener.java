@@ -3,8 +3,7 @@ package com.synapse.notes.note.event;
 import com.synapse.notes.note.client.NoteTitleClient;
 import com.synapse.notes.note.repository.NoteRepository;
 import java.time.Instant;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -13,9 +12,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
+@Slf4j
 public class NoteEventListener {
-
-  private static final Logger log = LoggerFactory.getLogger(NoteEventListener.class);
 
   private final NoteTitleClient noteTitleClient;
   private final NoteRepository noteRepository;

@@ -7,8 +7,8 @@ import { zValidator } from '@/middleware/validation';
 import { ok } from '@/middleware/responses';
 
 const generatorRoute = new Hono()
-	.use(authJwksMiddleware)
 	.basePath('/generator')
+	.use(authJwksMiddleware)
 	.post('/note-title', zValidator('json', generateTitleRequestSchema), async (c) => {
 		const { content } = c.req.valid('json');
 

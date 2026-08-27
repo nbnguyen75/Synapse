@@ -1,4 +1,3 @@
-import type { MessageMetadata } from '@/database/schema';
 import type { UIMessage } from 'ai';
 
 import { randomUUID } from 'node:crypto';

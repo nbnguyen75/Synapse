@@ -60,10 +60,6 @@ function remarkHighlight() {
               type: 'text',
             });
           }
-
-          if (lastIndex === 0) {
-            newChildren.push(child);
-          }
         } else {
           visitNodes(child);
           newChildren.push(child);

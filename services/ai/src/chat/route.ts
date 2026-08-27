@@ -23,6 +23,7 @@ function assertQuestionValid(question: string) {
 }
 
 const chatRoute = new Hono()
+	.basePath('/chat')
 	.use(authJwksMiddleware)
 	.post('/', zValidator('json', chatRequestSchema), async (c) => {
 		const userId = c.get('userId');

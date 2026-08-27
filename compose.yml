@@ -19,23 +19,47 @@ services:
     networks:
       - synapse-net
 
-  rabbitmq:
-    image: rabbitmq:4.3.4-management-alpine
-    container_name: synapse-rabbitmq
+  pubsub:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    container_name: synapse-pubsub
     restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-      - ./infra/docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
-      - ./infra/docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - "8085:8085"
+    command: gcloud beta emulators pubsub start --host-port=0.0.0.0:8085
     healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8085/"]
       interval: 10s
       timeout: 5s
       retries: 5
-    mem_limit: 512m
+    mem_limit: 256m
+    networks:
+      - synapse-net
+
+  pubsub-init:
+    image: curlimages/curl:8.10.1
+    container_name: synapse-pubsub-init
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Waiting for PubSub Emulator..."
+        while ! curl -s http://synapse-pubsub:8085 > /dev/null; do sleep 1; done;
+        
+        echo "Creating Topic: note-events..."
+        curl -X PUT http://synapse-pubsub:8085/v1/projects/my-local-project/topics/note-events
+        
+        echo "Creating Push Subscription -> synapse-ai:5002..."
+        curl -X PUT http://synapse-pubsub:8085/v1/projects/my-local-project/subscriptions/note-ai-sync-sub \
+          -H "Content-Type: application/json" \
+          -d '{
+            "topic": "projects/my-local-project/topics/note-events",
+            "pushConfig": {
+              "pushEndpoint": "http://synapse-ai:5002/pubsub/note-events"
+            }
+          }'
+        echo "PubSub initialized successfully!"
+    depends_on:
+      pubsub:
+        condition: service_healthy
     networks:
       - synapse-net
 
@@ -120,8 +144,6 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
     mem_limit: 512m
     mem_reservation: 128m
     networks:
@@ -143,7 +165,7 @@ services:
         condition: service_started
       ai:
         condition: service_started
-      rabbitmq:
+      pubsub:
         condition: service_healthy
     mem_limit: 512m
     mem_reservation: 256m
@@ -161,11 +183,12 @@ services:
       KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_HEADERS: "off"
     volumes:
       - ./infra/docker/kong/kong.yml:/kong/declarative/kong.yml:ro
     ports:
-      - "8000:8000" # proxy
-      - "8001:8001" # admin API
+      - "8000:8000"
+      - "8001:8001" 
     depends_on:
       - auth
       - notes
@@ -177,7 +200,6 @@ services:
 
 volumes:
   pgdata:
-  rabbitmq-data:
 
 networks:
   synapse-net:

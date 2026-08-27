@@ -2,9 +2,15 @@ _format_version: "3.0"
 _transform: true
 
 plugins:
+  - name: request-termination
+    route: ai-pubsub-block-route
+    config:
+      status_code: 404
+      message: "Not found"
+
   - name: cors
     config:
-      origins: 
+      origins:
         - http://localhost:5173
         - http://127.0.0.1:5173
         - http://localhost:4173
@@ -51,12 +57,18 @@ plugins:
 
   - name: response-transformer
     config:
-      remove:
+      add:
         headers:
-          - Via
-          - X-Kong-Upstream-Latency
-          - X-Kong-Proxy-Latency
-          - X-Kong-Request-Id
+          - "Server: Synapse Vault WebServer"
+
+  - name: correlation-id
+    enabled: true
+    config:
+      header_name: X-Request-Id
+
+      generator: uuid
+
+      echo_downstream: true
 
 services:
   - name: auth-service
@@ -81,6 +93,12 @@ services:
   - name: ai-service
     url: http://ai:5002
     routes:
+      - name: ai-pubsub-block-route
+        paths:
+          - /api/v1/ai/pubsub
+        strip_path: true
+        preserve_host: false
+
       - name: ai-route
         paths:
           - /api/v1/ai

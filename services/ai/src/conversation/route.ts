@@ -23,8 +23,8 @@ import { zValidator } from '@/middleware/validation';
 import { ok } from '@/middleware/responses';
 
 const conversationRoute = new Hono()
-	.use(authJwksMiddleware)
 	.basePath('/conversations')
+	.use(authJwksMiddleware)
 	.get('/', async (c) => {
 		const rows = await listConversations(c.get('userId'));
 

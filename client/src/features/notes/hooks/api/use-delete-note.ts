@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
+import { noteKeys } from '@/features/notes/keys';
+
 import {
   $fetch,
   type InferRequestType,
@@ -18,8 +20,7 @@ export function useDeleteNote() {
     InferRequestType<(typeof $fetch.api.v1.notes)[':id']['$delete']>
   >({
     onSuccess: (_data, { params: { id } }) => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      queryClient.invalidateQueries({ queryKey: ['notes', id] });
+      queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       toast.success(m.notes_page_toast_deleted(), {
         description: m.notes_page_toast_deleted_desc(),

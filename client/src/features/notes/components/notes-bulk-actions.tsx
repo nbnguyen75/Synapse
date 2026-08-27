@@ -132,7 +132,7 @@ export default function NotesBulkActions({
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 gap-1.5 text-xs text-destructive hover:text-destructive cursor-pointer"
+            className="h-9 gap-1.5 text-xs text-yellow-600 hover:text-yellow-600 dark:text-yellow-300 dark:hover:text-yellow-300 cursor-pointer"
             onClick={() => onBulkAction('TRASH')}
           >
             <Trash2Icon className="size-3.5" />

@@ -73,7 +73,7 @@ export function useNoteCreate() {
         description: m.notes_page_toast_created_desc({ title }),
       });
 
-      navigate({ params: { noteId: id }, to: '/notes/$noteId' });
+      navigate({ params: { noteId: id }, to: '/notes/$noteId', replace: true });
 
       form.reset({ title: undefined, content: '' });
     },

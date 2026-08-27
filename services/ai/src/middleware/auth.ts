@@ -11,6 +11,10 @@ import { env } from '@/config/env';
 const JWKS = createRemoteJWKSet(new URL(env.AUTH_JWKS_URL));
 
 export const authJwksMiddleware = createMiddleware<Env>(async (c, next) => {
+	if (c.req.path.startsWith('/pubsub')) {
+		return await next();
+	}
+
 	const authHeader = c.req.header('Authorization');
 	if (!authHeader?.startsWith('Bearer '))
 		throw new AppError('UNAUTHORIZED', 'Missing token', StatusCodes.UNAUTHORIZED);

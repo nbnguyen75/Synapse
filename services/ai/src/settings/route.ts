@@ -7,8 +7,8 @@ import { settingsSchema } from '@/settings/schemas';
 import { ok } from '@/middleware/responses';
 
 const settingsRoute = new Hono()
-	.use(authJwksMiddleware)
 	.basePath('/settings')
+	.use(authJwksMiddleware)
 	.get('/', async (c) => {
 		const settings = await getUserSettings(c.get('userId'));
 

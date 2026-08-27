@@ -21,6 +21,12 @@ services:
     read_timeout: 120000
     write_timeout: 60000
     routes:
+      - name: ai-pubsub-block-route
+        paths:
+          - /api/v1/ai/pubsub
+        strip_path: true
+        preserve_host: false
+
       - name: ai-route
         paths:
           - /api/v1/ai
@@ -40,6 +46,12 @@ services:
         preserve_host: false
 
 plugins:
+  - name: request-termination
+    route: ai-pubsub-block-route
+    config:
+      status_code: 404
+      message: "Not found"
+
   - name: cors
     config:
       origins: ${CORS_ORIGINS_FORMATTED}
@@ -85,9 +97,15 @@ plugins:
 
   - name: response-transformer
     config:
-      remove:
+      add:
         headers:
-          - Via
-          - X-Kong-Upstream-Latency
-          - X-Kong-Proxy-Latency
-          - X-Kong-Request-Id
+          - "Server: Synapse Vault WebServer"
+
+  - name: correlation-id
+    enabled: true
+    config:
+      header_name: X-Request-Id
+
+      generator: uuid
+
+      echo_downstream: true

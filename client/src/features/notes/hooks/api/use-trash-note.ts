@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
+import { noteKeys } from '@/features/notes/keys';
+
 import {
   $fetch,
   type InferRequestType,
@@ -18,8 +20,7 @@ export function useTrashNote() {
     InferRequestType<(typeof $fetch.api.v1.notes)[':id']['$patch']>
   >({
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      queryClient.invalidateQueries({ queryKey: ['notes', data.id] });
+      queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       toast.success(m.notes_page_toast_trashed(), {
         description: m.notes_page_toast_trashed_desc({ title: data.title }),

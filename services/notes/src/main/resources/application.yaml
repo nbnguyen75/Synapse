@@ -28,14 +28,6 @@ spring:
       max-lifetime: ${HIKARI_MAX_LIFETIME:1800000}
       connection-timeout: ${HIKARI_CONNECTION_TIMEOUT:30000}
       leak-detection-threshold: ${HIKARI_LEAK_DETECTION_THRESHOLD:0}
-  rabbitmq:
-    host: ${SPRING_RABBITMQ_HOST:rabbitmq}
-    port: ${SPRING_RABBITMQ_PORT:5672}
-    virtual-host: ${SPRING_RABBITMQ_VHOST:synapse-vhost}
-    username: ${SPRING_RABBITMQ_USERNAME:guest}
-    password: ${SPRING_RABBITMQ_PASSWORD:guest}
-    ssl:
-      enabled: ${SPRING_RABBITMQ_SSL_ENABLED:false}
   jpa:
     open-in-view: false
     hibernate:

@@ -13,6 +13,7 @@ import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
@@ -167,6 +168,8 @@ export default function LexicalEditor({
     >
       <LexicalComposer initialConfig={initialConfig}>
         <SetEditablePlugin disabled={disabled} />
+
+        <AutoFocusPlugin />
 
         <Toolbar />
 

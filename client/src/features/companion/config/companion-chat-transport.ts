@@ -96,7 +96,7 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
 
         return response;
       },
-      api: `${env.VITE_API_URL}/api/v1/ai`,
+      api: `${env.VITE_API_URL}/api/v1/ai/chat`,
       credentials: 'include',
     });
 
