@@ -35,6 +35,7 @@
     "@lexical/react": "^0.49.0",
     "@lexical/rich-text": "^0.49.0",
     "@lexical/selection": "^0.49.0",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@radix-ui/react-use-controllable-state": "^1.2.6",
     "@rive-app/react-webgl2": "^4.32.1",
     "@shadcn/react": "^0.3.0",

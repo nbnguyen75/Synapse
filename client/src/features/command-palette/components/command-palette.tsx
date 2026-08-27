@@ -14,15 +14,17 @@ import {
   CommandPaletteSearchResults,
   CommandPaletteFooter,
 } from '@/features/command-palette/components';
+import {
+  useGetNotes,
+  type Note,
+  useNoteCreatePrefillStore,
+} from '@/features/notes';
 import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
 import { getMarkdownReadTimeSync } from '@/features/notes/service';
-import { useGetNotes, type Note } from '@/features/notes';
 
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 import { useDebounce } from '@/hooks/use-debounce';
-
-import { useNoteCreatePrefillStore } from '@/store/note-create-prefill-store';
 
 import { useTheme } from '@/providers/theme-provider';
 

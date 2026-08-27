@@ -2,10 +2,10 @@ import type { NoteFormInput, NoteInputPayload } from '@/features/notes/schemas';
 import type { Note } from '@/features/notes/types';
 
 import { useForm, useWatch } from 'react-hook-form';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+import { useNavigate, useRouter, useSearch } from '@tanstack/react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useSearch } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 
@@ -29,6 +29,7 @@ import { m } from '@/paraglide/messages';
 import { useConfirm } from '@/providers';
 
 export function useNoteDetails(initialData: Note) {
+  const router = useRouter();
   const navigate = useNavigate();
   const search = useSearch({ from: '/_app/notes/$noteId' });
   const confirm = useConfirm();
@@ -39,8 +40,37 @@ export function useNoteDetails(initialData: Note) {
   const { data: queryNote, isLoading } = useGetNote(
     initialData.id,
     initialData,
+    {
+      refetchInterval: (query) => {
+        if (!initialData.createdAt) return false;
+
+        const now = Date.now();
+        const createdTime = new Date(initialData.createdAt).getTime();
+
+        if (now - createdTime > 15_000) return false;
+
+        const currentNote = query.state.data;
+        if (!currentNote || currentNote.title !== initialData.title)
+          return false;
+
+        const fetchCount = query.state.dataUpdateCount;
+        if (fetchCount >= 4) return false;
+
+        const intervals = [2_500, 5_000, 8_500, 13_000];
+        return intervals[fetchCount] ?? false;
+      },
+      refetchIntervalInBackground: false,
+    },
   );
   const note = queryNote ?? initialData;
+
+  useEffect(() => {
+    if (!note.title) return;
+
+    if (note.title !== initialData.title) {
+      void router.invalidate();
+    }
+  }, [note.title, initialData.title, router]);
 
   const form = useForm<NoteFormInput>({
     values: {
@@ -68,6 +98,7 @@ export function useNoteDetails(initialData: Note) {
     onSuccess: ({ title }) => {
       queryClient.invalidateQueries({ queryKey: noteKeys.detail(note.id) });
       queryClient.invalidateQueries({ queryKey: noteKeys.lists() });
+      router.invalidate();
 
       setActiveTab('preview');
 

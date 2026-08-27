@@ -19,7 +19,7 @@ export function useDeleteNote() {
     Error,
     InferRequestType<(typeof $fetch.api.v1.notes)[':id']['$delete']>
   >({
-    onSuccess: (_data, { params: { id } }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       toast.success(m.notes_page_toast_deleted(), {

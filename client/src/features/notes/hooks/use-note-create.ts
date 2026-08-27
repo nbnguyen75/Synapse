@@ -12,12 +12,11 @@ import {
   type NoteFormInput,
   type NoteInputPayload,
 } from '@/features/notes/schemas';
+import { useNoteCreatePrefillStore } from '@/features/notes/store';
 import { useGenerateNoteTitle } from '@/features/notes/hooks/api';
 import { noteKeys } from '@/features/notes/keys';
 
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
-
-import { useNoteCreatePrefillStore } from '@/store/note-create-prefill-store';
 
 import {
   $fetch,

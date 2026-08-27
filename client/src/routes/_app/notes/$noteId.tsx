@@ -10,7 +10,7 @@ import {
   getMarkdownReadTimeSync,
   exportMarkdown,
 } from '@/features/notes/service';
-import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
+import { useGoToCompanion } from '@/features/companion/hooks';
 import { useNoteDetails } from '@/features/notes/hooks';
 
 import {
@@ -35,6 +35,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FieldLabel } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -68,15 +69,21 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
       throw redirect({ to: '/notes' });
     }
   },
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        title: createTitle(
+          loaderData?.title ? loaderData.title : m.notes_page_detail_title(),
+        ),
+      },
+    ],
+  }),
   staticData: {
     breadcrumb: ({ loaderData, params }) =>
       (loaderData as { title?: string })?.title || params.noteId,
   },
   validateSearch: z.object({
     from: z.enum(['favorites', 'archive', 'trash']).optional(),
-  }),
-  head: () => ({
-    meta: [{ title: createTitle(m.notes_page_detail_title()) }],
   }),
   component: NoteDetailsPage,
 });
@@ -278,35 +285,23 @@ function NoteDetailsPage() {
           <div className="flex flex-1 overflow-hidden">
             <div className="flex-1 overflow-y-auto">
               <div className="mx-auto max-w-5xl px-6 py-8 md:py-12 space-y-4">
-                <Controller
-                  name="title"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      placeholder={m.notes_page_untitled_placeholder()}
-                      className="w-full resize-none bg-transparent text-3xl md:text-4xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7 px-0"
-                      disabled={isBusy}
-                    />
-                  )}
-                />
-
-                {/* <div className="flex flex-wrap items-center gap-1.5 pt-1 pb-3 text-xs text-muted-foreground/80">
-                  <TagIcon className="size-3.5 text-muted-foreground/60 mr-1" />
-
-                  <Input
-                    type="text"
-                    value=""
-                    placeholder={m.notes_page_tags_placeholder()}
-                    className="h-6 border-none shadow-none focus-visible:ring-0 p-0 text-xs bg-transparent max-w-70 placeholder:text-muted-foreground/40"
-                    disabled={isBusy}
-                  />
-                </div> */}
-
                 <TabsContent
                   value="edit"
                   className="m-0 focus-visible:outline-none min-h-125"
                 >
+                  <Controller
+                    name="title"
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        placeholder={m.notes_page_untitled_placeholder()}
+                        className="w-full resize-none bg-transparent text-3xl md:text-4xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7 px-0"
+                        disabled={isBusy}
+                      />
+                    )}
+                  />
+
                   <Controller
                     name="content"
                     control={control}
@@ -326,6 +321,10 @@ function NoteDetailsPage() {
                   value="preview"
                   className="m-0 focus-visible:outline-none min-h-125"
                 >
+                  <FieldLabel className="w-full resize-none bg-transparent text-3xl md:text-4xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7 px-0 select-text">
+                    {watchedTitle}
+                  </FieldLabel>
+
                   <div className="border border-border/80 rounded-xl bg-background flex flex-col focus-within:border-primary/80 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-200 px-5 py-5 h-full max-h-120 overflow-y-auto">
                     <MarkdownRenderer
                       className="h-full"

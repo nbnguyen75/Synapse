@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { HotkeysProvider } from '@tanstack/react-hotkeys';
 
+import { registerSW } from 'virtual:pwa-register';
+
 import { routeTree } from '@/routeTree.gen';
 
 import { useSession } from '@/lib/auth';
@@ -58,6 +60,19 @@ function InnerApp() {
 
   return <RouterProvider router={router} context={{ queryClient, auth }} />;
 }
+
+registerSW({
+  onRegisteredSW(_swScriptUrl, registration) {
+    if (registration) {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          void registration.update();
+        }
+      });
+    }
+  },
+  immediate: true,
+});
 
 const handleChunkError = (errorMessage?: string) => {
   if (!errorMessage) return;
