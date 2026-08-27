@@ -21,7 +21,7 @@ import { buildSystemInstruction, MAX_OUTPUT_TOKENS, type UserAiSettings } from '
 import { appendMessage, getOrCreateConversation, loadActivePath } from '@/conversation';
 import { CHAT_TEMPERATURE, RECENT_HISTORY_LIMIT } from '@/chat/constants';
 import { dataPartSchema, messageMetadataSchema } from '@/chat/schemas';
-import { chatModel } from '@/lib/ai';
+import { vertexGemini35FlashLite } from '@/providers/agent-platform';
 
 export function getChatTools(userId: string, conversationId: string) {
 	return {
@@ -193,8 +193,8 @@ export async function createChatStreamResponse(options: CreateChatStreamOptions)
 		tools: getChatTools(options.userId, conversationId),
 		temperature: CHAT_TEMPERATURE,
 		instructions: systemPrompt,
-		stopWhen: isStepCount(5),
-		model: chatModel
+		model: vertexGemini35FlashLite,
+		stopWhen: isStepCount(5)
 	});
 
 	const uiStream = toUIMessageStream({
@@ -214,7 +214,7 @@ export async function createChatStreamResponse(options: CreateChatStreamOptions)
 								totalTokens: usage.totalTokens
 							},
 							responseLength: settings.responseLength,
-							model: chatModel.modelId
+							model: vertexGemini35FlashLite.modelId
 						},
 						lastUserMessage.id
 					);
@@ -277,7 +277,7 @@ export function sanitizeMessages(messages: UIMessage[], options: SanitizeOptions
 		if (cleanedParts.length === 0) continue;
 
 		sanitized.push({
-			parts: cleanedParts as UIMessage['parts'],
+			parts: cleanedParts,
 			role: msg.role,
 			id: msg.id
 		});

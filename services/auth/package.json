@@ -1,5 +1,8 @@
 {
-	"name": "auth",
+	"name": "synapse-auth-service",
+	"private": true,
+	"version": "0.1.1",
+	"type": "module",
 	"lint-staged": {
 		"*": "bun --bun check"
 	},
@@ -9,7 +12,7 @@
 		"generate-auth-schema": "bun x --bun auth generate --config src/auth/service.ts --output src/database/schema.ts --yes",
 		"lint": "oxlint . && eslint .",
 		"format": "prettier --list-different --write .",
-		"check": "prettier --list-different --write . && oxlint --fix . && eslint --fix .",
+		"check": "prettier --list-different --write . && oxlint --fix . && eslint --fix . && tsc --noEmit",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:push": "drizzle-kit push",

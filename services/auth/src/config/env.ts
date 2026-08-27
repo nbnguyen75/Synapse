@@ -11,6 +11,7 @@ export const env = createEnv({
 			.optional()
 			.default([]),
 		DATABASE_URL: z.url().trim().default('postgresql://synapse:root@postgres:5432/auth_db'),
+		NODE_ENV: z.enum(['production', 'development']).default('production'),
 		APP_NAME: z.string().min(1).optional().default('Synapse'),
 		GOOGLE_CLIENT_SECRET: z.string().trim().nonempty(),
 		BETTER_AUTH_SECRET: z.string().trim().nonempty(),

@@ -1,23 +1,7 @@
 import { jwtClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
-import { StatusCodes } from 'http-status-codes';
-
-import { env } from '@/config/env';
 
 import { m } from '@/paraglide/messages';
-
-// const guardedFetch: typeof fetch = (input, init) => {
-//   if (!env.VITE_API_URL) {
-//     return Promise.resolve(
-//       new Response(null, {
-//         statusText: 'Where should I call ?',
-//         status: StatusCodes.NOT_FOUND,
-//       }),
-//     );
-//   }
-
-//   return fetch(input, init);
-// };
 
 export const authClient = createAuthClient({
   sessionOptions: {
@@ -33,7 +17,6 @@ export const authClient = createAuthClient({
     }),
   ],
   fetchOptions: {
-    // customFetchImpl: guardedFetch,
     credentials: 'include',
   },
   baseURL: window.location.origin,

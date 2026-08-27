@@ -3,7 +3,7 @@ import { tool } from 'ai';
 import z from 'zod/v4';
 
 import { searchOlderMessages } from '@/chat/repository';
-import { env } from '@/env';
+import { env } from '@/config/env';
 
 function extractTextFromParts(parts: unknown): string {
 	if (!Array.isArray(parts)) return '';

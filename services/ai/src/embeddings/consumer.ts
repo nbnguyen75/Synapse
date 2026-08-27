@@ -7,7 +7,7 @@ import {
 	noteUpsertedEventSchema
 } from '@/embeddings/schemas';
 import { handleNotesDeleted, handleNotesUpserted } from '@/embeddings/services';
-import { env } from '@/env';
+import { env } from '@/config/env';
 
 const NOTE_EXCHANGE = 'note.exchange';
 const NOTE_AI_SYNC_QUEUE = 'note.ai-sync.queue';
@@ -43,7 +43,6 @@ export async function startNoteEventsConsumer() {
 			const payload = JSON.parse(msg.content.toString());
 
 			if (routingKey === 'note.created' || routingKey === 'note.updated') {
-				// * Xử lý trường hợp nhận sự kiện cập nhật hàng loạt (NoteBulkUpdatedPayload)
 				if (payload.notes && Array.isArray(payload.notes)) {
 					const parsed = noteBulkUpsertedEventSchema.parse(payload);
 					await handleNotesUpserted(parsed.notes);

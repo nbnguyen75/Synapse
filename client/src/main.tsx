@@ -52,7 +52,7 @@ function InnerApp() {
     return null;
   }
 
-  const auth: AuthContext = session
+  const auth: AuthContext = session?.user
     ? { isAuthenticated: true, user: session.user }
     : { isAuthenticated: false, user: null };
 

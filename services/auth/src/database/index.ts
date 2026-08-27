@@ -4,7 +4,7 @@ import { Pool as NeonPool } from '@neondatabase/serverless';
 import { Pool as PgPool } from 'pg';
 
 import * as schema from '@/database/schema';
-import { env } from '@/env';
+import { env } from '@/config/env';
 
 const isNeonTech = env.DATABASE_URL.includes('neon.tech');
 

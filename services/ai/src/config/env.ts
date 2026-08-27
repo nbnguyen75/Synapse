@@ -13,6 +13,11 @@ export const env = createEnv({
 		DATABASE_URL: z.url().trim().default('postgresql://synapse:root@postgres:5432/ai_db'),
 		AUTH_JWKS_URL: z.url().trim().default('http://auth:5001/.well-known/jwks.json'),
 		RABBITMQ_URL: z.url().trim().default('amqp://guest:guest@rabbitmq:5672'),
+		GOOGLE_VERTEX_LOCATION: z.string().trim().default('global'),
+		GOOGLE_GENERATIVE_AI_API_KEY: z.string().trim().optional(),
+		GOOGLE_VERTEX_PROJECT: z.string().trim().optional(),
+		GOOGLE_CLIENT_EMAIL: z.string().trim().optional(),
+		GOOGLE_PRIVATE_KEY: z.string().trim().optional(),
 		TAVILY_API_KEY: z.string().trim().optional()
 	},
 

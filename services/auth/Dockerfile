@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.14-slim AS base
+FROM oven/bun:1.4-slim AS base
 WORKDIR /app
 COPY package.json bun.lock tsconfig.json ./
 

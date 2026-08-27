@@ -5,8 +5,8 @@ import bcrypt from 'bcrypt';
 
 import { verifyUserEmailWhenSignInByGoogle } from '@/auth/repository';
 import * as schema from '@/database/schema';
+import { env } from '@/config/env';
 import { db } from '@/database';
-import { env } from '@/env';
 
 export const auth = betterAuth({
 	plugins: [
@@ -44,14 +44,6 @@ export const auth = betterAuth({
 		},
 		enabled: true
 	},
-	socialProviders: {
-		google: {
-			redirectURI: `${env.BETTER_AUTH_URL}/api/v1/auth/callback/google`,
-			clientSecret: env.GOOGLE_CLIENT_SECRET,
-			prompt: 'select_account consent',
-			clientId: env.GOOGLE_CLIENT_ID
-		}
-	},
 	databaseHooks: {
 		account: {
 			create: {
@@ -64,9 +56,20 @@ export const auth = betterAuth({
 		}
 	},
 	advanced: {
-		defaultCookieAttributes: { sameSite: 'lax', httpOnly: true, secure: true },
+		defaultCookieAttributes: {
+			secure: env.NODE_ENV === 'development',
+			sameSite: 'lax',
+			httpOnly: true
+		},
 		trustedProxyHeaders: true,
 		cookiePrefix: 'synapse'
+	},
+	socialProviders: {
+		google: {
+			clientSecret: env.GOOGLE_CLIENT_SECRET,
+			prompt: 'select_account consent',
+			clientId: env.GOOGLE_CLIENT_ID
+		}
 	},
 	session: {
 		cookieCache: {
@@ -82,6 +85,6 @@ export const auth = betterAuth({
 	}),
 	errorURL: `${env.BETTER_AUTH_URL}/auth/error`,
 	baseURL: env.BETTER_AUTH_URL,
-	appName: env.APP_NAME,
-	basePath: '/'
+	basePath: '/api/v1/auth',
+	appName: env.APP_NAME
 });

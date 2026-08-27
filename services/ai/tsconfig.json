@@ -26,7 +26,8 @@
 		"**/*.ts",
 		"**/*.js",
 		"eslint.config.js",
-		"prettier.config.js"
+		"prettier.config.js",
+		"src/config"
 	],
 	"exclude": ["node_modules/**", "dist/**"]
 }

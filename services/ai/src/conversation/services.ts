@@ -184,9 +184,9 @@ export async function cloneConversation(
 		idMap.set(row.id, newId);
 		return {
 			parentId: row.parentId ? (idMap.get(row.parentId) ?? null) : null,
-			metadata: row.metadata as MessageMetadata | null,
 			parts: row.parts as UIMessage['parts'],
 			createdAt: row.createdAt,
+			metadata: row.metadata,
 			role: row.role,
 			id: newId
 		};

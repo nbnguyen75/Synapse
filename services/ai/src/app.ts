@@ -34,7 +34,6 @@ startNoteEventsConsumer().catch((err) => {
 	process.exit(1);
 });
 
-// 2. Xử lý Graceful Shutdown khi nhận tín hiệu dừng từ hệ thống
 const handleShutdown = async (signal: string) => {
 	// eslint-disable-next-line no-console
 	console.log(`[app] Received ${signal}. Stopping note events consumer...`);

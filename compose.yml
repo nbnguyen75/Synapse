@@ -151,7 +151,7 @@ services:
       - synapse-net
 
   api-gateway:
-    image: kong:3.9
+    image: kong:3.9.3
     container_name: synapse-api-gateway
     restart: unless-stopped
     environment:

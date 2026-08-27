@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import { createMiddleware } from 'hono/factory';
 
 import { AppError } from '@/lib/errors';
-import { env } from '@/env';
+import { env } from '@/config/env';
 
 const JWKS = createRemoteJWKSet(new URL(env.AUTH_JWKS_URL));
 
