@@ -101,9 +101,9 @@ function AppLayout() {
     <ConfirmProvider>
       <CommandPalette />
 
-      <AppGlobalKeybinds />
-
       <SidebarManagerProvider>
+        <AppGlobalKeybinds />
+
         <SidebarProvider className="h-svh overflow-hidden">
           <SidebarManager name="left">
             <AppLeftSidebar variant="inset" />
@@ -124,7 +124,7 @@ function AppLayout() {
                   <SheetContent
                     side="right"
                     showCloseButton={false}
-                    className="w-full max-w-md border-l bg-sidebar p-0 text-sidebar-foreground"
+                    className="data-[side=right]:w-full data-[side=right]:sm:max-w-full border-l bg-sidebar p-0 text-sidebar-foreground"
                   >
                     <AppRightSidebar />
                   </SheetContent>

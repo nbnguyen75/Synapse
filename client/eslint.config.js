@@ -4,6 +4,7 @@ import { defineConfig, globalIgnores, includeIgnoreFile } from 'eslint/config';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import perfectionist from 'eslint-plugin-perfectionist';
 import reactRefresh from 'eslint-plugin-react-refresh';
+import eslintReact from '@eslint-react/eslint-plugin';
 import reactHooks from 'eslint-plugin-react-hooks';
 import oxlint from 'eslint-plugin-oxlint';
 import tseslint from 'typescript-eslint';
@@ -42,6 +43,10 @@ export default defineConfig([
     '.prettierignore',
     'bun.lock',
   ]),
+  {
+    ...eslintReact.configs.recommended,
+    ignores: ['src/components/ui/**', 'src/components/ai-elements/**'],
+  },
   {
     rules: {
       '@typescript-eslint/only-throw-error': [

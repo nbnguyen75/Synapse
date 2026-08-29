@@ -3,8 +3,8 @@ import type { Hotkey } from '@tanstack/hotkeys';
 
 import {
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   type ReactNode,
@@ -180,9 +180,9 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
   }, [overrides, syncRowOptions]);
 
   return (
-    <GlobalShortcutsContext.Provider value={{ register }}>
+    <GlobalShortcutsContext value={{ register }}>
       {children}
-    </GlobalShortcutsContext.Provider>
+    </GlobalShortcutsContext>
   );
 }
 
@@ -201,7 +201,7 @@ export function useRegisterGlobalShortcut(
   handler: (event: KeyboardEvent) => void,
   { allowWhenTyping = false, enabled = true }: UseGlobalShortcutOptions = {},
 ) {
-  const context = useContext(GlobalShortcutsContext);
+  const context = use(GlobalShortcutsContext);
   if (context === null) {
     throw new Error(
       'useRegisterGlobalShortcut must be used within <GlobalShortcutsProvider>',

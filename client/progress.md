@@ -2,11 +2,22 @@
 
 ## Current State
 
-**Last Updated:** 2026-08-17
-**Session ID:** shortcuts-overhaul-060
-**Active Feature:** feat-060 — Shortcut mapping overhaul (g n → notes, c/mod+n → create, mod+alt+t → theme) + bulk-bar trash semantics + Markdown link in toolbar + scoped shortcuts dialogs — **DONE**, verified (generate-translation, bun --bun check exit 0, bunx tsc -b clean, bun --bun run build OK).
+**Last Updated:** 2026-08-29
+**Session ID:** lint-cleanup-061
+**Active Feature:** lint cleanup — `bun --bun check` now exits 0 with zero problems (1 error + 27 warnings fixed).
 
 ## Status
+
+### What's Done (lint-cleanup-061 — `bun --bun check` fully clean)
+
+- [x] **Blocking error fixed** — `src/providers/theme-provider.tsx` dropped `flushSync` inside `document.startViewTransition` (`@eslint-react/dom-no-flush-sync`); `classList` tolling stays synchronous so the view transition still captures the new theme. State renamed `theme`→`currentTheme`/`setCurrentTheme` (use-state setter naming); provider rendered as `<ThemeProviderContext>` + `use()` (React 19).
+- [x] **React 19 ref-as-prop** — `chat-bot.tsx` `forwardRef` → plain function with `ref` prop (kept `useImperativeHandle`); no consumer changes. Context providers (`confirm-provider`, `global-shortcuts-provider`, `theme-provider`) render `<Context>` directly + `use(Context)`.
+- [x] **Hooks** — `use-debounce` lodash → native `setTimeout`/`clearTimeout`; `use-mobile` lazy-init from `matchMedia` (no setState-in-effect); `use-multi-select` lazy `useState(() => new Set())`.
+- [x] **Ref renames** — `isInitializedRef`, `lastExternalValueRef`, `lastReportedRef`, `prevCountRef`, `lastClickedIdRef`, `longPressTimerRef`.
+- [x] **Memo/deps** — command-palette `handleOpenNote` → `useCallback`, extracted `totalElements = data?.totalElements` to satisfy compiler `react-hooks/preserve-manual-memoization` + `exhaustive-deps`.
+- [x] **Index keys** — skeleton placeholders via module-level `SKELETON_KEYS` (nav-companion, notes-list, notes `_list` route); `key-combo` keys by key string; chat-bot message parts justified eslint-disable.
+- [x] **Justified disables** — search-input reset-on-defaultValue effect (`react-hooks` + `@eslint-react/set-state-in-effect`); login header `dangerouslySetInnerHTML`.
+- [x] **Verification** — `bun --bun check` exit 0 (0 problems), `bun --bun lint` exit 0, `./init.sh` exit 0 (via git-bash). Pre-existing uncommitted `eslint.config.js`/`package.json`/`bun.lock` (adds `@eslint-react/eslint-plugin` recommended config) left untouched. Not committed (user manages git).
 
 ### What's Done (feat-060 — shortcut mapping overhaul + bulk trash semantics + toolbar Markdown link)
 

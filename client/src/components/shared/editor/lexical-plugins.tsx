@@ -78,15 +78,15 @@ export const MATCHERS = [
 
 export function InitialStatePlugin({ value }: { value: string }) {
   const [editor] = useLexicalComposerContext();
-  const isInitialized = useRef(false);
+  const isInitializedRef = useRef(false);
 
   useEffect(() => {
-    if (!isInitialized.current) {
+    if (!isInitializedRef.current) {
       editor.update(() => {
         $getRoot().clear();
         $convertFromMarkdownString(value, CUSTOM_TRANSFORMERS);
       });
-      isInitialized.current = true;
+      isInitializedRef.current = true;
     }
   }, [value, editor]);
 
@@ -95,10 +95,10 @@ export function InitialStatePlugin({ value }: { value: string }) {
 
 export function SyncStatePlugin({ value }: { value: string }) {
   const [editor] = useLexicalComposerContext();
-  const lastExternalValue = useRef(value);
+  const lastExternalValueRef = useRef(value);
 
   useEffect(() => {
-    if (value !== lastExternalValue.current) {
+    if (value !== lastExternalValueRef.current) {
       editor.update(() => {
         const currentMarkdown = $convertToMarkdownString(CUSTOM_TRANSFORMERS);
         const normalize = (str: string) => str.replace(/\s+/g, ' ').trim();
@@ -107,7 +107,7 @@ export function SyncStatePlugin({ value }: { value: string }) {
           $convertFromMarkdownString(value, CUSTOM_TRANSFORMERS);
         }
       });
-      lastExternalValue.current = value;
+      lastExternalValueRef.current = value;
     }
   }, [value, editor]);
 

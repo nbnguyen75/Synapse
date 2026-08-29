@@ -23,22 +23,22 @@ export default function SelectionToolbar({
 }: SelectionToolbarProps) {
   const [visible, setVisible] = useState(false);
   const [closing, setClosing] = useState(false);
-  const prevCount = useRef(0);
+  const prevCountRef = useRef(0);
 
   useEffect(() => {
-    if (selectedCount > 0 && prevCount.current === 0) {
+    if (selectedCount > 0 && prevCountRef.current === 0) {
       setClosing(false);
       setVisible(true);
-    } else if (selectedCount === 0 && prevCount.current > 0) {
+    } else if (selectedCount === 0 && prevCountRef.current > 0) {
       setClosing(true);
       const timer = setTimeout(() => {
         setVisible(false);
         setClosing(false);
       }, EXIT_ANIMATION_DURATION);
-      prevCount.current = 0;
+      prevCountRef.current = 0;
       return () => clearTimeout(timer);
     }
-    prevCount.current = selectedCount;
+    prevCountRef.current = selectedCount;
   }, [selectedCount]);
 
   if (!visible) return null;

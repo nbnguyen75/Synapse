@@ -1,11 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
 
 export function useMultiSelect() {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const lastClickedId = useRef<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const lastClickedIdRef = useRef<string | null>(null);
 
   const toggleSelect = useCallback((id: string) => {
-    lastClickedId.current = id;
+    lastClickedIdRef.current = id;
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -19,7 +19,7 @@ export function useMultiSelect() {
 
   const toggleSelectRange = useCallback(
     (id: string, orderedIds: string[]) => {
-      const anchor = lastClickedId.current ?? id;
+      const anchor = lastClickedIdRef.current ?? id;
       const anchorIdx = orderedIds.indexOf(anchor);
       const currentIdx = orderedIds.indexOf(id);
       if (anchorIdx === -1 || currentIdx === -1) {
@@ -38,7 +38,7 @@ export function useMultiSelect() {
         }
         return next;
       });
-      lastClickedId.current = id;
+      lastClickedIdRef.current = id;
     },
     [toggleSelect],
   );
@@ -53,7 +53,7 @@ export function useMultiSelect() {
 
   const clearSelection = useCallback(() => {
     setSelectedIds(new Set());
-    lastClickedId.current = null;
+    lastClickedIdRef.current = null;
   }, []);
 
   const isAllSelected = useCallback(

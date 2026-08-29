@@ -11,6 +11,15 @@ import { Button } from '@/components/ui/button';
 
 import { PlusIcon } from 'lucide-react';
 
+const SKELETON_KEYS = [
+  'skeleton-1',
+  'skeleton-2',
+  'skeleton-3',
+  'skeleton-4',
+  'skeleton-5',
+  'skeleton-6',
+];
+
 interface NotesListProps {
   onCreateClick?: (
     event: BaseUIEvent<React.MouseEvent<HTMLButtonElement, MouseEvent>>,
@@ -41,8 +50,8 @@ export default function NotesList({
   if (isLoading)
     return (
       <Container>
-        {Array.from({ length: loadingCardCount }).map((_, i) => (
-          <NoteCardSkeleton key={i} />
+        {SKELETON_KEYS.slice(0, loadingCardCount).map((key) => (
+          <NoteCardSkeleton key={key} />
         ))}
       </Container>
     );

@@ -1,7 +1,7 @@
 import type { GroupedCommandItem } from '@/features/command-palette/components/command-palette-search-results';
 import type { CommandOutput, NoteItem } from '@/features/command-palette/types';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { formatForDisplay, useHotkeys } from '@tanstack/react-hotkeys';
 import { useNavigate } from '@tanstack/react-router';
@@ -282,13 +282,16 @@ export default function CommandPalette() {
     [navigate, goToCompanion, theme, toggleTheme],
   );
 
-  const handleOpenNote = (note: NoteItem) => {
-    setIsOpen(false);
-    navigate({ params: { noteId: note.id }, to: '/notes/$noteId' });
-  };
+  const handleOpenNote = useCallback(
+    (note: NoteItem) => {
+      setIsOpen(false);
+      navigate({ params: { noteId: note.id }, to: '/notes/$noteId' });
+    },
+    [navigate],
+  );
 
   // 3. Tổng hợp danh sách kết quả hiển thị
-  /* oxlint-disable exhaustive-deps */
+  const totalElements = data?.totalElements;
   const searchResults = useMemo<GroupedCommandItem[]>(() => {
     const term = search.trim();
 
@@ -352,7 +355,7 @@ export default function CommandPalette() {
 
     const combined = [...notesResults, ...filteredStaticCmds];
 
-    const totalCount = data?.totalElements ?? 0;
+    const totalCount = totalElements ?? 0;
     if (totalCount > 10) {
       combined.push({
         action: () => {
@@ -373,10 +376,10 @@ export default function CommandPalette() {
     notes,
     slashCommands,
     staticCommands,
-    data?.totalElements,
+    handleOpenNote,
+    totalElements,
     navigate,
   ]);
-  /* oxlint-enable exhaustive-deps */
 
   const boundedSelectedIndex =
     searchResults.length > 0

@@ -26,19 +26,22 @@ export default function SearchInput({
 }: SearchInputProps) {
   const [value, setValue] = useState(defaultValue);
   const debouncedValue = useDebounce(value, delay);
-  const lastReported = useRef(defaultValue);
+  const lastReportedRef = useRef(defaultValue);
 
   useEffect(() => {
-    if (debouncedValue !== lastReported.current) {
-      lastReported.current = debouncedValue;
+    if (debouncedValue !== lastReportedRef.current) {
+      lastReportedRef.current = debouncedValue;
       onSearch(debouncedValue);
     }
   }, [debouncedValue, onSearch]);
 
   useEffect(() => {
-    const resetValue = () => setValue(defaultValue);
-    resetValue();
-    lastReported.current = defaultValue;
+    // Reset the input whenever the external `defaultValue` (e.g. the route
+    // search query) changes. This is an intentional "reset on prop change"
+    // pattern; remounting via `key` would require every consumer to opt in.
+    // eslint-disable-next-line react-hooks/set-state-in-effect, @eslint-react/set-state-in-effect
+    setValue(defaultValue);
+    lastReportedRef.current = defaultValue;
   }, [defaultValue]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

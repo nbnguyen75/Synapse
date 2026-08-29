@@ -3,7 +3,6 @@ import type { FileUIPart, UIMessage } from 'ai';
 
 import {
   Fragment,
-  forwardRef,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -151,21 +150,19 @@ interface ChatBotProps {
   className?: string;
 }
 
-const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
-  {
-    isLoadingOlderMessages = false,
-    messages: loadedMessages,
-    hasMoreMessages = false,
-    initialConversationId,
-    onLoadOlderMessages,
-    onConversationId,
-    disabled = false,
-    centered = false,
-    className,
-    onFinish,
-  },
+function ChatBot({
+  isLoadingOlderMessages = false,
+  messages: loadedMessages,
+  hasMoreMessages = false,
+  initialConversationId,
+  onLoadOlderMessages,
+  onConversationId,
+  disabled = false,
+  centered = false,
+  className,
+  onFinish,
   ref,
-) {
+}: ChatBotProps & { ref?: React.Ref<ChatBotHandle> }) {
   const [text, setText] = useState<string>('');
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const capturedConversationIdRef = useRef<string | null>(null);
@@ -616,7 +613,7 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
       </div>
     </div>
   );
-});
+}
 
 export default ChatBot;
 
@@ -888,6 +885,9 @@ function MessageBody({
             {sourceParts.map((part, index) => (
               <Source
                 href={part.type === 'source-url' ? part.url : undefined}
+                // Source parts carry no stable id; they are positional and
+                // static once delivered, so the list index is a safe key.
+                // eslint-disable-next-line @eslint-react/no-array-index-key
                 key={index}
                 title={part.title}
               />
@@ -898,6 +898,9 @@ function MessageBody({
       {reasoningParts.map((part, index) => (
         <Reasoning
           defaultOpen={false}
+          // Reasoning parts have no id; positional ordering is stable for a
+          // given message, so the list index is a safe key.
+          // eslint-disable-next-line @eslint-react/no-array-index-key
           key={index}
           isStreaming={part.state === 'streaming'}
         >
@@ -971,6 +974,9 @@ function MessageBody({
         />
       ) : (
         textParts.map((part, index) => (
+          // Text parts have no id and may change content while streaming;
+          // a content-derived key would remount and interrupt animations.
+          // eslint-disable-next-line @eslint-react/no-array-index-key
           <MessageContent key={index}>
             <MessageResponse isAnimating={isStreaming}>
               {part.text}

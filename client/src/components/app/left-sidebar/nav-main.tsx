@@ -4,6 +4,9 @@ import { Link } from '@tanstack/react-router';
 
 import { useCurrentPathname } from '@/hooks/use-pathname';
 
+import { useCompanionStore } from '@/store/companion-store';
+import { useSettingsStore } from '@/store/settings-store';
+
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +16,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebarManager,
 } from '@/components/ui/sidebar';
 
 import { FileTextIcon, StarIcon, ArchiveIcon, Trash2Icon } from 'lucide-react';
@@ -48,6 +52,15 @@ const navItems = [
 
 export default function NavMain() {
   const currentPath = useCurrentPathname();
+  const { use: useSidebar } = useSidebarManager();
+
+  const leftSidebar = useSidebar('left');
+
+  const { setActiveConversationId, activeConversationId } = useCompanionStore(
+    (state) => state,
+  );
+
+  const { layoutMode } = useSettingsStore();
 
   const activeMap = useMemo(() => {
     return navItems.reduce<Record<string, boolean>>((acc, item) => {
@@ -69,7 +82,18 @@ export default function NavMain() {
               <SidebarMenuButton
                 isActive={isActive}
                 render={
-                  <Link to={item.href}>
+                  <Link
+                    to={item.href}
+                    onClick={() => {
+                      if (leftSidebar?.isMobile) {
+                        leftSidebar?.setOpenMobile(false);
+                      }
+
+                      if (layoutMode === 'chat' && activeConversationId) {
+                        setActiveConversationId(null);
+                      }
+                    }}
+                  >
                     <Icon
                       className={cn(
                         'size-4 transition-colors',

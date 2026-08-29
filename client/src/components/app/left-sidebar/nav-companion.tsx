@@ -15,6 +15,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebarManager,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
@@ -25,15 +26,15 @@ import {
   MessageSquareIcon,
 } from 'lucide-react';
 
+const RECENT_SKELETON_KEYS = ['recent-1', 'recent-2', 'recent-3'];
+
 export default function NavCompanion() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { setRightSidebarOpen, setLayoutMode, layoutMode } = useSettingsStore();
-  const activeConversationId = useCompanionStore(
-    (state) => state.activeConversationId,
-  );
-  const setActiveConversationId = useCompanionStore(
-    (state) => state.setActiveConversationId,
+
+  const { setActiveConversationId, activeConversationId } = useCompanionStore(
+    (state) => state,
   );
 
   const { data: conversations = [], isLoading } = useGetConversationsQuery();
@@ -46,8 +47,14 @@ export default function NavCompanion() {
     (conversation) => !conversation.favorited,
   );
 
+  const { use: useSidebar } = useSidebarManager();
+
+  const leftSidebar = useSidebar('left');
+
   const handleNewChat = () => {
     setActiveConversationId(null);
+    leftSidebar?.setOpenMobile(false);
+
     if (layoutMode === 'chat') {
       navigate({ to: '/chat' });
     } else {
@@ -57,6 +64,8 @@ export default function NavCompanion() {
 
   const handleLayoutModeChange = (checked: boolean) => {
     setLayoutMode(checked ? 'chat' : 'agent');
+    leftSidebar?.setOpenMobile(false);
+
     if (checked) {
       const hasMessages =
         (activeConversationId != null &&
@@ -80,13 +89,22 @@ export default function NavCompanion() {
         setActiveConversationId(null);
         navigate({ to: '/chat' });
       }
+
+      return;
+    }
+
+    if (!activeConversationId) {
+      setRightSidebarOpen(false);
     }
   };
 
   const handleSelectConversation = (conversationId: string) => {
     setActiveConversationId(conversationId);
+    leftSidebar?.setOpenMobile(false);
+
     if (layoutMode === 'chat') {
       navigate({ to: '/chat/$conversationId', params: { conversationId } });
+      leftSidebar?.setOpenMobile(false);
     } else {
       setRightSidebarOpen(true);
     }
@@ -163,8 +181,8 @@ export default function NavCompanion() {
       <SidebarGroupLabel>{m.sidebar_recents()}</SidebarGroupLabel>
       <SidebarMenu>
         {isLoading ? (
-          Array.from({ length: 3 }).map((_, index) => (
-            <SidebarMenuItem key={index}>
+          RECENT_SKELETON_KEYS.map((key) => (
+            <SidebarMenuItem key={key}>
               <Skeleton className="h-8 w-full" />
             </SidebarMenuItem>
           ))

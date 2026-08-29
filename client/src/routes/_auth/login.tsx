@@ -129,6 +129,9 @@ function RouteComponent() {
       <div className="text-center mb-6">
         <h1 className="text-xl font-bold tracking-tight text-foreground">
           <span
+            // Paraglide message embeds a styled <span> for the app name via an
+            // HTML param; the content is a static i18n string, never user input.
+            // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml
             dangerouslySetInnerHTML={{
               __html: m.login_page_welcome({
                 appName: `<span class="text-primary">${env.VITE_APP_NAME}</span>`,

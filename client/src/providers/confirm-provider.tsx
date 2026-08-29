@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-} from 'react';
+import { createContext, use, useState, useCallback, useRef } from 'react';
 
 import { m } from '@/paraglide/messages';
 
@@ -50,7 +44,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <ConfirmContext.Provider value={confirm}>
+    <ConfirmContext value={confirm}>
       {children}
       <AlertDialog open={open} onOpenChange={(o) => !o && handleClose(false)}>
         <AlertDialogContent>
@@ -79,12 +73,12 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </ConfirmContext.Provider>
+    </ConfirmContext>
   );
 }
 
 export function useConfirm() {
-  const ctx = useContext(ConfirmContext);
+  const ctx = use(ConfirmContext);
   if (!ctx) {
     throw new Error('useConfirm must be used within a ConfirmProvider');
   }

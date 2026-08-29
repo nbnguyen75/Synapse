@@ -232,18 +232,18 @@ export function useNoteCard({
   const canPinFavorite = viewMode !== 'archive' && viewMode !== 'trash';
 
   // 3. UI Interactions (Touch & Click)
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleTouchStart = useCallback(() => {
-    longPressTimer.current = setTimeout(() => {
+    longPressTimerRef.current = setTimeout(() => {
       onToggleSelect?.(note.id);
     }, 500);
   }, [note.id, onToggleSelect]);
 
   const handleTouchEnd = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
     }
   }, []);
 

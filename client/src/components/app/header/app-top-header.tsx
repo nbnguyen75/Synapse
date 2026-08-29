@@ -126,7 +126,7 @@ export default function AppTopHeader() {
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="cursor-pointer"
+                        className="cursor-pointer hidden md:inline-flex"
                       >
                         <PlusIcon className="size-4" />
                       </Button>

@@ -1,5 +1,8 @@
 import { Link } from '@tanstack/react-router';
 
+import { useCompanionStore } from '@/store/companion-store';
+import { useSettingsStore } from '@/store/settings-store';
+
 import { m } from '@/paraglide/messages';
 
 import KeyboardShortcutsDialog from '@/components/shared/sidebar-keyboard-shortcuts-dialog';
@@ -11,11 +14,22 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebarManager,
 } from '@/components/ui/sidebar';
 
 import { KeyboardIcon, SettingsIcon } from 'lucide-react';
 
 export default function NavSecondary() {
+  const { use: useSidebar } = useSidebarManager();
+
+  const leftSidebar = useSidebar('left');
+
+  const { layoutMode } = useSettingsStore();
+
+  const { setActiveConversationId, activeConversationId } = useCompanionStore(
+    (state) => state,
+  );
+
   return (
     <SidebarGroup className="mt-auto">
       <SidebarGroupContent>
@@ -36,7 +50,18 @@ export default function NavSecondary() {
               size="sm"
               className="text-xs font-medium"
               render={
-                <Link to="/settings">
+                <Link
+                  to="/settings"
+                  onClick={() => {
+                    if (leftSidebar?.isMobile) {
+                      leftSidebar?.setOpenMobile(false);
+                    }
+
+                    if (layoutMode === 'chat' && activeConversationId) {
+                      setActiveConversationId(null);
+                    }
+                  }}
+                >
                   <SettingsIcon className="size-4" />
                   <span>{m.sidebar_settings()}</span>
                 </Link>

@@ -22,7 +22,7 @@ export function KeyCombo({ className, combo }: KeyComboProps) {
   return (
     <KbdGroup className={cn(className)}>
       {keys.map((key, index) => (
-        <span key={`${key}-${index}`} className="flex items-center gap-1">
+        <span key={key} className="flex items-center gap-1">
           <Kbd>{key}</Kbd>
           {usesSeparator && index < keys.length - 1 && (
             <span className="mx-0.5 text-[10px] text-muted-foreground">+</span>
