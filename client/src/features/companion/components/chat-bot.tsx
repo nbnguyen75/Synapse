@@ -246,7 +246,7 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
       chat.setMessages(path.map((node) => node.message));
     }
   }, [
-    chat.setMessages,
+    chat,
     conversation?.currentMessageId,
     initialConversationId,
     isGenerating,
@@ -268,7 +268,7 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
     if (olderMessages.length === 0) return;
 
     chat.setMessages((prev) => [...olderMessages, ...prev]);
-  }, [loadedMessages, chat.messages, chat.setMessages, tree]);
+  }, [loadedMessages, chat, tree]);
 
   const retrySnapshotRef = useRef<{
     assistantMessageId: string;
@@ -326,14 +326,7 @@ const ChatBot = forwardRef<ChatBotHandle, ChatBotProps>(function ChatBot(
       }
       onFinish?.(result);
     },
-    [
-      chat.messages,
-      chat.setMessages,
-      getTree,
-      initialConversationId,
-      onFinish,
-      setTree,
-    ],
+    [chat, getTree, initialConversationId, onFinish, setTree],
   );
   const handleFinishRef = useRef(handleFinish);
   useEffect(() => {
@@ -672,12 +665,9 @@ function ConversationLoadOlder({
   if (!isLoading) return null;
 
   return (
-    <div
-      className="absolute top-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-background/80 p-2 shadow-sm backdrop-blur-sm"
-      role="status"
-    >
+    <output className="absolute top-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-background/80 p-2 shadow-sm backdrop-blur-sm">
       <Spinner className="size-4" />
-    </div>
+    </output>
   );
 }
 

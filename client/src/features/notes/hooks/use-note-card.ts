@@ -216,7 +216,7 @@ export function useNoteCard({
   });
 
   // 2. Computed Values
-  const tags = note.tags || [];
+  const tags = useMemo(() => note.tags ?? [], [note.tags]);
   const visibleTags = useMemo(() => tags.slice(0, MAX_VISIBLE_TAGS), [tags]);
   const remainingTagsCount = Math.max(0, tags.length - MAX_VISIBLE_TAGS);
 

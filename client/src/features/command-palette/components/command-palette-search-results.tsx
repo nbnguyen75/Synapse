@@ -76,6 +76,7 @@ export default function CommandPaletteSearchResults({
             const isSelected = flatIndex === selectedIndex;
 
             return (
+              // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Palette handles keyboard nav (arrows+Enter) at parent level; row is mouse-only
               <div
                 key={item.id}
                 data-index={flatIndex}

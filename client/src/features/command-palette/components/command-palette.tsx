@@ -288,6 +288,7 @@ export default function CommandPalette() {
   };
 
   // 3. Tổng hợp danh sách kết quả hiển thị
+  /* oxlint-disable exhaustive-deps */
   const searchResults = useMemo<GroupedCommandItem[]>(() => {
     const term = search.trim();
 
@@ -375,6 +376,7 @@ export default function CommandPalette() {
     data?.totalElements,
     navigate,
   ]);
+  /* oxlint-enable exhaustive-deps */
 
   const boundedSelectedIndex =
     searchResults.length > 0

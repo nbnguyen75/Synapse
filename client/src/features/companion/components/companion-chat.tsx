@@ -73,12 +73,9 @@ export default function CompanionChat({
   return (
     <div className={cn('relative size-full overflow-hidden', className)}>
       {isLoadingConversation && (
-        <div
-          className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[1px]"
-          role="status"
-        >
+        <output className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[1px]">
           <Spinner className="size-6" />
-        </div>
+        </output>
       )}
 
       {!isLoadingConversation && (

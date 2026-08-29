@@ -19,6 +19,7 @@ const gitignoreFiles = await glob('**/.gitignore', {
 });
 
 export default defineConfig([
+  eslintConfigPrettier,
   includeIgnoreFile([gitignorePath, ...gitignoreFiles], {
     gitignoreResolution: true,
   }),
@@ -60,14 +61,6 @@ export default defineConfig([
           ],
           allowThrowingUnknown: false,
           allowThrowingAny: false,
-        },
-      ],
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        {
-          destructuredArrayIgnorePattern: '^_',
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/restrict-template-expressions': [
@@ -300,6 +293,5 @@ export default defineConfig([
       perfectionist,
     },
   },
-  eslintConfigPrettier,
   ...oxlint.configs['flat/recommended'],
 ]);

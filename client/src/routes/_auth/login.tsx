@@ -211,6 +211,7 @@ function RouteComponent() {
       {/* Footer */}
       <div className="text-[10px] text-center text-muted-foreground/85 mt-8 leading-relaxed max-w-70">
         {m.login_page_footer()}{' '}
+        {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid -- Placeholder Terms link, no route yet */}
         <a
           href="#"
           className="underline hover:text-muted-foreground transition-colors"
@@ -218,6 +219,7 @@ function RouteComponent() {
           {m.login_page_terms()}
         </a>{' '}
         {m.login_page_and()}{' '}
+        {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid -- Placeholder Privacy link, no route yet */}
         <a
           href="#"
           className="underline hover:text-muted-foreground transition-colors"
