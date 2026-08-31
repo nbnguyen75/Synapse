@@ -10,7 +10,7 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $generateNodesFromMarkdownString } from '@lexical/markdown';
 
-import { CUSTOM_TRANSFORMERS } from './lexical-plugins';
+import { CUSTOM_TRANSFORMERS } from './lexical-config';
 
 export default function MarkdownPastePlugin() {
   const [editor] = useLexicalComposerContext();

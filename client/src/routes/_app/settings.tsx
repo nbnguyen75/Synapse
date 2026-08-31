@@ -67,14 +67,17 @@ function RouteComponent() {
   const [activeTab, setActiveTab] = useState(tab);
 
   const handleTabChange = (value: string) => {
+    const tab = (['general', 'companion', 'shortcuts'] as const).find((item) => item === value);
+    if (!tab) return;
+
     void navigate({
       search: (prev) => ({
         ...prev,
-        tab: value as SettingsTab,
+        tab,
       }),
     });
 
-    setActiveTab(value as SettingsTab);
+    setActiveTab(tab);
   };
 
   return (

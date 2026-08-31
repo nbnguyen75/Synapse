@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 import { createTitle } from '@/config/metadata';
 
-import { getTranslatedAuthErrorMessage, signUp, type AuthErrorCode } from '@/lib/auth';
+import { getTranslatedAuthErrorMessage, signUp } from '@/lib/auth';
 import { m } from '@/paraglide/messages';
 
 import { Spinner } from '@/components/ui/spinner';
@@ -60,10 +60,8 @@ function RouteComponent() {
         },
         {
           onError({ error }) {
-            const errorCode = error.code as AuthErrorCode;
-
             toast.error(m.auth_failed(), {
-              description: getTranslatedAuthErrorMessage(errorCode),
+              description: getTranslatedAuthErrorMessage(String(error.code)),
             });
 
             setIsEmailPending(false);

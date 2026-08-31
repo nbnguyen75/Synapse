@@ -31,7 +31,7 @@ export default function CompanionChat({
   const { isFetchingNextPage, fetchNextPage, hasNextPage, isLoading, data } =
     useGetConversationMessagesInfiniteQuery(activeConversationId);
 
-  const messages = useMemo(() => (data ? [...data.pages].reverse().flat() : []), [data]);
+  const messages = useMemo(() => (data ? [...data.pages].toReversed().flat() : []), [data]);
 
   const handleConversationId = useCallback(
     (conversationId: string) => {

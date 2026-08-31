@@ -70,8 +70,17 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
     }
   },
   staticData: {
-    breadcrumb: ({ loaderData, params }) =>
-      (loaderData as { title?: string })?.title || params.noteId,
+    breadcrumb: ({ loaderData, params }) => {
+      const title =
+        loaderData !== null &&
+        typeof loaderData === 'object' &&
+        'title' in loaderData &&
+        typeof loaderData.title === 'string'
+          ? loaderData.title
+          : undefined;
+
+      return title || params.noteId;
+    },
   },
   head: ({ loaderData }) => ({
     meta: [

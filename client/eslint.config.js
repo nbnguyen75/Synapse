@@ -9,6 +9,7 @@ import { glob } from "glob";
 
 const rootDir = import.meta.dirname;
 
+// oxlint-disable-next-line typescript/no-unsafe-member-access
 const rootGitignorePath = path.resolve(rootDir, ".gitignore");
 
 const gitignoreFiles = await glob("**/.gitignore", {
@@ -23,6 +24,7 @@ const sharedIgnoreFiles = await glob("**/.ignore", {
 
 export default defineConfig([
   includeIgnoreFile(
+    // oxlint-disable-next-line typescript/no-unsafe-argument
     [rootGitignorePath, ...gitignoreFiles, ...sharedIgnoreFiles],
     {
       gitignoreResolution: true,

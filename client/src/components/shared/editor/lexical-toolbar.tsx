@@ -50,8 +50,8 @@ import {
   formatHeadingBlock,
   formatParagraphBlock,
   formatQuoteBlock,
-} from './lexical-keyboard-shortcuts';
-import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-shortcut-dialog-plugin';
+} from './lexical-format-blocks';
+import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-commands';
 import ShortcutsHelpDialog from './lexical-shortcuts-dialog';
 
 function comboTitle(
@@ -106,7 +106,9 @@ export default function Toolbar() {
 
       if ($isHeadingNode(element)) {
         const tag = element.getTag();
-        setBlockType(tag as 'h1' | 'h2' | 'h3');
+        if (tag === 'h1' || tag === 'h2' || tag === 'h3') {
+          setBlockType(tag);
+        }
       } else if ($isListNode(element)) {
         const listType = element.getListType();
         setBlockType(listType === 'number' ? 'ol' : 'ul');

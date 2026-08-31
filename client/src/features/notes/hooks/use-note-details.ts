@@ -24,6 +24,17 @@ import {
 } from '@/features/notes/hooks/api';
 import { noteKeys } from '@/features/notes/keys';
 
+const copyContent = async (content: string) => {
+  try {
+    await navigator.clipboard.writeText(content);
+    toast.success(m.notes_page_toast_copy_content());
+  } catch {
+    toast.error(m.notes_page_toast_copy_content_failed(), {
+      description: m.common_error_connection(),
+    });
+  }
+};
+
 export function useNoteDetails(initialData: Note) {
   const router = useRouter();
   const navigate = useNavigate();
@@ -160,17 +171,6 @@ export function useNoteDetails(initialData: Note) {
         onSuccess: () => void navigate({ to: '/notes' }),
       },
     );
-  };
-
-  const copyContent = async (content = note.content ?? '') => {
-    try {
-      await navigator.clipboard.writeText(content);
-      toast.success(m.notes_page_toast_copy_content());
-    } catch {
-      toast.error(m.notes_page_toast_copy_content_failed(), {
-        description: m.common_error_connection(),
-      });
-    }
   };
 
   const backToNotesPage = () => {

@@ -5,28 +5,27 @@ import { useEffect, useMemo, useRef } from 'react';
 import { normalizeHotkey, normalizeHotkeyFromEvent } from '@tanstack/hotkeys';
 
 import {
-  $createParagraphNode,
   $findMatchingParent,
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
   FORMAT_TEXT_COMMAND,
   KEY_DOWN_COMMAND,
-  type LexicalEditor as LexicalEditorType,
 } from 'lexical';
-import { $createHeadingNode, $createQuoteNode, type HeadingTagType } from '@lexical/rich-text';
 import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
 import { $isMarkNode, $unwrapMarkNode, $wrapSelectionInMarkNode } from '@lexical/mark';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $setBlocksType } from '@lexical/selection';
 
 import { useShortcutsStore } from '@/store/shortcuts-store';
 
 import { getEffectiveCombos } from '@/config/keyboard-shortcuts';
 
-import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-shortcut-dialog-plugin';
-
-export type { HeadingTagType };
+import {
+  formatHeadingBlock,
+  formatParagraphBlock,
+  formatQuoteBlock,
+} from './lexical-format-blocks';
+import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-commands';
 
 const EDITOR_SHORTCUT_IDS = [
   'editor-bold',
@@ -49,34 +48,7 @@ type EditorShortcutId = (typeof EDITOR_SHORTCUT_IDS)[number];
 
 const HIGHLIGHT_MARK_ID = 'synapse-highlight';
 
-export function formatHeadingBlock(editor: LexicalEditorType, tag: HeadingTagType) {
-  editor.update(() => {
-    const selection = $getSelection();
-    if ($isRangeSelection(selection)) {
-      $setBlocksType(selection, () => $createHeadingNode(tag));
-    }
-  });
-}
-
-export function formatParagraphBlock(editor: LexicalEditorType) {
-  editor.update(() => {
-    const selection = $getSelection();
-    if ($isRangeSelection(selection)) {
-      $setBlocksType(selection, () => $createParagraphNode());
-    }
-  });
-}
-
-export function formatQuoteBlock(editor: LexicalEditorType) {
-  editor.update(() => {
-    const selection = $getSelection();
-    if ($isRangeSelection(selection)) {
-      $setBlocksType(selection, () => $createQuoteNode());
-    }
-  });
-}
-
-function formatHighlightBlock(editor: LexicalEditorType) {
+function formatHighlightBlock(editor: Parameters<typeof formatHeadingBlock>[0]) {
   editor.update(() => {
     const selection = $getSelection();
     if (!$isRangeSelection(selection)) return;
@@ -108,13 +80,16 @@ export default function KeyboardShortcutsPlugin() {
   const [editor] = useLexicalComposerContext();
   const overrides = useShortcutsStore((state) => state.overrides);
 
-  const actionCombos = useMemo(
-    () =>
-      Object.fromEntries(
-        EDITOR_SHORTCUT_IDS.map((id) => [id, getEffectiveCombos(id, overrides)]),
-      ) as Record<EditorShortcutId, string[]>,
-    [overrides],
-  );
+  const actionCombos = useMemo(() => {
+    // Reconstructed record keyed by the editor shortcut ids from a dynamic
+    // combo lookup; each key is populated below, so the shape is guaranteed.
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+    const combos = {} as Record<EditorShortcutId, string[]>;
+    for (const id of EDITOR_SHORTCUT_IDS) {
+      combos[id] = getEffectiveCombos(id, overrides);
+    }
+    return combos;
+  }, [overrides]);
 
   const actionCombosRef = useRef(actionCombos);
   const dispatchRef = useRef<(action: EditorShortcutId) => void>(() => {});

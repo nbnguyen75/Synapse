@@ -6,6 +6,7 @@
   },
   "env": {
     "builtin": true,
+    "browser": true,
   },
   "categories": {
     "correctness": "error",
@@ -85,7 +86,7 @@
     "typescript/no-unsafe-argument": "warn",
     "typescript/no-unsafe-return": "warn",
 
-    "typescript/no-unsafe-type-assertion": "off",
+    "typescript/no-unsafe-type-assertion": "warn",
     "typescript/no-unnecessary-type-assertion": "warn",
     "typescript/no-unsafe-assignment": "off",
     "typescript/no-unsafe-call": "off",
@@ -93,9 +94,9 @@
     "typescript/require-await": "off",
     "typescript/array-type": "off",
 
-    "unicorn/no-array-reverse": "off",
-    "unicorn/no-array-sort": "off",
-    "unicorn/consistent-function-scoping": "off",
+    "unicorn/no-array-reverse": "warn",
+    "unicorn/no-array-sort": "warn",
+    "unicorn/consistent-function-scoping": "warn",
     "unicorn/prefer-node-protocol": "error",
     "unicorn/throw-new-error": "warn",
     "unicorn/prefer-number-properties": "warn",
@@ -103,12 +104,7 @@
 
   "overrides": [
     {
-      "files": [
-        "src/routes/**",
-        "src/main.tsx",
-        "src/components/shared/editor/**",
-        "src/providers/**",
-      ],
+      "files": ["src/routes/**", "src/main.tsx"],
       "rules": {
         "react/only-export-components": "off",
       },

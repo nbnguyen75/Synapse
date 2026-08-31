@@ -48,8 +48,8 @@ yarn.lock
 # Shadcn and other libs
 # ============================================================
 
-**/components/ui
-**/components/ai-elements
+src/components/ui
+src/components/ai-elements
 
 # ============================================================
 # Editor / tooling
@@ -64,4 +64,3 @@ yarn.lock
 eslint.config.js
 oxlint.config.*
 oxfmt.config.*
-

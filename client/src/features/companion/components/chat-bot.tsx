@@ -201,10 +201,16 @@ function ChatBot({
     if (!nextTree) {
       if (loadedMessages.length === 0) return;
 
-      const rows: TreeMessage[] = loadedMessages.map((message, index) => ({
-        ...message,
-        parentId: (message as TreeMessage).parentId ?? loadedMessages[index - 1]?.id ?? null,
-      }));
+      const rows: TreeMessage[] = loadedMessages.map((message, index) => {
+        const embeddedParentId = 'parentId' in message ? message.parentId : undefined;
+        return {
+          ...message,
+          parentId:
+            (typeof embeddedParentId === 'string' ? embeddedParentId : null) ??
+            loadedMessages[index - 1]?.id ??
+            null,
+        };
+      });
       const leaf = conversation?.currentMessageId ?? rows.at(-1)?.id ?? null;
       nextTree = buildTree(rows, leaf);
       setTree(initialConversationId, nextTree);

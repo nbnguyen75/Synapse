@@ -2,7 +2,7 @@ import { useMutation, useQueryClient, type MutateOptions } from '@tanstack/react
 
 import { toast } from 'sonner';
 
-import { useConfirm } from '@/providers/confirm-provider';
+import { useConfirm } from '@/providers/use-confirm';
 
 import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';

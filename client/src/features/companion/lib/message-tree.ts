@@ -21,9 +21,16 @@ export interface TreeMessage extends UIMessage {
 
 type TextPart = Extract<UIMessage['parts'][number], { type: 'text' }>;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
 function getMessageCreatedAt(message: UIMessage): number {
-  const metadata = message.metadata as { createdAt?: number } | undefined;
-  return metadata?.createdAt ?? 0;
+  const metadata = message.metadata;
+  if (isRecord(metadata) && typeof metadata.createdAt === 'number') {
+    return metadata.createdAt;
+  }
+  return 0;
 }
 
 export function getMessageText(message: UIMessage): string {
@@ -40,7 +47,7 @@ export function buildTree(
   const nodes: Record<string, MessageNode> = {};
   const childrenById = new Map<string, string[]>();
 
-  const ordered = [...messages].sort((a, b) => getMessageCreatedAt(a) - getMessageCreatedAt(b));
+  const ordered = [...messages].toSorted((a, b) => getMessageCreatedAt(a) - getMessageCreatedAt(b));
 
   for (const message of ordered) {
     const parentId = message.parentId ?? null;
@@ -86,7 +93,7 @@ export function getActivePath(
     current = current.parentId ? state.nodes[current.parentId] : undefined;
   }
 
-  return path.reverse();
+  return path.toReversed();
 }
 
 export function getRecentContext(state: ConversationTreeState, limit = 5): UIMessage[] {
@@ -152,7 +159,7 @@ export function editUserMessage(
 
   const editedMessage: UIMessage = {
     metadata: {
-      ...(target.message.metadata as Record<string, unknown> | undefined),
+      ...(isRecord(target.message.metadata) ? target.message.metadata : {}),
       createdAt: Date.now(),
     },
     parts: [...fileParts, { text: newText, type: 'text' }],

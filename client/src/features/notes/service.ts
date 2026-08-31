@@ -55,8 +55,9 @@ export function exportMarkdown({ content, title }: Note): void {
     link.remove();
   } finally {
     if (url) {
+      const objectUrl = url;
       // give the browser a tick to pick up the download before revoking
-      setTimeout(() => URL.revokeObjectURL(url as string), 100);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
     }
   }
 }

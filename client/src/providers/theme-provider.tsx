@@ -1,6 +1,6 @@
-import { createContext, use, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-type Theme = 'system' | 'light' | 'dark';
+import { ThemeProviderContext, type Theme, type ThemeProviderState } from './use-theme';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -8,21 +8,15 @@ type ThemeProviderProps = {
   storageKey?: string;
 };
 
-type ThemeProviderState = {
-  setTheme: (theme: Theme) => void;
-  resolvedTheme: 'light' | 'dark';
-  toggleTheme: () => void;
-  theme: Theme;
+const getSystemTheme = (): 'light' | 'dark' => {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  return mq.matches ? 'dark' : 'light';
 };
 
-const initialState: ThemeProviderState = {
-  toggleTheme: () => null,
-  resolvedTheme: 'light',
-  setTheme: () => null,
-  theme: 'system',
+const getStoredTheme = (key: string, fallback: Theme): Theme => {
+  const stored = localStorage.getItem(key);
+  return stored === 'system' || stored === 'light' || stored === 'dark' ? stored : fallback;
 };
-
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   storageKey = 'synapse-ui-theme',
@@ -30,14 +24,9 @@ export function ThemeProvider({
   children,
   ...props
 }: ThemeProviderProps) {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() =>
+    getStoredTheme(storageKey, defaultTheme),
   );
-
-  const getSystemTheme = (): 'light' | 'dark' => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    return mq.matches ? 'dark' : 'light';
-  };
 
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(getSystemTheme);
 
@@ -77,10 +66,7 @@ export function ThemeProvider({
       root.classList.remove('light', 'dark');
 
       if (newTheme === 'system') {
-        const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light';
-        root.classList.add(systemPref);
+        root.classList.add(getSystemTheme());
       } else {
         root.classList.add(newTheme);
       }
@@ -89,14 +75,13 @@ export function ThemeProvider({
 
   const toggleTheme = () => {
     const isCurrentlyDark =
-      currentTheme === 'dark' ||
-      (currentTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      currentTheme === 'dark' || (currentTheme === 'system' && getSystemTheme() === 'dark');
 
     const nextTheme: Theme = isCurrentlyDark ? 'light' : 'dark';
     setTheme(nextTheme);
   };
 
-  const value = {
+  const value: ThemeProviderState = {
     theme: currentTheme,
     resolvedTheme,
     toggleTheme,
@@ -109,11 +94,3 @@ export function ThemeProvider({
     </ThemeProviderContext>
   );
 }
-
-export const useTheme = () => {
-  const context = use(ThemeProviderContext);
-
-  if (context === undefined) throw new Error('useTheme must be used within a ThemeProvider');
-
-  return context;
-};

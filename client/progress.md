@@ -3,12 +3,21 @@
 ## Current State
 
 **Last Updated:** 2026-08-31
-**Session ID:** sort-imports-to-oxfmt-064
-**Active Feature:** tooling migration — perfectionist `sort-imports` replaced by oxfmt `sortImports` (25-group config, alphabetical ordering).
+**Session ID:** oxlint-warnings-clean-065
+**Active Feature:** tooling hardening — `bun --bun check` clean with 0 warnings (re-enabled suppressed rules + fixed root causes; provider/editor refactors).
 
 ## Status
 
-### What's Done (sort-imports-to-oxfmt-064 — import sorting moved from perfectionist to oxfmt)
+### What's Done (oxlint-warnings-clean-065 — remaining oxlint warnings fixed by root-cause, rules re-enabled)
+
+- [x] **Rules re-enabled** in `.oxlintrc.jsonc` (were disabled): `typescript/no-unsafe-type-assertion`, `unicorn/no-array-reverse`, `unicorn/no-array-sort`, `unicorn/consistent-function-scoping` → `"warn"`. `react/only-export-components` override now restricted to `["src/routes/**", "src/main.tsx"]`.
+- [x] **`rpc.ts` refactor (option a)** — added `RequestOptions` type, threaded through `createProxyClient`/`makeRequest`, removed 4 field casts; final generic-proxy return cast at `rpc.ts:159` kept with targeted `oxlint-disable-next-line`.
+- [x] **no-array-reverse/no-array-sort** — `message-tree.ts` `.sort()`→`.toSorted()`, `.reverse()`→`.toReversed()`; `companion-chat-transport.ts:35`, `companion-chat.tsx:34` `.reverse()`→`.toReversed()`.
+- [x] **no-unsafe-type-assertion** — replaced casts with `isRecord` type guards, `in`/`typeof` narrowing, type predicates, and string-safe transforms across: `message-tree.ts`, `companion-chat-transport.ts`, `settings-store.ts` (isLayoutMode), `use-companion-conversation.ts`, `notes/service.ts`, `app-top-header.tsx` (locale guard), `markdown-renderer.tsx` (isValidElement + explicit `ReactNode[]`), `chat-bot.tsx`, `lexical-toolbar.tsx:109` (heading-tag validate), `settings.tsx` (tab guard via `find`), `use-note-card.ts:230` (`instanceof HTMLElement`), `$noteId.tsx` breadcrumb (in/typeof guard), `login.tsx`/`register.tsx` + `auth.ts` (`getTranslatedAuthErrorMessage(code: string)` + `String(error.code)`).
+- [x] **No-cast transforms** — `companion-settings-page.tsx` uses `useForm<CompanionSettingsFormInput, any, CompanionSettingsPayload>` (3rd generic) so `handleSubmit` yields payload directly; `use-form-save-shortcut.ts` generalized with `TTransformedValues` generic.
+- [x] **Provider splits (consistent-function-scoping / only-export-components)** — `use-theme.ts`, `use-confirm.ts`, `use-register-global-shortcut.ts` created from provider files; `providers/index.ts` re-exports; importers updated; `getSystemTheme`/`getStoredTheme` module-scope.
+- [x] **Editor splits (Rule of Three)** — `lexical-format-blocks.ts`, `lexical-link-commands.ts`, `lexical-config.ts` created; `editorTheme` de-exported; `copyContent`/`normalizeMarkdown` module-scope.
+- [x] **Verification** — `bunx tsc -b` ✓ (exit 0), `bunx oxlint` ✓ (0 warnings, exit 0), `bun --bun check` ✓, `bun --bun run build` ✓ (exit 0). Not committed (user manages git).
 
 - [x] **Added `sortImports` to `.oxfmtrc.json`** — 16 custom groups (react, tanstack, lib-ui, ai-libs, routes, layouts, modules, hooks, store, providers, config, libs, ai-elements, shadcn, components, assets) with 25 position groups (type, builtin, react, tanstack, external, lib-ui, ai-libs, routes, layouts, modules, hooks, store, providers, config, libs, components, ai-elements, shadcn, parent, sibling, index, assets, side_effect_style, style, import). Glob patterns ported from perfectionist regex (negative-lookahead workaround: ai-elements + shadcn defined before components in `customGroups` for first-match priority). `newlinesBetween: true`, `order: "asc"` (alphabetical — oxfmt has no line-length sort option).
 - [x] **Removed `perfectionist/sort-imports`** from `.oxlintrc.json` (other 6 perfectionist sort rules unchanged).

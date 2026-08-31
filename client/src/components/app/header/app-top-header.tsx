@@ -8,9 +8,9 @@ import { useElementWidth } from '@/hooks/use-element-width';
 
 import { useSettingsStore } from '@/store/settings-store';
 
-import { useTheme } from '@/providers/theme-provider';
+import { useTheme } from '@/providers/use-theme';
 
-import { getLocale, setLocale, type Locale } from '@/paraglide/runtime';
+import { getLocale, setLocale } from '@/paraglide/runtime';
 import { m } from '@/paraglide/messages';
 
 import { AppBreadcrumb } from '@/components/app/breadcrumbs';
@@ -159,7 +159,9 @@ export default function AppTopHeader() {
 
         <Select
           items={locales}
-          onValueChange={(v) => void setLocale(v as Locale)}
+          onValueChange={(v) => {
+            if (v === 'vi' || v === 'en') void setLocale(v);
+          }}
           value={getLocale()}
         >
           <SelectTrigger

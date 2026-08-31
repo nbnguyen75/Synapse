@@ -8,7 +8,7 @@
     "**/.git/objects/**": true,
     "**/node_modules/**": true,
     "**/dist/**": true,
-    "**/.vite/**": true,
+    "**/.vite/**": true
   },
   "search.exclude": {
     "**/routeTree.gen.ts": true,
@@ -16,7 +16,7 @@
     "**/dist": true,
     "**/node_modules": true,
     "**/.vite": true,
-    "**/paraglide": true,
+    "**/paraglide": true
   },
   "js/ts.tsserver.maxMemory": 4096,
   "js/ts.preferences.importModuleSpecifier": "non-relative",
@@ -38,6 +38,7 @@
     "**/paraglide": true,
     "**/deprecated": true,
     "**/project.inlang": true,
+    "**/.eslintcache": true
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.prettier": "never",

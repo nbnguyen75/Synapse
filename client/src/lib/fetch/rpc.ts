@@ -39,6 +39,13 @@ type RequestArgs<Endpoint extends EndpointDef> =
     ? [options?: InferRequest<Endpoint>]
     : [options: InferRequest<Endpoint>];
 
+type RequestOptions = {
+  headers?: Record<string, undefined | string>;
+  params?: Record<string, unknown>;
+  query?: Record<string, unknown>;
+  body?: Record<string, unknown>;
+};
+
 type Split<S extends string> = S extends `${infer Head}/${infer Tail}`
   ? Head extends ''
     ? Split<Tail>
@@ -105,7 +112,7 @@ export type EnsureRouter<T extends BaseRouter> = T;
 export type CreateRpcClientOption = Omit<CreateFetchOption, 'baseUrl' | 'body'>;
 
 function createProxyClient(
-  makeRequest: (method: HttpMethod, path: string, options?: Record<string, unknown>) => unknown,
+  makeRequest: (method: HttpMethod, path: string, options?: RequestOptions) => unknown,
   segments: string[] = [],
 ) {
   return new Proxy(() => {}, {
@@ -113,7 +120,7 @@ function createProxyClient(
       if (prop in METHOD_KEY_MAP) {
         const method = METHOD_KEY_MAP[prop];
         const path = '/' + segments.join('/');
-        return (options?: Record<string, unknown>) => makeRequest(method, path, options);
+        return (options?: RequestOptions) => makeRequest(method, path, options);
       }
       return createProxyClient(makeRequest, [...segments, prop]);
     },
@@ -139,15 +146,18 @@ export function createRpcClient<Router extends BaseRouter>(
     ...option,
   });
 
-  const makeRequest = (method: HttpMethod, path: string, options?: Record<string, unknown>) => {
+  const makeRequest = (method: HttpMethod, path: string, options?: RequestOptions) => {
     return $fetchBase(path, {
-      headers: options?.headers as Record<string, string> | undefined,
-      params: options?.params as Record<string, unknown> | undefined,
-      query: options?.query as Record<string, unknown> | undefined,
-      body: options?.body as Record<string, unknown> | undefined,
+      headers: options?.headers,
+      params: options?.params,
+      query: options?.query,
+      body: options?.body,
       method,
     });
   };
 
+  // The proxy client is intentionally untyped at construction; it is cast to
+  // the caller-facing `ProxyTree` type on this boundary.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   return createProxyClient(makeRequest) as ProxyTree<Router, boolean>;
 }

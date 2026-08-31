@@ -227,7 +227,7 @@ export function useNoteCard({ onToggleSelect, onSelectRange, viewMode, note }: U
 
   const handleCardClick = useCallback(
     (e: React.MouseEvent) => {
-      if ((e.target as HTMLElement).closest('[data-slot="checkbox"]')) return;
+      if (e.target instanceof HTMLElement && e.target.closest('[data-slot="checkbox"]')) return;
       if (e.shiftKey) {
         onSelectRange?.(note.id);
       } else {

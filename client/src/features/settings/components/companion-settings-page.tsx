@@ -46,7 +46,7 @@ export default function CompanionSettingsPage() {
   const { isPending: isUpdatingCompanionSettings, mutate: updateCompanionSettings } =
     useUpdateCompanionSettingsMutation();
 
-  const form = useForm<CompanionSettingsFormInput>({
+  const form = useForm<CompanionSettingsFormInput, any, CompanionSettingsPayload>({
     resolver: standardSchemaResolver(companionSettingsSchema),
     defaultValues: companionSettings,
     mode: 'onBlur',
@@ -79,7 +79,7 @@ export default function CompanionSettingsPage() {
   useFormSaveShortcut({
     onSubmit: (data) => {
       if (!form.formState.isDirty) return;
-      onSubmit(data as CompanionSettingsPayload);
+      onSubmit(data);
     },
     isSubmitting: isPending,
     form,
@@ -135,7 +135,7 @@ export default function CompanionSettingsPage() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void handleSubmit((data) => onSubmit(data as CompanionSettingsPayload))(event);
+          void handleSubmit((data) => onSubmit(data))(event);
         }}
         className="w-full space-y-5"
         id="companion-settings-form"

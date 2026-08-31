@@ -2,7 +2,6 @@ import {
   isValidElement,
   type ComponentProps,
   type InputHTMLAttributes,
-  type ReactElement,
   type ReactNode,
 } from 'react';
 import Markdown from 'react-markdown';
@@ -73,15 +72,18 @@ function remarkHighlight() {
   };
 }
 
-type LiProps = ComponentProps<'li'>;
+type LiProps = Omit<ComponentProps<'li'>, 'children'> & { children?: ReactNode };
 type CodeProps = ComponentProps<'code'>;
 type PProps = ComponentProps<'p'>;
 
 function Li({ className: liClassName, children, ...props }: LiProps) {
-  const childArray = Array.isArray(children) ? children : [children];
-  const [checkboxEl, ...restChildren] = childArray as ReactNode[];
-  const castedCheckboxEl = checkboxEl as ReactElement<InputHTMLAttributes<HTMLInputElement>>;
-  const isCheckbox = isValidElement(castedCheckboxEl) && castedCheckboxEl.props.type === 'checkbox';
+  const childArray: ReactNode[] = Array.isArray(children) ? children : [children];
+  const [checkboxEl, ...restChildren] = childArray;
+  const isCheckbox =
+    typeof checkboxEl === 'object' &&
+    checkboxEl !== null &&
+    isValidElement<InputHTMLAttributes<HTMLInputElement>>(checkboxEl) &&
+    checkboxEl.props.type === 'checkbox';
 
   if (isCheckbox)
     return (

@@ -1,7 +1,7 @@
 import type { ShortcutId } from '@/config/keyboard-shortcuts';
 import type { Hotkey } from '@tanstack/hotkeys';
 
-import { createContext, use, useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, type ReactNode } from 'react';
 
 import { getHotkeyManager, getSequenceManager } from '@tanstack/hotkeys';
 
@@ -13,11 +13,10 @@ import {
   getShortcutsBySection,
 } from '@/config/keyboard-shortcuts';
 
-interface GlobalShortcutRegistration {
-  handler: (event: KeyboardEvent) => void;
-  ignoreInputs: boolean;
-  enabled: boolean;
-}
+import {
+  GlobalShortcutsContext,
+  type GlobalShortcutRegistration,
+} from './use-register-global-shortcut';
 
 /**
  * Structural handle shared by `HotkeyRegistrationHandle` and
@@ -28,12 +27,6 @@ interface HotkeyHandleLike {
   setOptions(options: { ignoreInputs?: boolean; enabled?: boolean }): void;
   unregister(): void;
 }
-
-interface GlobalShortcutsContextValue {
-  register: (id: ShortcutId, registration: GlobalShortcutRegistration) => () => void;
-}
-
-const GlobalShortcutsContext = createContext<GlobalShortcutsContextValue | null>(null);
 
 /**
  * Resolves the row options a hotkey registration should use given the
@@ -122,15 +115,21 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
 
         // Multi-key sequences (e.g. `g n`) go through the SequenceManager,
         // which has its own listener + timeout state machine; single combos
-        // register on the HotkeyManager.
-        const handle = combo.includes(' ')
-          ? getSequenceManager().register(combo.split(/\s+/) as Hotkey[], invoke, {
+        // register on the HotkeyManager. The registry stores combos as plain
+        // strings that the library parses at runtime, so they are narrowed at
+        // this boundary.
+        const isSequence = combo.includes(' ');
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+        const sequenceSteps = combo.split(/\s+/) as Hotkey[];
+        const handle = isSequence
+          ? getSequenceManager().register(sequenceSteps, invoke, {
               meta: { name: entry.label() },
               conflictBehavior: 'allow',
               stopPropagation: true,
               preventDefault: true,
             })
-          : getHotkeyManager().register(combo as Hotkey, invoke, {
+          : // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+            getHotkeyManager().register(combo as Hotkey, invoke, {
               meta: { name: entry.label() },
               conflictBehavior: 'allow',
               stopPropagation: true,
@@ -160,34 +159,4 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
   }, [overrides, syncRowOptions]);
 
   return <GlobalShortcutsContext value={{ register }}>{children}</GlobalShortcutsContext>;
-}
-
-interface UseGlobalShortcutOptions {
-  allowWhenTyping?: boolean;
-  enabled?: boolean;
-}
-
-/**
- * Registers a handler for a global shortcut into the central
- * `GlobalShortcutsProvider`. The handler ref is kept fresh on every render,
- * so callers always dispatch the latest closure.
- */
-export function useRegisterGlobalShortcut(
-  id: ShortcutId,
-  handler: (event: KeyboardEvent) => void,
-  { allowWhenTyping = false, enabled = true }: UseGlobalShortcutOptions = {},
-) {
-  const context = use(GlobalShortcutsContext);
-  if (context === null) {
-    throw new Error('useRegisterGlobalShortcut must be used within <GlobalShortcutsProvider>');
-  }
-  const { register } = context;
-
-  useEffect(() => {
-    return register(id, {
-      ignoreInputs: !allowWhenTyping,
-      handler,
-      enabled,
-    });
-  }, [allowWhenTyping, enabled, handler, id, register]);
 }

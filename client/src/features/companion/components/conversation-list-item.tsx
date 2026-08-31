@@ -8,7 +8,7 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-import { useConfirm } from '@/providers/confirm-provider';
+import { useConfirm } from '@/providers/use-confirm';
 
 import { m } from '@/paraglide/messages';
 

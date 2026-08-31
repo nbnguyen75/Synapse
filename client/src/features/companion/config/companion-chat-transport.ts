@@ -8,6 +8,10 @@ import { env } from '@/config/env';
 
 import { authClient } from '@/lib/auth';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
 export function getDefaultMessageMetadata() {
   if (typeof window === 'undefined') {
     return { createdAt: Date.now() };
@@ -32,7 +36,9 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
     const api = `${env.VITE_API_URL}/api/v1/ai/chat`;
     super({
       prepareSendMessagesRequest: async ({ messageId, messages, trigger }) => {
-        const lastUserMessage = [...messages].reverse().find((message) => message.role === 'user');
+        const lastUserMessage = [...messages]
+          .toReversed()
+          .find((message) => message.role === 'user');
 
         if (!lastUserMessage) {
           throw new Error('No user message to send.');
@@ -60,7 +66,7 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
           ...lastUserMessage,
           metadata: {
             ...getDefaultMessageMetadata(),
-            ...(lastUserMessage.metadata as Record<string, unknown> | undefined),
+            ...(isRecord(lastUserMessage.metadata) ? lastUserMessage.metadata : {}),
             ...(getExtraMetadata ? getExtraMetadata() : {}),
           },
           parts: lastUserMessage.parts,

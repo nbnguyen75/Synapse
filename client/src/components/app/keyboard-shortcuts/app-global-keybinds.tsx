@@ -5,7 +5,7 @@ import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 import { useCompanionStore } from '@/store/companion-store';
 import { useSettingsStore } from '@/store/settings-store';
 
-import { useTheme } from '@/providers/theme-provider';
+import { useTheme } from '@/providers/use-theme';
 
 import { useSidebarManager } from '@/components/ui/sidebar';
 

@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 import { useDebounce } from '@/hooks/use-debounce';
 
-import { useTheme } from '@/providers/theme-provider';
+import { useTheme } from '@/providers/use-theme';
 
 import { KEYBOARD_SHORTCUTS } from '@/config/keyboard-shortcuts';
 

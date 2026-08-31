@@ -2,9 +2,9 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form';
 
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 
-interface UseFormSaveShortcutOptions<T extends FieldValues> {
-  onSubmit: (data: T) => void;
-  form: UseFormReturn<T>;
+interface UseFormSaveShortcutOptions<T extends FieldValues, TTransformedValues = T> {
+  form: UseFormReturn<T, any, TTransformedValues>;
+  onSubmit: (data: TTransformedValues) => void;
   isSubmitting: boolean;
   enabled?: boolean;
 }
@@ -14,12 +14,12 @@ interface UseFormSaveShortcutOptions<T extends FieldValues> {
  * including while the user is typing (`allowWhenTyping` maps to
  * `ignoreInputs: false`).
  */
-export function useFormSaveShortcut<T extends FieldValues>({
+export function useFormSaveShortcut<T extends FieldValues, TTransformedValues = T>({
   enabled = true,
   isSubmitting,
   onSubmit,
   form,
-}: UseFormSaveShortcutOptions<T>) {
+}: UseFormSaveShortcutOptions<T, TTransformedValues>) {
   useHotkeyShortcut(
     'save-note',
     () => {
