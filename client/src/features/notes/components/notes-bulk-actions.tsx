@@ -22,7 +22,7 @@ interface NotesBulkActionsProps {
   onClearSelection: () => void;
   selectedIds: Set<string>;
   viewMode?: NoteViewMode;
-  notes: Note[];
+  notes: Array<Note>;
 }
 
 export default function NotesBulkActions({

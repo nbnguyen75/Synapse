@@ -32,9 +32,9 @@ export function getMarkdownReadTimeSync(content?: string | null, wpm = 200) {
 }
 
 export function exportMarkdown({ content, title }: Note): void {
-  const safeTitle = title?.trim() || m.notes_page_untitled();
+  const safeTitle = title.trim() || m.notes_page_untitled();
   const filename = deriveFilename(safeTitle);
-  const fileContent = `# ${safeTitle}\n\n${content?.trim() || ''}`;
+  const fileContent = `# ${safeTitle}\n\n${content.trim() || ''}`;
 
   let url: string | null = null;
 
@@ -55,8 +55,9 @@ export function exportMarkdown({ content, title }: Note): void {
     link.remove();
   } finally {
     if (url) {
+      const objectUrl = url;
       // give the browser a tick to pick up the download before revoking
-      setTimeout(() => URL.revokeObjectURL(url as string), 100);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 100);
     }
   }
 }

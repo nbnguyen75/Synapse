@@ -1,6 +1,6 @@
-import { cva } from 'class-variance-authority';
-
 import { NavigationMenu as NavigationMenuPrimitive } from '@base-ui/react/navigation-menu';
+
+import { cva } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 
@@ -161,13 +161,13 @@ function NavigationMenuIndicator({
 }
 
 export {
-  NavigationMenu,
-  NavigationMenuContent,
+  navigationMenuTriggerStyle,
+  NavigationMenuPositioner,
   NavigationMenuIndicator,
+  NavigationMenuContent,
+  NavigationMenuTrigger,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-  NavigationMenuPositioner,
+  NavigationMenu,
 };

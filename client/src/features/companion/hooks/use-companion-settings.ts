@@ -1,9 +1,11 @@
+import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+import { $fetch } from '@/lib/fetch';
 
 import { DEFAULT_COMPANION_SETTINGS } from '@/features/companion/constants';
 

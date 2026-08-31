@@ -1,8 +1,10 @@
+import type { BreadcrumbItem as BreadcrumbItemData } from '@/hooks/use-breadcrumb';
+
 import { Link } from '@tanstack/react-router';
 
 import { Fragment } from 'react/jsx-runtime';
 
-import { useBreadcrumb, type BreadcrumbItem as BreadcrumbItemData } from '@/hooks/use-breadcrumb';
+import { useBreadcrumb } from '@/hooks/use-breadcrumb';
 
 import { m } from '@/paraglide/messages';
 

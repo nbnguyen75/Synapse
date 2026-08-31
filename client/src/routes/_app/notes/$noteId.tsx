@@ -70,8 +70,17 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
     }
   },
   staticData: {
-    breadcrumb: ({ loaderData, params }) =>
-      (loaderData as { title?: string })?.title || params.noteId,
+    breadcrumb: ({ loaderData, params }) => {
+      const title =
+        loaderData !== null &&
+        typeof loaderData === 'object' &&
+        'title' in loaderData &&
+        typeof loaderData.title === 'string'
+          ? loaderData.title
+          : undefined;
+
+      return title || params.noteId;
+    },
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -111,8 +120,8 @@ function NoteDetailsPage() {
   const includeInChat = () => {
     const added = addNoteAttachment(
       buildNoteChatAttachment({
-        content: watchedContent ?? '',
-        title: watchedTitle ?? '',
+        content: watchedContent,
+        title: watchedTitle,
         id: noteId,
       }),
     );
@@ -128,8 +137,8 @@ function NoteDetailsPage() {
 
   useEffect(() => {
     setActiveDocument({
-      content: watchedContent ?? '',
-      title: watchedTitle ?? '',
+      content: watchedContent,
+      title: watchedTitle,
       id: noteId,
     });
 
@@ -225,10 +234,9 @@ function NoteDetailsPage() {
 
                   <DropdownMenuItem
                     onClick={() =>
-                      note &&
                       exportMarkdown({
                         ...note,
-                        title: watchedTitle ?? '',
+                        title: watchedTitle,
                         content: watchedContent,
                       })
                     }
@@ -287,7 +295,7 @@ function NoteDetailsPage() {
                     control={control}
                     render={({ field }) => (
                       <LexicalEditor
-                        value={field.value ?? ''}
+                        value={field.value}
                         onChange={field.onChange}
                         className="h-full max-h-120"
                         disabled={isBusy}

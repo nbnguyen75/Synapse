@@ -28,7 +28,7 @@ function DropdownMenuContent({
 }: MenuPrimitive.Popup.Props &
   Pick<
     MenuPrimitive.Positioner.Props,
-    'align' | 'alignOffset' | 'side' | 'sideOffset'
+    'alignOffset' | 'sideOffset' | 'align' | 'side'
   >) {
   return (
     <MenuPrimitive.Portal>
@@ -82,7 +82,7 @@ function DropdownMenuItem({
   inset,
   ...props
 }: MenuPrimitive.Item.Props & {
-  variant?: 'default' | 'destructive';
+  variant?: 'destructive' | 'default';
   inset?: boolean;
 }) {
   return (
@@ -254,19 +254,19 @@ function DropdownMenuShortcut({
 }
 
 export {
-  DropdownMenu,
-  DropdownMenuPortal,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuItem,
   DropdownMenuCheckboxItem,
   DropdownMenuRadioGroup,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuPortal,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuItem,
   DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
+  DropdownMenu,
 };

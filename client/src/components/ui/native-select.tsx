@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { ChevronDownIcon } from 'lucide-react';
 
 type NativeSelectProps = Omit<React.ComponentProps<'select'>, 'size'> & {
-  size?: 'sm' | 'default';
+  size?: 'default' | 'sm';
 };
 
 function NativeSelect({
@@ -63,4 +63,4 @@ function NativeSelectOptGroup({
   );
 }
 
-export { NativeSelect, NativeSelectOptGroup, NativeSelectOption };
+export { NativeSelectOptGroup, NativeSelectOption, NativeSelect };

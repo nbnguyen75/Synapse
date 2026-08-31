@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 
 import { ArrowRightIcon, MinusIcon, PackageIcon, PlusIcon } from 'lucide-react';
 
-type ChangeType = 'major' | 'minor' | 'patch' | 'added' | 'removed';
+type ChangeType = 'removed' | 'major' | 'minor' | 'patch' | 'added';
 
 interface PackageInfoContextType {
   currentVersion?: string;

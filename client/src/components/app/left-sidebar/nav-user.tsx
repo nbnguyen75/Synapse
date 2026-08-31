@@ -52,9 +52,9 @@ export default function NavUser() {
   });
 
   const user = {
-    email: session?.user?.email || m.nav_user_fallback_email(),
-    avatar: session?.user?.image ?? defaultAvatar.toDataUri(),
-    name: session?.user?.name || m.nav_user_fallback_name(),
+    email: session?.user.email || m.nav_user_fallback_email(),
+    avatar: session?.user.image ?? defaultAvatar.toDataUri(),
+    name: session?.user.name || m.nav_user_fallback_name(),
     fallbackName: m.nav_user_fallback_initials(),
   };
 

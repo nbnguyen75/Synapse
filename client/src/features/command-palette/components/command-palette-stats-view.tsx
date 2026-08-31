@@ -4,7 +4,7 @@ import { BarChart3Icon, HashIcon } from 'lucide-react';
 
 interface CommandPaletteStatsViewProps {
   data: {
-    tagsList: string[];
+    tagsList: Array<string>;
     tagsCount: number;
     pinned: number;
     active: number;

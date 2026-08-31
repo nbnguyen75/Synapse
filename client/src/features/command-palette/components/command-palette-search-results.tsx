@@ -15,8 +15,8 @@ export interface GroupedCommandItem extends CommandItem {
 
 interface CommandPaletteSearchResultsProps {
   resultsRef: RefObject<HTMLDivElement | null>;
+  searchResults: Array<GroupedCommandItem>;
   onSelectIndex: (index: number) => void;
-  searchResults: GroupedCommandItem[];
   selectedIndex: number;
   search: string;
 }
@@ -50,9 +50,10 @@ export default function CommandPaletteSearchResults({
 
   // Gom nhóm danh sách kết quả theo thuộc tính `group`
   const groups = searchResults.reduce<
-    Record<string, { item: GroupedCommandItem; flatIndex: number }[]>
+    Record<string, Array<{ item: GroupedCommandItem; flatIndex: number }>>
   >((acc, item) => {
     const groupKey = item.group || 'quick';
+    // oxlint-disable-next-line typescript/no-unnecessary-condition -- Record type says always defined, but runtime needs this guard for initial empty accumulator
     if (!acc[groupKey]) acc[groupKey] = [];
     acc[groupKey].push({ flatIndex: globalIndexCounter++, item });
     return acc;

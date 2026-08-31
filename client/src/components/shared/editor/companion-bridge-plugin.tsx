@@ -6,7 +6,7 @@ import { $getRoot, $getSelection } from 'lexical';
 
 import { useCompanionContextStore } from '@/store/companion-context-store';
 
-import { CUSTOM_TRANSFORMERS } from './lexical-plugins';
+import { CUSTOM_TRANSFORMERS } from './lexical-config';
 
 export default function CompanionBridgePlugin() {
   const [editor] = useLexicalComposerContext();

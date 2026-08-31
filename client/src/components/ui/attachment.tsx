@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import { cva, type VariantProps } from 'class-variance-authority';
-
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
+
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 
@@ -35,7 +35,7 @@ function Attachment({
   ...props
 }: React.ComponentProps<'div'> &
   VariantProps<typeof attachmentVariants> & {
-    state?: 'idle' | 'uploading' | 'processing' | 'error' | 'done';
+    state?: 'processing' | 'uploading' | 'error' | 'idle' | 'done';
   }) {
   return (
     <div
@@ -198,13 +198,13 @@ function AttachmentGroup({ className, ...props }: React.ComponentProps<'div'>) {
 }
 
 export {
-  Attachment,
+  AttachmentDescription,
+  AttachmentContent,
+  AttachmentActions,
+  AttachmentTrigger,
+  AttachmentAction,
   AttachmentGroup,
   AttachmentMedia,
-  AttachmentContent,
   AttachmentTitle,
-  AttachmentDescription,
-  AttachmentActions,
-  AttachmentAction,
-  AttachmentTrigger,
+  Attachment,
 };

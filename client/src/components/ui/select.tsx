@@ -38,7 +38,7 @@ function SelectTrigger({
   ...props
 }: SelectPrimitive.Trigger.Props & {
   hideIndicatorIcon?: boolean;
-  size?: 'sm' | 'default';
+  size?: 'default' | 'sm';
 }) {
   return (
     <SelectPrimitive.Trigger
@@ -74,7 +74,7 @@ function SelectContent({
 }: SelectPrimitive.Popup.Props &
   Pick<
     SelectPrimitive.Positioner.Props,
-    'align' | 'alignOffset' | 'side' | 'sideOffset' | 'alignItemWithTrigger'
+    'alignItemWithTrigger' | 'alignOffset' | 'sideOffset' | 'align' | 'side'
   >) {
   return (
     <SelectPrimitive.Portal>
@@ -195,14 +195,14 @@ function SelectScrollDownButton({
 }
 
 export {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
   SelectScrollDownButton,
   SelectScrollUpButton,
   SelectSeparator,
+  SelectContent,
   SelectTrigger,
+  SelectGroup,
+  SelectLabel,
   SelectValue,
+  SelectItem,
+  Select,
 };

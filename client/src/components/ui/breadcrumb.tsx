@@ -114,11 +114,11 @@ function BreadcrumbEllipsis({
 }
 
 export {
-  Breadcrumb,
+  BreadcrumbSeparator,
+  BreadcrumbEllipsis,
   BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbPage,
-  BreadcrumbSeparator,
-  BreadcrumbEllipsis,
+  Breadcrumb,
 };

@@ -44,7 +44,7 @@ function SheetContent({
   children,
   ...props
 }: SheetPrimitive.Popup.Props & {
-  side?: 'top' | 'right' | 'bottom' | 'left';
+  side?: 'bottom' | 'right' | 'left' | 'top';
   showCloseButton?: boolean;
 }) {
   return (
@@ -127,12 +127,12 @@ function SheetDescription({
 }
 
 export {
-  Sheet,
+  SheetDescription,
   SheetTrigger,
-  SheetClose,
   SheetContent,
   SheetHeader,
   SheetFooter,
+  SheetClose,
   SheetTitle,
-  SheetDescription,
+  Sheet,
 };

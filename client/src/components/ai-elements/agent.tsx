@@ -1,7 +1,7 @@
 'use client';
 
-import type { Tool } from 'ai';
 import type { ComponentProps } from 'react';
+import type { Tool } from 'ai';
 
 import { memo } from 'react';
 
@@ -15,9 +15,9 @@ import {
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 
-import { CodeBlock } from './code-block';
-
 import { BotIcon } from 'lucide-react';
+
+import { CodeBlock } from './code-block';
 
 export type AgentProps = ComponentProps<'div'>;
 

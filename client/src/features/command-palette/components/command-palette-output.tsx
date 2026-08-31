@@ -14,10 +14,10 @@ import {
 
 interface CommandPaletteOutputProps {
   onOpenNote: (note: NoteItem) => void;
+  slashCommands: Array<CommandItem>;
   commandOutput: CommandOutput;
-  slashCommands: CommandItem[];
+  notes: Array<NoteItem>;
   onBack: () => void;
-  notes: NoteItem[];
 }
 
 export default function CommandPaletteOutput({

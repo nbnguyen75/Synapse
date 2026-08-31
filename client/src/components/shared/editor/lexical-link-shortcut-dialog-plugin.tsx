@@ -1,5 +1,3 @@
-import type { LexicalCommand } from 'lexical';
-
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -8,7 +6,6 @@ import {
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
-  createCommand,
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { TOGGLE_LINK_COMMAND, $isLinkNode } from '@lexical/link';
@@ -28,9 +25,7 @@ import { Field, FieldError } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-export const TOGGLE_LINK_DIALOG_COMMAND: LexicalCommand<void> = createCommand(
-  'TOGGLE_LINK_DIALOG_COMMAND',
-);
+import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-commands';
 
 const URL_REGEX =
   /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/;

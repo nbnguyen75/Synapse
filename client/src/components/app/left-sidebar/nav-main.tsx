@@ -83,7 +83,7 @@ export default function NavMain() {
                     to={item.href}
                     onClick={() => {
                       if (leftSidebar?.isMobile) {
-                        leftSidebar?.setOpenMobile(false);
+                        leftSidebar.setOpenMobile(false);
                       }
 
                       if (layoutMode === 'chat' && activeConversationId) {

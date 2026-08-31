@@ -21,7 +21,7 @@ export function useIsMac() {
 }
 
 export type OperatingSystem =
-  'macOS' | 'Windows' | 'Linux' | 'iOS' | 'Android' | 'Unknown';
+  'Windows' | 'Android' | 'Unknown' | 'macOS' | 'Linux' | 'iOS';
 
 export function useOS() {
   const [os, setOs] = useState<OperatingSystem>('Unknown');

@@ -6,7 +6,7 @@ import { $fetch } from '@/lib/fetch';
 
 import { noteKeys } from '@/features/notes/keys';
 
-export function useInfiniteNotes(params?: Omit<NotesApiParams, 'page'>, initialPage: number = 1) {
+export function useInfiniteNotes(params?: Omit<NotesApiParams, 'page'>, initialPage = 1) {
   return useInfiniteQuery({
     queryFn: async ({ pageParam }) => {
       const result = await $fetch.api.v1.notes.$get({

@@ -25,7 +25,7 @@ async function getToken(): Promise<undefined | string> {
   pendingTokenRequest = (async () => {
     try {
       const { error, data } = await authClient.token();
-      if (!error && data?.token) {
+      if (!error && data.token) {
         cachedToken = data.token;
         // JWT sống 15 phút (theo auth.ts), trừ safety margin
         tokenExpiresAt = Date.now() + 15 * 60 * 1000 - TOKEN_SAFETY_MARGIN_MS;

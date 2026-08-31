@@ -1,5 +1,6 @@
 import type { GroupedCommandItem } from '@/features/command-palette/components/command-palette-search-results';
 import type { CommandOutput, NoteItem } from '@/features/command-palette/types';
+import type { Note } from '@/features/notes';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -11,7 +12,7 @@ import { toast } from 'sonner';
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 import { useDebounce } from '@/hooks/use-debounce';
 
-import { useTheme } from '@/providers/theme-provider';
+import { useTheme } from '@/providers/use-theme';
 
 import { KEYBOARD_SHORTCUTS } from '@/config/keyboard-shortcuts';
 
@@ -36,8 +37,8 @@ import {
   CommandPaletteSearchResults,
   CommandPaletteFooter,
 } from '@/features/command-palette/components';
-import { useGetNotes, type Note, useNoteCreatePrefillStore } from '@/features/notes';
 import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
+import { useGetNotes, useNoteCreatePrefillStore } from '@/features/notes';
 import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
 import { getMarkdownReadTimeSync } from '@/features/notes/service';
 
@@ -62,7 +63,7 @@ export default function CommandPalette() {
     pageSize: 10,
     page: 1,
   });
-  const notes = useMemo<Note[]>(() => data.items ?? [], [data.items]);
+  const notes = useMemo<Array<Note>>(() => data.items, [data.items]);
 
   const focusInput = () => {
     setTimeout(() => inputRef.current?.focus(), 10);
@@ -114,7 +115,7 @@ export default function CommandPalette() {
   const contentPart = search.replace(/^\/(create|note)\s*/i, '').trim();
 
   // 1. Slash Commands (/help, /theme, /stats, /notes, /create)
-  const slashCommands = useMemo<GroupedCommandItem[]>(
+  const slashCommands = useMemo<Array<GroupedCommandItem>>(
     () => [
       {
         action: () => {
@@ -225,7 +226,7 @@ export default function CommandPalette() {
   );
 
   // 2. Static Commands
-  const staticCommands = useMemo<GroupedCommandItem[]>(
+  const staticCommands = useMemo<Array<GroupedCommandItem>>(
     () => [
       {
         action: () => {
@@ -281,8 +282,8 @@ export default function CommandPalette() {
   );
 
   // 3. Tổng hợp danh sách kết quả hiển thị
-  const totalElements = data?.totalElements;
-  const searchResults = useMemo<GroupedCommandItem[]>(() => {
+  const totalElements = data.totalElements;
+  const searchResults = useMemo<Array<GroupedCommandItem>>(() => {
     const term = search.trim();
 
     // 3.1. Lọc theo Lệnh (>/)
@@ -299,7 +300,7 @@ export default function CommandPalette() {
     // 3.2. Mặc định khi chưa nhập ô tìm kiếm (Default Layout)
     if (term === '') {
       const createCmd = slashCommands.find((cmd) => cmd.id === 'cmd_create');
-      const quickItems: GroupedCommandItem[] = createCmd ? [createCmd] : [];
+      const quickItems: Array<GroupedCommandItem> = createCmd ? [createCmd] : [];
 
       if (notes.length > 0) {
         const recentNote = notes[0];
@@ -313,7 +314,7 @@ export default function CommandPalette() {
         });
       }
 
-      const noteItems: GroupedCommandItem[] = notes.slice(0, 3).map((note) => ({
+      const noteItems: Array<GroupedCommandItem> = notes.slice(0, 3).map((note) => ({
         meta: new Date(note.updatedAt).toLocaleDateString(),
         title: note.title || m.command_palette_note_untitled(),
         action: () => handleOpenNote(note),
@@ -326,8 +327,8 @@ export default function CommandPalette() {
     }
 
     // 3.3. Tìm kiếm nội dung tổng hợp khi gõ từ khóa
-    const notesResults: GroupedCommandItem[] = notes.map((note) => ({
-      subtitle: note.content?.slice(0, 80) || m.command_palette_note_no_content(),
+    const notesResults: Array<GroupedCommandItem> = notes.map((note) => ({
+      subtitle: note.content.slice(0, 80) || m.command_palette_note_no_content(),
       title: note.title || m.command_palette_note_untitled(),
       meta: new Date(note.updatedAt).toLocaleDateString(),
       action: () => handleOpenNote(note),
@@ -344,7 +345,7 @@ export default function CommandPalette() {
 
     const combined = [...notesResults, ...filteredStaticCmds];
 
-    const totalCount = totalElements ?? 0;
+    const totalCount = totalElements;
     if (totalCount > 10) {
       combined.push({
         action: () => {

@@ -9,7 +9,6 @@ import { useControllableState } from '@radix-ui/react-use-controllable-state';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandDialog,
@@ -28,6 +27,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 import {
   CircleSmallIcon,
@@ -42,9 +42,9 @@ import {
 } from 'lucide-react';
 
 interface VoiceSelectorContextValue {
-  setValue: (value: string | undefined) => void;
+  setValue: (value: undefined | string) => void;
   setOpen: (open: boolean) => void;
-  value: string | undefined;
+  value: undefined | string;
   open: boolean;
 }
 
@@ -63,7 +63,7 @@ export const useVoiceSelector = () => {
 };
 
 export type VoiceSelectorProps = ComponentProps<typeof Dialog> & {
-  onValueChange?: (value: string | undefined) => void;
+  onValueChange?: (value: undefined | string) => void;
   defaultValue?: string;
   value?: string;
 };
@@ -194,12 +194,12 @@ export const VoiceSelectorSeparator = (props: VoiceSelectorSeparatorProps) => (
 
 export type VoiceSelectorGenderProps = ComponentProps<'span'> & {
   value?:
-    | 'male'
-    | 'female'
     | 'transgender'
-    | 'androgyne'
     | 'non-binary'
-    | 'intersex';
+    | 'androgyne'
+    | 'intersex'
+    | 'female'
+    | 'male';
 };
 
 export const VoiceSelectorGender = ({
@@ -250,37 +250,37 @@ export const VoiceSelectorGender = ({
 
 export type VoiceSelectorAccentProps = ComponentProps<'span'> & {
   value?:
-    | 'american'
-    | 'british'
-    | 'australian'
-    | 'canadian'
-    | 'irish'
-    | 'scottish'
-    | 'indian'
     | 'south-african'
     | 'new-zealand'
-    | 'spanish'
-    | 'french'
-    | 'german'
-    | 'italian'
+    | 'argentinian'
+    | 'australian'
     | 'portuguese'
     | 'brazilian'
-    | 'mexican'
-    | 'argentinian'
-    | 'japanese'
-    | 'chinese'
-    | 'korean'
-    | 'russian'
-    | 'arabic'
-    | 'dutch'
-    | 'swedish'
     | 'norwegian'
-    | 'danish'
+    | (string & {})
+    | 'american'
+    | 'canadian'
+    | 'scottish'
+    | 'japanese'
+    | 'british'
+    | 'spanish'
+    | 'italian'
+    | 'mexican'
+    | 'chinese'
+    | 'russian'
+    | 'swedish'
     | 'finnish'
-    | 'polish'
     | 'turkish'
-    | 'greek'
-    | (string & {});
+    | 'indian'
+    | 'french'
+    | 'german'
+    | 'korean'
+    | 'arabic'
+    | 'danish'
+    | 'polish'
+    | 'irish'
+    | 'dutch'
+    | 'greek';
 };
 
 export const VoiceSelectorAccent = ({

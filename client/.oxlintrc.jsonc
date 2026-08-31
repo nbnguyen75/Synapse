@@ -1,12 +1,20 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["eslint", "typescript", "unicorn", "react", "import", "oxc", "jsx-a11y", "promise"],
+  "jsPlugins": [
+    {
+      "name": "tanstack-router",
+      "specifier": "@tanstack/eslint-plugin-router",
+    },
+  ],
   "options": {
     "typeAware": true,
   },
   "env": {
     "builtin": true,
+    "browser": true,
   },
+
   "categories": {
     "correctness": "error",
     "suspicious": "warn",
@@ -54,7 +62,6 @@
 
     "jsx-a11y/no-autofocus": "off",
 
-    "import/no-duplicates": "error",
     "import/no-unassigned-import": "off",
     "import/no-cycle": "off",
 
@@ -85,30 +92,85 @@
     "typescript/no-unsafe-argument": "warn",
     "typescript/no-unsafe-return": "warn",
 
-    "typescript/no-unsafe-type-assertion": "off",
-    "typescript/no-unnecessary-type-assertion": "warn",
+    "typescript/no-unsafe-type-assertion": ["warn"],
     "typescript/no-unsafe-assignment": "off",
     "typescript/no-unsafe-call": "off",
     "typescript/restrict-template-expressions": "off",
-    "typescript/require-await": "off",
-    "typescript/array-type": "off",
 
-    "unicorn/no-array-reverse": "off",
-    "unicorn/no-array-sort": "off",
-    "unicorn/consistent-function-scoping": "off",
+    "unicorn/no-array-reverse": "warn",
+    "unicorn/no-array-sort": "warn",
+    "unicorn/consistent-function-scoping": "warn",
     "unicorn/prefer-node-protocol": "error",
     "unicorn/throw-new-error": "warn",
     "unicorn/prefer-number-properties": "warn",
+
+    // * From @tanstack/eslint-config ported most of rules
+    "typescript/array-type": [
+      "error",
+      {
+        "default": "generic",
+        "readonly": "generic",
+      },
+    ],
+
+    "typescript/ban-ts-comment": [
+      "error",
+      {
+        "ts-expect-error": false,
+        "ts-ignore": "allow-with-description",
+      },
+    ],
+
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "separate-type-imports",
+      },
+    ],
+
+    "typescript/method-signature-style": ["error", "property"],
+
+    "typescript/no-duplicate-enum-values": "error",
+    "typescript/no-extra-non-null-assertion": "error",
+    "typescript/no-for-in-array": "error",
+
+    "typescript/no-inferrable-types": [
+      "error",
+      {
+        "ignoreParameters": true,
+      },
+    ],
+
+    "typescript/no-explicit-any": "error",
+    "typescript/no-misused-new": "error",
+    "typescript/no-namespace": "error",
+    "typescript/no-non-null-asserted-optional-chain": "error",
+
+    "typescript/no-unnecessary-condition": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+
+    "typescript/no-unsafe-function-type": "error",
+    "typescript/no-wrapper-object-types": "error",
+
+    "typescript/prefer-as-const": "error",
+    "typescript/prefer-for-of": "warn",
+
+    "typescript/require-await": "warn",
+    "typescript/triple-slash-reference": "error",
+
+    "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-commonjs": "error",
+    "import/no-duplicates": "error",
+
+    "tanstack-router/create-route-property-order": "error",
   },
 
   "overrides": [
     {
-      "files": [
-        "src/routes/**",
-        "src/main.tsx",
-        "src/components/shared/editor/**",
-        "src/providers/**",
-      ],
+      "files": ["src/routes/**", "src/main.tsx"],
       "rules": {
         "react/only-export-components": "off",
       },

@@ -1,16 +1,12 @@
+import type { PasteCommandType } from 'lexical';
+
 import { useEffect } from 'react';
 
-import {
-  COMMAND_PRIORITY_HIGH,
-  PASTE_COMMAND,
-  $getRoot,
-  $getSelection,
-  type PasteCommandType,
-} from 'lexical';
+import { COMMAND_PRIORITY_HIGH, PASTE_COMMAND, $getRoot, $getSelection } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $generateNodesFromMarkdownString } from '@lexical/markdown';
 
-import { CUSTOM_TRANSFORMERS } from './lexical-plugins';
+import { CUSTOM_TRANSFORMERS } from './lexical-config';
 
 export default function MarkdownPastePlugin() {
   const [editor] = useLexicalComposerContext();

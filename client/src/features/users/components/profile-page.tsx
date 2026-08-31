@@ -23,7 +23,8 @@ export default function ProfilePage() {
             <Avatar size="lg">
               {user?.image && <AvatarImage src={user.image} />}
               <AvatarFallback className="text-lg">
-                {user?.name?.charAt(0)?.toUpperCase() || m.profile_page_fallback_avatar()}
+                {/* oxlint-disable-next-line typescript/no-unnecessary-condition -- session may be undefined before auth loads */}
+                {user?.name?.charAt(0).toUpperCase() || m.profile_page_fallback_avatar()}
               </AvatarFallback>
             </Avatar>
             <div>

@@ -1,11 +1,11 @@
+import type { KeyboardShortcutEntry, ShortcutSectionId } from '@/config/keyboard-shortcuts';
+
 import { useShortcut } from '@/hooks/use-shortcut';
 
 import {
   EDITOR_SHORTCUT_GROUPS,
   KEYBOARD_SHORTCUT_SECTIONS,
   getShortcutsBySection,
-  type KeyboardShortcutEntry,
-  type ShortcutSectionId,
 } from '@/config/keyboard-shortcuts';
 
 import { m } from '@/paraglide/messages';
@@ -13,7 +13,7 @@ import { m } from '@/paraglide/messages';
 import { KeyCombo } from '@/components/shared/key-combo';
 
 interface KeyboardShortcutsListProps {
-  sections: ShortcutSectionId[];
+  sections: Array<ShortcutSectionId>;
 }
 
 function ShortcutRow({ entry }: { entry: KeyboardShortcutEntry }) {
@@ -34,7 +34,7 @@ function ShortcutRow({ entry }: { entry: KeyboardShortcutEntry }) {
   );
 }
 
-function renderEditorGroup(shortcuts: KeyboardShortcutEntry[]) {
+function renderEditorGroup(shortcuts: Array<KeyboardShortcutEntry>) {
   const groups = [...new Set(shortcuts.map((entry) => entry.group))];
 
   return (

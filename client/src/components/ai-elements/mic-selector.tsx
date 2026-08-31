@@ -16,7 +16,6 @@ import { useControllableState } from '@radix-ui/react-use-controllable-state';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -29,6 +28,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 
 import { ChevronsUpDownIcon } from 'lucide-react';
 
@@ -38,7 +38,7 @@ interface MicSelectorContextType {
   onValueChange?: (value: string) => void;
   onOpenChange?: (open: boolean) => void;
   setWidth?: (width: number) => void;
-  value: string | undefined;
+  value: undefined | string;
   data: MediaDeviceInfo[];
   open: boolean;
   width: number;
@@ -157,9 +157,9 @@ export const useAudioDevices = () => {
 };
 
 export type MicSelectorProps = ComponentProps<typeof Popover> & {
-  onValueChange?: (value: string | undefined) => void;
+  onValueChange?: (value: undefined | string) => void;
   onOpenChange?: (open: boolean) => void;
-  value?: string | undefined;
+  value?: undefined | string;
   defaultValue?: string;
   open?: boolean;
 };
@@ -173,7 +173,7 @@ export const MicSelector = ({
   defaultValue,
   ...props
 }: MicSelectorProps) => {
-  const [value, onValueChange] = useControllableState<string | undefined>({
+  const [value, onValueChange] = useControllableState<undefined | string>({
     onChange: controlledOnValueChange,
     defaultProp: defaultValue,
     prop: controlledValue,

@@ -1,9 +1,9 @@
 import type { FileUIPart, UIMessage } from 'ai';
 
 export interface MessageNode {
+  childrenIds: Array<string>;
   parentId: string | null;
   role: UIMessage['role'];
-  childrenIds: string[];
   message: UIMessage;
   createdAt: number;
   text: string;
@@ -21,9 +21,16 @@ export interface TreeMessage extends UIMessage {
 
 type TextPart = Extract<UIMessage['parts'][number], { type: 'text' }>;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
 function getMessageCreatedAt(message: UIMessage): number {
-  const metadata = message.metadata as { createdAt?: number } | undefined;
-  return metadata?.createdAt ?? 0;
+  const metadata = message.metadata;
+  if (isRecord(metadata) && typeof metadata.createdAt === 'number') {
+    return metadata.createdAt;
+  }
+  return 0;
 }
 
 export function getMessageText(message: UIMessage): string {
@@ -34,13 +41,13 @@ export function getMessageText(message: UIMessage): string {
 }
 
 export function buildTree(
-  messages: TreeMessage[],
+  messages: Array<TreeMessage>,
   currentLeafId: string | null,
 ): ConversationTreeState {
   const nodes: Record<string, MessageNode> = {};
-  const childrenById = new Map<string, string[]>();
+  const childrenById = new Map<string, Array<string>>();
 
-  const ordered = [...messages].sort((a, b) => getMessageCreatedAt(a) - getMessageCreatedAt(b));
+  const ordered = [...messages].toSorted((a, b) => getMessageCreatedAt(a) - getMessageCreatedAt(b));
 
   for (const message of ordered) {
     const parentId = message.parentId ?? null;
@@ -63,13 +70,10 @@ export function buildTree(
 
   for (const [parentId, childrenIds] of childrenById) {
     const parent = nodes[parentId];
-    if (parent) {
-      nodes[parentId] = { ...parent, childrenIds };
-    }
+    nodes[parentId] = { ...parent, childrenIds };
   }
 
-  const effectiveLeafId =
-    currentLeafId && nodes[currentLeafId] ? currentLeafId : (ordered.at(-1)?.id ?? null);
+  const effectiveLeafId = currentLeafId ?? ordered.at(-1)?.id ?? null;
 
   return { currentLeafId: effectiveLeafId, nodes };
 }
@@ -77,8 +81,8 @@ export function buildTree(
 export function getActivePath(
   state: ConversationTreeState,
   leafId: string | null = state.currentLeafId,
-): MessageNode[] {
-  const path: MessageNode[] = [];
+): Array<MessageNode> {
+  const path: Array<MessageNode> = [];
   let current = leafId ? state.nodes[leafId] : undefined;
 
   while (current) {
@@ -86,10 +90,10 @@ export function getActivePath(
     current = current.parentId ? state.nodes[current.parentId] : undefined;
   }
 
-  return path.reverse();
+  return path.toReversed();
 }
 
-export function getRecentContext(state: ConversationTreeState, limit = 5): UIMessage[] {
+export function getRecentContext(state: ConversationTreeState, limit = 5): Array<UIMessage> {
   return getActivePath(state)
     .slice(-limit)
     .map((node) => node.message);
@@ -112,7 +116,7 @@ export function addMessage(
 
   const nodes = { ...state.nodes, [message.id]: node };
 
-  if (parentId && nodes[parentId]) {
+  if (parentId) {
     const parent = nodes[parentId];
     nodes[parentId] = {
       ...parent,
@@ -128,7 +132,7 @@ export function retryAssistantMessage(
   assistantMessageId: string,
 ): { state: ConversationTreeState; userPromptId: string | null } {
   const assistant = state.nodes[assistantMessageId];
-  if (!assistant || assistant.role !== 'assistant') {
+  if (assistant.role !== 'assistant') {
     return { userPromptId: null, state };
   }
 
@@ -144,7 +148,7 @@ export function editUserMessage(
   newText: string,
 ): { editedMessage: UIMessage | null; state: ConversationTreeState } {
   const target = state.nodes[userMessageId];
-  if (!target || target.role !== 'user') {
+  if (target.role !== 'user') {
     return { editedMessage: null, state };
   }
 
@@ -152,7 +156,7 @@ export function editUserMessage(
 
   const editedMessage: UIMessage = {
     metadata: {
-      ...(target.message.metadata as Record<string, unknown> | undefined),
+      ...(isRecord(target.message.metadata) ? target.message.metadata : {}),
       createdAt: Date.now(),
     },
     parts: [...fileParts, { text: newText, type: 'text' }],
@@ -170,12 +174,8 @@ export function switchVersion(
   state: ConversationTreeState,
   targetMessageId: string,
 ): ConversationTreeState {
-  if (!state.nodes[targetMessageId]) {
-    return state;
-  }
-
   let leafId = targetMessageId;
-  while (state.nodes[leafId]?.childrenIds.length > 0) {
+  while (state.nodes[leafId].childrenIds.length > 0) {
     leafId = state.nodes[leafId].childrenIds[0];
   }
 
@@ -187,7 +187,7 @@ export function switchVersion(
 }
 
 export interface VersionInfo {
-  siblings: string[];
+  siblings: Array<string>;
   current: number;
   total: number;
 }
@@ -197,10 +197,9 @@ export function getVersionInfo(
   messageId: string,
 ): VersionInfo | null {
   const node = state.nodes[messageId];
-  if (!node) return null;
 
   const siblings = node.parentId
-    ? (state.nodes[node.parentId]?.childrenIds ?? [])
+    ? state.nodes[node.parentId].childrenIds
     : Object.values(state.nodes)
         .filter((candidate) => candidate.parentId === null)
         .map((candidate) => candidate.id);

@@ -24,8 +24,8 @@ export type ChartConfig = Record<
     icon?: React.ComponentType;
     label?: React.ReactNode;
   } & (
-    | { color?: string; theme?: never }
     | { theme: Record<keyof typeof THEMES, string>; color?: never }
+    | { color?: string; theme?: never }
   )
 >;
 
@@ -138,7 +138,7 @@ function ChartTooltipContent({
   color,
 }: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
   React.ComponentProps<'div'> & {
-    indicator?: 'line' | 'dot' | 'dashed';
+    indicator?: 'dashed' | 'line' | 'dot';
     hideIndicator?: boolean;
     hideLabel?: boolean;
     labelKey?: string;
@@ -368,10 +368,10 @@ function getPayloadConfigFromPayload(
 }
 
 export {
+  ChartTooltipContent,
+  ChartLegendContent,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
-  ChartLegendContent,
   ChartStyle,
 };

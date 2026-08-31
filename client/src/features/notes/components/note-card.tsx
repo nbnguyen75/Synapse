@@ -18,7 +18,7 @@ import { NoteCardDropdown } from '@/features/notes/components/note-card-dropdown
 import { useNoteCard } from '@/features/notes/hooks';
 
 interface NoteWithDetails extends Note {
-  tags?: string[];
+  tags?: Array<string>;
 }
 
 interface NoteCardProps {

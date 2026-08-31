@@ -174,16 +174,16 @@ function AlertDialogCancel({
 }
 
 export {
-  AlertDialog,
+  AlertDialogDescription,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  AlertDialogTrigger,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogOverlay,
   AlertDialogPortal,
+  AlertDialogMedia,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialog,
 };

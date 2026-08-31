@@ -1,8 +1,9 @@
+import type { InitialConfigType } from '@lexical/react/LexicalComposer';
 import type { EditorThemeClasses } from 'lexical';
+import type { HTMLAttributes } from 'react';
 
-import { useEffect, type HTMLAttributes } from 'react';
+import { useEffect } from 'react';
 
-import { LexicalComposer, type InitialConfigType } from '@lexical/react/LexicalComposer';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
@@ -14,20 +15,15 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 
 import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
 
-import {
-  CUSTOM_TRANSFORMERS,
-  InitialStatePlugin,
-  SyncStatePlugin,
-  EditorOnChangePlugin,
-  ALLOWED_NODES,
-  MATCHERS,
-} from './lexical-plugins';
+import { InitialStatePlugin, SyncStatePlugin, EditorOnChangePlugin } from './lexical-plugins';
+import { ALLOWED_NODES, CUSTOM_TRANSFORMERS, MATCHERS } from './lexical-config';
 import BulletListShortcutPlugin from './lexical-bullet-list-shortcut-plugin';
 import LinkShortcutDialogPlugin from './lexical-link-shortcut-dialog-plugin';
 import KeyboardShortcutsPlugin from './lexical-keyboard-shortcuts';
@@ -35,7 +31,7 @@ import CompanionBridgePlugin from './companion-bridge-plugin';
 import MarkdownPastePlugin from './markdown-paste-plugin';
 import Toolbar from './lexical-toolbar';
 
-export const editorTheme: EditorThemeClasses = {
+const editorTheme: EditorThemeClasses = {
   codeHighlight: {
     'class-name': 'text-amber-600 dark:text-amber-400 font-semibold',
     keyword: 'text-purple-600 dark:text-purple-400 font-semibold',

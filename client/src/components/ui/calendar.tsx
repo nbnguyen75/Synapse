@@ -1,10 +1,10 @@
-import * as React from 'react';
 import {
   DayPicker,
   getDefaultClassNames,
   type DayButton,
   type Locale,
 } from 'react-day-picker';
+import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -225,4 +225,4 @@ function CalendarDayButton({
   );
 }
 
-export { Calendar, CalendarDayButton };
+export { CalendarDayButton, Calendar };

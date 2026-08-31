@@ -41,7 +41,7 @@ function ContextMenuContent({
 }: ContextMenuPrimitive.Popup.Props &
   Pick<
     ContextMenuPrimitive.Positioner.Props,
-    'align' | 'alignOffset' | 'side' | 'sideOffset'
+    'alignOffset' | 'sideOffset' | 'align' | 'side'
   >) {
   return (
     <ContextMenuPrimitive.Portal>
@@ -97,7 +97,7 @@ function ContextMenuItem({
   inset,
   ...props
 }: ContextMenuPrimitive.Item.Props & {
-  variant?: 'default' | 'destructive';
+  variant?: 'destructive' | 'default';
   inset?: boolean;
 }) {
   return (
@@ -256,19 +256,19 @@ function ContextMenuShortcut({
 }
 
 export {
-  ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
   ContextMenuCheckboxItem,
-  ContextMenuRadioItem,
-  ContextMenuLabel,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-  ContextMenuGroup,
-  ContextMenuPortal,
-  ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuPortal,
+  ContextMenuLabel,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuSub,
+  ContextMenu,
 };

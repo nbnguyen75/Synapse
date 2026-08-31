@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 
 interface NoteWithDetails extends Note {
-  tags?: string[];
+  tags?: Array<string>;
 }
 
 interface NoteCardDropdownProps {

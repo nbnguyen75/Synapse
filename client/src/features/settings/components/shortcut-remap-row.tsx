@@ -43,6 +43,7 @@ export function ShortcutRemapRow({ entry }: ShortcutRemapRowProps) {
 
   const recorder = useHotkeyRecorder({
     onRecord: (hotkey) => {
+      // oxlint-disable-next-line typescript/no-unnecessary-condition -- hotkey can be empty string on cancel
       if (!hotkey) {
         stopCapture();
         return;

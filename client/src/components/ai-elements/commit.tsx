@@ -6,13 +6,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 
 import {
   CheckIcon,
@@ -335,7 +335,7 @@ const fileStatusLabels = {
 };
 
 export type CommitFileStatusProps = HTMLAttributes<HTMLSpanElement> & {
-  status: 'added' | 'modified' | 'deleted' | 'renamed';
+  status: 'modified' | 'deleted' | 'renamed' | 'added';
 };
 
 export const CommitFileStatus = ({

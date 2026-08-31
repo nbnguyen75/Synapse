@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import { cva, type VariantProps } from 'class-variance-authority';
-
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
+
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 
@@ -191,14 +191,14 @@ function ItemFooter({ className, ...props }: React.ComponentProps<'div'>) {
 }
 
 export {
-  Item,
-  ItemMedia,
+  ItemDescription,
+  ItemSeparator,
   ItemContent,
   ItemActions,
-  ItemGroup,
-  ItemSeparator,
-  ItemTitle,
-  ItemDescription,
   ItemHeader,
   ItemFooter,
+  ItemMedia,
+  ItemGroup,
+  ItemTitle,
+  Item,
 };

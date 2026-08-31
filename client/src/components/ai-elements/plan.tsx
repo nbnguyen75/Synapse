@@ -6,7 +6,6 @@ import { createContext, useContext, useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -21,10 +20,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-
-import { Shimmer } from './shimmer';
+import { Button } from '@/components/ui/button';
 
 import { ChevronsUpDownIcon } from 'lucide-react';
+
+import { Shimmer } from './shimmer';
 
 interface PlanContextValue {
   isStreaming: boolean;

@@ -18,7 +18,7 @@ export function useMultiSelect() {
   }, []);
 
   const toggleSelectRange = useCallback(
-    (id: string, orderedIds: string[]) => {
+    (id: string, orderedIds: Array<string>) => {
       const anchor = lastClickedIdRef.current ?? id;
       const anchorIdx = orderedIds.indexOf(anchor);
       const currentIdx = orderedIds.indexOf(id);
@@ -41,11 +41,11 @@ export function useMultiSelect() {
     [toggleSelect],
   );
 
-  const setSelected = useCallback((ids: string[]) => {
+  const setSelected = useCallback((ids: Array<string>) => {
     setSelectedIds(new Set(ids));
   }, []);
 
-  const selectAll = useCallback((ids: string[]) => {
+  const selectAll = useCallback((ids: Array<string>) => {
     setSelectedIds(new Set(ids));
   }, []);
 
@@ -55,7 +55,7 @@ export function useMultiSelect() {
   }, []);
 
   const isAllSelected = useCallback(
-    (ids: string[]) => ids.every((id) => selectedIds.has(id)),
+    (ids: Array<string>) => ids.every((id) => selectedIds.has(id)),
     [selectedIds],
   );
 

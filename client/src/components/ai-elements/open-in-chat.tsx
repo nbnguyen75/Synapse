@@ -6,7 +6,6 @@ import { createContext, useContext, useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 import {
   ChevronDownIcon,

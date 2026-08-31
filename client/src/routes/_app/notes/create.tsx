@@ -126,7 +126,7 @@ function RouteComponent() {
                       <InputGroupAddon align="inline-end">
                         <InputGroupButton
                           variant="default"
-                          disabled={!watchedContent?.trim() || isGeneratingTitle || isCreating}
+                          disabled={!watchedContent.trim() || isGeneratingTitle || isCreating}
                           onClick={generateNoteTitle}
                           title={m.notes_page_ai_title()}
                           className="h-10 rounded-md"
@@ -167,7 +167,7 @@ function RouteComponent() {
                       <Field data-invalid={fieldState.invalid}>
                         <LexicalEditor
                           {...field}
-                          value={field.value ?? ''}
+                          value={field.value}
                           onChange={field.onChange}
                           id="details-note-content"
                           className="h-full max-h-120"

@@ -14,9 +14,9 @@ import {
 
 import { cn } from '@/lib/utils';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 
 import { CheckIcon, CopyIcon, EyeIcon, EyeOffIcon } from 'lucide-react';
 
@@ -249,7 +249,7 @@ export const EnvironmentVariable = ({
 export type EnvironmentVariableCopyButtonProps = ComponentProps<
   typeof Button
 > & {
-  copyFormat?: 'name' | 'value' | 'export';
+  copyFormat?: 'export' | 'value' | 'name';
   onError?: (error: Error) => void;
   onCopy?: () => void;
   timeout?: number;

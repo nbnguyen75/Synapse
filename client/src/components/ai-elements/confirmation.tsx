@@ -1,7 +1,7 @@
 'use client';
 
-import type { ToolUIPart } from 'ai';
 import type { ComponentProps, ReactNode } from 'react';
+import type { ToolUIPart } from 'ai';
 
 import { createContext, useContext, useMemo } from 'react';
 
@@ -12,23 +12,23 @@ import { Button } from '@/components/ui/button';
 
 type ToolUIPartApproval =
   | {
+      approved: boolean;
+      reason?: string;
+      id: string;
+    }
+  | {
       approved?: never;
       reason?: never;
       id: string;
     }
   | {
-      approved: boolean;
+      approved: false;
       reason?: string;
       id: string;
     }
   | {
       reason?: string;
       approved: true;
-      id: string;
-    }
-  | {
-      approved: false;
-      reason?: string;
       id: string;
     }
   | undefined;

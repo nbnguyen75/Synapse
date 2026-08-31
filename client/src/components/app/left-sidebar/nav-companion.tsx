@@ -63,7 +63,7 @@ export default function NavCompanion() {
         (activeConversationId != null &&
           (queryClient
             .getQueryData<{
-              pages: { length: number }[];
+              pages: Array<{ length: number }>;
             }>(['companion-conversation-messages', activeConversationId])
             ?.pages.some((page) => page.length > 0) ??
             false));

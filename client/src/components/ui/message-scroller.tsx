@@ -121,13 +121,13 @@ function MessageScrollerButton({
 }
 
 export {
-  MessageScrollerProvider,
-  MessageScroller,
-  MessageScrollerViewport,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerButton,
-  useMessageScroller,
   useMessageScrollerScrollable,
   useMessageScrollerVisibility,
+  MessageScrollerProvider,
+  MessageScrollerViewport,
+  MessageScrollerContent,
+  MessageScrollerButton,
+  MessageScrollerItem,
+  useMessageScroller,
+  MessageScroller,
 };

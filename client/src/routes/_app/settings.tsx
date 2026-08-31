@@ -1,7 +1,8 @@
 /* oxlint-disable perfectionist/sort-objects */
 import type { SettingsTab } from '@/features/settings/constants';
+import type { ElementType } from 'react';
 
-import { useState, type ElementType } from 'react';
+import { useState } from 'react';
 
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 
@@ -67,14 +68,17 @@ function RouteComponent() {
   const [activeTab, setActiveTab] = useState(tab);
 
   const handleTabChange = (value: string) => {
+    const tab = (['general', 'companion', 'shortcuts'] as const).find((item) => item === value);
+    if (!tab) return;
+
     void navigate({
       search: (prev) => ({
         ...prev,
-        tab: value as SettingsTab,
+        tab,
       }),
     });
 
-    setActiveTab(value as SettingsTab);
+    setActiveTab(tab);
   };
 
   return (

@@ -1,7 +1,9 @@
 import type { LoginFormInput, LoginPayload } from '@/features/auth/schemas';
+import type { BaseSyntheticEvent, ComponentProps } from 'react';
+import type { UseFormReturn } from 'react-hook-form';
 
-import { useState, type BaseSyntheticEvent, type ComponentProps } from 'react';
-import { Controller, type UseFormReturn } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
+import { useState } from 'react';
 
 import { toast } from 'sonner';
 

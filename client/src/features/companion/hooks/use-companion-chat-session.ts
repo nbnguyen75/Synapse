@@ -10,9 +10,9 @@ export interface UseCompanionChatSessionOptions {
   onFinish?: (result: { message: UIMessage; isError?: boolean }) => void;
   onConversationId?: (conversationId: string) => void;
   extraMetadata?: Record<string, unknown>;
+  initialMessages?: Array<UIMessage>;
   onError?: (error: Error) => void;
   initialConversationId?: string;
-  initialMessages?: UIMessage[];
 }
 
 export function useCompanionChatSession({

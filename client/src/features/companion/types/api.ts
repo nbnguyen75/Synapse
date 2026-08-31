@@ -21,7 +21,7 @@ export type CompanionFetchRouter = EnsureRouter<{
   };
   '/api/v1/ai/conversations/:id/messages': {
     $get: {
-      response: ApiSuccessResponse<(UIMessage & { parentId: string | null })[]>;
+      response: ApiSuccessResponse<Array<UIMessage & { parentId: string | null }>>;
       query: { offset?: number; limit?: number };
       params: ConversationIdParams;
     };
@@ -58,7 +58,7 @@ export type CompanionFetchRouter = EnsureRouter<{
   };
   '/api/v1/ai/conversations': {
     $get: {
-      response: ApiSuccessResponse<CompanionConversation[]>;
+      response: ApiSuccessResponse<Array<CompanionConversation>>;
     };
   };
 }>;

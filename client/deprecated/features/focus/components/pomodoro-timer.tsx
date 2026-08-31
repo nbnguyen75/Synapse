@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { PauseIcon, PlayIcon, RotateCcwIcon } from 'lucide-react';
 
 export default function PomodoroTimer() {
-  const [timerMode, setTimerMode] = useState<'work' | 'short' | 'long'>('work');
+  const [timerMode, setTimerMode] = useState<'short' | 'work' | 'long'>('work');
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [timerRunning, setTimerRunning] = useState(false);
 
-  const changeTimerMode = (mode: 'work' | 'short' | 'long') => {
+  const changeTimerMode = (mode: 'short' | 'work' | 'long') => {
     setTimerMode(mode);
     setTimerRunning(false);
     if (mode === 'work') setTimeLeft(25 * 60);

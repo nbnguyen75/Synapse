@@ -1,11 +1,14 @@
-import { useMutation, useQueryClient, type MutateOptions } from '@tanstack/react-query';
+import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+import type { MutateOptions } from '@tanstack/react-query';
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import { useConfirm } from '@/providers/confirm-provider';
+import { useConfirm } from '@/providers/use-confirm';
 
-import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+import { $fetch } from '@/lib/fetch';
 
 import { noteKeys } from '@/features/notes/keys';
 

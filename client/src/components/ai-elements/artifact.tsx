@@ -1,17 +1,17 @@
 'use client';
 
-import type { LucideIcon } from 'lucide-react';
 import type { ComponentProps, HTMLAttributes } from 'react';
+import type { LucideIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
 
 import { XIcon } from 'lucide-react';
 

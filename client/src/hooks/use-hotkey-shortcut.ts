@@ -1,6 +1,6 @@
 import type { ShortcutId } from '@/config/keyboard-shortcuts';
 
-import { useRegisterGlobalShortcut } from '@/providers/global-shortcuts-provider';
+import { useRegisterGlobalShortcut } from '@/providers/use-register-global-shortcut';
 
 interface UseHotkeyShortcutOptions {
   allowWhenTyping?: boolean;

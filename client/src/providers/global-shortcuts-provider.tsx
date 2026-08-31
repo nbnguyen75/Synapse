@@ -1,7 +1,9 @@
+import type { GlobalShortcutRegistration } from './use-register-global-shortcut';
 import type { ShortcutId } from '@/config/keyboard-shortcuts';
 import type { Hotkey } from '@tanstack/hotkeys';
+import type { ReactNode } from 'react';
 
-import { createContext, use, useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { getHotkeyManager, getSequenceManager } from '@tanstack/hotkeys';
 
@@ -13,11 +15,7 @@ import {
   getShortcutsBySection,
 } from '@/config/keyboard-shortcuts';
 
-interface GlobalShortcutRegistration {
-  handler: (event: KeyboardEvent) => void;
-  ignoreInputs: boolean;
-  enabled: boolean;
-}
+import { GlobalShortcutsContext } from './use-register-global-shortcut';
 
 /**
  * Structural handle shared by `HotkeyRegistrationHandle` and
@@ -25,15 +23,9 @@ interface GlobalShortcutRegistration {
  * the same shape for the options we manage.
  */
 interface HotkeyHandleLike {
-  setOptions(options: { ignoreInputs?: boolean; enabled?: boolean }): void;
-  unregister(): void;
+  setOptions: (options: { ignoreInputs?: boolean; enabled?: boolean }) => void;
+  unregister: () => void;
 }
-
-interface GlobalShortcutsContextValue {
-  register: (id: ShortcutId, registration: GlobalShortcutRegistration) => () => void;
-}
-
-const GlobalShortcutsContext = createContext<GlobalShortcutsContextValue | null>(null);
 
 /**
  * Resolves the row options a hotkey registration should use given the
@@ -42,7 +34,7 @@ const GlobalShortcutsContext = createContext<GlobalShortcutsContextValue | null>
  * most permissive setting wins so shortcuts keep working while typing as
  * soon as any consumer asked for `allowWhenTyping`.
  */
-function computeRowOptions(registrations: GlobalShortcutRegistration[] | undefined): {
+function computeRowOptions(registrations: Array<GlobalShortcutRegistration> | undefined): {
   ignoreInputs: undefined | boolean;
   enabled: boolean;
 } {
@@ -66,8 +58,8 @@ function computeRowOptions(registrations: GlobalShortcutRegistration[] | undefin
  */
 export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
   const overrides = useShortcutsStore((state) => state.overrides);
-  const registrationsRef = useRef(new Map<ShortcutId, GlobalShortcutRegistration[]>());
-  const handlesRef = useRef(new Map<ShortcutId, HotkeyHandleLike[]>());
+  const registrationsRef = useRef(new Map<ShortcutId, Array<GlobalShortcutRegistration>>());
+  const handlesRef = useRef(new Map<ShortcutId, Array<HotkeyHandleLike>>());
 
   const syncRowOptions = useCallback((id: ShortcutId) => {
     const handles = handlesRef.current.get(id);
@@ -104,11 +96,11 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    const allHandles: HotkeyHandleLike[] = [];
-    const handlesByShortcut = new Map<ShortcutId, HotkeyHandleLike[]>();
+    const allHandles: Array<HotkeyHandleLike> = [];
+    const handlesByShortcut = new Map<ShortcutId, Array<HotkeyHandleLike>>();
 
     for (const entry of getShortcutsBySection('global')) {
-      const comboHandles: HotkeyHandleLike[] = [];
+      const comboHandles: Array<HotkeyHandleLike> = [];
       for (const combo of getEffectiveCombos(entry.id, overrides)) {
         const invoke = (event: KeyboardEvent) => {
           const registrations = registrationsRef.current.get(entry.id);
@@ -122,15 +114,21 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
 
         // Multi-key sequences (e.g. `g n`) go through the SequenceManager,
         // which has its own listener + timeout state machine; single combos
-        // register on the HotkeyManager.
-        const handle = combo.includes(' ')
-          ? getSequenceManager().register(combo.split(/\s+/) as Hotkey[], invoke, {
+        // register on the HotkeyManager. The registry stores combos as plain
+        // strings that the library parses at runtime, so they are narrowed at
+        // this boundary.
+        const isSequence = combo.includes(' ');
+        // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+        const sequenceSteps = combo.split(/\s+/) as Array<Hotkey>;
+        const handle = isSequence
+          ? getSequenceManager().register(sequenceSteps, invoke, {
               meta: { name: entry.label() },
               conflictBehavior: 'allow',
               stopPropagation: true,
               preventDefault: true,
             })
-          : getHotkeyManager().register(combo as Hotkey, invoke, {
+          : // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+            getHotkeyManager().register(combo as Hotkey, invoke, {
               meta: { name: entry.label() },
               conflictBehavior: 'allow',
               stopPropagation: true,
@@ -160,34 +158,4 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
   }, [overrides, syncRowOptions]);
 
   return <GlobalShortcutsContext value={{ register }}>{children}</GlobalShortcutsContext>;
-}
-
-interface UseGlobalShortcutOptions {
-  allowWhenTyping?: boolean;
-  enabled?: boolean;
-}
-
-/**
- * Registers a handler for a global shortcut into the central
- * `GlobalShortcutsProvider`. The handler ref is kept fresh on every render,
- * so callers always dispatch the latest closure.
- */
-export function useRegisterGlobalShortcut(
-  id: ShortcutId,
-  handler: (event: KeyboardEvent) => void,
-  { allowWhenTyping = false, enabled = true }: UseGlobalShortcutOptions = {},
-) {
-  const context = use(GlobalShortcutsContext);
-  if (context === null) {
-    throw new Error('useRegisterGlobalShortcut must be used within <GlobalShortcutsProvider>');
-  }
-  const { register } = context;
-
-  useEffect(() => {
-    return register(id, {
-      ignoreInputs: !allowWhenTyping,
-      handler,
-      enabled,
-    });
-  }, [allowWhenTyping, enabled, handler, id, register]);
 }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 import { Menubar as MenubarPrimitive } from '@base-ui/react/menubar';
+import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 
 import { cn } from '@/lib/utils';
 
@@ -266,20 +266,20 @@ function MenubarSubContent({
 }
 
 export {
-  Menubar,
-  MenubarPortal,
-  MenubarMenu,
-  MenubarTrigger,
-  MenubarContent,
-  MenubarGroup,
-  MenubarSeparator,
-  MenubarLabel,
-  MenubarItem,
-  MenubarShortcut,
   MenubarCheckboxItem,
   MenubarRadioGroup,
-  MenubarRadioItem,
-  MenubarSub,
   MenubarSubTrigger,
   MenubarSubContent,
+  MenubarSeparator,
+  MenubarRadioItem,
+  MenubarShortcut,
+  MenubarTrigger,
+  MenubarContent,
+  MenubarPortal,
+  MenubarGroup,
+  MenubarLabel,
+  MenubarMenu,
+  MenubarItem,
+  MenubarSub,
+  Menubar,
 };

@@ -5,6 +5,10 @@ import { create } from 'zustand';
 
 const SETTINGS_STORAGE_KEY = 'synapse-settings';
 
+function isLayoutMode(value: unknown): value is LayoutMode {
+  return value === 'agent' || value === 'chat';
+}
+
 /**
  * Reads the persisted layout mode synchronously (e.g. in route `beforeLoad`
  * guards, where the store isn't available). Falls back to `'agent'`.
@@ -14,8 +18,19 @@ export function readPersistedLayoutMode(): LayoutMode {
   const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
   if (!raw) return 'agent';
   try {
-    const parsed = JSON.parse(raw) as { state?: { layoutMode?: LayoutMode } };
-    return parsed.state?.layoutMode ?? 'agent';
+    const candidate: unknown = JSON.parse(raw);
+    if (
+      typeof candidate === 'object' &&
+      candidate !== null &&
+      'state' in candidate &&
+      typeof candidate.state === 'object' &&
+      candidate.state !== null &&
+      'layoutMode' in candidate.state &&
+      isLayoutMode(candidate.state.layoutMode)
+    ) {
+      return candidate.state.layoutMode;
+    }
+    return 'agent';
   } catch {
     return 'agent';
   }

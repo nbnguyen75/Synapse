@@ -12,19 +12,19 @@ import {
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { Input } from '@/components/ui/input';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 import { ChevronDownIcon } from 'lucide-react';
 
@@ -217,7 +217,7 @@ export const WebPreviewBody = ({
 
 export type WebPreviewConsoleProps = ComponentProps<'div'> & {
   logs?: {
-    level: 'log' | 'warn' | 'error';
+    level: 'error' | 'warn' | 'log';
     message: string;
     timestamp: Date;
   }[];

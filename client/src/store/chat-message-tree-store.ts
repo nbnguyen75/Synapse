@@ -12,7 +12,6 @@ interface ChatMessageTreeState {
 export const useChatMessageTreeStore = create<ChatMessageTreeState>()((set, get) => ({
   clearTree: (conversationId) =>
     set((state) => {
-      if (!state.trees[conversationId]) return state;
       const { [conversationId]: _removed, ...trees } = state.trees;
       return { trees };
     }),

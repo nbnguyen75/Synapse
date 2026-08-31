@@ -147,14 +147,14 @@ function DialogDescription({
 }
 
 export {
-  Dialog,
-  DialogClose,
-  DialogContent,
   DialogDescription,
+  DialogContent,
+  DialogOverlay,
+  DialogTrigger,
   DialogFooter,
   DialogHeader,
-  DialogOverlay,
   DialogPortal,
+  DialogClose,
   DialogTitle,
-  DialogTrigger,
+  Dialog,
 };

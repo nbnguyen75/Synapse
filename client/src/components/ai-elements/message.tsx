@@ -1,7 +1,7 @@
 'use client';
 
-import type { UIMessage } from 'ai';
 import type { ComponentProps, HTMLAttributes, Key, ReactElement } from 'react';
+import type { UIMessage } from 'ai';
 
 import {
   createContext,
@@ -13,22 +13,22 @@ import {
   useState,
 } from 'react';
 
-import { cjk } from '@streamdown/cjk';
+import { Streamdown, type PluginConfig } from 'streamdown';
+import { mermaid } from '@streamdown/mermaid';
 import { code } from '@streamdown/code';
 import { math } from '@streamdown/math';
-import { mermaid } from '@streamdown/mermaid';
-import { Streamdown, type PluginConfig } from 'streamdown';
+import { cjk } from '@streamdown/cjk';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
-import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
+import { Button } from '@/components/ui/button';
 
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 

@@ -10,7 +10,7 @@ import type { Note } from '@/features/notes/types/note';
 import type { EnsureRouter } from '@/lib/fetch';
 
 export type NotesApiParams = Omit<NotesQueryParams, 'sort'> & {
-  sort: (NotesQueryParams['sort'] | (string & {}))[];
+  sort: Array<NotesQueryParams['sort'] | (string & {})>;
   archived?: boolean;
   favorite?: boolean;
   trashed?: boolean;

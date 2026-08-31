@@ -10,10 +10,10 @@ export const SETTINGS_TABS = ['general', 'companion', 'shortcuts'] as const;
 
 export type SettingsTab = (typeof SETTINGS_TABS)[number];
 
-export const COMPANION_RESPONSE_LENGTH_OPTIONS: {
+export const COMPANION_RESPONSE_LENGTH_OPTIONS: Array<{
   value: CompanionResponseLength;
   label: string;
-}[] = [
+}> = [
   {
     label: m.settings_companion_response_length_balanced(),
     value: 'balanced',
@@ -28,10 +28,10 @@ export const COMPANION_RESPONSE_LENGTH_OPTIONS: {
   },
 ];
 
-export const COMPANION_SETTINGS_PRESET_OPTIONS: {
+export const COMPANION_SETTINGS_PRESET_OPTIONS: Array<{
   value: CompanionSettingsPreset;
   label: string;
-}[] = [
+}> = [
   {
     label: m.settings_companion_preset_professional(),
     value: 'professional',
@@ -54,10 +54,10 @@ export const COMPANION_SETTINGS_PRESET_OPTIONS: {
   },
 ];
 
-export const COMPANION_SETTINGS_LANGUAGE_OPTIONS: {
+export const COMPANION_SETTINGS_LANGUAGE_OPTIONS: Array<{
   value: CompanionSettingsLanguage;
   label: string;
-}[] = [
+}> = [
   {
     label: m.settings_companion_language_auto(),
     value: 'auto',

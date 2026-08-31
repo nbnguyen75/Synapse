@@ -22,7 +22,7 @@ function PopoverContent({
 }: PopoverPrimitive.Popup.Props &
   Pick<
     PopoverPrimitive.Positioner.Props,
-    'align' | 'alignOffset' | 'side' | 'sideOffset'
+    'alignOffset' | 'sideOffset' | 'align' | 'side'
   >) {
   return (
     <PopoverPrimitive.Portal>
@@ -80,10 +80,10 @@ function PopoverDescription({
 }
 
 export {
-  Popover,
-  PopoverContent,
   PopoverDescription,
+  PopoverContent,
+  PopoverTrigger,
   PopoverHeader,
   PopoverTitle,
-  PopoverTrigger,
+  Popover,
 };

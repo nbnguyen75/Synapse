@@ -125,11 +125,11 @@ function PaginationEllipsis({
 }
 
 export {
-  Pagination,
-  PaginationContent,
   PaginationEllipsis,
+  PaginationPrevious,
+  PaginationContent,
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious,
+  Pagination,
 };

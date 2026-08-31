@@ -1,4 +1,5 @@
 import type { NoteFormInput, NoteInputPayload } from '@/features/notes/schemas';
+import type { InferRequestType, InferResponseType } from '@/lib/fetch';
 import type { Note } from '@/features/notes/types';
 
 import { useForm, useWatch } from 'react-hook-form';
@@ -13,8 +14,8 @@ import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 
 import { useConfirm } from '@/providers';
 
-import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+import { $fetch } from '@/lib/fetch';
 
 import {
   useDeleteNote,
@@ -23,6 +24,17 @@ import {
   useTrashNote,
 } from '@/features/notes/hooks/api';
 import { noteKeys } from '@/features/notes/keys';
+
+const copyContent = async (content: string) => {
+  try {
+    await navigator.clipboard.writeText(content);
+    toast.success(m.notes_page_toast_copy_content());
+  } catch {
+    toast.error(m.notes_page_toast_copy_content_failed(), {
+      description: m.common_error_connection(),
+    });
+  }
+};
 
 export function useNoteDetails(initialData: Note) {
   const router = useRouter();
@@ -63,9 +75,9 @@ export function useNoteDetails(initialData: Note) {
     }
   }, [note.title, initialData.title, router]);
 
-  const form = useForm<NoteFormInput>({
+  const form = useForm<Prettify<Omit<NoteFormInput, 'title'>> & { title: string }>({
     values: {
-      content: note.content ?? '',
+      content: note.content,
       title: note.title,
     },
   });
@@ -160,17 +172,6 @@ export function useNoteDetails(initialData: Note) {
         onSuccess: () => void navigate({ to: '/notes' }),
       },
     );
-  };
-
-  const copyContent = async (content = note.content ?? '') => {
-    try {
-      await navigator.clipboard.writeText(content);
-      toast.success(m.notes_page_toast_copy_content());
-    } catch {
-      toast.error(m.notes_page_toast_copy_content_failed(), {
-        description: m.common_error_connection(),
-      });
-    }
   };
 
   const backToNotesPage = () => {

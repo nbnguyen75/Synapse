@@ -15,6 +15,8 @@ import { useSession } from '@/lib/auth';
 
 import { DefaultLoaderPage, ErrorPage } from '@/components/app/pages';
 
+import '@/assets/styles.css';
+
 import { routeTree } from '@/routeTree.gen';
 
 const queryClient = new QueryClient({

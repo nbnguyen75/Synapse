@@ -1,8 +1,5 @@
 import { useEffect } from 'react';
 
-import { useTags, TAG_COLORS, TAG_COLOR_VALUES } from '../hooks/use-tags';
-import { discoverTagsFromNotes } from '../lib/tags';
-
 import { m } from '@/paraglide/messages';
 
 import {
@@ -31,8 +28,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 import {
   Tag,
@@ -42,6 +39,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+
+import { useTags, TAG_COLORS, TAG_COLOR_VALUES } from '../hooks/use-tags';
+import { discoverTagsFromNotes } from '../lib/tags';
 
 function TagsPage() {
   const {

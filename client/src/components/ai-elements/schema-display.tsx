@@ -6,19 +6,19 @@ import { createContext, useContext, useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Badge } from '@/components/ui/badge';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge';
 
 import { ChevronRightIcon } from 'lucide-react';
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+type HttpMethod = 'DELETE' | 'PATCH' | 'POST' | 'GET' | 'PUT';
 
 interface SchemaParameter {
-  location?: 'path' | 'query' | 'header';
+  location?: 'header' | 'query' | 'path';
   description?: string;
   required?: boolean;
   name: string;

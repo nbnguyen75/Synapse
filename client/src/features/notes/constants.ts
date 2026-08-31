@@ -54,7 +54,7 @@ export const EMPTY_PAGINATED: PaginatedData<Note> = {
   page: 0,
 };
 
-export const NOTE_SORT_OPTIONS: { value: NoteSortableField; label: string }[] = [
+export const NOTE_SORT_OPTIONS: Array<{ value: NoteSortableField; label: string }> = [
   { label: m.notes_page_sort_updated(), value: 'updatedAt,desc' },
   { label: m.notes_page_sort_updated_asc(), value: 'updatedAt,asc' },
   { label: m.notes_page_sort_created_new(), value: 'createdAt,desc' },

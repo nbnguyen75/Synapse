@@ -53,18 +53,12 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6); */
 
-  --shadow-flat:
-    -5px -5px 12px var(--flat-shadow-light),
-    5px 5px 12px var(--flat-shadow-dark);
+  --shadow-flat: -5px -5px 12px var(--flat-shadow-light), 5px 5px 12px var(--flat-shadow-dark);
   --shadow-flat-sm:
-    -2.5px -2.5px 6px var(--flat-shadow-light),
-    2.5px 2.5px 6px var(--flat-shadow-dark);
-  --shadow-flat-lg:
-    -9px -9px 22px var(--flat-shadow-light),
-    9px 9px 22px var(--flat-shadow-dark);
+    -2.5px -2.5px 6px var(--flat-shadow-light), 2.5px 2.5px 6px var(--flat-shadow-dark);
+  --shadow-flat-lg: -9px -9px 22px var(--flat-shadow-light), 9px 9px 22px var(--flat-shadow-dark);
   --shadow-flat-inset:
-    inset -3.5px -3.5px 8px var(--flat-shadow-light),
-    inset 3.5px 3.5px 8px var(--flat-shadow-dark);
+    inset -3.5px -3.5px 8px var(--flat-shadow-light), inset 3.5px 3.5px 8px var(--flat-shadow-dark);
 }
 
 :root {

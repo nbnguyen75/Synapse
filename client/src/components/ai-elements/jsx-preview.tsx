@@ -1,7 +1,7 @@
 'use client';
 
-import type { ComponentProps, ReactNode } from 'react';
 import type { TProps as JsxParserProps } from 'react-jsx-parser';
+import type { ComponentProps, ReactNode } from 'react';
 
 import {
   createContext,
@@ -262,11 +262,11 @@ export const JSXPreviewContent = memo(
 JSXPreviewContent.displayName = 'JSXPreviewContent';
 
 export type JSXPreviewErrorProps = ComponentProps<'div'> & {
-  children?: ReactNode | ((error: Error) => ReactNode);
+  children?: ((error: Error) => ReactNode) | ReactNode;
 };
 
 const renderChildren = (
-  children: ReactNode | ((error: Error) => ReactNode),
+  children: ((error: Error) => ReactNode) | ReactNode,
   error: Error,
 ): ReactNode => {
   if (typeof children === 'function') {

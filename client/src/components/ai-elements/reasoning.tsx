@@ -13,13 +13,12 @@ import {
   useState,
 } from 'react';
 
-import { cjk } from '@streamdown/cjk';
+import { useControllableState } from '@radix-ui/react-use-controllable-state';
+import { Streamdown, type PluginConfig } from 'streamdown';
+import { mermaid } from '@streamdown/mermaid';
 import { code } from '@streamdown/code';
 import { math } from '@streamdown/math';
-import { mermaid } from '@streamdown/mermaid';
-import { Streamdown, type PluginConfig } from 'streamdown';
-
-import { useControllableState } from '@radix-ui/react-use-controllable-state';
+import { cjk } from '@streamdown/cjk';
 
 import { cn } from '@/lib/utils';
 
@@ -29,13 +28,13 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 
-import { Shimmer } from './shimmer';
-
 import { BrainIcon, ChevronDownIcon } from 'lucide-react';
+
+import { Shimmer } from './shimmer';
 
 interface ReasoningContextValue {
   setIsOpen: (open: boolean) => void;
-  duration: number | undefined;
+  duration: undefined | number;
   isStreaming: boolean;
   isOpen: boolean;
 }
@@ -81,7 +80,7 @@ export const Reasoning = memo(
       onChange: onOpenChange,
       prop: open,
     });
-    const [duration, setDuration] = useControllableState<number | undefined>({
+    const [duration, setDuration] = useControllableState<undefined | number>({
       defaultProp: undefined,
       prop: durationProp,
     });

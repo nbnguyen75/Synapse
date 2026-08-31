@@ -9,13 +9,13 @@ import { getUsage } from 'tokenlens';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 
 const PERCENT_MAX = 100;
 const ICON_RADIUS = 10;

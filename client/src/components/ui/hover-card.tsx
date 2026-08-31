@@ -24,7 +24,7 @@ function HoverCardContent({
 }: PreviewCardPrimitive.Popup.Props &
   Pick<
     PreviewCardPrimitive.Positioner.Props,
-    'align' | 'alignOffset' | 'side' | 'sideOffset'
+    'alignOffset' | 'sideOffset' | 'align' | 'side'
   >) {
   return (
     <PreviewCardPrimitive.Portal data-slot="hover-card-portal">
@@ -48,4 +48,4 @@ function HoverCardContent({
   );
 }
 
-export { HoverCard, HoverCardTrigger, HoverCardContent };
+export { HoverCardTrigger, HoverCardContent, HoverCard };

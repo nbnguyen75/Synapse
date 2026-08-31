@@ -11,7 +11,7 @@ export interface NavItem {
   tab: AppTab;
 }
 
-export const NAV_ITEMS: NavItem[] = [
+export const NAV_ITEMS: Array<NavItem> = [
   {
     labelKey: 'sidebar_notes',
     group: 'navigation',

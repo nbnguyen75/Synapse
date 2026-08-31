@@ -1,18 +1,18 @@
 'use client';
 
-import type { FileUIPart, SourceDocumentUIPart } from 'ai';
 import type { ComponentProps, HTMLAttributes, ReactNode } from 'react';
+import type { FileUIPart, SourceDocumentUIPart } from 'ai';
 
 import { createContext, useCallback, useContext, useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import { Button } from '@/components/ui/button';
 
 import {
   FileTextIcon,
@@ -29,18 +29,18 @@ import {
 // ============================================================================
 
 export type AttachmentData =
-  | (FileUIPart & { id: string })
-  | (SourceDocumentUIPart & { id: string });
+  | (SourceDocumentUIPart & { id: string })
+  | (FileUIPart & { id: string });
 
 export type AttachmentMediaCategory =
+  | 'document'
+  | 'unknown'
+  | 'source'
   | 'image'
   | 'video'
-  | 'audio'
-  | 'document'
-  | 'source'
-  | 'unknown';
+  | 'audio';
 
-export type AttachmentVariant = 'grid' | 'inline' | 'list';
+export type AttachmentVariant = 'inline' | 'grid' | 'list';
 
 const mediaCategoryIcons: Record<AttachmentMediaCategory, typeof ImageIcon> = {
   document: FileTextIcon,
@@ -91,7 +91,7 @@ export const getAttachmentLabel = (data: AttachmentData): string => {
 
 const renderAttachmentImage = (
   url: string,
-  filename: string | undefined,
+  filename: undefined | string,
   isGrid: boolean,
 ) =>
   isGrid ? (

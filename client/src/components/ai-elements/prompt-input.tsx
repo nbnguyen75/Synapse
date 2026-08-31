@@ -1,7 +1,5 @@
 'use client';
 
-import type { BaseUIEvent } from '@base-ui/react';
-import type { ChatStatus, FileUIPart, SourceDocumentUIPart } from 'ai';
 import type {
   ChangeEvent,
   ChangeEventHandler,
@@ -16,6 +14,8 @@ import type {
   RefObject,
   SyntheticEvent,
 } from 'react';
+import type { ChatStatus, FileUIPart, SourceDocumentUIPart } from 'ai';
+import type { BaseUIEvent } from '@base-ui/react';
 
 import {
   Children,
@@ -48,11 +48,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
-import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
@@ -65,12 +60,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Spinner } from '@/components/ui/spinner';
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Spinner } from '@/components/ui/spinner';
 
 import {
   CornerDownLeftIcon,
@@ -187,7 +187,7 @@ const captureScreenshot = async (): Promise<File | null> => {
 
 export interface AttachmentsContext {
   fileInputRef: RefObject<HTMLInputElement | null>;
-  add: (files: File[] | FileList) => void;
+  add: (files: FileList | File[]) => void;
   files: (FileUIPart & { id: string })[];
   remove: (id: string) => void;
   openFileDialog: () => void;
@@ -268,7 +268,7 @@ export const PromptInputProvider = ({
   // oxlint-disable-next-line eslint(no-empty-function)
   const openRef = useRef<() => void>(() => {});
 
-  const add = useCallback((files: File[] | FileList) => {
+  const add = useCallback((files: FileList | File[]) => {
     const incoming = [...files];
     if (incoming.length === 0) {
       return;
@@ -500,9 +500,9 @@ export type PromptInputProps = Omit<
   onSubmit: (
     message: PromptInputMessage,
     event: FormEvent<HTMLFormElement>,
-  ) => void | Promise<void>;
+  ) => Promise<void> | void;
   onError?: (err: {
-    code: 'max_files' | 'max_file_size' | 'accept';
+    code: 'max_file_size' | 'max_files' | 'accept';
     message: string;
   }) => void;
   // Render a hidden input with given name and keep it in sync for native form posts. Default false.
@@ -583,7 +583,7 @@ export const PromptInput = ({
   );
 
   const addLocal = useCallback(
-    (fileList: File[] | FileList) => {
+    (fileList: FileList | File[]) => {
       const incoming = [...fileList];
       const accepted = incoming.filter((f) => matchesAccept(f));
       if (incoming.length && accepted.length === 0) {
@@ -647,7 +647,7 @@ export const PromptInput = ({
 
   // Wrapper that validates files before calling provider's add
   const addWithProviderValidation = useCallback(
-    (fileList: File[] | FileList) => {
+    (fileList: FileList | File[]) => {
       const incoming = [...fileList];
       const accepted = incoming.filter((f) => matchesAccept(f));
       if (incoming.length && accepted.length === 0) {
@@ -1120,12 +1120,12 @@ export const PromptInputTools = ({
 );
 
 export type PromptInputButtonTooltip =
-  | string
   | {
       side?: ComponentProps<typeof TooltipContent>['side'];
       content: ReactNode;
       shortcut?: string;
-    };
+    }
+  | string;
 
 export type PromptInputButtonProps = ComponentProps<typeof InputGroupButton> & {
   tooltip?: PromptInputButtonTooltip;

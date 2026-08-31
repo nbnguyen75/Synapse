@@ -7,14 +7,12 @@ import { isValidElement } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Badge } from '@/components/ui/badge';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-
-import { CodeBlock } from './code-block';
+import { Badge } from '@/components/ui/badge';
 
 import {
   CheckCircleIcon,
@@ -25,6 +23,8 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 
+import { CodeBlock } from './code-block';
+
 export type ToolProps = ComponentProps<typeof Collapsible>;
 
 export const Tool = ({ className, ...props }: ToolProps) => (
@@ -34,18 +34,18 @@ export const Tool = ({ className, ...props }: ToolProps) => (
   />
 );
 
-export type ToolPart = ToolUIPart | DynamicToolUIPart;
+export type ToolPart = DynamicToolUIPart | ToolUIPart;
 
 export type ToolHeaderProps = {
   className?: string;
   title?: string;
 } & (
-  | { state: ToolUIPart['state']; type: ToolUIPart['type']; toolName?: never }
   | {
       state: DynamicToolUIPart['state'];
       type: DynamicToolUIPart['type'];
       toolName: string;
     }
+  | { state: ToolUIPart['state']; type: ToolUIPart['type']; toolName?: never }
 );
 
 const statusLabels: Record<ToolPart['state'], string> = {

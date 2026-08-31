@@ -52,7 +52,7 @@ export default function NavSecondary() {
                   to="/settings"
                   onClick={() => {
                     if (leftSidebar?.isMobile) {
-                      leftSidebar?.setOpenMobile(false);
+                      leftSidebar.setOpenMobile(false);
                     }
 
                     if (layoutMode === 'chat' && activeConversationId) {

@@ -6,7 +6,7 @@ import { FileTextIcon, PinIcon, ChevronRightIcon } from 'lucide-react';
 
 interface CommandPaletteNotesViewProps {
   onOpenNote: (note: NoteItem) => void;
-  notes: NoteItem[];
+  notes: Array<NoteItem>;
 }
 
 export default function CommandPaletteNotesView({

@@ -22,18 +22,18 @@ export function buildNoteChatAttachment(input: {
   const filename = `${safeTitle || 'Untitled'}.md`;
 
   return {
-    file: new File([input.content ?? ''], filename, {
+    file: new File([input.content], filename, {
       type: 'text/markdown',
     }),
-    content: input.content ?? '',
-    title: input.title ?? '',
+    content: input.content,
+    title: input.title,
     id: input.id,
   };
 }
 
 interface ChatNoteAttachmentState {
   add: (attachment: ChatNoteAttachment) => boolean;
-  attachments: ChatNoteAttachment[];
+  attachments: Array<ChatNoteAttachment>;
   clear: () => void;
 }
 

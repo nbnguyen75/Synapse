@@ -1,3 +1,5 @@
+import type { RegisterFormInput, RegisterPayload } from '@/features/auth/schemas';
+
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 
@@ -8,18 +10,14 @@ import { toast } from 'sonner';
 
 import { createTitle } from '@/config/metadata';
 
-import { getTranslatedAuthErrorMessage, signUp, type AuthErrorCode } from '@/lib/auth';
+import { getTranslatedAuthErrorMessage, signUp } from '@/lib/auth';
 import { m } from '@/paraglide/messages';
 
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 
-import {
-  registerSchema,
-  type RegisterFormInput,
-  type RegisterPayload,
-} from '@/features/auth/schemas';
 import { RegisterForm } from '@/features/auth/components';
+import { registerSchema } from '@/features/auth/schemas';
 
 export const Route = createFileRoute('/_auth/register')({
   head: () => ({
@@ -60,10 +58,8 @@ function RouteComponent() {
         },
         {
           onError({ error }) {
-            const errorCode = error.code as AuthErrorCode;
-
             toast.error(m.auth_failed(), {
-              description: getTranslatedAuthErrorMessage(errorCode),
+              description: getTranslatedAuthErrorMessage(String(error.code)),
             });
 
             setIsEmailPending(false);

@@ -1,9 +1,11 @@
+import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+import { $fetch } from '@/lib/fetch';
 
 export function useGetConversationsQuery() {
   return useQuery({
@@ -24,7 +26,7 @@ export function useGetConversationMessagesInfiniteQuery(id: string | null) {
     queryFn: async ({ pageParam }) => {
       const result = await $fetch.api.v1.ai.conversations[':id'].messages.$get({
         query: { limit: MESSAGE_PAGE_SIZE, offset: pageParam },
-        params: { id: id as string },
+        params: { id: id ?? '' },
       });
 
       return result.data;

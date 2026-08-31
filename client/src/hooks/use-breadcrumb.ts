@@ -12,14 +12,14 @@ interface UseBreadcrumbOptions {
   aliases?: Record<string, string>;
 }
 
-export function useBreadcrumb(options?: UseBreadcrumbOptions): BreadcrumbItem[] {
+export function useBreadcrumb(options?: UseBreadcrumbOptions): Array<BreadcrumbItem> {
   const matches = useMatches();
   const aliases = options?.aliases;
 
   return useMemo(() => {
     const crumbs = matches
       .filter((match) => {
-        const bc = match.staticData?.breadcrumb;
+        const bc = match.staticData.breadcrumb;
         return Boolean(bc);
       })
       .map((match) => {

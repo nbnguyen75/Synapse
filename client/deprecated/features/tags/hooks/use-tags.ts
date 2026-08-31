@@ -4,6 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
+import { m } from '@/paraglide/messages';
+// import { useGetNotesQuery } from '@/features/notes/hooks/api/use-get-note';
+// import { getNotes } from '@/features/notes/fetch';
+
+import { useGetNotes } from '@/features/notes';
+
 import {
   loadTagMetadata,
   createTag,
@@ -13,11 +19,6 @@ import {
   cascadeDeleteTag,
   type TagMetadata,
 } from '../lib/tags';
-// import { useGetNotesQuery } from '@/features/notes/hooks/api/use-get-note';
-// import { getNotes } from '@/features/notes/fetch';
-
-import { m } from '@/paraglide/messages';
-import { useGetNotes } from '@/features/notes';
 
 export const TAG_COLORS = [
   'bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-700',
@@ -56,7 +57,7 @@ export function useTags() {
   const [colorFilter, setColorFilter] = useState('all');
   const [usageFilter, setUsageFilter] = useState('all');
   const [sortBy, setSortBy] = useState<
-    'name_asc' | 'name_desc' | 'usage_desc' | 'usage_asc'
+    'usage_desc' | 'name_desc' | 'usage_asc' | 'name_asc'
   >('name_asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);

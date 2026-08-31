@@ -7,7 +7,7 @@ import { Kbd } from '@/components/ui/kbd';
 import { TerminalIcon } from 'lucide-react';
 
 interface CommandPaletteHelpViewProps {
-  slashCommands: CommandItem[];
+  slashCommands: Array<CommandItem>;
 }
 
 export default function CommandPaletteHelpView({ slashCommands }: CommandPaletteHelpViewProps) {

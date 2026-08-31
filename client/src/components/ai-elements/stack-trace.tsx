@@ -17,12 +17,12 @@ import { useControllableState } from '@radix-ui/react-use-controllable-state';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { Button } from '@/components/ui/button';
 
 import {
   AlertTriangleIcon,

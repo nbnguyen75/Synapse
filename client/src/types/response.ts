@@ -18,9 +18,9 @@ export interface PaginatedData<T> {
   totalElements: number;
   totalPages: number;
   isLast: boolean;
+  items: Array<T>;
   page: number;
   size: number;
-  items: T[];
 }
 
 export type PaginatedApiResponse<T> = ApiResponse<PaginatedData<T>>;

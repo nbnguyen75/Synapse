@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import { cva, type VariantProps } from 'class-variance-authority';
-
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
+
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 
@@ -114,7 +114,7 @@ function BubbleReactions({
   ...props
 }: React.ComponentProps<'div'> & {
   align?: 'start' | 'end';
-  side?: 'top' | 'bottom';
+  side?: 'bottom' | 'top';
 }) {
   return (
     <div
@@ -127,4 +127,4 @@ function BubbleReactions({
   );
 }
 
-export { BubbleGroup, Bubble, BubbleContent, BubbleReactions };
+export { BubbleReactions, BubbleContent, BubbleGroup, Bubble };

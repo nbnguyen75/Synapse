@@ -13,17 +13,17 @@ import {
 
 import { cn } from '@/lib/utils';
 
-import { Badge } from '@/components/ui/badge';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from '@/components/ui/carousel';
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '@/components/ui/carousel';
+import { Badge } from '@/components/ui/badge';
 
 import { ArrowLeftIcon, ArrowRightIcon } from 'lucide-react';
 

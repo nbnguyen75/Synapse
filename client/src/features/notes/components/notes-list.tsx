@@ -1,7 +1,8 @@
 import type { Note, NotesEmptyVariant } from '@/features/notes/types';
 import type { BaseUIEvent } from '@base-ui/react';
+import type { ReactNode } from 'react';
 
-import { Fragment, type ReactNode } from 'react';
+import { Fragment } from 'react';
 
 import { m } from '@/paraglide/messages';
 
@@ -26,7 +27,7 @@ interface NotesListProps {
   emptyVariant: NotesEmptyVariant;
   loadingCardCount?: number;
   isLoading?: boolean;
-  notes: Note[];
+  notes: Array<Note>;
 }
 
 function Container({ children }: { children: ReactNode }) {

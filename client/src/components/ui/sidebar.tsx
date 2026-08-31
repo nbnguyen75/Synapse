@@ -1,18 +1,15 @@
 import * as React from 'react';
 
-import { cva, type VariantProps } from 'class-variance-authority';
-
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
+
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
   SheetContent,
@@ -20,12 +17,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 import { PanelLeftIcon } from 'lucide-react';
 
@@ -38,7 +38,7 @@ const SIDEBAR_WIDTH_ICON = '3rem';
 type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void;
   setOpen: (open: boolean) => void;
-  state: 'expanded' | 'collapsed';
+  state: 'collapsed' | 'expanded';
   toggleSidebar: () => void;
   openMobile: boolean;
   isMobile: boolean;
@@ -83,7 +83,7 @@ function SidebarProvider({
   });
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
-    (value: boolean | ((value: boolean) => boolean)) => {
+    (value: ((value: boolean) => boolean) | boolean) => {
       const openState = typeof value === 'function' ? value(open) : value;
       if (setOpenProp) {
         setOpenProp(openState);
@@ -157,8 +157,8 @@ function Sidebar({
   ...props
 }: React.ComponentProps<'div'> & {
   collapsible?: 'offcanvas' | 'icon' | 'none';
-  variant?: 'sidebar' | 'floating' | 'inset';
-  side?: 'left' | 'right';
+  variant?: 'floating' | 'sidebar' | 'inset';
+  side?: 'right' | 'left';
 }) {
   const { setOpenMobile, openMobile, isMobile, state } = useSidebar();
 
@@ -507,7 +507,7 @@ function SidebarMenuButton({
   ...props
 }: useRender.ComponentProps<'button'> &
   React.ComponentProps<'button'> & {
-    tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+    tooltip?: React.ComponentProps<typeof TooltipContent> | string;
     isActive?: boolean;
   } & VariantProps<typeof sidebarMenuButtonVariants>) {
   const { isMobile, state } = useSidebar();
@@ -812,32 +812,32 @@ function SidebarManagerTrigger({
 }
 
 export {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupAction,
+  SidebarManagerProvider,
+  SidebarManagerTrigger,
+  SidebarMenuSubButton,
   SidebarGroupContent,
+  SidebarMenuSkeleton,
+  SidebarGroupAction,
+  SidebarMenuSubItem,
   SidebarGroupLabel,
+  SidebarMenuAction,
+  SidebarMenuButton,
+  useSidebarManager,
+  SidebarMenuBadge,
+  SidebarSeparator,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarContent,
+  SidebarMenuSub,
+  SidebarTrigger,
+  SidebarManager,
+  SidebarFooter,
   SidebarHeader,
+  SidebarGroup,
   SidebarInput,
   SidebarInset,
   SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSkeleton,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarProvider,
   SidebarRail,
-  SidebarSeparator,
-  SidebarTrigger,
   useSidebar,
-  useSidebarManager,
-  SidebarManagerProvider,
-  SidebarManager,
-  SidebarManagerTrigger,
+  Sidebar,
 };

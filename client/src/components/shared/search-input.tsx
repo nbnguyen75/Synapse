@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
+
+import { useEffect, useRef, useState } from 'react';
 
 import { useDebounce } from '@/hooks/use-debounce';
 

@@ -1,3 +1,6 @@
+import type { NoteFormInput, NoteInputPayload } from '@/features/notes/schemas';
+import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+
 import { useForm, useWatch } from 'react-hook-form';
 import { useEffect } from 'react';
 
@@ -9,16 +12,12 @@ import { toast } from 'sonner';
 
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 
-import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+import { $fetch } from '@/lib/fetch';
 
-import {
-  noteInputSchema,
-  type NoteFormInput,
-  type NoteInputPayload,
-} from '@/features/notes/schemas';
 import { useNoteCreatePrefillStore } from '@/features/notes/store';
 import { useGenerateNoteTitle } from '@/features/notes/hooks/api';
+import { noteInputSchema } from '@/features/notes/schemas';
 import { noteKeys } from '@/features/notes/keys';
 
 export function useNoteCreate() {
@@ -92,7 +91,7 @@ export function useNoteCreate() {
   };
 
   const generateNoteTitle = () => {
-    if (!watchedContent?.trim() || isGeneratingTitle) return;
+    if (!watchedContent.trim() || isGeneratingTitle) return;
 
     _generateNoteTitle(
       { body: { content: watchedContent } },

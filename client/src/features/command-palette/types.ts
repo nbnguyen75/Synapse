@@ -3,7 +3,7 @@ import type { ElementType } from 'react';
 export type CommandOutput =
   | {
       data: {
-        tagsList: string[];
+        tagsList: Array<string>;
         tagsCount: number;
         pinned: number;
         active: number;

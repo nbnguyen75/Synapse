@@ -6,12 +6,12 @@ import { createContext, useContext, useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Badge } from '@/components/ui/badge';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge';
 
 import {
   CheckCircle2Icon,
@@ -21,7 +21,7 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 
-type TestStatus = 'passed' | 'failed' | 'skipped' | 'running';
+type TestStatus = 'skipped' | 'running' | 'passed' | 'failed';
 
 interface TestResultsSummary {
   duration?: number;

@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import { cva, type VariantProps } from 'class-variance-authority';
-
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
+
+import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
 
@@ -70,4 +70,4 @@ function MarkerContent({ className, ...props }: React.ComponentProps<'span'>) {
   );
 }
 
-export { Marker, MarkerIcon, MarkerContent, markerVariants };
+export { markerVariants, MarkerContent, MarkerIcon, Marker };

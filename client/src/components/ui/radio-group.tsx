@@ -1,5 +1,5 @@
-import { Radio as RadioPrimitive } from '@base-ui/react/radio';
 import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
+import { Radio as RadioPrimitive } from '@base-ui/react/radio';
 
 import { cn } from '@/lib/utils';
 
@@ -33,4 +33,4 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
   );
 }
 
-export { RadioGroup, RadioGroupItem };
+export { RadioGroupItem, RadioGroup };

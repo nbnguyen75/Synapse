@@ -1,4 +1,6 @@
-import { createContext, use, useState, useCallback, useRef } from 'react';
+import type { ConfirmOptions } from './use-confirm';
+
+import { useCallback, useRef, useState } from 'react';
 
 import { m } from '@/paraglide/messages';
 
@@ -13,17 +15,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-type ConfirmOptions = {
-  variant?: 'destructive' | 'default';
-  description?: string;
-  confirmText?: string;
-  cancelText?: string;
-  title?: string;
-};
-
-type ConfirmContextType = (options?: ConfirmOptions) => Promise<boolean>;
-
-const ConfirmContext = createContext<ConfirmContextType | null>(null);
+import { ConfirmContext } from './use-confirm';
 
 export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -73,12 +65,4 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
       </AlertDialog>
     </ConfirmContext>
   );
-}
-
-export function useConfirm() {
-  const ctx = use(ConfirmContext);
-  if (!ctx) {
-    throw new Error('useConfirm must be used within a ConfirmProvider');
-  }
-  return ctx;
 }

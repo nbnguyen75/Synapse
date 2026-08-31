@@ -1,2 +1,3 @@
 cd client
-bun lint-staged
+bun --bun lint-staged
+bun --bun typecheck

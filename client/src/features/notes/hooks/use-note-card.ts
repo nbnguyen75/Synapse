@@ -27,7 +27,7 @@ import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion
 import { noteKeys } from '@/features/notes/keys';
 
 export interface NoteWithDetails extends Note {
-  tags?: string[];
+  tags?: Array<string>;
 }
 
 const MAX_VISIBLE_TAGS = 3;
@@ -84,7 +84,6 @@ type NoteActionResultData<T extends NoteActionType> = Awaited<
 
 async function executeNoteAction(type: NoteActionType, note: Note) {
   const actionFn = NOTE_ACTIONS[type];
-  if (!actionFn) throw new Error(`Unsupported note action: ${type}`);
 
   const result = await actionFn(note);
   return result.data;
@@ -188,7 +187,7 @@ export function useNoteCard({ onToggleSelect, onSelectRange, viewMode, note }: U
     onSuccess: ({ data, type }) => {
       void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
-      (SUCCESS_TOAST_MAP[type] as ToastHandler<typeof type>)?.(data);
+      (SUCCESS_TOAST_MAP[type] as ToastHandler<typeof type>)(data);
     },
     mutationFn: async (type: NoteActionType) => {
       const data = await executeNoteAction(type, note);
@@ -227,7 +226,7 @@ export function useNoteCard({ onToggleSelect, onSelectRange, viewMode, note }: U
 
   const handleCardClick = useCallback(
     (e: React.MouseEvent) => {
-      if ((e.target as HTMLElement).closest('[data-slot="checkbox"]')) return;
+      if (e.target instanceof HTMLElement && e.target.closest('[data-slot="checkbox"]')) return;
       if (e.shiftKey) {
         onSelectRange?.(note.id);
       } else {
@@ -251,8 +250,8 @@ export function useNoteCard({ onToggleSelect, onSelectRange, viewMode, note }: U
   const includeInChat = useCallback(() => {
     const added = addNoteAttachment(
       buildNoteChatAttachment({
-        content: note.content ?? '',
-        title: note.title ?? '',
+        content: note.content,
+        title: note.title,
         id: note.id,
       }),
     );
@@ -265,7 +264,7 @@ export function useNoteCard({ onToggleSelect, onSelectRange, viewMode, note }: U
 
   const copyContent = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(note.content ?? '');
+      await navigator.clipboard.writeText(note.content);
       toast.success(m.notes_page_toast_copy_content());
     } catch {
       toast.error(m.notes_page_toast_copy_content_failed(), {

@@ -1,6 +1,7 @@
+import type { UseQueryOptions } from '@tanstack/react-query';
 import type { Note } from '@/features/notes/types';
 
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import { $fetch } from '@/lib/fetch';
 

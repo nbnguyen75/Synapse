@@ -6,13 +6,13 @@ import { Combobox as ComboboxPrimitive } from '@base-ui/react';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
 } from '@/components/ui/input-group';
+import { Button } from '@/components/ui/button';
 
 import { ChevronDownIcon, XIcon, CheckIcon } from 'lucide-react';
 
@@ -98,7 +98,7 @@ function ComboboxContent({
 }: ComboboxPrimitive.Popup.Props &
   Pick<
     ComboboxPrimitive.Positioner.Props,
-    'side' | 'align' | 'sideOffset' | 'alignOffset' | 'anchor'
+    'alignOffset' | 'sideOffset' | 'anchor' | 'align' | 'side'
   >) {
   return (
     <ComboboxPrimitive.Portal>
@@ -284,20 +284,20 @@ function useComboboxAnchor() {
 }
 
 export {
-  Combobox,
-  ComboboxInput,
+  ComboboxCollection,
+  ComboboxChipsInput,
+  ComboboxSeparator,
+  useComboboxAnchor,
   ComboboxContent,
-  ComboboxList,
-  ComboboxItem,
+  ComboboxTrigger,
+  ComboboxInput,
   ComboboxGroup,
   ComboboxLabel,
-  ComboboxCollection,
   ComboboxEmpty,
-  ComboboxSeparator,
   ComboboxChips,
-  ComboboxChip,
-  ComboboxChipsInput,
-  ComboboxTrigger,
   ComboboxValue,
-  useComboboxAnchor,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxChip,
+  Combobox,
 };

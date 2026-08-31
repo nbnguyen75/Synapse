@@ -1,13 +1,15 @@
+import type { InferRequestType, InferResponseType } from '@/lib/fetch';
 import type { BulkNoteAction } from '@/features/notes/constants';
+import type { MutateOptions } from '@tanstack/react-query';
 
-import { useMutation, useQueryClient, type MutateOptions } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import { useConfirm } from '@/providers/confirm-provider';
+import { useConfirm } from '@/providers/use-confirm';
 
-import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+import { $fetch } from '@/lib/fetch';
 
 import { noteKeys } from '@/features/notes/keys';
 
@@ -26,7 +28,7 @@ const SUCCESS_TOAST_MAP: Record<BulkNoteAction, () => void> = {
 export function showBulkNoteActionSuccessToast(action: BulkNoteAction) {
   const handler = SUCCESS_TOAST_MAP[action];
 
-  if (handler) handler();
+  handler();
 }
 
 const ERROR_TOAST_MAP: Record<BulkNoteAction, () => void> = {
@@ -71,7 +73,7 @@ const ERROR_TOAST_MAP: Record<BulkNoteAction, () => void> = {
 export function showBulkNoteActionErrorToast(action: BulkNoteAction) {
   const handler = ERROR_TOAST_MAP[action];
 
-  if (handler) handler();
+  handler();
 }
 
 type RequestType = InferRequestType<typeof $fetch.api.v1.notes.bulk.actions.$post>;

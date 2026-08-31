@@ -4,9 +4,9 @@ import { persist } from 'zustand/middleware';
 import { create } from 'zustand';
 
 interface ShortcutsState {
-  setBinding: (id: ShortcutId, combos: string[] | null) => void;
+  setBinding: (id: ShortcutId, combos: Array<string> | null) => void;
   /** Non-default bindings only. An empty array disables the shortcut. */
-  overrides: Partial<Record<ShortcutId, string[]>>;
+  overrides: Partial<Record<ShortcutId, Array<string>>>;
   resetBinding: (id: ShortcutId) => void;
   resetAll: () => void;
 }

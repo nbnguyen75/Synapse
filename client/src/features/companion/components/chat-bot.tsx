@@ -1,3 +1,4 @@
+import type { ConversationTreeState, TreeMessage } from '@/features/companion/lib/message-tree';
 import type { PromptInputMessage } from '@/components/ai-elements/prompt-input';
 import type { FileUIPart, UIMessage } from 'ai';
 
@@ -104,8 +105,6 @@ import {
   getVersionInfo,
   retryAssistantMessage,
   switchVersion,
-  type ConversationTreeState,
-  type TreeMessage,
 } from '@/features/companion/lib/message-tree';
 import {
   useGetConversationsQuery,
@@ -118,7 +117,7 @@ import { decodeDataUrl, isTextLikeMediaType } from '@/features/companion/utils/f
 import { NOTE_CONTENT_MAX_LENGTH, useNoteCreatePrefillStore } from '@/features/notes';
 
 export interface ChatBotHandle {
-  prependMessages: (messages: UIMessage[]) => void;
+  prependMessages: (messages: Array<UIMessage>) => void;
   sendText: (text: string) => void;
 }
 
@@ -128,8 +127,8 @@ interface ChatBotProps {
   isLoadingOlderMessages?: boolean;
   onLoadOlderMessages?: () => void;
   initialConversationId?: string;
+  messages?: Array<UIMessage>;
   hasMoreMessages?: boolean;
-  messages?: UIMessage[];
   disabled?: boolean;
   centered?: boolean;
   className?: string;
@@ -201,10 +200,17 @@ function ChatBot({
     if (!nextTree) {
       if (loadedMessages.length === 0) return;
 
-      const rows: TreeMessage[] = loadedMessages.map((message, index) => ({
-        ...message,
-        parentId: (message as TreeMessage).parentId ?? loadedMessages[index - 1]?.id ?? null,
-      }));
+      const rows: Array<TreeMessage> = loadedMessages.map((message, index) => {
+        const embeddedParentId = 'parentId' in message ? message.parentId : undefined;
+        return {
+          ...message,
+          parentId:
+            // oxlint-disable-next-line typescript/no-unnecessary-condition -- parentId may exist at runtime on UIMessage even if not in type
+            (typeof embeddedParentId === 'string' ? embeddedParentId : null) ??
+            loadedMessages[index - 1].id ??
+            null,
+        };
+      });
       const leaf = conversation?.currentMessageId ?? rows.at(-1)?.id ?? null;
       nextTree = buildTree(rows, leaf);
       setTree(initialConversationId, nextTree);
@@ -245,7 +251,7 @@ function ChatBot({
 
   const retrySnapshotRef = useRef<{
     assistantMessageId: string;
-    snapshot: UIMessage[];
+    snapshot: Array<UIMessage>;
   } | null>(null);
 
   const handleFinish = useCallback(
@@ -272,13 +278,10 @@ function ChatBot({
           const previous = chat.messages.at(-2);
           if (previous) {
             let nextTree = existingTree;
-            if (!nextTree.nodes[previous.id]) {
-              nextTree = addMessage(nextTree, previous, chat.messages.at(-3)?.id ?? null);
-            }
             setTree(conversationId, addMessage(nextTree, result.message, previous.id));
           }
         } else {
-          const rows: TreeMessage[] = chat.messages.map((message, index) => ({
+          const rows: Array<TreeMessage> = chat.messages.map((message, index) => ({
             ...message,
             parentId: index === 0 ? null : (chat.messages[index - 1]?.id ?? null),
           }));
@@ -302,7 +305,7 @@ function ChatBot({
       if (!tree) return;
 
       const target = tree.nodes[assistantMessageId];
-      if (!target || target.role !== 'assistant' || !target.parentId) {
+      if (target.role !== 'assistant' || !target.parentId) {
         toast.error(m.chat_message_retry_failed());
         return;
       }
@@ -330,7 +333,7 @@ function ChatBot({
       const result = editUserMessage(tree, userMessageId, newText);
       if (!result.editedMessage) return;
 
-      const fileParts = (tree.nodes[userMessageId]?.message.parts ?? []).filter(
+      const fileParts = tree.nodes[userMessageId].message.parts.filter(
         (part): part is FileUIPart => part.type === 'file',
       );
 
@@ -431,12 +434,12 @@ function ChatBot({
   const lastMessage = liveMessages[liveMessages.length - 1];
   const isAwaitingResponse =
     isGenerating &&
-    (lastMessage?.role === 'user' ||
-      (lastMessage?.role === 'assistant' && lastMessage.parts.length === 0));
+    (lastMessage.role === 'user' ||
+      (lastMessage.role === 'assistant' && lastMessage.parts.length === 0));
 
   const handleSubmit = useCallback(
     (message: PromptInputMessage) => {
-      const content = message.text?.trim();
+      const content = message.text.trim();
       if (!content && message.files.length === 0) {
         return;
       }
@@ -648,10 +651,7 @@ function MessageView({
   const isEditing = editingMessageId === message.id;
   const actionsDisabled = isGenerating || isStreaming;
   const tree = useChatMessageTreeStore((state) => state.trees[conversationId ?? '']);
-  const versionInfo = useMemo(
-    () => (tree ? getVersionInfo(tree, message.id) : null),
-    [message.id, tree],
-  );
+  const versionInfo = useMemo(() => getVersionInfo(tree, message.id), [message.id, tree]);
 
   if (versionInfo) {
     return (
@@ -668,8 +668,7 @@ function MessageView({
           <MessageBranchContent>
             {versionInfo.siblings.map((siblingId) => {
               const siblingMessage =
-                siblingId === message.id ? message : tree?.nodes[siblingId]?.message;
-              if (!siblingMessage) return null;
+                siblingId === message.id ? message : tree.nodes[siblingId].message;
 
               return (
                 <Fragment key={siblingId}>
@@ -1005,7 +1004,7 @@ function MessageEditForm({
 }
 
 function getCopyableMessageText(message: UIMessage): string {
-  const sections: string[] = [];
+  const sections: Array<string> = [];
 
   for (const part of message.parts) {
     if (part.type === 'text') {

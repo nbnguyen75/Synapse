@@ -237,10 +237,10 @@ function CarouselNext({
 
 export {
   type CarouselApi,
-  Carousel,
+  CarouselPrevious,
   CarouselContent,
   CarouselItem,
-  CarouselPrevious,
   CarouselNext,
   useCarousel,
+  Carousel,
 };

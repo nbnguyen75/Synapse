@@ -1,3 +1,5 @@
+import type { CompanionSettingsFormInput, CompanionSettingsPayload } from '@/features/companion';
+
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useEffect } from 'react';
 
@@ -29,8 +31,6 @@ import {
   DEFAULT_COMPANION_SETTINGS,
   useGetCompanionSettingsQuery,
   useUpdateCompanionSettingsMutation,
-  type CompanionSettingsFormInput,
-  type CompanionSettingsPayload,
 } from '@/features/companion';
 import {
   COMPANION_RESPONSE_LENGTH_OPTIONS,
@@ -46,7 +46,11 @@ export default function CompanionSettingsPage() {
   const { isPending: isUpdatingCompanionSettings, mutate: updateCompanionSettings } =
     useUpdateCompanionSettingsMutation();
 
-  const form = useForm<CompanionSettingsFormInput>({
+  const form = useForm<
+    CompanionSettingsFormInput,
+    CompanionSettingsFormInput,
+    CompanionSettingsPayload
+  >({
     resolver: standardSchemaResolver(companionSettingsSchema),
     defaultValues: companionSettings,
     mode: 'onBlur',
@@ -65,9 +69,7 @@ export default function CompanionSettingsPage() {
   });
 
   useEffect(() => {
-    if (companionSettings) {
-      reset(companionSettings);
-    }
+    reset(companionSettings);
   }, [companionSettings, reset]);
 
   const isPending = isUpdatingCompanionSettings;
@@ -79,7 +81,7 @@ export default function CompanionSettingsPage() {
   useFormSaveShortcut({
     onSubmit: (data) => {
       if (!form.formState.isDirty) return;
-      onSubmit(data as CompanionSettingsPayload);
+      onSubmit(data);
     },
     isSubmitting: isPending,
     form,
@@ -135,7 +137,7 @@ export default function CompanionSettingsPage() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          void handleSubmit((data) => onSubmit(data as CompanionSettingsPayload))(event);
+          void handleSubmit((data) => onSubmit(data))(event);
         }}
         className="w-full space-y-5"
         id="companion-settings-form"

@@ -4,6 +4,13 @@
 
 **/*.min.js
 src/routeTree.gen.ts
+**/.nx/**
+**/.svelte-kit/**
+**/build/**
+**/coverage/**
+**/dist/**
+**/snap/**
+**/vite.config.*.timestamp-*.*
 
 # ============================================================
 # Documentation / project metadata
@@ -20,7 +27,11 @@ init.sh
 
 public/*
 src/assets/*
+!src/assets/styles.css
 **/deprecated/**
+src/paraglide/**
+project.inlang/**
+!project.inlang/settings.json
 
 # ============================================================
 # Agent / AI working files
@@ -48,8 +59,8 @@ yarn.lock
 # Shadcn and other libs
 # ============================================================
 
-**/components/ui
-**/components/ai-elements
+src/components/ui/**
+src/components/ai-elements/**
 
 # ============================================================
 # Editor / tooling
@@ -59,9 +70,7 @@ yarn.lock
 .gitignore
 .prettierignore
 
-
 # Tooling configuration
 eslint.config.js
 oxlint.config.*
 oxfmt.config.*
-

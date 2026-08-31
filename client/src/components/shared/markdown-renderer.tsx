@@ -1,10 +1,6 @@
-import {
-  isValidElement,
-  type ComponentProps,
-  type InputHTMLAttributes,
-  type ReactElement,
-  type ReactNode,
-} from 'react';
+import type { ComponentProps, InputHTMLAttributes, ReactNode } from 'react';
+
+import { isValidElement } from 'react';
 import Markdown from 'react-markdown';
 
 import remarkGfm from 'remark-gfm';
@@ -23,7 +19,7 @@ interface ASTNode {
     [key: string]: unknown;
     hName?: string;
   };
-  children?: ASTNode[];
+  children?: Array<ASTNode>;
   value?: string;
   type: string;
 }
@@ -33,7 +29,7 @@ function remarkHighlight() {
     const visitNodes = (node: ASTNode): void => {
       if (!node.children || !Array.isArray(node.children)) return;
 
-      const newChildren: ASTNode[] = [];
+      const newChildren: Array<ASTNode> = [];
       for (const child of node.children) {
         if (child.type === 'text' && typeof child.value === 'string') {
           const regex = /==([^=]+)==/g;
@@ -73,15 +69,18 @@ function remarkHighlight() {
   };
 }
 
-type LiProps = ComponentProps<'li'>;
+type LiProps = Omit<ComponentProps<'li'>, 'children'> & { children?: ReactNode };
 type CodeProps = ComponentProps<'code'>;
 type PProps = ComponentProps<'p'>;
 
 function Li({ className: liClassName, children, ...props }: LiProps) {
-  const childArray = Array.isArray(children) ? children : [children];
-  const [checkboxEl, ...restChildren] = childArray as ReactNode[];
-  const castedCheckboxEl = checkboxEl as ReactElement<InputHTMLAttributes<HTMLInputElement>>;
-  const isCheckbox = isValidElement(castedCheckboxEl) && castedCheckboxEl.props.type === 'checkbox';
+  const childArray: Array<ReactNode> = Array.isArray(children) ? children : [children];
+  const [checkboxEl, ...restChildren] = childArray;
+  const isCheckbox =
+    typeof checkboxEl === 'object' &&
+    checkboxEl !== null &&
+    isValidElement<InputHTMLAttributes<HTMLInputElement>>(checkboxEl) &&
+    checkboxEl.props.type === 'checkbox';
 
   if (isCheckbox)
     return (

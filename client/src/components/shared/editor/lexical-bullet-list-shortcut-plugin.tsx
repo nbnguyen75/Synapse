@@ -96,6 +96,7 @@ export default function BulletListShortcutPlugin() {
           editor.update(() => {
             transformed = $removeBulletMarker();
           });
+          // oxlint-disable-next-line typescript/no-unnecessary-condition -- transformed is mutated synchronously inside editor.update()
           if (!transformed) return false;
 
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);

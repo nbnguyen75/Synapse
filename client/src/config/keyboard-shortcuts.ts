@@ -31,9 +31,9 @@ export type ShortcutId =
 
 export interface KeyboardShortcutEntry {
   section: ShortcutSectionId;
-  label: () => string;
   /** Normalized bindings, may use the `mod` token. */
-  combos: string[];
+  combos: Array<string>;
+  label: () => string;
   id: ShortcutId;
   group?: string;
 }
@@ -208,7 +208,7 @@ export function getShortcut(id: ShortcutId): KeyboardShortcutEntry {
   return KEYBOARD_SHORTCUTS[id];
 }
 
-export function getShortcutsBySection(section: ShortcutSectionId): KeyboardShortcutEntry[] {
+export function getShortcutsBySection(section: ShortcutSectionId): Array<KeyboardShortcutEntry> {
   return Object.values(KEYBOARD_SHORTCUTS).filter((entry) => entry.section === section);
 }
 
@@ -218,8 +218,8 @@ export function getShortcutsBySection(section: ShortcutSectionId): KeyboardShort
  */
 export function getEffectiveCombos(
   id: ShortcutId,
-  overrides: Partial<Record<ShortcutId, string[]>>,
-): string[] {
+  overrides: Partial<Record<ShortcutId, Array<string>>>,
+): Array<string> {
   return overrides[id] ?? KEYBOARD_SHORTCUTS[id].combos;
 }
 
@@ -250,9 +250,9 @@ function normalizeComboForCompare(combo: string): string {
  * individually against single-key combos.
  */
 export function findShortcutConflict(
-  proposedCombos: string[],
+  proposedCombos: Array<string>,
   targetId: ShortcutId,
-  overrides: Partial<Record<ShortcutId, string[]>>,
+  overrides: Partial<Record<ShortcutId, Array<string>>>,
 ): KeyboardShortcutEntry | null {
   const proposed = new Set(proposedCombos.map((combo) => normalizeComboForCompare(combo)));
 

@@ -1,12 +1,12 @@
 'use client';
 
-import type { ComponentProps, HTMLAttributes } from 'react';
 import type {
   BundledLanguage,
   BundledTheme,
   HighlighterGeneric,
   ThemedToken,
 } from 'shiki';
+import type { ComponentProps, HTMLAttributes } from 'react';
 
 import {
   createContext,
@@ -23,7 +23,6 @@ import { createHighlighter } from 'shiki';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -31,15 +30,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 
 import { CheckIcon, CopyIcon } from 'lucide-react';
 
 // Shiki uses bitflags for font styles: 1=italic, 2=bold, 4=underline
 // oxlint-disable-next-line eslint(no-bitwise)
-const isItalic = (fontStyle: number | undefined) => fontStyle && fontStyle & 1;
+const isItalic = (fontStyle: undefined | number) => fontStyle && fontStyle & 1;
 // oxlint-disable-next-line eslint(no-bitwise)
-const isBold = (fontStyle: number | undefined) => fontStyle && fontStyle & 2;
-const isUnderline = (fontStyle: number | undefined) =>
+const isBold = (fontStyle: undefined | number) => fontStyle && fontStyle & 2;
+const isUnderline = (fontStyle: undefined | number) =>
   // oxlint-disable-next-line eslint(no-bitwise)
   fontStyle && fontStyle & 4;
 

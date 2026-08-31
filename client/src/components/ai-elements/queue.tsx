@@ -4,13 +4,13 @@ import type { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 
 import { ChevronDownIcon, PaperclipIcon } from 'lucide-react';
 
@@ -28,7 +28,7 @@ export interface QueueMessage {
 }
 
 export interface QueueTodo {
-  status?: 'pending' | 'completed';
+  status?: 'completed' | 'pending';
   description?: string;
   title: string;
   id: string;

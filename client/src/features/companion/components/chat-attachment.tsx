@@ -1,3 +1,5 @@
+import type { AttachmentData } from '@/components/ai-elements/attachments';
+
 import { useCallback, useEffect } from 'react';
 
 import { toast } from 'sonner';
@@ -15,7 +17,6 @@ import {
   AttachmentPreview,
   AttachmentRemove,
   Attachments,
-  type AttachmentData,
 } from '@/components/ai-elements/attachments';
 import { usePromptInputAttachments } from '@/components/ai-elements/prompt-input';
 

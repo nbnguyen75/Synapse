@@ -28,9 +28,7 @@ export const { useSession, signOut, signIn, signUp } = authClient;
 export type AuthSession = typeof authClient.$Infer.Session;
 export type AuthUser = typeof authClient.$Infer.Session.user;
 
-export type AuthErrorCode = keyof typeof authClient.$ERROR_CODES;
-
-export function getTranslatedAuthErrorMessage(code: AuthErrorCode) {
+export function getTranslatedAuthErrorMessage(code: string) {
   switch (code) {
     case 'USER_NOT_FOUND':
       return m.auth_error_code_USER_NOT_FOUND();

@@ -1,3 +1,5 @@
+import type { ChatBotHandle } from '@/features/companion/components/chat-bot';
+
 import { useCallback, useMemo, useRef } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
@@ -9,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { Spinner } from '@/components/ui/spinner';
 
 import { useGetConversationMessagesInfiniteQuery } from '@/features/companion/hooks/use-companion-conversation';
-import ChatBot, { type ChatBotHandle } from '@/features/companion/components/chat-bot';
+import ChatBot from '@/features/companion/components/chat-bot';
 
 interface CompanionChatProps {
   chatRef?: React.Ref<ChatBotHandle>;
@@ -31,7 +33,7 @@ export default function CompanionChat({
   const { isFetchingNextPage, fetchNextPage, hasNextPage, isLoading, data } =
     useGetConversationMessagesInfiniteQuery(activeConversationId);
 
-  const messages = useMemo(() => (data ? [...data.pages].reverse().flat() : []), [data]);
+  const messages = useMemo(() => (data ? [...data.pages].toReversed().flat() : []), [data]);
 
   const handleConversationId = useCallback(
     (conversationId: string) => {

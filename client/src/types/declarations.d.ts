@@ -22,10 +22,10 @@ interface NavigatorUABrandVersion {
 
 // https://wicg.github.io/ua-client-hints/#dictdef-uadatavalues
 interface UADataValues {
-  readonly fullVersionList?: NavigatorUABrandVersion[];
-  readonly brands?: NavigatorUABrandVersion[];
+  readonly fullVersionList?: Array<NavigatorUABrandVersion>;
+  readonly brands?: Array<NavigatorUABrandVersion>;
+  readonly formFactors?: Array<string>;
   readonly platformVersion?: string;
-  readonly formFactors?: string[];
   /** @deprecated in favour of fullVersionList */
   readonly uaFullVersion?: string;
   readonly architecture?: string;
@@ -38,13 +38,13 @@ interface UADataValues {
 
 // https://wicg.github.io/ua-client-hints/#dictdef-ualowentropyjson
 interface UALowEntropyJSON {
-  readonly brands: NavigatorUABrandVersion[];
+  readonly brands: Array<NavigatorUABrandVersion>;
   readonly platform: string;
   readonly mobile: boolean;
 }
 
 // https://wicg.github.io/ua-client-hints/#navigatoruadata
 interface NavigatorUAData extends UALowEntropyJSON {
-  getHighEntropyValues(hints: string[]): Promise<UADataValues>;
-  toJSON(): UALowEntropyJSON;
+  getHighEntropyValues: (hints: Array<string>) => Promise<UADataValues>;
+  toJSON: () => UALowEntropyJSON;
 }

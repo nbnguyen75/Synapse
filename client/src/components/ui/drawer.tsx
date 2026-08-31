@@ -215,15 +215,15 @@ function DrawerDescription({
 }
 
 export {
-  Drawer,
-  DrawerPortal,
-  DrawerOverlay,
   DrawerSwipeHandle,
+  DrawerDescription,
+  DrawerOverlay,
   DrawerTrigger,
-  DrawerClose,
   DrawerContent,
+  DrawerPortal,
   DrawerHeader,
   DrawerFooter,
+  DrawerClose,
   DrawerTitle,
-  DrawerDescription,
+  Drawer,
 };
