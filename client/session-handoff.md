@@ -19,8 +19,8 @@
 
 ## Verification Evidence
 
-| Check | Command | Result |
-|---|---|---|
+| Check                      | Command           | Result   |
+| -------------------------- | ----------------- | -------- |
 | Prettier + oxlint + eslint | `bun --bun check` | 0 errors |
 
 ## Files Changed
@@ -59,6 +59,7 @@
 ## Recommended Next Step
 
 Remaining features to choose from:
+
 - **AI Tab Completion Plugin** (feat-023) — Lexical plugin for AI tab completion
 - **Voice-to-Text in Notes** (feat-024) — Voice input for note editor
 - **Batch Note Actions** (feat-025) — Multi-select + batch tag/archive/delete

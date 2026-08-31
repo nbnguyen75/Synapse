@@ -1,29 +1,25 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 
 import { createFileRoute, Link } from '@tanstack/react-router';
 
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 
-import { RegisterForm } from '@/features/auth/components';
+import { createTitle } from '@/config/metadata';
+
+import { getTranslatedAuthErrorMessage, signUp, type AuthErrorCode } from '@/lib/auth';
+import { m } from '@/paraglide/messages';
+
+import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
+
 import {
   registerSchema,
   type RegisterFormInput,
   type RegisterPayload,
 } from '@/features/auth/schemas';
-
-import { createTitle } from '@/config/metadata';
-
-import {
-  getTranslatedAuthErrorMessage,
-  signUp,
-  type AuthErrorCode,
-} from '@/lib/auth';
-import { m } from '@/paraglide/messages';
-
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
+import { RegisterForm } from '@/features/auth/components';
 
 export const Route = createFileRoute('/_auth/register')({
   head: () => ({
@@ -133,18 +129,12 @@ function RouteComponent() {
       <div className="text-[10px] text-center text-muted-foreground/85 mt-8 leading-relaxed max-w-70">
         {m.register_page_footer()}{' '}
         {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid -- Placeholder Terms link, no route yet */}
-        <a
-          href="#"
-          className="underline hover:text-muted-foreground transition-colors"
-        >
+        <a href="#" className="underline hover:text-muted-foreground transition-colors">
           {m.register_page_terms()}
         </a>{' '}
         {m.register_page_and()}{' '}
         {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid -- Placeholder Privacy link, no route yet */}
-        <a
-          href="#"
-          className="underline hover:text-muted-foreground transition-colors"
-        >
+        <a href="#" className="underline hover:text-muted-foreground transition-colors">
           {m.register_page_privacy()}
         </a>
         .

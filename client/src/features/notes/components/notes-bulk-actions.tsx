@@ -35,29 +35,19 @@ export default function NotesBulkActions({
   const selectedNotes = notes.filter((note) => selectedIds.has(note.id));
   const selectedTotal = selectedNotes.length;
 
-  const majorityPinned =
-    selectedNotes.filter((note) => note.pinned).length > selectedTotal / 2;
+  const majorityPinned = selectedNotes.filter((note) => note.pinned).length > selectedTotal / 2;
   const majorityFavorited =
     selectedNotes.filter((note) => note.favorite).length > selectedTotal / 2;
-  const majorityArchived =
-    selectedNotes.filter((note) => note.archived).length > selectedTotal / 2;
+  const majorityArchived = selectedNotes.filter((note) => note.archived).length > selectedTotal / 2;
 
   const pinAction: BulkNoteAction = majorityPinned ? 'UNPIN' : 'PIN';
   const pinLabel = majorityPinned ? m.notes_bulk_unpin() : m.notes_bulk_pin();
 
-  const favoriteAction: BulkNoteAction = majorityFavorited
-    ? 'UNFAVORITE'
-    : 'FAVORITE';
-  const favoriteLabel = majorityFavorited
-    ? m.notes_bulk_unfavorite()
-    : m.notes_bulk_favorite();
+  const favoriteAction: BulkNoteAction = majorityFavorited ? 'UNFAVORITE' : 'FAVORITE';
+  const favoriteLabel = majorityFavorited ? m.notes_bulk_unfavorite() : m.notes_bulk_favorite();
 
-  const archiveAction: BulkNoteAction = majorityArchived
-    ? 'UNARCHIVE'
-    : 'ARCHIVE';
-  const archiveLabel = majorityArchived
-    ? m.notes_bulk_unarchive()
-    : m.notes_bulk_archive();
+  const archiveAction: BulkNoteAction = majorityArchived ? 'UNARCHIVE' : 'ARCHIVE';
+  const archiveLabel = majorityArchived ? m.notes_bulk_unarchive() : m.notes_bulk_archive();
 
   return (
     <SelectionToolbar
@@ -84,9 +74,7 @@ export default function NotesBulkActions({
             onClick={() => onBulkAction('DELETE_PERMANENT')}
           >
             <XIcon className="size-3.5" />
-            <span className="hidden sm:inline">
-              {m.notes_bulk_delete_permanent()}
-            </span>
+            <span className="hidden sm:inline">{m.notes_bulk_delete_permanent()}</span>
           </Button>
         </>
       ) : (
@@ -136,9 +124,7 @@ export default function NotesBulkActions({
             onClick={() => onBulkAction('TRASH')}
           >
             <Trash2Icon className="size-3.5" />
-            <span className="hidden sm:inline">
-              {m.notes_bulk_move_to_trash()}
-            </span>
+            <span className="hidden sm:inline">{m.notes_bulk_move_to_trash()}</span>
           </Button>
         </>
       )}

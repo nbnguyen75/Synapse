@@ -6,7 +6,7 @@ import type {
 
 export interface CompanionSettings {
   responseLength: CompanionResponseLength;
-  customInstructions?: string | undefined;
+  customInstructions?: undefined | string;
   language: CompanionSettingsLanguage;
   preset: CompanionSettingsPreset;
   useEmoji: boolean;

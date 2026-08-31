@@ -2,8 +2,6 @@ import { Controller } from 'react-hook-form';
 
 import { createFileRoute } from '@tanstack/react-router';
 
-import { useNoteCreate } from '@/features/notes/hooks';
-
 import { useShortcut } from '@/hooks/use-shortcut';
 
 import { createTitle } from '@/config/metadata';
@@ -13,8 +11,6 @@ import { m } from '@/paraglide/messages';
 import { MarkdownRenderer, KeyCombo } from '@/components/shared';
 import { LexicalEditor } from '@/components/shared/editor';
 
-import { Button } from '@/components/ui/button';
-import { Field, FieldError } from '@/components/ui/field';
 import {
   InputGroup,
   InputGroupAddon,
@@ -22,6 +18,8 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Field, FieldError } from '@/components/ui/field';
+import { Button } from '@/components/ui/button';
 
 import {
   ArrowLeftIcon,
@@ -31,6 +29,8 @@ import {
   SaveIcon,
   SparklesIcon,
 } from 'lucide-react';
+
+import { useNoteCreate } from '@/features/notes/hooks';
 
 export const Route = createFileRoute('/_app/notes/create')({
   head: () => ({
@@ -52,7 +52,13 @@ function RouteComponent() {
   const { combos: saveCombos } = useShortcut('save-note');
 
   return (
-    <form onSubmit={createNew} className="h-full">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        void createNew(event);
+      }}
+      className="h-full"
+    >
       <Tabs defaultValue="create" className="flex h-full flex-col">
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b border-border/40 bg-background/80 px-4 md:px-8 py-2.5 backdrop-blur-md sticky top-0 z-20">
@@ -74,16 +80,11 @@ function RouteComponent() {
                 className="h-8 gap-1.5 text-xs font-semibold rounded-md"
               >
                 <SaveIcon className="size-3.5" />
-                {isCreating
-                  ? m.notes_page_create_saving()
-                  : m.notes_page_create_create()}
+                {isCreating ? m.notes_page_create_saving() : m.notes_page_create_create()}
               </Button>
 
               {isDirty && !isCreating && saveCombos.length > 0 && (
-                <KeyCombo
-                  combo={saveCombos[0]}
-                  className="ml-1 hidden sm:inline-flex"
-                />
+                <KeyCombo combo={saveCombos[0]} className="ml-1 hidden sm:inline-flex" />
               )}
             </div>
 
@@ -125,11 +126,7 @@ function RouteComponent() {
                       <InputGroupAddon align="inline-end">
                         <InputGroupButton
                           variant="default"
-                          disabled={
-                            !watchedContent?.trim() ||
-                            isGeneratingTitle ||
-                            isCreating
-                          }
+                          disabled={!watchedContent?.trim() || isGeneratingTitle || isCreating}
                           onClick={generateNoteTitle}
                           title={m.notes_page_ai_title()}
                           className="h-10 rounded-md"
@@ -162,10 +159,7 @@ function RouteComponent() {
                   />
                 </div> */}
 
-                <TabsContent
-                  value="create"
-                  className="m-0 focus-visible:outline-none min-h-125"
-                >
+                <TabsContent value="create" className="m-0 focus-visible:outline-none min-h-125">
                   <Controller
                     name="content"
                     control={control}
@@ -181,24 +175,17 @@ function RouteComponent() {
                           disabled={isCreating}
                         />
 
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
                     )}
                   />
                 </TabsContent>
 
-                <TabsContent
-                  value="preview"
-                  className="m-0 focus-visible:outline-none min-h-125"
-                >
+                <TabsContent value="preview" className="m-0 focus-visible:outline-none min-h-125">
                   <div className="border border-border/80 rounded-xl bg-background flex flex-col focus-within:border-primary/80 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-200 px-5 py-5 h-full max-h-120 overflow-y-auto">
                     <MarkdownRenderer
                       className="h-full"
-                      content={
-                        watchedContent || m.notes_page_empty_preview_fallback()
-                      }
+                      content={watchedContent || m.notes_page_empty_preview_fallback()}
                     />
                   </div>
                 </TabsContent>

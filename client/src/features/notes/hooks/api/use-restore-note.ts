@@ -2,14 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import { noteKeys } from '@/features/notes/keys';
-
-import {
-  $fetch,
-  type InferRequestType,
-  type InferResponseType,
-} from '@/lib/fetch';
+import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+
+import { noteKeys } from '@/features/notes/keys';
 
 export function useRestoreNote() {
   const queryClient = useQueryClient();
@@ -20,7 +16,7 @@ export function useRestoreNote() {
     InferRequestType<(typeof $fetch.api.v1.notes)[':id']['$patch']>
   >({
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.all });
+      void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       toast.success(m.notes_page_toast_restored(), {
         description: m.notes_page_toast_restored_desc({ title: data.title }),

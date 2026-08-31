@@ -2,18 +2,12 @@ import { useMutation } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import {
-  $fetch,
-  type InferRequestType,
-  type InferResponseType,
-} from '@/lib/fetch';
+import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
 
 export function useGenerateNoteTitle() {
   return useMutation<
-    InferResponseType<
-      (typeof $fetch.api.v1.ai.generator)['note-title']['$post']
-    >['data'],
+    InferResponseType<(typeof $fetch.api.v1.ai.generator)['note-title']['$post']>['data'],
     Error,
     InferRequestType<(typeof $fetch.api.v1.ai.generator)['note-title']['$post']>
   >({

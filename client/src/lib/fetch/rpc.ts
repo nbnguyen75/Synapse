@@ -8,7 +8,7 @@ import { env } from '@/config/env';
 type InferSchema<T> = T extends z.ZodType<infer Output> ? Output : T;
 
 type EndpointDef = {
-  headers?: Record<string, string | undefined>;
+  headers?: Record<string, undefined | string>;
   params?: Record<string, unknown>;
   query?: Record<string, unknown>;
   response?: unknown;
@@ -47,30 +47,23 @@ type Split<S extends string> = S extends `${infer Head}/${infer Tail}`
     ? []
     : [S];
 
-type UnionToIntersection<U> = (
-  U extends unknown ? (k: U) => void : never
-) extends (k: infer I) => void
+type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (
+  k: infer I,
+) => void
   ? I
   : never;
 
 type MethodClient<Methods extends MethodMap, Throw extends boolean> = {
-  [
-    M in keyof Methods as Methods[M] extends EndpointDef ? M : never
-  ]: Methods[M] extends EndpointDef
+  [M in keyof Methods as Methods[M] extends EndpointDef ? M : never]: Methods[M] extends EndpointDef
     ? (
         ...args: RequestArgs<Methods[M]>
       ) => Promise<
-        Throw extends true
-          ? InferResponse<Methods[M]>
-          : RpcResponse<InferResponse<Methods[M]>>
+        Throw extends true ? InferResponse<Methods[M]> : RpcResponse<InferResponse<Methods[M]>>
       >
     : never;
 };
 
-type BuildBranch<
-  Segments extends readonly string[],
-  Leaf,
-> = Segments extends readonly [
+type BuildBranch<Segments extends readonly string[], Leaf> = Segments extends readonly [
   infer Head extends string,
   ...infer Rest extends readonly string[],
 ]
@@ -81,10 +74,7 @@ type BuildBranch<
 
 type BaseRouter = Record<string, MethodMap>;
 
-type ProxyTree<
-  Router extends BaseRouter,
-  Throw extends boolean = false,
-> = UnionToIntersection<
+type ProxyTree<Router extends BaseRouter, Throw extends boolean = false> = UnionToIntersection<
   {
     [Path in keyof Router]: Path extends string
       ? BuildBranch<Split<Path>, MethodClient<Router[Path], Throw>>
@@ -92,11 +82,9 @@ type ProxyTree<
   }[keyof Router]
 >;
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+type HttpMethod = 'DELETE' | 'PATCH' | 'POST' | 'GET' | 'PUT';
 
-type RpcResponse<T> =
-  | { error: null; data: T }
-  | { error: ApiErrorResponse; data: null };
+type RpcResponse<T> = { error: ApiErrorResponse; data: null } | { error: null; data: T };
 
 const METHOD_KEY_MAP: Record<string, HttpMethod> = {
   $delete: 'DELETE',
@@ -106,11 +94,9 @@ const METHOD_KEY_MAP: Record<string, HttpMethod> = {
   $put: 'PUT',
 };
 
-export type InferRequestType<T extends (...args: never[]) => unknown> =
-  Parameters<T>[0];
+export type InferRequestType<T extends (...args: never[]) => unknown> = Parameters<T>[0];
 
-export type InferResponseType<T extends (...args: never[]) => unknown> =
-  Awaited<ReturnType<T>>;
+export type InferResponseType<T extends (...args: never[]) => unknown> = Awaited<ReturnType<T>>;
 
 type InferResponse<T extends EndpointDef> = InferSchema<T['response']>;
 
@@ -119,11 +105,7 @@ export type EnsureRouter<T extends BaseRouter> = T;
 export type CreateRpcClientOption = Omit<CreateFetchOption, 'baseUrl' | 'body'>;
 
 function createProxyClient(
-  makeRequest: (
-    method: HttpMethod,
-    path: string,
-    options?: Record<string, unknown>,
-  ) => unknown,
+  makeRequest: (method: HttpMethod, path: string, options?: Record<string, unknown>) => unknown,
   segments: string[] = [],
 ) {
   return new Proxy(() => {}, {
@@ -131,8 +113,7 @@ function createProxyClient(
       if (prop in METHOD_KEY_MAP) {
         const method = METHOD_KEY_MAP[prop];
         const path = '/' + segments.join('/');
-        return (options?: Record<string, unknown>) =>
-          makeRequest(method, path, options);
+        return (options?: Record<string, unknown>) => makeRequest(method, path, options);
       }
       return createProxyClient(makeRequest, [...segments, prop]);
     },
@@ -140,7 +121,7 @@ function createProxyClient(
 }
 
 export function createRpcClient<Router extends BaseRouter>(
-  baseUrl: string | undefined,
+  baseUrl: undefined | string,
   option: CreateRpcClientOption & { throw: true },
 ): ProxyTree<Router, true>;
 
@@ -150,7 +131,7 @@ export function createRpcClient<Router extends BaseRouter>(
 ): ProxyTree<Router>;
 
 export function createRpcClient<Router extends BaseRouter>(
-  baseUrl: string | undefined = env.VITE_API_URL,
+  baseUrl: undefined | string = env.VITE_API_URL,
   option: CreateRpcClientOption = {},
 ): ProxyTree<Router, boolean> {
   const $fetchBase = createFetch({
@@ -158,11 +139,7 @@ export function createRpcClient<Router extends BaseRouter>(
     ...option,
   });
 
-  const makeRequest = (
-    method: HttpMethod,
-    path: string,
-    options?: Record<string, unknown>,
-  ) => {
+  const makeRequest = (method: HttpMethod, path: string, options?: Record<string, unknown>) => {
     return $fetchBase(path, {
       headers: options?.headers as Record<string, string> | undefined,
       params: options?.params as Record<string, unknown> | undefined,

@@ -7,10 +7,7 @@ export function PageHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        'flex flex-col gap-4 px-6 py-5 border-b bg-background',
-        className,
-      )}
+      className={cn('flex flex-col gap-4 px-6 py-5 border-b bg-background', className)}
       {...props}
     >
       {children}
@@ -84,10 +81,7 @@ export function PageHeaderActions({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn('flex items-center gap-2 shrink-0', className)}
-      {...props}
-    >
+    <div className={cn('flex items-center gap-2 shrink-0', className)} {...props}>
       {children}
     </div>
   );
@@ -99,10 +93,7 @@ export function PageHeaderToolbar({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn('flex flex-wrap items-center gap-3', className)}
-      {...props}
-    >
+    <div className={cn('flex flex-wrap items-center gap-3', className)} {...props}>
       {children}
     </div>
   );

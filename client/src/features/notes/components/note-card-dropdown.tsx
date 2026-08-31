@@ -3,7 +3,6 @@ import type { Note, NoteViewMode } from '@/features/notes/types';
 
 import { m } from '@/paraglide/messages';
 
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 import {
   ArchiveIcon,
@@ -32,9 +32,9 @@ interface NoteWithDetails extends Note {
 
 interface NoteCardDropdownProps {
   actions: {
-    execute: (type: NoteActionType) => void;
+    execute: ((type: NoteActionType) => Promise<void>) | ((type: NoteActionType) => void);
+    copyContent: (() => Promise<void>) | (() => void);
     includeInChat: () => void;
-    copyContent: () => void;
     exportNote: () => void;
     openDetail: () => void;
   };
@@ -42,13 +42,8 @@ interface NoteCardDropdownProps {
   note: NoteWithDetails;
 }
 
-export function NoteCardDropdown({
-  viewMode,
-  actions,
-  note,
-}: NoteCardDropdownProps) {
-  const { includeInChat, copyContent, exportNote, openDetail, execute } =
-    actions;
+export function NoteCardDropdown({ viewMode, actions, note }: NoteCardDropdownProps) {
+  const { includeInChat, copyContent, exportNote, openDetail, execute } = actions;
 
   return (
     <DropdownMenu>
@@ -64,11 +59,7 @@ export function NoteCardDropdown({
           </Button>
         }
       />
-      <DropdownMenuContent
-        align="end"
-        className="w-52"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <DropdownMenuContent align="end" className="w-52" onClick={(e) => e.stopPropagation()}>
         <DropdownMenuItem onClick={openDetail}>
           <FileTextIcon className="mr-2 size-3.5" />
           {m.notes_page_card_open_doc()}
@@ -81,7 +72,7 @@ export function NoteCardDropdown({
           </DropdownMenuItem>
         )}
 
-        <DropdownMenuItem onClick={copyContent}>
+        <DropdownMenuItem onClick={void copyContent}>
           <CopyIcon className="mr-2 size-3.5" />
           {m.notes_page_card_copy_content()}
         </DropdownMenuItem>
@@ -95,56 +86,50 @@ export function NoteCardDropdown({
 
         {viewMode === 'trash' ? (
           <>
-            <DropdownMenuItem onClick={() => execute('restore')}>
+            <DropdownMenuItem onClick={() => void execute('restore')}>
               <RotateCcwIcon className="mr-2 size-3.5" />
               {m.notes_card_restore()}
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem
-              onClick={() => execute('delete')}
-              variant="destructive"
-            >
+            <DropdownMenuItem onClick={() => void execute('delete')} variant="destructive">
               <XCircleIcon className="mr-2 size-3.5" />
               {m.notes_card_delete_permanent()}
             </DropdownMenuItem>
           </>
         ) : viewMode === 'archive' ? (
           <>
-            <DropdownMenuItem onClick={() => execute('unarchive')}>
+            <DropdownMenuItem onClick={() => void execute('unarchive')}>
               <Undo2Icon className="mr-2 size-3.5" />
               {m.notes_card_unarchive()}
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => execute('trash')}>
+            <DropdownMenuItem onClick={() => void execute('trash')}>
               <Trash2Icon className="mr-2 size-3.5" />
               {m.notes_page_action_trash()}
             </DropdownMenuItem>
           </>
         ) : (
           <>
-            <DropdownMenuItem onClick={() => execute('pin')}>
+            <DropdownMenuItem onClick={() => void execute('pin')}>
               <PinIcon className="mr-2 size-3.5" />
               {note.pinned ? m.notes_page_pin_unpin() : m.notes_page_pin_pin()}
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => execute('archive')}>
+            <DropdownMenuItem onClick={() => void execute('archive')}>
               <ArchiveIcon className="mr-2 size-3.5" />
               {m.notes_page_action_archive()}
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={() => execute('trash')}>
+            <DropdownMenuItem onClick={() => void execute('trash')}>
               <Trash2Icon className="mr-2 size-3.5" />
               {m.notes_page_action_trash()}
             </DropdownMenuItem>
 
-            <DropdownMenuItem
-              onClick={() => execute('delete')}
-              variant="destructive"
-            >
+            <DropdownMenuItem onClick={() => void execute('delete')} variant="destructive">
               <XCircleIcon className="mr-2 size-3.5" />
               {m.notes_card_delete_permanent()}
             </DropdownMenuItem>

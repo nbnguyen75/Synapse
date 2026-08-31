@@ -17,14 +17,12 @@ export default function AppGlobalKeybinds() {
 
   const leftSidebar = useSidebar('left');
 
-  const { setActiveConversationId, activeConversationId } = useCompanionStore(
-    (state) => state,
-  );
+  const { setActiveConversationId, activeConversationId } = useCompanionStore((state) => state);
 
   const { layoutMode } = useSettingsStore();
 
   useHotkeyShortcut('go-to-notes', () => {
-    navigate({ to: '/notes' });
+    void navigate({ to: '/notes' });
     leftSidebar?.setOpenMobile(false);
 
     if (layoutMode === 'chat' && activeConversationId) {
@@ -33,7 +31,7 @@ export default function AppGlobalKeybinds() {
   });
 
   useHotkeyShortcut('go-to-create-note', () => {
-    navigate({ to: '/notes/create' });
+    void navigate({ to: '/notes/create' });
     leftSidebar?.setOpenMobile(false);
 
     if (layoutMode === 'chat' && activeConversationId) {

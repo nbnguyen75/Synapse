@@ -5,8 +5,6 @@ import { useNavigate } from '@tanstack/react-router';
 import { StatusCodes } from 'http-status-codes';
 import { toast } from 'sonner';
 
-import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
-
 import { m } from '@/paraglide/messages';
 
 import { Button } from '@/components/ui/button';
@@ -24,6 +22,8 @@ import {
   CheckIcon,
 } from 'lucide-react';
 
+import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
+
 export interface ErrorPageProps {
   statusCode?: StatusCodes;
   customMessage?: string;
@@ -32,7 +32,7 @@ export interface ErrorPageProps {
   error?: Error;
 }
 
-type ErrorCategory = 'unauthorized' | 'not_found' | 'server_error';
+type ErrorCategory = 'unauthorized' | 'server_error' | 'not_found';
 
 interface ErrorDetail {
   description: () => string;
@@ -82,7 +82,7 @@ export default function ErrorPage({
   const description = customMessage || activeConfig.description();
 
   const goToHome = () => {
-    navigate({
+    void navigate({
       to: '/notes',
     });
   };
@@ -117,9 +117,7 @@ export default function ErrorPage({
           <span className="font-mono text-7xl font-light tracking-tighter text-muted-foreground/30">
             {statusCode}
           </span>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            {title}
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
             {description}
           </p>
@@ -131,7 +129,7 @@ export default function ErrorPage({
             <>
               <Button
                 size="sm"
-                onClick={() => navigate({ to: '/login' })}
+                onClick={() => void navigate({ to: '/login' })}
                 className="h-9 px-4 text-xs font-medium gap-2 cursor-pointer"
               >
                 <LogIn className="h-3.5 w-3.5" />
@@ -227,7 +225,7 @@ export default function ErrorPage({
                   </span>
                   <button
                     type="button"
-                    onClick={handleCopyError}
+                    onClick={() => void handleCopyError()}
                     className="flex items-center gap-1 text-[11px] hover:text-foreground cursor-pointer transition-colors"
                   >
                     {copied ? (
@@ -235,15 +233,11 @@ export default function ErrorPage({
                     ) : (
                       <CopyIcon className="h-3 w-3" />
                     )}
-                    <span>
-                      {copied ? m.error_page_copied() : m.error_page_copy()}
-                    </span>
+                    <span>{copied ? m.error_page_copied() : m.error_page_copy()}</span>
                   </button>
                 </div>
                 <div className="max-h-64 overflow-y-auto text-muted-foreground/90 whitespace-pre-wrap break-all text-md leading-relaxed">
-                  <span className="font-bold">
-                    {error.message || String(error)}
-                  </span>
+                  <span className="font-bold">{error.message || String(error)}</span>
                   {error.stack && (
                     <div className="mt-2 pt-2 border-t border-border/40 text-md opacity-70">
                       {error.stack}

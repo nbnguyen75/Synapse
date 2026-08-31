@@ -1,7 +1,6 @@
 import type { ElementType } from 'react';
 
 export type CommandOutput =
-  | { command: string; title: string; type: 'help' }
   | {
       data: {
         tagsList: string[];
@@ -15,10 +14,11 @@ export type CommandOutput =
       type: 'stats';
       title: string;
     }
-  | { command: string; type: 'notes'; title: string };
+  | { command: string; type: 'notes'; title: string }
+  | { command: string; title: string; type: 'help' };
 
 export interface CommandItem {
-  action: () => void | Promise<void>;
+  action: () => Promise<void> | void;
   icon: ElementType;
   subtitle?: string;
   command?: string;

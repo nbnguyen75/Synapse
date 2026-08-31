@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 
-import { INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
   $isRangeSelection,
@@ -11,6 +9,8 @@ import {
   KEY_DOWN_COMMAND,
   mergeRegister,
 } from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
 
 /**
  * Matches a caret sitting right after a bullet-list marker at the start of a
@@ -108,9 +108,7 @@ export default function BulletListShortcutPlugin() {
       editor.registerUpdateListener(({ editorState }) => {
         if (editor.isComposing()) return;
 
-        const hasBulletMarker = editorState.read(() =>
-          $hasBulletMarkerAtCaret(),
-        );
+        const hasBulletMarker = editorState.read(() => $hasBulletMarkerAtCaret());
         if (!hasBulletMarker) return;
 
         editor.update(() => {

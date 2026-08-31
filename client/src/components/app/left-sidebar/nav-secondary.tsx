@@ -5,8 +5,8 @@ import { useSettingsStore } from '@/store/settings-store';
 
 import { m } from '@/paraglide/messages';
 
-import { KeyCombo } from '@/components/shared';
 import KeyboardShortcutsDialog from '@/components/shared/sidebar-keyboard-shortcuts-dialog';
+import { KeyCombo } from '@/components/shared';
 
 import {
   SidebarGroup,
@@ -26,9 +26,7 @@ export default function NavSecondary() {
 
   const { layoutMode } = useSettingsStore();
 
-  const { setActiveConversationId, activeConversationId } = useCompanionStore(
-    (state) => state,
-  );
+  const { setActiveConversationId, activeConversationId } = useCompanionStore((state) => state);
 
   return (
     <SidebarGroup className="mt-auto">

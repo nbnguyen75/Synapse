@@ -10,9 +10,7 @@ interface CommandPaletteHelpViewProps {
   slashCommands: CommandItem[];
 }
 
-export default function CommandPaletteHelpView({
-  slashCommands,
-}: CommandPaletteHelpViewProps) {
+export default function CommandPaletteHelpView({ slashCommands }: CommandPaletteHelpViewProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-xs font-semibold text-foreground tracking-wide uppercase">
@@ -27,9 +25,7 @@ export default function CommandPaletteHelpView({
             className="flex items-start sm:items-center justify-between gap-4 p-3 hover:bg-muted/30 transition-colors"
           >
             <div className="space-y-0.5">
-              <span className="font-mono text-xs font-semibold text-primary">
-                {cmd.command}
-              </span>
+              <span className="font-mono text-xs font-semibold text-primary">{cmd.command}</span>
               <p className="text-xs text-muted-foreground">{cmd.subtitle}</p>
             </div>
           </div>

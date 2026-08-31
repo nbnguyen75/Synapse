@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 
 export function useElementWidth<T extends HTMLElement>() {
-  const ref = useRef<T | null>(null);
+  const ref = useRef<null | T>(null);
   const [width, setWidth] = useState(0);
 
   useLayoutEffect(() => {

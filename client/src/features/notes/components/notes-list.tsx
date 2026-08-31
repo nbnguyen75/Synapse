@@ -3,13 +3,13 @@ import type { BaseUIEvent } from '@base-ui/react';
 
 import { Fragment, type ReactNode } from 'react';
 
-import { NotesListEmpty, NoteCardSkeleton } from '@/features/notes/components';
-
 import { m } from '@/paraglide/messages';
 
 import { Button } from '@/components/ui/button';
 
 import { PlusIcon } from 'lucide-react';
+
+import { NotesListEmpty, NoteCardSkeleton } from '@/features/notes/components';
 
 const SKELETON_KEYS = [
   'skeleton-1',
@@ -21,9 +21,7 @@ const SKELETON_KEYS = [
 ];
 
 interface NotesListProps {
-  onCreateClick?: (
-    event: BaseUIEvent<React.MouseEvent<HTMLButtonElement>>,
-  ) => void;
+  onCreateClick?: (event: BaseUIEvent<React.MouseEvent<HTMLButtonElement>>) => void;
   renderItem: (note: Note) => ReactNode;
   emptyVariant: NotesEmptyVariant;
   loadingCardCount?: number;
@@ -32,11 +30,7 @@ interface NotesListProps {
 }
 
 function Container({ children }: { children: ReactNode }) {
-  return (
-    <div className="grid gap-4 grid-cols-1 @4xl:grid-cols-2 @8xl:grid-cols-3">
-      {children}
-    </div>
-  );
+  return <div className="grid gap-4 grid-cols-1 @4xl:grid-cols-2 @8xl:grid-cols-3">{children}</div>;
 }
 
 export default function NotesList({

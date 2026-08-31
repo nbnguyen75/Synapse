@@ -8,7 +8,7 @@ import { Kbd } from '@/components/ui/kbd';
 import { CornerDownLeftIcon } from 'lucide-react';
 
 export interface GroupedCommandItem extends CommandItem {
-  group?: 'quick' | 'commands' | 'notes' | 'tags';
+  group?: 'commands' | 'quick' | 'notes' | 'tags';
   shortcut?: string;
   meta?: string;
 }
@@ -59,10 +59,7 @@ export default function CommandPaletteSearchResults({
   }, {});
 
   return (
-    <div
-      ref={resultsRef}
-      className="max-h-85 overflow-y-auto p-2 space-y-3 bg-background/20"
-    >
+    <div ref={resultsRef} className="max-h-85 overflow-y-auto p-2 space-y-3 bg-background/20">
       {Object.entries(groups).map(([groupKey, items]) => (
         <div key={groupKey} className="space-y-1">
           {/* Header phân nhóm */}
@@ -80,7 +77,7 @@ export default function CommandPaletteSearchResults({
               <div
                 key={item.id}
                 data-index={flatIndex}
-                onClick={item.action}
+                onClick={() => void item.action()}
                 onMouseEnter={() => onSelectIndex(flatIndex)}
                 onPointerMove={(e) => {
                   if (e.movementX !== 0 || e.movementY !== 0) {

@@ -31,9 +31,7 @@ export default function CommandPaletteSearchInput({
         className="w-full text-sm border-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 h-auto bg-transparent placeholder:text-muted-foreground/60 text-foreground"
         autoFocus
       />
-      <Kbd className="hidden sm:inline-flex text-[10px] font-medium opacity-60">
-        ESC
-      </Kbd>
+      <Kbd className="hidden sm:inline-flex text-[10px] font-medium opacity-60">ESC</Kbd>
     </div>
   );
 }

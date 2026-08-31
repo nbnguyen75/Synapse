@@ -1,20 +1,16 @@
-import type {
-  CommandItem,
-  CommandOutput,
-  NoteItem,
-} from '@/features/command-palette/types';
-
-import {
-  CommandPaletteHelpView,
-  CommandPaletteNotesView,
-  CommandPaletteStatsView,
-} from '@/features/command-palette/components';
+import type { CommandItem, CommandOutput, NoteItem } from '@/features/command-palette/types';
 
 import { m } from '@/paraglide/messages';
 
 import { Button } from '@/components/ui/button';
 
 import { ArrowLeftIcon } from 'lucide-react';
+
+import {
+  CommandPaletteHelpView,
+  CommandPaletteNotesView,
+  CommandPaletteStatsView,
+} from '@/features/command-palette/components';
 
 interface CommandPaletteOutputProps {
   onOpenNote: (note: NoteItem) => void;
@@ -38,9 +34,7 @@ export default function CommandPaletteOutput({
           <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-primary/10 text-primary font-mono border border-primary/20">
             {commandOutput.command}
           </span>
-          <span className="text-xs font-medium text-foreground">
-            {commandOutput.title}
-          </span>
+          <span className="text-xs font-medium text-foreground">{commandOutput.title}</span>
         </div>
         <Button
           size="sm"
@@ -54,13 +48,9 @@ export default function CommandPaletteOutput({
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto p-4 text-sm">
-        {commandOutput.type === 'help' && (
-          <CommandPaletteHelpView slashCommands={slashCommands} />
-        )}
+        {commandOutput.type === 'help' && <CommandPaletteHelpView slashCommands={slashCommands} />}
 
-        {commandOutput.type === 'stats' && (
-          <CommandPaletteStatsView data={commandOutput.data} />
-        )}
+        {commandOutput.type === 'stats' && <CommandPaletteStatsView data={commandOutput.data} />}
 
         {commandOutput.type === 'notes' && (
           <CommandPaletteNotesView notes={notes} onOpenNote={onOpenNote} />

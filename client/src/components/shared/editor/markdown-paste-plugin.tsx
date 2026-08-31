@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 
-import { $generateNodesFromMarkdownString } from '@lexical/markdown';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   COMMAND_PRIORITY_HIGH,
   PASTE_COMMAND,
@@ -9,6 +7,8 @@ import {
   $getSelection,
   type PasteCommandType,
 } from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $generateNodesFromMarkdownString } from '@lexical/markdown';
 
 import { CUSTOM_TRANSFORMERS } from './lexical-plugins';
 
@@ -26,10 +26,7 @@ export default function MarkdownPastePlugin() {
           if (plainText && !htmlText) {
             event.preventDefault();
             editor.update(() => {
-              const nodes = $generateNodesFromMarkdownString(
-                plainText,
-                CUSTOM_TRANSFORMERS,
-              );
+              const nodes = $generateNodesFromMarkdownString(plainText, CUSTOM_TRANSFORMERS);
               if (nodes.length === 0) return;
 
               const selection = $getSelection();

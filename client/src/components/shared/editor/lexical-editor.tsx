@@ -2,31 +2,24 @@ import type { EditorThemeClasses } from 'lexical';
 
 import { useEffect, type HTMLAttributes } from 'react';
 
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
-import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
-import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
-import {
-  LexicalComposer,
-  type InitialConfigType,
-} from '@lexical/react/LexicalComposer';
+import { LexicalComposer, type InitialConfigType } from '@lexical/react/LexicalComposer';
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
+import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
-import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 
-import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
-import CompanionBridgePlugin from './companion-bridge-plugin';
-import BulletListShortcutPlugin from './lexical-bullet-list-shortcut-plugin';
-import KeyboardShortcutsPlugin from './lexical-keyboard-shortcuts';
-import LinkShortcutDialogPlugin from './lexical-link-shortcut-dialog-plugin';
 import {
   CUSTOM_TRANSFORMERS,
   InitialStatePlugin,
@@ -35,8 +28,12 @@ import {
   ALLOWED_NODES,
   MATCHERS,
 } from './lexical-plugins';
-import Toolbar from './lexical-toolbar';
+import BulletListShortcutPlugin from './lexical-bullet-list-shortcut-plugin';
+import LinkShortcutDialogPlugin from './lexical-link-shortcut-dialog-plugin';
+import KeyboardShortcutsPlugin from './lexical-keyboard-shortcuts';
+import CompanionBridgePlugin from './companion-bridge-plugin';
 import MarkdownPastePlugin from './markdown-paste-plugin';
+import Toolbar from './lexical-toolbar';
 
 export const editorTheme: EditorThemeClasses = {
   codeHighlight: {
@@ -74,14 +71,10 @@ export const editorTheme: EditorThemeClasses = {
     boldUnderlineStrikethrough:
       'font-semibold text-foreground underline line-through underline-offset-4 opacity-80',
     code: 'font-mono bg-muted px-1.5 py-0.5 rounded text-xs text-foreground font-medium border border-border/40',
-    italicUnderlineStrikethrough:
-      'italic underline line-through underline-offset-4 opacity-80',
-    boldItalicUnderline:
-      'font-semibold text-foreground italic underline underline-offset-4',
-    boldItalicStrikethrough:
-      'font-semibold text-foreground italic line-through opacity-70',
-    underlineStrikethrough:
-      'underline line-through underline-offset-4 opacity-80',
+    italicUnderlineStrikethrough: 'italic underline line-through underline-offset-4 opacity-80',
+    boldItalicUnderline: 'font-semibold text-foreground italic underline underline-offset-4',
+    boldItalicStrikethrough: 'font-semibold text-foreground italic line-through opacity-70',
+    underlineStrikethrough: 'underline line-through underline-offset-4 opacity-80',
     boldUnderline: 'font-semibold text-foreground underline underline-offset-4',
     boldStrikethrough: 'font-semibold text-foreground line-through opacity-70',
     italicUnderline: 'italic underline underline-offset-4',

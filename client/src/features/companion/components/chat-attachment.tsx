@@ -47,10 +47,7 @@ export const PromptInputAttachmentsDisplay = () => {
   useEffect(() => {
     if (pending.length === 0) return;
 
-    const capacity = Math.max(
-      0,
-      MAX_CHAT_ATTACHMENTS - attachments.files.length,
-    );
+    const capacity = Math.max(0, MAX_CHAT_ATTACHMENTS - attachments.files.length);
     if (capacity <= 0) {
       toast.error(m.chat_attachments_max());
     } else {
@@ -73,11 +70,7 @@ export const PromptInputAttachmentsDisplay = () => {
   return (
     <Attachments variant="inline">
       {attachments.files.map((attachment) => (
-        <AttachmentItem
-          attachment={attachment}
-          key={attachment.id}
-          onRemove={handleRemove}
-        />
+        <AttachmentItem attachment={attachment} key={attachment.id} onRemove={handleRemove} />
       ))}
     </Attachments>
   );

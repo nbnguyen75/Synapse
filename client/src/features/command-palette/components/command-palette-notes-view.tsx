@@ -34,9 +34,7 @@ export default function CommandPaletteNotesView({
             >
               <div className="min-w-0 pr-3">
                 <div className="flex items-center gap-1.5">
-                  {note.pinned && (
-                    <PinIcon className="h-3 w-3 text-amber-500 shrink-0" />
-                  )}
+                  {note.pinned && <PinIcon className="h-3 w-3 text-amber-500 shrink-0" />}
                   <span className="text-xs font-medium text-foreground truncate block">
                     {note.title || m.command_palette_note_untitled()}
                   </span>

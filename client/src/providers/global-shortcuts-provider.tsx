@@ -1,14 +1,7 @@
 import type { ShortcutId } from '@/config/keyboard-shortcuts';
 import type { Hotkey } from '@tanstack/hotkeys';
 
-import {
-  createContext,
-  use,
-  useCallback,
-  useEffect,
-  useRef,
-  type ReactNode,
-} from 'react';
+import { createContext, use, useCallback, useEffect, useRef, type ReactNode } from 'react';
 
 import { getHotkeyManager, getSequenceManager } from '@tanstack/hotkeys';
 
@@ -37,14 +30,10 @@ interface HotkeyHandleLike {
 }
 
 interface GlobalShortcutsContextValue {
-  register: (
-    id: ShortcutId,
-    registration: GlobalShortcutRegistration,
-  ) => () => void;
+  register: (id: ShortcutId, registration: GlobalShortcutRegistration) => () => void;
 }
 
-const GlobalShortcutsContext =
-  createContext<GlobalShortcutsContextValue | null>(null);
+const GlobalShortcutsContext = createContext<GlobalShortcutsContextValue | null>(null);
 
 /**
  * Resolves the row options a hotkey registration should use given the
@@ -53,16 +42,15 @@ const GlobalShortcutsContext =
  * most permissive setting wins so shortcuts keep working while typing as
  * soon as any consumer asked for `allowWhenTyping`.
  */
-function computeRowOptions(
-  registrations: GlobalShortcutRegistration[] | undefined,
-): { ignoreInputs: boolean | undefined; enabled: boolean } {
+function computeRowOptions(registrations: GlobalShortcutRegistration[] | undefined): {
+  ignoreInputs: undefined | boolean;
+  enabled: boolean;
+} {
   if (!registrations || registrations.length === 0) {
     return { ignoreInputs: undefined, enabled: true };
   }
   return {
-    ignoreInputs: registrations.every(
-      (registration) => registration.ignoreInputs,
-    ),
+    ignoreInputs: registrations.every((registration) => registration.ignoreInputs),
     enabled: registrations.some((registration) => registration.enabled),
   };
 }
@@ -78,9 +66,7 @@ function computeRowOptions(
  */
 export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
   const overrides = useShortcutsStore((state) => state.overrides);
-  const registrationsRef = useRef(
-    new Map<ShortcutId, GlobalShortcutRegistration[]>(),
-  );
+  const registrationsRef = useRef(new Map<ShortcutId, GlobalShortcutRegistration[]>());
   const handlesRef = useRef(new Map<ShortcutId, HotkeyHandleLike[]>());
 
   const syncRowOptions = useCallback((id: ShortcutId) => {
@@ -95,9 +81,7 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     (id: ShortcutId, registration: GlobalShortcutRegistration) => {
       if (getShortcut(id).section !== 'global') {
-        throw new Error(
-          `GlobalShortcutsProvider: '${id}' is not a global shortcut`,
-        );
+        throw new Error(`GlobalShortcutsProvider: '${id}' is not a global shortcut`);
       }
 
       const list = registrationsRef.current.get(id) ?? [];
@@ -140,16 +124,12 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
         // which has its own listener + timeout state machine; single combos
         // register on the HotkeyManager.
         const handle = combo.includes(' ')
-          ? getSequenceManager().register(
-              combo.split(/\s+/) as Hotkey[],
-              invoke,
-              {
-                meta: { name: entry.label() },
-                conflictBehavior: 'allow',
-                stopPropagation: true,
-                preventDefault: true,
-              },
-            )
+          ? getSequenceManager().register(combo.split(/\s+/) as Hotkey[], invoke, {
+              meta: { name: entry.label() },
+              conflictBehavior: 'allow',
+              stopPropagation: true,
+              preventDefault: true,
+            })
           : getHotkeyManager().register(combo as Hotkey, invoke, {
               meta: { name: entry.label() },
               conflictBehavior: 'allow',
@@ -179,11 +159,7 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
     }
   }, [overrides, syncRowOptions]);
 
-  return (
-    <GlobalShortcutsContext value={{ register }}>
-      {children}
-    </GlobalShortcutsContext>
-  );
+  return <GlobalShortcutsContext value={{ register }}>{children}</GlobalShortcutsContext>;
 }
 
 interface UseGlobalShortcutOptions {
@@ -203,9 +179,7 @@ export function useRegisterGlobalShortcut(
 ) {
   const context = use(GlobalShortcutsContext);
   if (context === null) {
-    throw new Error(
-      'useRegisterGlobalShortcut must be used within <GlobalShortcutsProvider>',
-    );
+    throw new Error('useRegisterGlobalShortcut must be used within <GlobalShortcutsProvider>');
   }
   const { register } = context;
 

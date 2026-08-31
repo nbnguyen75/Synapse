@@ -1,12 +1,12 @@
 import { z } from 'zod/v4';
 
+import { m } from '@/paraglide/messages';
+
 import {
   NOTE_BULK_ACTIONS,
   NOTE_SORTABLE_FIELDS,
+  NOTE_CONTENT_MAX_LENGTH,
 } from '@/features/notes/constants';
-
-import { m } from '@/paraglide/messages';
-
 import { paginationQuerySchema } from '@/schemas';
 
 export const notesQueryParamsSchema = paginationQuerySchema.extend({
@@ -24,18 +24,12 @@ export const noteIdParamSchema = z.object({
 
 export type NoteIdParams = z.infer<typeof noteIdParamSchema>;
 
-import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
-
 export const noteInputSchema = z.object({
   content: z
     .string()
     .min(1, { message: m.notes_page_toast_content_required() })
     .max(NOTE_CONTENT_MAX_LENGTH, { message: m.validation_content_max() }),
-  title: z
-    .string()
-    .trim()
-    .max(200, { message: m.validation_title_max() })
-    .optional(),
+  title: z.string().trim().max(200, { message: m.validation_title_max() }).optional(),
 });
 
 export type NoteFormInput = z.input<typeof noteInputSchema>;

@@ -5,13 +5,6 @@ import { useState, type ElementType } from 'react';
 
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router';
 
-import {
-  CompanionSettingsPage,
-  GeneralSettingsPage,
-  ShortcutsSettingsPage,
-} from '@/features/settings/components';
-import { settingsQueryParamsSchema } from '@/features/settings/schemas';
-
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
@@ -20,7 +13,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { KeyboardIcon, Settings2Icon, SparklesIcon } from 'lucide-react';
 
+import {
+  CompanionSettingsPage,
+  GeneralSettingsPage,
+  ShortcutsSettingsPage,
+} from '@/features/settings/components';
+import { settingsQueryParamsSchema } from '@/features/settings/schemas';
+
 export const Route = createFileRoute('/_app/settings')({
+  validateSearch: settingsQueryParamsSchema,
+  search: {
+    middlewares: [stripSearchParams({ tab: 'general' })],
+  },
   loaderDeps: ({ search }) => {
     return {
       tab: search.tab,
@@ -47,17 +51,10 @@ export const Route = createFileRoute('/_app/settings')({
       ],
     };
   },
-  search: {
-    middlewares: [stripSearchParams({ tab: 'general' })],
-  },
-  validateSearch: settingsQueryParamsSchema,
   component: RouteComponent,
 });
 
-export const settingsTabsMap = new Map<
-  SettingsTab,
-  { icon: ElementType; label: string }
->([
+export const settingsTabsMap = new Map<SettingsTab, { icon: ElementType; label: string }>([
   ['general', { label: m.settings_page_tab_general(), icon: Settings2Icon }],
   ['companion', { label: m.settings_page_tab_companion(), icon: SparklesIcon }],
   ['shortcuts', { label: m.settings_page_tab_shortcuts(), icon: KeyboardIcon }],
@@ -70,7 +67,7 @@ function RouteComponent() {
   const [activeTab, setActiveTab] = useState(tab);
 
   const handleTabChange = (value: string) => {
-    navigate({
+    void navigate({
       search: (prev) => ({
         ...prev,
         tab: value as SettingsTab,
@@ -83,16 +80,10 @@ function RouteComponent() {
   return (
     <div className="mx-auto max-w-4xl p-6">
       <div className="mb-6">
-        <h1 className="text-xl font-semibold tracking-tight">
-          {m.settings_page_title()}
-        </h1>
+        <h1 className="text-xl font-semibold tracking-tight">{m.settings_page_title()}</h1>
       </div>
 
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
-        defaultValue="general"
-      >
+      <Tabs value={activeTab} onValueChange={handleTabChange} defaultValue="general">
         <TabsList variant="line">
           {[...settingsTabsMap.entries()].map(([tabName, values]) => (
             <TabsTrigger key={tabName} value={tabName}>

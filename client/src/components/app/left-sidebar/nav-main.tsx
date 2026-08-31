@@ -7,8 +7,8 @@ import { useCurrentPathname } from '@/hooks/use-pathname';
 import { useCompanionStore } from '@/store/companion-store';
 import { useSettingsStore } from '@/store/settings-store';
 
-import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
 import {
   SidebarGroup,
@@ -30,8 +30,7 @@ const navItems = [
   },
   {
     // Icon Ngôi sao thêm hiệu ứng fill khi active
-    activeColor:
-      'text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400',
+    activeColor: 'text-amber-500 fill-amber-500 dark:text-amber-400 dark:fill-amber-400',
     label: () => m.sidebar_favorites(),
     href: '/notes/favorites',
     icon: StarIcon,
@@ -56,9 +55,7 @@ export default function NavMain() {
 
   const leftSidebar = useSidebar('left');
 
-  const { setActiveConversationId, activeConversationId } = useCompanionStore(
-    (state) => state,
-  );
+  const { setActiveConversationId, activeConversationId } = useCompanionStore((state) => state);
 
   const { layoutMode } = useSettingsStore();
 
@@ -95,10 +92,7 @@ export default function NavMain() {
                     }}
                   >
                     <Icon
-                      className={cn(
-                        'size-4 transition-colors',
-                        isActive && item.activeColor,
-                      )}
+                      className={cn('size-4 transition-colors', isActive && item.activeColor)}
                     />
                     <span>{item.label()}</span>
                   </Link>

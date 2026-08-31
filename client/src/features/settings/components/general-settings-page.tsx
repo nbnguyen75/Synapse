@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { m } from '@/paraglide/messages';
 
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export default function GeneralSettingsPage() {
   // TODO: save to account later
@@ -26,26 +26,19 @@ export default function GeneralSettingsPage() {
     const handleSettingsUpdated = () => {
       setAutosave(localStorage.getItem('synapse_autosave_enabled') === 'true');
       setEmailDigests(localStorage.getItem('synapse_email_digests') === 'true');
-      setCompanionAlerts(
-        localStorage.getItem('synapse_companion_alerts') === 'true',
-      );
+      setCompanionAlerts(localStorage.getItem('synapse_companion_alerts') === 'true');
     };
 
     window.addEventListener('synapse-settings-updated', handleSettingsUpdated);
     return () => {
-      window.removeEventListener(
-        'synapse-settings-updated',
-        handleSettingsUpdated,
-      );
+      window.removeEventListener('synapse-settings-updated', handleSettingsUpdated);
     };
   }, []);
 
   return (
     <div className="mt-6 space-y-6">
       <div className="space-y-4">
-        <h2 className="text-sm font-semibold">
-          {m.settings_page_general_appearance()}
-        </h2>
+        <h2 className="text-sm font-semibold">{m.settings_page_general_appearance()}</h2>
 
         <div className="flex items-center justify-between rounded-lg border p-4">
           <div>
@@ -67,9 +60,7 @@ export default function GeneralSettingsPage() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-sm font-semibold">
-          {m.settings_page_general_notifications()}
-        </h2>
+        <h2 className="text-sm font-semibold">{m.settings_page_general_notifications()}</h2>
 
         <div className="flex items-center justify-between rounded-lg border p-4">
           <div>

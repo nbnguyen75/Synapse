@@ -1,21 +1,21 @@
 import type { AuthContext } from '@/types/app';
 
-import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
+import { StrictMode } from 'react';
 
-import { HotkeysProvider } from '@tanstack/react-hotkeys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { HotkeysProvider } from '@tanstack/react-hotkeys';
 
 import { registerSW } from 'virtual:pwa-register';
-
-import { routeTree } from '@/routeTree.gen';
 
 import { ThemeProvider, GlobalShortcutsProvider } from '@/providers';
 
 import { useSession } from '@/lib/auth';
 
 import { DefaultLoaderPage, ErrorPage } from '@/components/app/pages';
+
+import { routeTree } from '@/routeTree.gen';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,9 +28,7 @@ const queryClient = new QueryClient({
 });
 
 const router = createRouter({
-  defaultErrorComponent: ({ error, reset }) => (
-    <ErrorPage error={error} reset={reset} />
-  ),
+  defaultErrorComponent: ({ error, reset }) => <ErrorPage error={error} reset={reset} />,
   defaultNotFoundComponent: () => <ErrorPage statusCode={404} />,
   context: {
     auth: undefined!,
@@ -85,7 +83,7 @@ const handleChunkError = (errorMessage?: string) => {
     // Tránh lặp vô tận nếu reload liên tục bằng cách lưu flag tạm vào sessionStorage
     const lastReload = sessionStorage.getItem('chunk_reload_timestamp');
     const now = Date.now();
-    if (!lastReload || now - parseInt(lastReload, 10) > 10000) {
+    if (!lastReload || now - Number.parseInt(lastReload, 10) > 10000) {
       sessionStorage.setItem('chunk_reload_timestamp', now.toString());
       window.location.reload();
     }

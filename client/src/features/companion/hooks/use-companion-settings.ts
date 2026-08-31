@@ -2,14 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import { DEFAULT_COMPANION_SETTINGS } from '@/features/companion/constants';
-
-import {
-  $fetch,
-  type InferRequestType,
-  type InferResponseType,
-} from '@/lib/fetch';
+import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+
+import { DEFAULT_COMPANION_SETTINGS } from '@/features/companion/constants';
 
 export function useGetCompanionSettingsQuery() {
   return useQuery({
@@ -32,7 +28,7 @@ export function useUpdateCompanionSettingsMutation() {
     InferRequestType<typeof $fetch.api.v1.ai.settings.$put>
   >({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companion-settings'] });
+      void queryClient.invalidateQueries({ queryKey: ['companion-settings'] });
 
       toast.success(m.settings_page_toast_saved());
     },

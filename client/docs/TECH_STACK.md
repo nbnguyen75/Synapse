@@ -99,17 +99,17 @@
 
 ## Scripts Reference
 
-| Script                 | Purpose                                                             |
-| ---------------------- | ------------------------------------------------------------------- |
-| `dev`                  | Start Vite dev server                                               |
-| `build`                | Type-check (`tsc -b`) then Vite build                               |
-| `preview`              | Preview production build                                            |
-| `generate-routes`      | Regenerate TanStack Router route tree (`tsr generate`)              |
-| `generate-translation` | Compile Paraglide translations (also runs on `postinstall`)         |
-| `lint`                 | `oxlint`                                                           |
-| `format`               | `oxfmt` (writes, respects `.oxfmtrc.json` ignorePatterns)         |
-| `format:check`         | `oxfmt --check` (CI gate: exit 1 when files would change)         |
-| `check`                | `oxfmt` + `oxlint --fix` (used by lint-staged and CI)              |
+| Script                 | Purpose                                                     |
+| ---------------------- | ----------------------------------------------------------- |
+| `dev`                  | Start Vite dev server                                       |
+| `build`                | Type-check (`tsc -b`) then Vite build                       |
+| `preview`              | Preview production build                                    |
+| `generate-routes`      | Regenerate TanStack Router route tree (`tsr generate`)      |
+| `generate-translation` | Compile Paraglide translations (also runs on `postinstall`) |
+| `lint`                 | `oxlint`                                                    |
+| `format`               | `oxfmt` (writes, respects `.oxfmtrc.json` ignorePatterns)   |
+| `format:check`         | `oxfmt --check` (CI gate: exit 1 when files would change)   |
+| `check`                | `oxfmt` + `oxlint --fix` (used by lint-staged and CI)       |
 
 ## Version Notes
 

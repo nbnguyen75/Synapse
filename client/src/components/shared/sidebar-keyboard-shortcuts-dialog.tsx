@@ -16,18 +16,13 @@ import {
 
 import { Keyboard } from 'lucide-react';
 
-export default function KeyboardShortcutsDialog({
-  children,
-}: {
-  children: ReactElement;
-}) {
+export default function KeyboardShortcutsDialog({ children }: { children: ReactElement }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const handleOpen = () => setOpen(true);
     window.addEventListener('open-keyboard-shortcuts-dialog', handleOpen);
-    return () =>
-      window.removeEventListener('open-keyboard-shortcuts-dialog', handleOpen);
+    return () => window.removeEventListener('open-keyboard-shortcuts-dialog', handleOpen);
   }, []);
 
   return (

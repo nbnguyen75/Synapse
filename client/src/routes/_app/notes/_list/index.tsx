@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { NotesViewPage } from '@/features/notes/components';
-
 import { createTitle } from '@/config/metadata';
 
 import { m } from '@/paraglide/messages';
+
+import { NotesViewPage } from '@/features/notes/components';
 
 export const Route = createFileRoute('/_app/notes/_list/')({
   head: () => ({

@@ -1,11 +1,8 @@
-import { Fragment } from 'react/jsx-runtime';
-
 import { Link } from '@tanstack/react-router';
 
-import {
-  useBreadcrumb,
-  type BreadcrumbItem as BreadcrumbItemData,
-} from '@/hooks/use-breadcrumb';
+import { Fragment } from 'react/jsx-runtime';
+
+import { useBreadcrumb, type BreadcrumbItem as BreadcrumbItemData } from '@/hooks/use-breadcrumb';
 
 import { m } from '@/paraglide/messages';
 
@@ -20,13 +17,13 @@ import {
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
 } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 function renderCrumb(crumb: BreadcrumbItemData) {
   return (
@@ -57,8 +54,7 @@ export default function AppBreadcrumb({
 
   if (crumbs.length === 0) return null;
 
-  const collapsed =
-    containerWidth <= HEADER_BREADCRUMB_COLLAPSE_WIDTH && crumbs.length > 2;
+  const collapsed = containerWidth <= HEADER_BREADCRUMB_COLLAPSE_WIDTH && crumbs.length > 2;
   const intermediates = collapsed ? crumbs.slice(1, -1) : [];
   const last = crumbs[crumbs.length - 1];
 

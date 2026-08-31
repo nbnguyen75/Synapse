@@ -1,17 +1,8 @@
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import {
-  $fetch,
-  type InferRequestType,
-  type InferResponseType,
-} from '@/lib/fetch';
+import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
 
 export function useGetConversationsQuery() {
@@ -52,14 +43,12 @@ export function useRenameConversationMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    InferResponseType<
-      (typeof $fetch.api.v1.ai.conversations)[':id']['$patch']
-    >['data'],
+    InferResponseType<(typeof $fetch.api.v1.ai.conversations)[':id']['$patch']>['data'],
     Error,
     InferRequestType<(typeof $fetch.api.v1.ai.conversations)[':id']['$patch']>
   >({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companion-conversations'] });
+      void queryClient.invalidateQueries({ queryKey: ['companion-conversations'] });
       toast.success(m.chat_conversation_toast_renamed());
     },
     mutationFn: async (args) => {
@@ -79,14 +68,12 @@ export function useDeleteConversationMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    InferResponseType<
-      (typeof $fetch.api.v1.ai.conversations)[':id']['$delete']
-    >['data'],
+    InferResponseType<(typeof $fetch.api.v1.ai.conversations)[':id']['$delete']>['data'],
     Error,
     InferRequestType<(typeof $fetch.api.v1.ai.conversations)[':id']['$delete']>
   >({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companion-conversations'] });
+      void queryClient.invalidateQueries({ queryKey: ['companion-conversations'] });
       toast.success(m.chat_conversation_toast_deleted());
     },
     mutationFn: async (args) => {
@@ -106,25 +93,18 @@ export function useToggleConversationFavoriteMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    InferResponseType<
-      (typeof $fetch.api.v1.ai.conversations)[':id']['favorite']['$patch']
-    >['data'],
+    InferResponseType<(typeof $fetch.api.v1.ai.conversations)[':id']['favorite']['$patch']>['data'],
     Error,
-    InferRequestType<
-      (typeof $fetch.api.v1.ai.conversations)[':id']['favorite']['$patch']
-    >
+    InferRequestType<(typeof $fetch.api.v1.ai.conversations)[':id']['favorite']['$patch']>
   >({
     onSuccess: (_data, { body: { favorited } }) => {
-      queryClient.invalidateQueries({ queryKey: ['companion-conversations'] });
+      void queryClient.invalidateQueries({ queryKey: ['companion-conversations'] });
       toast.success(
-        favorited
-          ? m.chat_conversation_toast_starred()
-          : m.chat_conversation_toast_unstarred(),
+        favorited ? m.chat_conversation_toast_starred() : m.chat_conversation_toast_unstarred(),
       );
     },
     mutationFn: async (args) => {
-      const result =
-        await $fetch.api.v1.ai.conversations[':id'].favorite.$patch(args);
+      const result = await $fetch.api.v1.ai.conversations[':id'].favorite.$patch(args);
 
       return result.data;
     },
@@ -140,21 +120,16 @@ export function useCloneConversationMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    InferResponseType<
-      (typeof $fetch.api.v1.ai.conversations)[':id']['clone']['$post']
-    >['data'],
+    InferResponseType<(typeof $fetch.api.v1.ai.conversations)[':id']['clone']['$post']>['data'],
     Error,
-    InferRequestType<
-      (typeof $fetch.api.v1.ai.conversations)[':id']['clone']['$post']
-    >
+    InferRequestType<(typeof $fetch.api.v1.ai.conversations)[':id']['clone']['$post']>
   >({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companion-conversations'] });
+      void queryClient.invalidateQueries({ queryKey: ['companion-conversations'] });
       toast.success(m.chat_message_branch_created());
     },
     mutationFn: async (args) => {
-      const result =
-        await $fetch.api.v1.ai.conversations[':id'].clone.$post(args);
+      const result = await $fetch.api.v1.ai.conversations[':id'].clone.$post(args);
 
       return result.data;
     },
@@ -174,15 +149,10 @@ export function useSetCurrentMessageMutation() {
       (typeof $fetch.api.v1.ai.conversations)[':id']['current-message']['$patch']
     >['data'],
     Error,
-    InferRequestType<
-      (typeof $fetch.api.v1.ai.conversations)[':id']['current-message']['$patch']
-    >
+    InferRequestType<(typeof $fetch.api.v1.ai.conversations)[':id']['current-message']['$patch']>
   >({
     mutationFn: async (args) => {
-      const result =
-        await $fetch.api.v1.ai.conversations[':id']['current-message'].$patch(
-          args,
-        );
+      const result = await $fetch.api.v1.ai.conversations[':id']['current-message'].$patch(args);
 
       return result.data;
     },
@@ -192,7 +162,7 @@ export function useSetCurrentMessageMutation() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: ['companion-conversations'],
       });
     },

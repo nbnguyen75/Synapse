@@ -3,17 +3,14 @@ import type { ReactHotkeyRecorder } from '@tanstack/react-hotkeys';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { parseHotkey } from '@tanstack/hotkeys';
 import { useHotkeyRecorder } from '@tanstack/react-hotkeys';
+import { parseHotkey } from '@tanstack/hotkeys';
 
 import { useShortcut } from '@/hooks/use-shortcut';
 
 import { useShortcutsStore } from '@/store/shortcuts-store';
 
-import {
-  findShortcutConflict,
-  toRegistryCombo,
-} from '@/config/keyboard-shortcuts';
+import { findShortcutConflict, toRegistryCombo } from '@/config/keyboard-shortcuts';
 
 import { m } from '@/paraglide/messages';
 

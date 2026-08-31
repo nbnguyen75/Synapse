@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 type ConfirmOptions = {
-  variant?: 'default' | 'destructive';
+  variant?: 'destructive' | 'default';
   description?: string;
   confirmText?: string;
   cancelText?: string;
@@ -49,9 +49,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
       <AlertDialog open={open} onOpenChange={(o) => !o && handleClose(false)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {options.title ?? m.confirm_default_title()}
-            </AlertDialogTitle>
+            <AlertDialogTitle>{options.title ?? m.confirm_default_title()}</AlertDialogTitle>
             <AlertDialogDescription>
               {options.description ?? m.confirm_default_desc()}
             </AlertDialogDescription>

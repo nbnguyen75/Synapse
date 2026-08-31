@@ -5,26 +5,23 @@ import { Controller, type UseFormReturn } from 'react-hook-form';
 
 import { toast } from 'sonner';
 
-import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
 } from '@/components/ui/input-group';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 import { Icon } from '@iconify/react';
 
 interface LoginFormProps extends Omit<ComponentProps<'form'>, 'onSubmit'> {
-  onSubmit?: (
-    data: LoginPayload,
-    $event?: BaseSyntheticEvent,
-  ) => Promise<void> | void;
+  onSubmit?: (data: LoginPayload, $event?: BaseSyntheticEvent) => Promise<void> | void;
   form: UseFormReturn<LoginFormInput>;
   isPending?: boolean;
 }
@@ -38,11 +35,11 @@ export default function LoginForm({
 }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
-  const { handleSubmit, setValue, control, trigger } = form;
+  const { handleSubmit, setValue, control } = form;
 
   return (
     <form
-      onSubmit={handleSubmit((data, $event) => onSubmit?.(data, $event))}
+      onSubmit={void handleSubmit((data, $event) => onSubmit?.(data, $event))}
       className={cn('w-full space-y-4', className)}
       {...restProps}
     >
@@ -75,10 +72,7 @@ export default function LoginForm({
         render={({ fieldState, field }) => (
           <Field data-invalid={fieldState.invalid}>
             <div className="flex items-center justify-between">
-              <FieldLabel
-                className="text-xs font-medium"
-                htmlFor="login-password"
-              >
+              <FieldLabel className="text-xs font-medium" htmlFor="login-password">
                 {m.login_page_password_label()}
               </FieldLabel>
 
@@ -87,9 +81,16 @@ export default function LoginForm({
                 size="xs"
                 type="button"
                 onClick={() => {
-                  setValue('email', 'demo@synapse.dev');
-                  setValue('password', 'Demo@12345');
-                  trigger();
+                  setValue('email', 'demo@example.com', {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  });
+                  setValue('password', 'Demo@12345', {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  });
                   toast.info(m.login_page_demo_loaded());
                 }}
                 className="cursor-pointer dark:text-muted-foreground text-muted-foreground/80 dark:hover:text-foreground hover:text-foreground/80 hover:bg-transparent!"
@@ -114,16 +115,9 @@ export default function LoginForm({
                   size="icon-xs"
                   onClick={() => setShowPassword(!showPassword)}
                   className="dark:text-muted-foreground text-muted-foreground/80 dark:hover:text-foreground hover:text-foreground/80 hover:bg-transparent! cursor-pointer"
-                  title={
-                    showPassword
-                      ? m.login_page_hide_password()
-                      : m.login_page_show_password()
-                  }
+                  title={showPassword ? m.login_page_hide_password() : m.login_page_show_password()}
                 >
-                  <Icon
-                    icon={showPassword ? 'lucide:eye-off' : 'lucide:eye'}
-                    className="h-4 w-4"
-                  />
+                  <Icon icon={showPassword ? 'lucide:eye-off' : 'lucide:eye'} className="h-4 w-4" />
                 </InputGroupButton>
               </InputGroupAddon>
             </InputGroup>

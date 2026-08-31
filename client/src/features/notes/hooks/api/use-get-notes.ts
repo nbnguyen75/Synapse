@@ -2,10 +2,10 @@ import type { NotesApiParams } from '@/features/notes/types';
 
 import { useQuery } from '@tanstack/react-query';
 
+import { $fetch } from '@/lib/fetch';
+
 import { EMPTY_PAGINATED } from '@/features/notes/constants';
 import { noteKeys } from '@/features/notes/keys';
-
-import { $fetch } from '@/lib/fetch';
 
 export function useGetNotes(params?: NotesApiParams) {
   const { data = EMPTY_PAGINATED, ...restProps } = useQuery({

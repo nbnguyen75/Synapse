@@ -2,14 +2,6 @@
 
 import { formatForDisplay } from '@tanstack/hotkeys';
 
-import { $isLinkNode } from '@lexical/link';
-import {
-  $isListNode,
-  INSERT_UNORDERED_LIST_COMMAND,
-  INSERT_ORDERED_LIST_COMMAND,
-} from '@lexical/list';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $isHeadingNode } from '@lexical/rich-text';
 import {
   $getSelection,
   $isRangeSelection,
@@ -20,20 +12,20 @@ import {
   COMMAND_PRIORITY_LOW,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
+import {
+  $isListNode,
+  INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_ORDERED_LIST_COMMAND,
+} from '@lexical/list';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $isHeadingNode } from '@lexical/rich-text';
+import { $isLinkNode } from '@lexical/link';
 
 import { useShortcut } from '@/hooks/use-shortcut';
 
 import { m } from '@/paraglide/messages';
 
 import { Button } from '@/components/ui/button';
-
-import {
-  formatHeadingBlock,
-  formatParagraphBlock,
-  formatQuoteBlock,
-} from './lexical-keyboard-shortcuts';
-import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-shortcut-dialog-plugin';
-import ShortcutsHelpDialog from './lexical-shortcuts-dialog';
 
 import {
   Bold,
@@ -54,10 +46,18 @@ import {
   InfoIcon,
 } from 'lucide-react';
 
+import {
+  formatHeadingBlock,
+  formatParagraphBlock,
+  formatQuoteBlock,
+} from './lexical-keyboard-shortcuts';
+import { TOGGLE_LINK_DIALOG_COMMAND } from './lexical-link-shortcut-dialog-plugin';
+import ShortcutsHelpDialog from './lexical-shortcuts-dialog';
+
 function comboTitle(
   withCombo: (args: { combo: string }) => string,
   withoutCombo: () => string,
-  combo: string | undefined,
+  combo: undefined | string,
 ) {
   return combo ? withCombo({ combo: formatForDisplay(combo) }) : withoutCombo();
 }
@@ -71,7 +71,7 @@ export default function Toolbar() {
   const [isCode, setIsCode] = useState(false);
   const [isLink, setIsLink] = useState(false);
   const [blockType, setBlockType] = useState<
-    'paragraph' | 'h1' | 'h2' | 'h3' | 'quote' | 'ul' | 'ol'
+    'paragraph' | 'quote' | 'h1' | 'h2' | 'h3' | 'ul' | 'ol'
   >('paragraph');
 
   const boldCombo = useShortcut('editor-bold').combos[0];
@@ -102,9 +102,7 @@ export default function Toolbar() {
       setIsLink(hasLink);
 
       const element =
-        anchorNode.getKey() === 'root'
-          ? anchorNode
-          : anchorNode.getTopLevelElementOrThrow();
+        anchorNode.getKey() === 'root' ? anchorNode : anchorNode.getTopLevelElementOrThrow();
 
       if ($isHeadingNode(element)) {
         const tag = element.getTag();
@@ -139,8 +137,7 @@ export default function Toolbar() {
     });
   }, [editor, updateToolbar]);
 
-  const activeBtnClass =
-    'bg-primary/15 text-primary font-medium hover:bg-primary/20 shadow-xs';
+  const activeBtnClass = 'bg-primary/15 text-primary font-medium hover:bg-primary/20 shadow-xs';
   const inactiveBtnClass =
     'text-muted-foreground hover:text-foreground hover:bg-neutral-200/60 dark:hover:bg-neutral-800/60';
 
@@ -154,11 +151,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isBold ? activeBtnClass : inactiveBtnClass}`}
-          title={comboTitle(
-            m.lexical_tooltip_bold,
-            m.keyboard_shortcuts_bold,
-            boldCombo,
-          )}
+          title={comboTitle(m.lexical_tooltip_bold, m.keyboard_shortcuts_bold, boldCombo)}
         >
           <Bold className="h-3.5 w-3.5" />
         </Button>
@@ -168,11 +161,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isItalic ? activeBtnClass : inactiveBtnClass}`}
-          title={comboTitle(
-            m.lexical_tooltip_italic,
-            m.keyboard_shortcuts_italic,
-            italicCombo,
-          )}
+          title={comboTitle(m.lexical_tooltip_italic, m.keyboard_shortcuts_italic, italicCombo)}
         >
           <Italic className="h-3.5 w-3.5" />
         </Button>
@@ -180,9 +169,7 @@ export default function Toolbar() {
           type="button"
           variant="ghost"
           size="xs"
-          onClick={() =>
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')
-          }
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isUnderline ? activeBtnClass : inactiveBtnClass}`}
           title={comboTitle(
             m.lexical_tooltip_underline,
@@ -196,9 +183,7 @@ export default function Toolbar() {
           type="button"
           variant="ghost"
           size="xs"
-          onClick={() =>
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')
-          }
+          onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isStrikethrough ? activeBtnClass : inactiveBtnClass}`}
           title={comboTitle(
             m.lexical_tooltip_strikethrough,
@@ -214,11 +199,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code')}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isCode ? activeBtnClass : inactiveBtnClass}`}
-          title={comboTitle(
-            m.lexical_tooltip_code,
-            m.keyboard_shortcuts_code,
-            codeCombo,
-          )}
+          title={comboTitle(m.lexical_tooltip_code, m.keyboard_shortcuts_code, codeCombo)}
         >
           <Code className="h-3.5 w-3.5" />
         </Button>
@@ -226,15 +207,9 @@ export default function Toolbar() {
           type="button"
           variant="ghost"
           size="xs"
-          onClick={() =>
-            editor.dispatchCommand(TOGGLE_LINK_DIALOG_COMMAND, undefined)
-          }
+          onClick={() => editor.dispatchCommand(TOGGLE_LINK_DIALOG_COMMAND, undefined)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${isLink ? activeBtnClass : inactiveBtnClass}`}
-          title={comboTitle(
-            m.lexical_tooltip_link,
-            m.keyboard_shortcuts_link,
-            linkCombo,
-          )}
+          title={comboTitle(m.lexical_tooltip_link, m.keyboard_shortcuts_link, linkCombo)}
         >
           <Link className="h-3.5 w-3.5" />
         </Button>
@@ -310,9 +285,7 @@ export default function Toolbar() {
           type="button"
           variant="ghost"
           size="xs"
-          onClick={() =>
-            editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
-          }
+          onClick={() => editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'ul' ? activeBtnClass : inactiveBtnClass}`}
           title={comboTitle(
             m.lexical_tooltip_bullet_list,
@@ -326,9 +299,7 @@ export default function Toolbar() {
           type="button"
           variant="ghost"
           size="xs"
-          onClick={() =>
-            editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
-          }
+          onClick={() => editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'ol' ? activeBtnClass : inactiveBtnClass}`}
           title={comboTitle(
             m.lexical_tooltip_numbered_list,
@@ -344,11 +315,7 @@ export default function Toolbar() {
           size="xs"
           onClick={() => formatQuoteBlock(editor)}
           className={`h-7 w-7 p-0 rounded-md transition-all cursor-pointer ${blockType === 'quote' ? activeBtnClass : inactiveBtnClass}`}
-          title={comboTitle(
-            m.lexical_tooltip_quote,
-            m.lexical_shortcuts_block_quote,
-            quoteCombo,
-          )}
+          title={comboTitle(m.lexical_tooltip_quote, m.lexical_shortcuts_block_quote, quoteCombo)}
         >
           <Quote className="h-3.5 w-3.5" />
         </Button>
@@ -390,9 +357,7 @@ export default function Toolbar() {
         title={m.lexical_shortcuts_tooltip_info()}
       >
         <InfoIcon className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">
-          {m.lexical_shortcuts_markdown()}
-        </span>
+        <span className="hidden sm:inline">{m.lexical_shortcuts_markdown()}</span>
       </a>
 
       <ShortcutsHelpDialog />

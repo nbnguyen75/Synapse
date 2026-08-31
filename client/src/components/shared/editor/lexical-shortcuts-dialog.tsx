@@ -2,7 +2,6 @@ import { m } from '@/paraglide/messages';
 
 import KeyboardShortcutsList from '@/components/shared/keyboard-shortcuts-list';
 
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 import { Keyboard } from 'lucide-react';
 

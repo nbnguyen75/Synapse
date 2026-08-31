@@ -48,10 +48,7 @@ const VARIANT_CONFIG: Record<
   },
 };
 
-export default function NotesListEmpty({
-  children,
-  variant,
-}: NotesEmptyStateProps) {
+export default function NotesListEmpty({ children, variant }: NotesEmptyStateProps) {
   const { description, title, icon } = VARIANT_CONFIG[variant];
 
   return (
@@ -62,9 +59,7 @@ export default function NotesListEmpty({
         {description && <EmptyDescription>{description()}</EmptyDescription>}
       </EmptyHeader>
 
-      {children && variant !== 'no-results' && (
-        <EmptyContent>{children}</EmptyContent>
-      )}
+      {children && variant !== 'no-results' && <EmptyContent>{children}</EmptyContent>}
     </Empty>
   );
 }

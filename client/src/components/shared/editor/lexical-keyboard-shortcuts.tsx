@@ -5,22 +5,6 @@ import { useEffect, useMemo, useRef } from 'react';
 import { normalizeHotkey, normalizeHotkeyFromEvent } from '@tanstack/hotkeys';
 
 import {
-  INSERT_ORDERED_LIST_COMMAND,
-  INSERT_UNORDERED_LIST_COMMAND,
-} from '@lexical/list';
-import {
-  $isMarkNode,
-  $unwrapMarkNode,
-  $wrapSelectionInMarkNode,
-} from '@lexical/mark';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-  $createHeadingNode,
-  $createQuoteNode,
-  type HeadingTagType,
-} from '@lexical/rich-text';
-import { $setBlocksType } from '@lexical/selection';
-import {
   $createParagraphNode,
   $findMatchingParent,
   $getSelection,
@@ -30,6 +14,11 @@ import {
   KEY_DOWN_COMMAND,
   type LexicalEditor as LexicalEditorType,
 } from 'lexical';
+import { $createHeadingNode, $createQuoteNode, type HeadingTagType } from '@lexical/rich-text';
+import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
+import { $isMarkNode, $unwrapMarkNode, $wrapSelectionInMarkNode } from '@lexical/mark';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $setBlocksType } from '@lexical/selection';
 
 import { useShortcutsStore } from '@/store/shortcuts-store';
 
@@ -60,10 +49,7 @@ type EditorShortcutId = (typeof EDITOR_SHORTCUT_IDS)[number];
 
 const HIGHLIGHT_MARK_ID = 'synapse-highlight';
 
-export function formatHeadingBlock(
-  editor: LexicalEditorType,
-  tag: HeadingTagType,
-) {
+export function formatHeadingBlock(editor: LexicalEditorType, tag: HeadingTagType) {
   editor.update(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
@@ -125,10 +111,7 @@ export default function KeyboardShortcutsPlugin() {
   const actionCombos = useMemo(
     () =>
       Object.fromEntries(
-        EDITOR_SHORTCUT_IDS.map((id) => [
-          id,
-          getEffectiveCombos(id, overrides),
-        ]),
+        EDITOR_SHORTCUT_IDS.map((id) => [id, getEffectiveCombos(id, overrides)]),
       ) as Record<EditorShortcutId, string[]>,
     [overrides],
   );

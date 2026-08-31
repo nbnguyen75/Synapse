@@ -2,26 +2,20 @@ import type { Note, NoteViewMode } from '@/features/notes/types';
 
 import { memo } from 'react';
 
-import { NoteCardDropdown } from '@/features/notes/components/note-card-dropdown';
-import { useNoteCard } from '@/features/notes/hooks';
-
-import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
 import MarkdownRenderer from '@/components/shared/markdown-renderer';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 import { BookOpenIcon, CalendarIcon, PinIcon, StarIcon } from 'lucide-react';
+
+import { NoteCardDropdown } from '@/features/notes/components/note-card-dropdown';
+import { useNoteCard } from '@/features/notes/hooks';
 
 interface NoteWithDetails extends Note {
   tags?: string[];
@@ -35,13 +29,7 @@ interface NoteCardProps {
   isSelected?: boolean;
 }
 
-function NoteCard({
-  onToggleSelect,
-  onSelectRange,
-  isSelected,
-  viewMode,
-  note,
-}: NoteCardProps) {
+function NoteCard({ onToggleSelect, onSelectRange, isSelected, viewMode, note }: NoteCardProps) {
   const { actions, metrics, state, data } = useNoteCard({
     onToggleSelect,
     onSelectRange,
@@ -90,9 +78,7 @@ function NoteCard({
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
                   'mr-0.5 shrink-0 transition-all duration-200 active:scale-90',
-                  isSelected
-                    ? 'opacity-100'
-                    : 'opacity-0 group-hover:opacity-100',
+                  isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
                 )}
               />
 
@@ -106,14 +92,10 @@ function NoteCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  title={
-                    note.pinned
-                      ? m.notes_page_pin_unpin()
-                      : m.notes_page_pin_pin()
-                  }
+                  title={note.pinned ? m.notes_page_pin_unpin() : m.notes_page_pin_pin()}
                   onClick={(e) => {
                     e.stopPropagation();
-                    execute('pin');
+                    void execute('pin');
                   }}
                   className={cn(
                     'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
@@ -123,9 +105,7 @@ function NoteCard({
                   <PinIcon
                     className={cn(
                       'size-3.5 transition-transform duration-300 ease-out',
-                      note.pinned
-                        ? 'fill-primary rotate-45 scale-110'
-                        : 'hover:-rotate-12',
+                      note.pinned ? 'fill-primary rotate-45 scale-110' : 'hover:-rotate-12',
                     )}
                   />
                 </Button>
@@ -135,14 +115,10 @@ function NoteCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  title={
-                    note.favorite
-                      ? m.notes_page_favorite_off()
-                      : m.notes_page_favorite_on()
-                  }
+                  title={note.favorite ? m.notes_page_favorite_off() : m.notes_page_favorite_on()}
                   onClick={(e) => {
                     e.stopPropagation();
-                    execute('favorite');
+                    void execute('favorite');
                   }}
                   className={cn(
                     'h-6 w-6 rounded-md text-muted-foreground/60 hover:text-amber-500 hover:bg-muted/80 transition-all duration-200 active:scale-90 hover:scale-105',
@@ -163,10 +139,10 @@ function NoteCard({
               <NoteCardDropdown
                 actions={{
                   includeInChat,
-                  copyContent,
+                  copyContent: copyContent,
                   exportNote,
                   openDetail,
-                  execute,
+                  execute: execute,
                 }}
                 note={note}
                 viewMode={viewMode}

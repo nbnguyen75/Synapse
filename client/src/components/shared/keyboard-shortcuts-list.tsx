@@ -28,9 +28,7 @@ function ShortcutRow({ entry }: { entry: KeyboardShortcutEntry }) {
       {combos.length > 0 ? (
         <KeyCombo combo={combos[0]} />
       ) : (
-        <span className="text-xs text-muted-foreground">
-          {m.settings_shortcuts_disabled()}
-        </span>
+        <span className="text-xs text-muted-foreground">{m.settings_shortcuts_disabled()}</span>
       )}
     </div>
   );
@@ -59,9 +57,7 @@ function renderEditorGroup(shortcuts: KeyboardShortcutEntry[]) {
   );
 }
 
-export default function KeyboardShortcutsList({
-  sections,
-}: KeyboardShortcutsListProps) {
+export default function KeyboardShortcutsList({ sections }: KeyboardShortcutsListProps) {
   return (
     <div className="space-y-5 pt-2 text-xs">
       {sections.map((section) => {
@@ -76,9 +72,7 @@ export default function KeyboardShortcutsList({
             <div className="space-y-1">
               {section === 'editor'
                 ? renderEditorGroup(shortcuts)
-                : shortcuts.map((entry) => (
-                    <ShortcutRow key={entry.id} entry={entry} />
-                  ))}
+                : shortcuts.map((entry) => <ShortcutRow key={entry.id} entry={entry} />)}
             </div>
           </div>
         );

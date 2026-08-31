@@ -1,13 +1,20 @@
 import type { NoteFormInput, NoteInputPayload } from '@/features/notes/schemas';
 import type { Note } from '@/features/notes/types';
 
-import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useEffect, useState } from 'react';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useRouter, useSearch } from '@tanstack/react-router';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
+
+import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
+
+import { useConfirm } from '@/providers';
+
+import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
+import { m } from '@/paraglide/messages';
 
 import {
   useDeleteNote,
@@ -17,17 +24,6 @@ import {
 } from '@/features/notes/hooks/api';
 import { noteKeys } from '@/features/notes/keys';
 
-import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
-
-import { useConfirm } from '@/providers';
-
-import {
-  $fetch,
-  type InferRequestType,
-  type InferResponseType,
-} from '@/lib/fetch';
-import { m } from '@/paraglide/messages';
-
 export function useNoteDetails(initialData: Note) {
   const router = useRouter();
   const navigate = useNavigate();
@@ -35,33 +31,28 @@ export function useNoteDetails(initialData: Note) {
   const confirm = useConfirm();
   const queryClient = useQueryClient();
 
-  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('preview');
+  const [activeTab, setActiveTab] = useState<'preview' | 'edit'>('preview');
 
-  const { data: queryNote, isLoading } = useGetNote(
-    initialData.id,
-    initialData,
-    {
-      refetchInterval: (query) => {
-        if (!initialData.createdAt) return false;
+  const { data: queryNote, isLoading } = useGetNote(initialData.id, initialData, {
+    refetchInterval: (query) => {
+      if (!initialData.createdAt) return false;
 
-        const now = Date.now();
-        const createdTime = new Date(initialData.createdAt).getTime();
+      const now = Date.now();
+      const createdTime = new Date(initialData.createdAt).getTime();
 
-        if (now - createdTime > 15_000) return false;
+      if (now - createdTime > 15_000) return false;
 
-        const currentNote = query.state.data;
-        if (!currentNote || currentNote.title !== initialData.title)
-          return false;
+      const currentNote = query.state.data;
+      if (!currentNote || currentNote.title !== initialData.title) return false;
 
-        const fetchCount = query.state.dataUpdateCount;
-        if (fetchCount >= 4) return false;
+      const fetchCount = query.state.dataUpdateCount;
+      if (fetchCount >= 4) return false;
 
-        const intervals = [2_500, 5_000, 8_500, 13_000];
-        return intervals[fetchCount] ?? false;
-      },
-      refetchIntervalInBackground: false,
+      const intervals = [2_500, 5_000, 8_500, 13_000];
+      return intervals[fetchCount] ?? false;
     },
-  );
+    refetchIntervalInBackground: false,
+  });
   const note = queryNote ?? initialData;
 
   useEffect(() => {
@@ -96,9 +87,9 @@ export function useNoteDetails(initialData: Note) {
     InferRequestType<(typeof $fetch.api.v1.notes)[':id']['$put']>
   >({
     onSuccess: ({ title }) => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.detail(note.id) });
-      queryClient.invalidateQueries({ queryKey: noteKeys.lists() });
-      router.invalidate();
+      void queryClient.invalidateQueries({ queryKey: noteKeys.detail(note.id) });
+      void queryClient.invalidateQueries({ queryKey: noteKeys.lists() });
+      void router.invalidate();
 
       setActiveTab('preview');
 
@@ -148,7 +139,7 @@ export function useNoteDetails(initialData: Note) {
     deleteNote(
       { params: { id: note.id } },
       {
-        onSuccess: () => navigate({ to: '/notes' }),
+        onSuccess: () => void navigate({ to: '/notes' }),
       },
     );
   };
@@ -157,7 +148,7 @@ export function useNoteDetails(initialData: Note) {
     trashNote(
       { body: { status: 'TRASHED' }, params: { id: note.id } },
       {
-        onSuccess: () => navigate({ to: '/notes' }),
+        onSuccess: () => void navigate({ to: '/notes' }),
       },
     );
   };
@@ -166,7 +157,7 @@ export function useNoteDetails(initialData: Note) {
     restoreNote(
       { body: { status: 'ACTIVE' }, params: { id: note.id } },
       {
-        onSuccess: () => navigate({ to: '/notes' }),
+        onSuccess: () => void navigate({ to: '/notes' }),
       },
     );
   };

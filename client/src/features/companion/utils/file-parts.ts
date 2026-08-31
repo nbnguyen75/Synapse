@@ -8,9 +8,7 @@ const TEXT_FILE_MEDIA_PREFIXES = [
 ] as const;
 
 export function isTextLikeMediaType(mediaType: string): boolean {
-  return TEXT_FILE_MEDIA_PREFIXES.some((prefix) =>
-    mediaType.toLowerCase().startsWith(prefix),
-  );
+  return TEXT_FILE_MEDIA_PREFIXES.some((prefix) => mediaType.toLowerCase().startsWith(prefix));
 }
 
 export function decodeDataUrl(dataUrl: string): string {

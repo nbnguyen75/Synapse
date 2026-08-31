@@ -39,8 +39,7 @@ export function usePagination({
 
   const isControlled = controlledPage !== undefined;
   const currentPage = isControlled ? controlledPage : internalPage;
-  const totalPages =
-    controlledTotalPages ?? Math.max(1, Math.ceil(totalItems / pageSize));
+  const totalPages = controlledTotalPages ?? Math.max(1, Math.ceil(totalItems / pageSize));
   const effectiveCurrentPage = Math.min(currentPage, totalPages);
 
   const startIndex = (effectiveCurrentPage - 1) * pageSize;
@@ -58,27 +57,15 @@ export function usePagination({
     [isControlled, onPageChange, totalPages],
   );
 
-  const goToPage = useCallback(
-    (page: number) => navigateTo(page),
-    [navigateTo],
-  );
+  const goToPage = useCallback((page: number) => navigateTo(page), [navigateTo]);
 
-  const nextPage = useCallback(
-    () => navigateTo(currentPage + 1),
-    [navigateTo, currentPage],
-  );
+  const nextPage = useCallback(() => navigateTo(currentPage + 1), [navigateTo, currentPage]);
 
-  const prevPage = useCallback(
-    () => navigateTo(currentPage - 1),
-    [navigateTo, currentPage],
-  );
+  const prevPage = useCallback(() => navigateTo(currentPage - 1), [navigateTo, currentPage]);
 
   const firstPage = useCallback(() => navigateTo(1), [navigateTo]);
 
-  const lastPage = useCallback(
-    () => navigateTo(totalPages),
-    [navigateTo, totalPages],
-  );
+  const lastPage = useCallback(() => navigateTo(totalPages), [navigateTo, totalPages]);
 
   return {
     isLastPage: effectiveCurrentPage === totalPages,

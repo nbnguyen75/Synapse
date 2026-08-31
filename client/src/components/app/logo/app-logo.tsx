@@ -5,10 +5,7 @@ interface AppLogoProps {
   size?: number;
 }
 
-export default function AppLogo({
-  className = 'rounded-md',
-  size = 32,
-}: AppLogoProps) {
+export default function AppLogo({ className = 'rounded-md', size = 32 }: AppLogoProps) {
   return (
     <img
       src={logoUrl}

@@ -2,16 +2,16 @@ import type { AppFetchRouter } from '@/types/app';
 
 import { env } from '@/config/env';
 
-import { authClient } from '@/lib/auth';
 import { createRpcClient } from '@/lib/fetch/rpc';
+import { authClient } from '@/lib/auth';
 
-let cachedToken: string | undefined;
+let cachedToken: undefined | string;
 let tokenExpiresAt = 0;
-let pendingTokenRequest: Promise<string | undefined> | null = null;
+let pendingTokenRequest: Promise<undefined | string> | null = null;
 
 const TOKEN_SAFETY_MARGIN_MS = 30_000;
 
-async function getToken(): Promise<string | undefined> {
+async function getToken(): Promise<undefined | string> {
   const now = Date.now();
 
   if (cachedToken && now < tokenExpiresAt) {
@@ -57,9 +57,9 @@ export const $fetch = createRpcClient<AppFetchRouter>(env.VITE_API_URL, {
 });
 
 export type {
-  InferRequestType,
   CreateRpcClientOption,
-  EnsureRouter,
   InferResponseType,
+  InferRequestType,
+  EnsureRouter,
 } from './rpc';
 export { createRpcClient };

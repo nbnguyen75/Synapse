@@ -12,9 +12,7 @@
       "id": "feat-002",
       "name": "Routing & Navigation",
       "description": "File-based TanStack Router with auto-generated route tree. Routes: /notes, /chat, /settings, /profile, /tags, /archived, /login, /register.",
-      "dependencies": [
-        "feat-001"
-      ],
+      "dependencies": ["feat-001"],
       "status": "done",
       "evidence": "src/routes/, src/routeTree.gen.ts, src/layouts/"
     },
@@ -22,9 +20,7 @@
       "id": "feat-003",
       "name": "Auth System",
       "description": "better-auth with email/password login, register, OAuth (GitHub, Google). Zod validation via react-hook-form. Session management.",
-      "dependencies": [
-        "feat-002"
-      ],
+      "dependencies": ["feat-002"],
       "status": "done",
       "evidence": "src/lib/auth-client.ts, src/features/auth/components/login-page.tsx, src/features/auth/components/register-page.tsx, src/routes/_auth/"
     },
@@ -32,9 +28,7 @@
       "id": "feat-004",
       "name": "Notes CRUD & Editor",
       "description": "Full note management with Lexical rich text editor, markdown support, auto-save, AI title generation, export to markdown, pin/archive/delete.",
-      "dependencies": [
-        "feat-003"
-      ],
+      "dependencies": ["feat-003"],
       "status": "done",
       "evidence": "src/features/notes/hooks/use-notes.ts, src/features/notes/components/notes-page.tsx, src/features/notes/components/note-editor.tsx, src/features/notes/components/lexical-editor.tsx"
     },
@@ -42,9 +36,7 @@
       "id": "feat-005",
       "name": "Tags Management",
       "description": "Tag CRUD with color badges, note counts, filter sidebar integration.",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "done",
       "evidence": "src/features/notes/hooks/use-tags.ts, src/features/notes/components/tags-page.tsx, src/features/notes/components/tag-filter-bar.tsx"
     },
@@ -52,9 +44,7 @@
       "id": "feat-006",
       "name": "AI Chat / Companion",
       "description": "Real AI chat wired to the AI service via Kong (/api/v1/ai). AI SDK v7 useChat + DefaultChatTransport (custom SynapseChatTransport reads X-Conversation-Id, sends Bearer token + last user message), streaming responses, conversation history rail (left of the /chat workspace), suggestions, sources & reasoning display. Model selector, web search toggle, speech input kept as UI; attachments blocked (server text-only).",
-      "dependencies": [
-        "feat-003"
-      ],
+      "dependencies": ["feat-003"],
       "status": "done",
       "evidence": "src/features/chat/lib/chat-transport.ts, src/features/chat/lib/chat-api.ts, src/features/chat/hooks/use-chat-session.ts, src/features/chat/hooks/use-conversations.ts, src/features/chat/components/chat-bot.tsx, src/features/chat/components/chat-page.tsx, src/components/ai-elements/ (2026-08-01: mock logic replaced)"
     },
@@ -62,9 +52,7 @@
       "id": "feat-007",
       "name": "Settings (General, Companion, Templates)",
       "description": "Settings with 3 tabs: General (autosave, email digests, companion alerts), Companion (backend-backed: bot name, personality preset incl. custom instructions, response length, language, emoji toggle — GET/PUT /api/v1/ai/settings), Templates (CRUD custom templates).",
-      "dependencies": [
-        "feat-003"
-      ],
+      "dependencies": ["feat-003"],
       "status": "done",
       "evidence": "src/features/settings/components/settings-page.tsx, src/features/settings/components/general-tab.tsx, src/features/settings/components/companion-tab.tsx, src/features/settings/components/templates-tab.tsx, src/features/settings/hooks/use-ai-settings.ts"
     },
@@ -72,9 +60,7 @@
       "id": "feat-008",
       "name": "i18n (English & Vietnamese)",
       "description": "Paraglide JS compiled i18n with EN and VI locales. All user-facing strings via m.*() calls. Cookie-based locale detection.",
-      "dependencies": [
-        "feat-001"
-      ],
+      "dependencies": ["feat-001"],
       "status": "done",
       "evidence": "messages/en.json, messages/vi.json, src/paraglide/, vite.config.ts (paraglideVitePlugin)"
     },
@@ -82,9 +68,7 @@
       "id": "feat-009",
       "name": "Layout: Sidebars & Header",
       "description": "Left collapsible sidebar (logo, NavMain Platform, NavCompanion, NavSecondary, user dropdown). Right sidebar with direct ChatBot. Top header with sidebar trigger, search bar (opens command palette), theme toggle, right sidebar toggle.",
-      "dependencies": [
-        "feat-002"
-      ],
+      "dependencies": ["feat-002"],
       "status": "done",
       "evidence": "src/layouts/app-left-sidebar.tsx, src/layouts/app-right-sidebar.tsx, src/layouts/app-top-header.tsx, src/layouts/nav/nav-main.tsx, src/layouts/nav/nav-companion.tsx, src/layouts/nav-secondary.tsx, src/routes/_app.tsx"
     },
@@ -108,10 +92,7 @@
       "id": "feat-012",
       "name": "Command Palette",
       "description": "Keyboard-activated command palette (Ctrl+K / Cmd+K or click search bar) with 5 slash commands (/help, /theme, /stats, /notes, /create), output panels, note search, theme toggle, logout.",
-      "dependencies": [
-        "feat-002",
-        "feat-015"
-      ],
+      "dependencies": ["feat-002", "feat-015"],
       "status": "done",
       "evidence": "src/features/command/command-palette.tsx, src/layouts/app-top-header.tsx (search bar trigger)"
     },
@@ -119,9 +100,7 @@
       "id": "feat-013",
       "name": "Profile Page",
       "description": "User profile display with avatar, name, email, join date, note count stats.",
-      "dependencies": [
-        "feat-003"
-      ],
+      "dependencies": ["feat-003"],
       "status": "done",
       "evidence": "src/features/users/components/profile-page.tsx"
     },
@@ -129,9 +108,7 @@
       "id": "feat-014",
       "name": "Notes Version History",
       "description": "View and restore previous note versions from localStorage history.",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "done",
       "evidence": "src/features/notes/components/version-history.tsx"
     },
@@ -139,9 +116,7 @@
       "id": "feat-015",
       "name": "Theme System",
       "description": "Light/dark/system theme with View Transition API circle animation, persisted preference.",
-      "dependencies": [
-        "feat-001"
-      ],
+      "dependencies": ["feat-001"],
       "status": "done",
       "evidence": "src/providers/theme-provider.tsx, src/components/common/theme-toggle.tsx"
     },
@@ -149,9 +124,7 @@
       "id": "feat-016",
       "name": "Note Templates",
       "description": "6 predefined templates (Meeting, Journal, Project, RFC, Sprint Retro, Study) + custom templates with markdown content, title patterns.",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "done",
       "evidence": "src/features/chat/lib/companion-config.ts (PREDEFINED_TEMPLATES), src/features/notes/components/template-selector.tsx"
     },
@@ -159,9 +132,7 @@
       "id": "feat-017",
       "name": "Archived Notes View",
       "description": "Separate route and view for archived notes with unarchive action.",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "done",
       "evidence": "src/features/notes/components/archived-page.tsx, src/routes/_app/archived.tsx"
     },
@@ -169,9 +140,7 @@
       "id": "feat-018",
       "name": "Filter Sidebar for Notes",
       "description": "Collapsible filter sidebar with tag filtering, category folders, recent notes list.",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "done",
       "evidence": "src/features/notes/components/filter-sidebar.tsx"
     },
@@ -179,9 +148,7 @@
       "id": "feat-019",
       "name": "Paginated Notes List",
       "description": "Client-side pagination with page size selector (10/20/50/100), first/prev/next/last navigation.",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "done",
       "evidence": "src/features/notes/components/notes-pagination.tsx, src/hooks/use-pagination.ts"
     },
@@ -189,9 +156,7 @@
       "id": "feat-020",
       "name": "Note Templates Settings Tab",
       "description": "Full CRUD for custom note templates within settings page, with inline dialog editor.",
-      "dependencies": [
-        "feat-007"
-      ],
+      "dependencies": ["feat-007"],
       "status": "done",
       "evidence": "src/features/settings/components/templates-tab.tsx"
     },
@@ -199,9 +164,7 @@
       "id": "feat-021",
       "name": "Companion Config Persistence",
       "description": "DEPRECATED (2026-08-01): localStorage CompanionConfig (name, temperature, avatar, persona, prompt, welcome message) removed. Replaced by server-backed AI settings (feat-033) — see src/features/settings/hooks/use-ai-settings.ts + /api/v1/ai/settings.",
-      "dependencies": [
-        "feat-006"
-      ],
+      "dependencies": ["feat-006"],
       "status": "done",
       "evidence": "src/features/chat/lib/companion-config.ts (trimmed to NoteTemplate helpers only)"
     },
@@ -209,10 +172,7 @@
       "id": "feat-022",
       "name": "Keyboard Shortcut Guard",
       "description": "Editor guard on sidebar global keydown to prevent Ctrl+B conflict with Lexical bold. Also adds open-command-palette event for search bar click trigger.",
-      "dependencies": [
-        "feat-009",
-        "feat-012"
-      ],
+      "dependencies": ["feat-009", "feat-012"],
       "status": "done",
       "evidence": "src/components/ui/sidebar.tsx (editor guard), src/features/command/command-palette.tsx (open-command-palette event)"
     },
@@ -220,9 +180,7 @@
       "id": "feat-023",
       "name": "AI Tab Completion Plugin",
       "description": "Lexical plugin for AI-powered tab completion (present in old synapse 1, not yet integrated in current).",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "not-started",
       "evidence": "Missing from current project. Present in old as src/components/AITabCompletionPlugin.tsx"
     },
@@ -230,9 +188,7 @@
       "id": "feat-024",
       "name": "Voice-to-Text in Notes",
       "description": "Voice input for note editor content (present in old, not yet integrated in current).",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "not-started",
       "evidence": "Missing from current project. Present in old in NoteEditorPage.tsx"
     },
@@ -240,9 +196,7 @@
       "id": "feat-025",
       "name": "Batch Note Actions",
       "description": "Multi-select notes and perform batch tag/archive/delete operations.",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "done",
       "evidence": "src/features/notes/components/list/note-batch-actions.tsx, src/features/notes/hooks/use-multi-select.ts"
     },
@@ -250,9 +204,7 @@
       "id": "feat-026",
       "name": "Date Range Filter for Notes",
       "description": "Filter notes by date range.",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "done",
       "evidence": "src/features/notes/components/list/note-date-filter.tsx, src/features/notes/constants.ts (notesSearchSchema)"
     },
@@ -260,9 +212,7 @@
       "id": "feat-027",
       "name": "PDF Export",
       "description": "Export notes as PDF via print dialog (present in old, not yet integrated in current).",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "not-started",
       "evidence": "Missing from current project. Present in old as src/utils/export.ts"
     },
@@ -270,9 +220,7 @@
       "id": "feat-028",
       "name": "Quick Note Dialog",
       "description": "Floating quick-capture note dialog with inline editor (present in old, not yet integrated in current).",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "not-started",
       "evidence": "Missing from current project. Present in old as src/features/notes/components/NoteQuickDialog.tsx"
     },
@@ -280,9 +228,7 @@
       "id": "feat-029",
       "name": "Keyboard Shortcuts Reference Modal",
       "description": "Comprehensive keyboard shortcuts reference modal with 3 sections (Global, Editor, Navigation).",
-      "dependencies": [
-        "feat-002"
-      ],
+      "dependencies": ["feat-002"],
       "status": "done",
       "evidence": "src/components/common/sidebar-config.tsx (KeyboardShortcutsDialog)"
     },
@@ -290,10 +236,7 @@
       "id": "feat-030",
       "name": "Notes Page Layout Refresh",
       "description": "Breadcrumb system (useBreadcrumb hook + AppBreadcrumb component), compact top header with search icon + '+ New' dropdown, sidebar content reorganization (Knowledge / AI Companion groups), NotesTagFilter (hardcoded chips), NotesViewToggle (Grid/Table), NotesBulkActions (fixed bottom bar), FAB auto-hide on mobile.",
-      "dependencies": [
-        "feat-009",
-        "feat-025"
-      ],
+      "dependencies": ["feat-009", "feat-025"],
       "status": "done",
       "evidence": "src/types/breadcrumb.ts, src/hooks/use-breadcrumb.ts, src/components/common/app-breadcrumb.tsx, src/features/notes/components/list/notes-tag-filter.tsx, src/features/notes/components/list/notes-view-toggle.tsx, src/features/notes/components/list/notes-bulk-actions.tsx, src/routes/_app/notes/index.tsx, src/routes/_app/notes/$noteId.tsx, src/layouts/app/app-top-header.tsx, src/layouts/app/sidebar/nav/nav-main.tsx, src/layouts/app/sidebar/nav/nav-companion.tsx"
     },
@@ -301,9 +244,7 @@
       "id": "feat-031",
       "name": "URL-Driven View Architecture",
       "description": "Four dedicated view routes (/notes, /favorites, /archive, /trash) driven by URL search params. Pagination aligned to BE 0-indexed defaults (pageSize: 20, page: 0). View-specific note card actions, bulk actions, and empty states. Backend note action bindings (PATCH/DELETE + bulk variants). 30+ new i18n keys in EN and VI.",
-      "dependencies": [
-        "feat-030"
-      ],
+      "dependencies": ["feat-030"],
       "status": "done",
       "evidence": "src/features/notes/schemas.ts (NoteViewMode + filter types), src/features/notes/types.ts (trashedAt), src/features/notes/constants.ts (view-specific query params, pagination), src/features/notes/api.ts (page conversion + 13 new action/bulk functions), src/features/notes/hooks/use-note-mutation.ts (8 new mutation hooks), src/features/notes/components/notes-view-page.tsx (shared view component), src/features/notes/components/note-card.tsx (viewMode-aware actions), src/features/notes/components/notes-bulk-actions.tsx (viewMode-aware bulk bar), src/features/notes/components/notes-empty-state.tsx (trash variant), src/routes/_app/favorites.tsx (NEW), src/routes/_app/archive.tsx (NEW), src/routes/_app/trash.tsx (NEW), src/routes/_app/notes/index.tsx (thinned wrapper), src/routes/_app/notes/$noteId.tsx (from param back-nav), src/components/layouts/app-sidebar/nav-main.tsx (updated links), messages/en.json, messages/vi.json"
     },
@@ -311,10 +252,7 @@
       "id": "feat-032",
       "name": "Unified Key Binding Hook & Command Palette Refinements",
       "description": "useKeyBinding/useKeyboardShortcut hooks + keyboard-shortcuts config registry power all global and editor shortcuts. Command palette: onKeyDown replaced with hook bindings (arrows/enter in search view; Escape/Backspace back-navigation in output view via capture-phase + stopPropagation), 5 hardcoded strings migrated to i18n, 9 stale command_palette_* keys removed (en/vi parity restored), and /notes/create?title=... prefills the title form.",
-      "dependencies": [
-        "feat-012",
-        "feat-029"
-      ],
+      "dependencies": ["feat-012", "feat-029"],
       "status": "done",
       "evidence": "src/hooks/use-key-binding.ts (useKeyBinding + capture option, useKeyboardShortcut, expandModKey), src/config/keyboard-shortcuts.ts (registry), src/components/shared/keyboard-shortcuts-list.tsx, src/components/shared/app-global-keybinds.tsx (N, /, Ctrl+Alt+B, Ctrl+/ events), src/components/shared/sidebar-keyboard-shortcuts-dialog.tsx, src/components/shared/editor/lexical-shortcuts-dialog.tsx, src/features/command-palette/components/command-palette.tsx (hook bindings + i18n), src/features/command-palette/components/command-palette-search-input.tsx (onKeyDown removed), src/routes/_app/notes/create.tsx (validateSearch title prefill), src/routes/_app/notes/$noteId.tsx (Ctrl+S), src/routes/_app/route.tsx (Ctrl+Alt+B), messages/en.json, messages/vi.json"
     },
@@ -322,10 +260,7 @@
       "id": "feat-033",
       "name": "AI Chat Backend Integration & Conversation History",
       "description": "Wired mock chat to the real AI service (Kong /api/v1/ai) via AI SDK v7 useChat + custom DefaultChatTransport (X-Conversation-Id capture, Bearer auth, send-last-message protocol). Added Gemini/Claude-style conversation history left rail inside /chat (new chat, load history, active highlight, auto-refresh after first turn). Migrated Settings > Companion tab to backend /api/v1/ai/settings (useAiSettings hook; localStorage CompanionConfig removed). CORS expose of X-Conversation-Id in Kong + ai service. Removed dead i18n keys, added chat/settings keys, en/vi parity.",
-      "dependencies": [
-        "feat-006",
-        "feat-007"
-      ],
+      "dependencies": ["feat-006", "feat-007"],
       "status": "done",
       "evidence": "src/features/chat/lib/chat-transport.ts, src/features/chat/lib/chat-api.ts, src/features/chat/hooks/use-chat-session.ts, src/features/chat/hooks/use-conversations.ts, src/features/chat/components/chat-page.tsx, src/features/chat/components/chat-bot.tsx, src/features/settings/hooks/use-ai-settings.ts, src/features/settings/components/companion-tab.tsx, src/features/settings/components/settings-page.tsx, infra/kong/kong.yml, services/ai/src/app.ts, messages/en.json, messages/vi.json"
     },
@@ -333,10 +268,7 @@
       "id": "feat-034",
       "name": "AI Note Title Generation",
       "description": "Generate note titles from content via POST /api/v1/ai/generator/note-title (content sliced to 1500 chars). UI: Sparkles button on /notes/create title row + 'Generate title' action wired in $noteId overflow menu (was disabled). Create-page title is now optional client-side (noteCreateFormSchema, max 200) so the notes service auto-generates a title on create when blank (circuit-breaker fallback 'Untitled'). New i18n: settings_companion_bot_name, notes_page_ai_title_failed (en/vi).",
-      "dependencies": [
-        "feat-004",
-        "feat-033"
-      ],
+      "dependencies": ["feat-004", "feat-033"],
       "status": "done",
       "evidence": "src/features/notes/api.ts (generateNoteTitle), src/features/notes/schemas.ts (noteCreateFormSchema/NoteCreateFormValues), src/features/notes/hooks/use-note-mutation.ts (create mutation accepts NoteCreateFormValues), src/routes/_app/notes/create.tsx (AI title button), src/routes/_app/notes/$noteId.tsx (generate-title menu item), src/features/settings/components/companion-tab.tsx (botName input), src/features/chat/lib/chat-api.ts (AiSettings.botName), messages/en.json, messages/vi.json"
     },
@@ -344,10 +276,7 @@
       "id": "feat-035",
       "name": "Chat with Note",
       "description": "NOT-STARTED (deferred 2026-08-02): per-note chat that scopes RAG to a single note. Requires backend work first: add optional noteId to chat request schema + scope retrieval to that note's embedding, then client-side chat-with-note action on note cards ($noteId + note list). i18n key notes_page_card_chat_with_note already reserved in en/vi.",
-      "dependencies": [
-        "feat-004",
-        "feat-033"
-      ],
+      "dependencies": ["feat-004", "feat-033"],
       "status": "not-started",
       "evidence": "Backend: services/ai/src/chat (chatRequestSchema needs noteId), RAG currently scopes by userId only. Client: messages/en.json + messages/vi.json (notes_page_card_chat_with_note)"
     },
@@ -355,9 +284,7 @@
       "id": "feat-036",
       "name": "Copilot to Companion Rename",
       "description": "All user-facing 'Copilot' branding replaced with 'Companion': 22 i18n keys renamed (settings_page_tab_copilot → settings_page_tab_companion, workspace_tab_copilot, error_page_btn_copilot, command_palette_title/subtitle_go_copilot, settings_page_general_copilot_alerts* + settings_page_copilot_* + all 12 settings_copilot_*), values updated (AI Copilot → AI Companion, Copilot Alerts → Companion Alerts, etc.) in en AND vi; files renamed copilot-tab.tsx → companion-tab.tsx (CopilotTab → CompanionTab) and chat/lib/copilot-config.ts → companion-config.ts; settings-page tab value 'copilot' → 'companion', localStorage key synapse_copilot_alerts → synapse_companion_alerts; command palette + error page updated. model-selector 'github-copilot' model id intentionally kept (technical identifier).",
-      "dependencies": [
-        "feat-007"
-      ],
+      "dependencies": ["feat-007"],
       "status": "done",
       "evidence": "src/features/settings/components/companion-tab.tsx, src/features/chat/lib/companion-config.ts, src/features/settings/components/settings-page.tsx, src/features/settings/components/general-tab.tsx, src/features/settings/components/templates-tab.tsx, src/features/notes/components/deprecated/template-selector.tsx, src/features/command-palette/components/command-palette.tsx, src/components/app/pages/error-page.tsx, src/components/ai-elements/model-selector.tsx, messages/en.json, messages/vi.json"
     },
@@ -365,12 +292,7 @@
       "id": "feat-037",
       "name": "Model Selector Hidden + TanStack Query Sweep + Companion Save Fix",
       "description": "Three hardening changes (2026-08-02): (1) Model selector UI hidden in ChatBot via SHOW_MODEL_SELECTOR=false flag (files/state/logic kept intact; model state still held, selector not rendered). (2) Companion settings save made observable + TanStack-driven: use-ai-settings.ts converted from raw useEffect fetch to useQuery(['ai-settings']) + useMutation with optimistic update and rollback on error; companion-tab.tsx now toasts settings_page_save_failed on save/reset/autosave failure and blocks saving preset=custom with empty custom instructions (mirrors backend refine); new i18n settings_page_save_failed en/vi. (3) TanStack Query sweep: use-conversations.ts → useQuery(['ai-conversations']) with refresh via invalidateQueries; chat-page.tsx conversation-message load → queryClient.fetchQuery(['ai-conversation-messages', id]) preserving ChatBot remount/seed semantics exactly; generateNoteTitle → useGenerateNoteTitleMutation (use-note-mutation.ts) used by create.tsx and $noteId.tsx (isGeneratingTitle derived from mutation.isPending). Exceptions documented: chat-transport.ts native fetch (AI SDK streaming transport), prompt-input blob-URL fetch (local), authClient (library hook).",
-      "dependencies": [
-        "feat-006",
-        "feat-007",
-        "feat-033",
-        "feat-034"
-      ],
+      "dependencies": ["feat-006", "feat-007", "feat-033", "feat-034"],
       "status": "done",
       "evidence": "src/features/chat/components/chat-bot.tsx (SHOW_MODEL_SELECTOR), src/features/settings/hooks/use-ai-settings.ts (useQuery+useMutation+rollback), src/features/settings/components/companion-tab.tsx (error toast + custom-preset guard), src/features/chat/hooks/use-conversations.ts (useQuery), src/features/chat/components/chat-page.tsx (fetchQuery), src/features/notes/hooks/use-note-mutation.ts (useGenerateNoteTitleMutation), src/routes/_app/notes/create.tsx, src/routes/_app/notes/$noteId.tsx, messages/en.json, messages/vi.json (settings_page_save_failed)"
     },
@@ -378,10 +300,7 @@
       "id": "feat-038",
       "name": "AI Thinking Indicator",
       "description": "In-conversation 'thinking' indicator for the chat: when a user submits and the assistant response has no content yet (status submitted, or assistant message with zero parts), render an assistant bubble with Shimmer 'Thinking…' (chat_thinking key, en/vi). Reuses the existing Shimmer pattern from Reasoning; auto-disappears when the first streamed part arrives (reasoning/text), on stop, or on error. Pure additive UI in chat-bot.tsx — no changes to transport/session/remount logic. Also unblocks build: deprecated quick-create-note-dialog cast payload to NoteCreateFormValues (noteCreateFormSchema.content is now required min(10), breaking NoteFormValues assignability).",
-      "dependencies": [
-        "feat-006",
-        "feat-037"
-      ],
+      "dependencies": ["feat-006", "feat-037"],
       "status": "done",
       "evidence": "src/features/chat/components/chat-bot.tsx (isAwaitingResponse + Shimmer bubble), src/components/ai-elements/shimmer.tsx, src/features/notes/components/deprecated/quick-create-note-dialog.tsx (payload cast), messages/en.json, messages/vi.json (chat_thinking)"
     },
@@ -389,11 +308,7 @@
       "id": "feat-039",
       "name": "Settings Page i18n + Companion Option Label Fix + Orphan Key Cleanup",
       "description": "Full translation pass over the restructured settings feature. companion-settings-page.tsx: all 13 hardcoded Vietnamese strings replaced with m.*() (bot name label/placeholder, response length, language, preset, use-emoji label+desc, custom instructions label+placeholder, save button). use-companion-settings.ts toasts now use existing settings_page_toast_saved / settings_page_save_failed keys. settings.tsx route title createTitle('Settings') → createTitle(m.settings_page_title()). constants.ts bug fix: response-length and language dropdown options all pointed at the same message key (identical labels x3); refactored to RULES.md-compliant data-only config + literal getters getResponseLengthLabel/getPresetLabel/getLanguageLabel. New i18n: 12 keys (placeholders x5, use_emoji_desc, response_length_short/balanced/detailed, language_vi/en/auto). Deleted 11 orphaned keys from old removed templates tab / old companion tab (settings_page_tab_templates, settings_page_companion_saving, settings_page_companion_persona_custom, settings_page_template_create, settings_page_toast_avatar_invalid, settings_companion_reset_default, settings_templates_* x5); KEPT settings_page_template_name/description/title_pattern/content because deprecated/template-selector.tsx still references them. en/vi parity 585/585. Also fixed pre-existing build break (user commit 3315f0b): chat-transport.ts spread of UIMessage.metadata (typed unknown) — added type-only cast (Record<string, unknown> | undefined), zero runtime change.",
-      "dependencies": [
-        "feat-007",
-        "feat-008",
-        "feat-036"
-      ],
+      "dependencies": ["feat-007", "feat-008", "feat-036"],
       "status": "done",
       "evidence": "src/features/settings/components/companion-settings-page.tsx, src/features/settings/components/general-settings-page.tsx (already i18n'd), src/features/settings/hooks/use-companion-settings.ts, src/features/settings/constants.ts (getters), src/routes/_app/settings.tsx (createTitle), src/features/chat/lib/chat-transport.ts (metadata cast), messages/en.json, messages/vi.json (585 keys each)"
     },
@@ -401,9 +316,7 @@
       "id": "feat-040",
       "name": "Bulk Actions: Action-Aware Toasts + Majority-Based Pin/Archive/Unpin/Unarchive",
       "description": "Bulk action hardening (2026-08-05): (1) useBulkActionsMutation now toasts per-action success via literal-switch getBulkActionSuccessMessage (all 9 BulkNoteActions map to existing notes_page_toast_* keys; generic update_failed on error) — previously every bulk action toasted 'Trash emptied'. (2) Multi-select majority rule: bulk bar computes counts from selected page notes and shows Unpin/Pin, Unfavorite/Favorite, Unarchive/Archive by strict majority (count > half; tie → Pin/Favorite/Archive); backend UNPIN/UNFAVORITE actions were already supported but never sent. Trash/restore unified through the bulk endpoint (was per-note loop). (3) Bug fix: emptying trash from the trash page now clears the multi-select (selection lived in NotesViewPage while the mutation lived in the trash route). (4) Per-call onError toasts and 'TODO: Toast here' comments removed from notes-view-page handlers; single handleBulkAction with DELETE_PERMANENT confirmation preserved. New i18n: notes_bulk_unpin, notes_bulk_unfavorite (en/vi, 587 keys each, parity 0/0).",
-      "dependencies": [
-        "feat-031"
-      ],
+      "dependencies": ["feat-031"],
       "status": "done",
       "evidence": "src/features/notes/hooks/use-note-mutation.ts (getBulkActionSuccessMessage + useBulkActionsMutation), src/features/notes/components/notes-bulk-actions.tsx (majority logic, single onBulkAction prop), src/features/notes/components/notes-view-page.tsx (handleBulkAction, handleEmptyTrash clears selection), messages/en.json, messages/vi.json (notes_bulk_unpin, notes_bulk_unfavorite)"
     },
@@ -411,10 +324,7 @@
       "id": "feat-041",
       "name": "Conversation List in Sidebar (NavCompanion) + Store-Driven Chat Page",
       "description": "Moved the conversation list out of the chat page into the sidebar (2026-08-08, on top of user's chat→companion restructure). NavCompanion now has: New Chat button (clears store + navigates /chat), 'Recents' section listing conversations from useGetConversationsQuery (3-row Skeleton while loading, empty text, truncate title fallback chat_conversation_untitled, active highlight, click → setActiveConversationId + navigate /chat), and a 'Favorites' section label (placeholder only — favorites grouping later). New zustand store src/store/companion-store.ts holds activeConversationId (null = new chat). ChatPage consumes the store: null → empty conversation (ConversationEmptyState), id → useGetConversationMessagesQuery(id) (hook now takes string|null with enabled flag) with absolute spinner overlay + ChatBot disabled (textarea, submit, attachments trigger, speech, web-search — SpeechInput via conditional spread to preserve its internal isDisabled); onConversationId → store + invalidate ['companion-conversations'] so Recents refreshes. ChatBot gained optional disabled prop. Fixed stale imports: chat.tsx route + app-right-sidebar.tsx → @/features/companion. New i18n: sidebar_recents (en/vi, 588 keys each, parity 0/0).",
-      "dependencies": [
-        "feat-037",
-        "feat-039"
-      ],
+      "dependencies": ["feat-037", "feat-039"],
       "status": "done",
       "evidence": "src/store/companion-store.ts (NEW), src/components/layouts/app-sidebar/nav-companion.tsx (New Chat + Recents + Favorites sections, skeleton), src/features/companion/components/chat-page.tsx (store-driven, spinner overlay, disabled ChatBot), src/features/companion/components/chat-bot.tsx (disabled prop), src/features/companion/hooks/use-companion-conversation.ts (null id + enabled), src/routes/_app/chat.tsx + src/components/layouts/app-right-sidebar.tsx (import path fixes), messages/en.json, messages/vi.json (sidebar_recents)"
     },
@@ -422,9 +332,7 @@
       "id": "feat-042",
       "name": "Schema Validation i18n + Missing Favorites Empty-State Keys",
       "description": "Translation pass over schemas + fixed missing i18n keys (2026-08-08). (1) Build fix: notes-list-empty.tsx referenced notes_page_no_favorites / notes_page_no_favorites_desc which never existed — keys added (en: 'No favorite notes'/'Star notes to keep them close.', vi equivalents). (2) All user-input/query schemas now carry Paraglide messages instead of zod default English (zod v4.4.3 { message } params): src/schemas/query.ts pagination (page/pageSize invalid+int+positive → validation_page_invalid / validation_page_size_invalid, pageSize max 100 → validation_page_size_max); notes schemas (noteIdParam.id min → validation_id_required, noteInputSchema content max 1500 → validation_content_max + title max 200 → validation_title_max, bulkNoteActions ids min → validation_ids_required, generateNoteTitle content min → validation_content_required, sort enum → validation_sort_invalid); companion conversationIdParam.id → validation_id_required; settings tab enum → validation_tab_invalid. 12 new keys en/vi, 600/600 parity 0/0.",
-      "dependencies": [
-        "feat-041"
-      ],
+      "dependencies": ["feat-041"],
       "status": "done",
       "evidence": "src/schemas/query.ts, src/features/notes/schemas.ts, src/features/companion/schemas.ts, src/features/settings/schemas.ts (zod { message: m.*() } params), src/features/notes/components/notes-list-empty.tsx (now compiles), messages/en.json, messages/vi.json (12 new keys, 600 each)"
     },
@@ -432,9 +340,7 @@
       "id": "feat-043",
       "name": "Conversation Actions: Favorite, Rename, Delete",
       "description": "Per-conversation dropdown in the sidebar (star/unstar, rename, delete) + populated Favorites section (2026-08-08). Backend (services/ai): PATCH /api/v1/ai/conversations/:id (rename, title max 100), PATCH /api/v1/ai/conversations/:id/favorite ({ favorited }), DELETE /api/v1/ai/conversations/:id with onDelete cascade; Conversation model + list query gain favorited. Client: CompanionFetchRouter 3 new endpoints, useRenameConversationMutation / useDeleteConversationMutation / useToggleConversationFavoriteMutation (InferRequestType/ResponseType pattern), ConversationListItem component (Base UI dropdown via render prop, RHF+zod rename dialog, AlertDialog delete confirm), nav-companion renders Recents + Favorites (both with per-item actions), deleting the active conversation clears the store. 20 new i18n keys en/vi (actions, rename dialog, delete dialog, toasts, favorites empty). Verified: tsc -b, oxlint, eslint, prettier all clean.",
-      "dependencies": [
-        "feat-041"
-      ],
+      "dependencies": ["feat-041"],
       "status": "done",
       "evidence": "services/ai/src/conversation/route.ts (+favorite/rename/delete routes), services/ai/src/conversation/schemas.ts (renameConversationSchema, favoriteConversationSchema), services/ai/src/conversation/service.ts (onDelete cascade + favorited), services/ai/src/conversation/types.ts, src/features/companion/types/api.ts (3 new endpoints), src/features/companion/schemas.ts (renameConversationSchema, favoriteConversationSchema), src/features/companion/hooks/use-companion-conversation.ts (3 mutation hooks), src/features/companion/components/conversation-list-item.tsx (NEW), src/components/layouts/app-sidebar/nav-companion.tsx (Recents + Favorites sections, onDeleted clears store), messages/en.json, messages/vi.json (20 keys)"
     },
@@ -442,10 +348,7 @@
       "id": "feat-044",
       "name": "Layout Switching: Chat vs Agent (AI Companion) Workspaces",
       "description": "Asymmetric workspace switching (2026-08-11). Types: LayoutMode 'agent' | 'chat' replaces 'servant'. settings-store.ts persists layoutMode under 'synapse-settings' (version: 1 + migrate mapping 'servant'→'agent'); setLayoutMode('agent') auto-opens right sidebar. route.tsx rewritten: ResizablePanel right panel driven by mode (chat = hidden/collapsed panel, agent = expanded + right sidebar), mobile Sheet branch via useIsMobile, transition-[flex-grow,flex-basis] duration-300 ease-in-out, toggleRightSidebar switches chat→agent, effect syncs panel collapse/expand. app-top-header.tsx: ToggleGroup mode switch (array-based value from base-ui), right-sidebar toggle hidden in chat mode, aria-pressed toggle, @container/top-header container queries. app-right-sidebar.tsx made container-agnostic (plain divs, no useIsMobile). centered prop threaded chat-page → companion-chat → chat-bot (mx-auto w-full max-w-6xl). i18n: sidebar_mode_agent(_desc) renamed from sidebar_mode_servant, header_mode_toggle_aria.",
-      "dependencies": [
-        "feat-009",
-        "feat-041"
-      ],
+      "dependencies": ["feat-009", "feat-041"],
       "status": "done",
       "evidence": "src/components/layouts/types.ts (LayoutMode 'agent'), src/store/settings-store.ts (persist version 1 + migrate + auto-open), src/routes/_app/route.tsx (mode-driven panel + mobile Sheet + transition), src/components/layouts/app-top-header.tsx (ToggleGroup + container queries), src/components/layouts/app-right-sidebar.tsx (container-agnostic), src/features/companion/components/chat-page.tsx + companion-chat.tsx + chat-bot.tsx (centered prop), messages/en.json, messages/vi.json (sidebar_mode_agent*, header_mode_toggle_aria)"
     },
@@ -453,9 +356,7 @@
       "id": "feat-045",
       "name": "Responsive Top Header + Collapsing Breadcrumb",
       "description": "Responsive header/breadcrumb via CSS container queries + ResizeObserver (2026-08-11). New src/components/layouts/constants.ts (HEADER_BREADCRUMB_COLLAPSE_WIDTH=640, HEADER_SEARCH_COMPACT_WIDTH=520, HEADER_SEARCH_ICON_ONLY_WIDTH=380) and src/hooks/use-element-width.ts (ResizeObserver, no sync setState). app-breadcrumb.tsx: when width ≤ 640 && crumbs.length > 2 collapses to [Root] / [⋯ DropdownMenu] / [Active] (BreadcrumbItemData type alias to avoid clash with UI BreadcrumbItem). Header labels/search kbd hidden via @min-[520px]/top-header:inline container-query variants; actions row gap-2 + min-w-0.",
-      "dependencies": [
-        "feat-044"
-      ],
+      "dependencies": ["feat-044"],
       "status": "done",
       "evidence": "src/components/layouts/constants.ts (NEW), src/hooks/use-element-width.ts (NEW), src/components/shared/app-breadcrumb.tsx (collapse + DropdownMenu), src/components/layouts/app-top-header.tsx (@container/top-header + @min-[520px] variants), messages/en.json, messages/vi.json (header_breadcrumb_more)"
     },
@@ -463,9 +364,7 @@
       "id": "feat-046",
       "name": "Chat Enhancements: First-Click Fix, Pagination, Favorites Filter",
       "description": "Three chat fixes (2026-08-11). (C1) ChatBot only mounts after isLoadingConversation settles — fixes first-click-no-response by gating on a stale empty-message check. (C2) Message pagination: backend GET /conversations/:id/messages?limit&offset (messagesQuerySchema limit default 15 max 100 offset default 0, repository findMessagesByConversationIdPage DESC LIMIT/OFFSET then reverse to chronological); client useGetConversationMessagesInfiniteQuery (MESSAGE_PAGE_SIZE=15, initialPageParam 0, getNextPageParam = lastPage.length===15 ? sum : undefined, chronological via [...pages].reverse().flat()); ChatBot forwardRef ChatBotHandle { prependMessages (chat.setMessages), sendText }; ConversationLoadOlder scroll-top listener (scrollRef scrollTop <= 1, anchor restored via scrollTop += scrollHeight - prevHeight) + top spinner; centered layout. (C3) nav-companion Recents filters out favorited conversations (recents = !favorited).",
-      "dependencies": [
-        "feat-043"
-      ],
+      "dependencies": ["feat-043"],
       "status": "done",
       "evidence": "services/ai/src/conversation/schemas.ts (messagesQuerySchema), repository.ts (findMessagesByConversationIdPage), services.ts (loadMessagesPage), route.ts (query validator), index.ts, src/features/companion/types/api.ts (query { limit, offset }), hooks/use-companion-conversation.ts (useGetConversationMessagesInfiniteQuery), components/chat-bot.tsx (ChatBotHandle + ConversationLoadOlder + centered), components/companion-chat.tsx (mount gating + pages orchestration), components/layouts/app-sidebar/nav-companion.tsx (recents filter)"
     },
@@ -473,10 +372,7 @@
       "id": "feat-047",
       "name": "AI Companion: Context-Aware Right Sidebar",
       "description": "Context-aware AI Companion sidebar (2026-08-11). store/companion-context-store.ts: CompanionActiveDocument { id, title, content } + CompanionEditorBridge { insert, replace } + setActiveDocument/setEditorBridge. editor/companion-bridge-plugin.tsx (mounted in lexical-editor.tsx): insert via $generateNodesFromMarkdownString + insertNodes (or root.append), replace via $getRoot().clear() + $convertFromMarkdownString (CUSTOM_TRANSFORMERS). $noteId.tsx effect registers activeDocument from watchedTitle/watchedContent/useParams, cleared on unmount. config/companion-prompts.ts: QUICK_ACTION_IDS + buildQuickActionPrompt (summarize/translate/polish/ask), 4000-char truncate, translate targets getLocale(). components/companion-context-bar.tsx (title + char count + copy) + companion-quick-actions.tsx (4 buttons → chatRef.sendText). chat-bot.tsx MessageAssistantActions: Insert/Replace/Copy via editorBridge (shown only when bridge present). app-right-sidebar.tsx wires chatRef + ContextBar + QuickActions above CompanionChat. i18n: companion_context_*, companion_quick_*, companion_message_* (en/vi).",
-      "dependencies": [
-        "feat-041",
-        "feat-044"
-      ],
+      "dependencies": ["feat-041", "feat-044"],
       "status": "done",
       "evidence": "src/store/companion-context-store.ts (NEW), src/components/shared/editor/companion-bridge-plugin.tsx (NEW), src/components/shared/editor/lexical-editor.tsx (plugin mount), src/routes/_app/notes/$noteId.tsx (activeDocument registration), src/features/companion/config/companion-prompts.ts (NEW), src/features/companion/components/companion-context-bar.tsx (NEW), src/features/companion/components/companion-quick-actions.tsx (NEW), src/features/companion/components/chat-bot.tsx (MessageAssistantActions), src/components/layouts/app-right-sidebar.tsx (wiring), messages/en.json, messages/vi.json"
     },
@@ -484,11 +380,7 @@
       "id": "feat-048",
       "name": "Chat Bug-Fix Pass: Chat-Mode Navigation + Older-Message Loading",
       "description": "Three chat bug fixes (2026-08-11, on top of staged feat-044..047). (1) Chat-mode conversation click did nothing: no /chat/:conversationId route existed and nav-companion only set the store + opened the collapsed right panel. New route src/routes/_app/chat.$conversationId.tsx (createFileRoute '/_app/chat/$conversationId', effect setActiveConversationId(conversationId)); nav-companion handleSelectConversation now navigates in chat mode (agent mode stays sidebar-only per user). (2) /chat = new chat: chat.tsx mount effect setActiveConversationId(null); handleNewChat navigates to /chat in chat mode. (3) Scroll-to-top spinner flashed but older messages never appeared: @ai-sdk/react@4.0.50 useChat seeds messages once in a useRef (new Chat only recreated when id changes), so growth in useGetConversationMessagesInfiniteQuery data.pages was ignored. chat-bot.tsx: prop initialMessages renamed to messages (live full list) + useLayoutEffect diffing chat.messages vs loadedMessages prepends missing older via chat.setMessages(prev => [...older, ...prev]) (layout effect commits before ConversationLoadOlder passive-effect scroll-delta restore); render uses liveMessages (chat state). ConversationLoadOlder mount-time handleScroll() removed so atTop only true on real user scrolls (no spurious fetch chaining on open). Verified: generate-routes, tsc -b, check, build.",
-      "dependencies": [
-        "feat-041",
-        "feat-044",
-        "feat-046"
-      ],
+      "dependencies": ["feat-041", "feat-044", "feat-046"],
       "status": "done",
       "evidence": "src/routes/_app/chat.$conversationId.tsx (NEW), src/routes/_app/chat.tsx (reset-on-mount), src/components/layouts/app-sidebar/nav-companion.tsx (useNavigate chat-mode), src/features/companion/components/chat-bot.tsx (messages prop + prepend useLayoutEffect + ConversationLoadOlder mount handleScroll removal), src/features/companion/components/companion-chat.tsx (messages prop), src/routeTree.gen.ts (regenerated)"
     },
@@ -496,11 +388,7 @@
       "id": "feat-049",
       "name": "Remappable Keyboard Shortcuts (Single Source) + Bug-Fix Batch",
       "description": "Single source of truth for ALL shortcuts (2026-08-12): src/config/keyboard-shortcuts.ts registry (global + 12 editor + sidebar toggle) + new persisted src/store/shortcuts-store.ts (zustand persist 'synapse-shortcuts' v1, overrides map; setBinding/resetBinding/resetAll) + src/hooks/use-shortcut.ts (reactive effective combos/display) + helpers getEffectiveCombos/normalizeCombo/combosToDisplay/findShortcutConflict (mod-expanded cross-platform conflict compare, same-namespace one-store rule → mod+b assignment to editor-bold rejected). Global bindings now reactive: app-global-keybinds (go-to-notes mod+shift+n replaces quick-new-note N, focus-search, show-keyboard-shortcuts), route.tsx toggle-right-sidebar, sidebar.tsx toggle-left-sidebar built-in hardcoded Ctrl+B effect replaced with store-driven useShortcut/useKeyboardShortcut, command-palette mod+k. Editor keymap rebuilt as registry-driven Lexical plugin (getKeyCombo+expandModKey matcher, ref-based dispatch, same preventDefault behavior; matching shifted from event.code to event.key — accepted). useKeyboardShortcut now mod-expands allowWhenTyping. Form saves: shared use-form-save-shortcut.ts (save-note binding, optional enabled), wired into use-note-create/use-note-details, companion-settings-page (dirty-gated), conversation rename dialog (gated on dialog open + dirty). Settings > Shortcuts tab (SETTINGS_TABS + schemas + settings.tsx tab): shortcuts-settings-page.tsx + shortcut-remap-row.tsx (live key capture, modifier required, conflict inline error, None/disable + Reset + Reset all, ⌘/Ctrl display). keyboard-shortcuts-list dialog now shows effective (live) combos + Disabled. Bug fixes bundled: agent-mode /chat guard (chat.tsx + chat.$conversationId.tsx beforeLoad redirect to /notes via readPersistedLayoutMode), use-go-to-companion hook (chat→navigate, agent→open right sidebar; nav-companion already correct), command-palette arrow/enter binding capture:true, /create prefills content (validateSearch content + useNoteCreate initialContent, TODO removed), empty companion-save toast → settings_page_toast_saved/settings_page_save_failed. New i18n en/vi: keyboard_shortcuts_go_to_notes (replaces keyboard_shortcuts_new_note), settings_page_tab_shortcuts, settings_shortcuts_{description,reset_all,remap,disable,reset,capturing,cancel,disabled,conflict}. Verified: generate-translation, init.sh, tsc -b, build (7003 modules).",
-      "dependencies": [
-        "feat-032",
-        "feat-041",
-        "feat-044"
-      ],
+      "dependencies": ["feat-032", "feat-041", "feat-044"],
       "status": "done",
       "evidence": "src/config/keyboard-shortcuts.ts (registry + helpers), src/store/shortcuts-store.ts (NEW), src/hooks/use-shortcut.ts (NEW), src/hooks/use-form-save-shortcut.ts (NEW), src/hooks/use-key-binding.ts (allowWhenTyping mod-expansion), src/components/ui/sidebar.tsx (store-driven toggle-left-sidebar), src/components/shared/app-global-keybinds.tsx (go-to-notes), src/components/shared/editor/lexical-keyboard-shortcuts.tsx (registry-driven plugin), src/components/shared/keyboard-shortcuts-list.tsx (live display), src/features/settings/components/shortcuts-settings-page.tsx + shortcut-remap-row.tsx (NEW), src/features/settings/constants.ts (shortcuts tab), src/routes/_app/settings.tsx (tab + head), src/routes/_app/chat.tsx + chat.$conversationId.tsx (beforeLoad guard), src/store/settings-store.ts (readPersistedLayoutMode), src/features/companion/hooks/use-go-to-companion.ts (NEW), src/features/command-palette/components/command-palette.tsx (capture + content prefill), src/features/notes/hooks/use-note-create.ts + use-note-details.ts (useFormSaveShortcut), src/features/companion/hooks/use-companion-settings.ts (toast fix), src/features/companion/components/conversation-list-item.tsx (Ctrl+S + dirty), src/routes/_app/notes/create.tsx (content prefill), messages/en.json, messages/vi.json"
     },
@@ -508,9 +396,7 @@
       "id": "feat-050",
       "name": "TanStack Hotkeys Migration",
       "description": "Custom key-binding engine replaced with @tanstack/react-hotkeys (2026-03-13, Phase A only). New adapter src/hooks/use-hotkey-shortcut.ts (useHotkeyShortcut(id, handler, { enabled?, allowWhenTyping? }) via useHotkeys + meta.name from i18n label); src/main.tsx wraps app in <HotkeysProvider defaultOptions={{ hotkey: { ignoreInputs: true } }}> so globals stay inert while typing. Migrated: app-global-keybinds (go-to-notes/focus-search/show-keyboard-shortcuts), sidebar toggle-left-sidebar, route.tsx toggle-right-sidebar, use-form-save-shortcut (save-note allowWhenTyping: true), command-palette open/close (allowWhenTyping: true) + arrows/Enter + output-view Escape/Backspace (useHotkeys target: dialogRef, bubble-phase stopPropagation beats base-ui document Escape), lexical-keyboard-shortcuts matcher now normalizeHotkeyFromEvent(event) === normalizeHotkey(candidate). Registry helpers: findShortcutConflict uses canonical normalizeHotkey (isMac removed), normalizeCombo replaced by toRegistryCombo(hotkey) (lowercase). shortcut-remap-row rewritten with useHotkeyRecorder (modifier required → new i18n settings_shortcuts_requires_modifier, conflict inline, Escape cancels, Backspace/Delete clears). Deleted src/hooks/use-key-binding.ts (zero consumers). Verified: check / tsc -b / build pass. Not committed (user manages git). Phase B (remap capture UX polish) and feat-051 deferred pending user review.",
-      "dependencies": [
-        "feat-049"
-      ],
+      "dependencies": ["feat-049"],
       "status": "done",
       "evidence": "src/hooks/use-hotkey-shortcut.ts (NEW), src/main.tsx (HotkeysProvider), src/config/keyboard-shortcuts.ts (findShortcutConflict/toRegistryCombo), src/components/shared/app-global-keybinds.tsx, src/components/ui/sidebar.tsx, src/routes/_app/route.tsx, src/hooks/use-form-save-shortcut.ts, src/features/command-palette/components/command-palette.tsx, src/components/shared/editor/lexical-keyboard-shortcuts.tsx, src/features/settings/components/shortcut-remap-row.tsx, src/hooks/use-key-binding.ts (DELETED), messages/en.json, messages/vi.json"
     },
@@ -518,9 +404,7 @@
       "id": "feat-051",
       "name": "Notes Infinite Scroll (2026-08-13)",
       "description": "DONE: replaced client-side page pagination with infinite scroll. New useInfiniteNotes (useInfiniteQuery; key excludes page so sort/search/view changes reset the list; initialPageParam from URL page for deep links; getNextPageParam isLast ? undefined : page+1). useNotesView flattens pages (useMemo) and returns infinite { fetchNextPage, hasNextPage, isFetchingNextPage } in place of pagination; notes-view-page removes <Paginator> usage (file + usePagination hook kept on disk) and appends an IntersectionObserver sentinel (root: scroll container, rootMargin 200px, guarded by hasNextPage && !isFetchingNextPage) with an inline spinner. Loaded pages stay in react-query cache (refetchOnWindowFocus already false in main.tsx) - no re-fetch on scroll-up; pageSize 20 unchanged. Virtualization deferred (user chose plain infinite scroll; @tanstack/react-virtual already installed for a later phase). BUGFIX (2026-08-13): getNextPageParam previously derived the next page from the backend's echoed page field (Spring PageResponse echoes 0-indexed page.getNumber()), so next pageParam always computed back to 1 -> infinite re-fetch of page 1 with duplicates; fixed to derive from lastPageParam (the actual requested pageParam, 1-indexed per NoteQueryParams API contract) -> pages now advance 1,2,3... and stop when isLast. Verified: check, tsc -b, build (7044 modules).",
-      "dependencies": [
-        "feat-004"
-      ],
+      "dependencies": ["feat-004"],
       "status": "done",
       "evidence": "src/features/notes/hooks/api/use-infinite-notes.ts (NEW), src/features/notes/keys.ts (infiniteList), src/features/notes/hooks/use-notes-view.ts (infinite swap), src/features/notes/components/notes-view-page.tsx (sentinel + IO, Paginator removed), src/features/notes/index.ts (useInfiniteNotes export)"
     },
@@ -528,10 +412,7 @@
       "id": "feat-052",
       "name": "Shortcut Bug-Fix + Include-in-Chat (2026-08-13)",
       "description": "DONE: (1) Fix 'Mod+B is already registered' double-registration warn: root cause was two nested SidebarProvider in _app/route.tsx both registering toggle-left-sidebar (sidebar.tsx SidebarProvider hook); removed the redundant inner provider + hotkey conflictBehavior: 'allow' default in main.tsx HotkeysProvider. No scope API in @tanstack/hotkeys 0.8: local-vs-global enforced structurally (editor bindings are Lexical-native, never in global manager; globals inert in inputs via ignoreInputs: true; save-note bound only in useFormSaveShortcut pages). (2) formatForDisplay keyboard: new shared src/components/shared/key-combo.tsx (KeyCombo - formatForDisplay + Kbd/KbdGroup, symbol/win separators); deleted display field + combosToDisplay from registry, useShortcut returns combos; migrated shortcut-remap-row, keyboard-shortcuts-list, app-top-header (static mod+k). Deleted src/hooks/use-is-os.ts (useIsMac+useOS zero consumers). (3) go-to-notes renamed go-to-create-note (registry id + app-global-keybinds navigate /notes/create), default mod+alt+n (mod+e kept for editor-code); i18n keyboard_shortcuts_create_note en/vi. (4) Include-in-chat replaces AI-generate-title in dropdowns: $noteId details dropdown (useGoToCompanion, activeDocument already set) + note-card list-view dropdown (use-note-card includeInChat: setActiveDocument + useGoToCompanion; hidden in trash). generateNoteTitle removed from use-note-details + orphan key notes_page_ai_generate_title removed; new notes_page_include_in_chat en/vi. (5) Create page shows KeyCombo save-note hint when dirty. (6) Save shortcut dirty-gated: use-note-create + use-note-details pass enabled: isDirty to useFormSaveShortcut (buttons were already disabled). Verified: generate-translation, check, tsc -b, build (7043 modules).",
-      "dependencies": [
-        "feat-049",
-        "feat-050"
-      ],
+      "dependencies": ["feat-049", "feat-050"],
       "status": "done",
       "evidence": "src/main.tsx (conflictBehavior allow), src/routes/_app/route.tsx (inner SidebarProvider removed), src/components/shared/key-combo.tsx (NEW), src/config/keyboard-shortcuts.ts (display removed, go-to-create-note mod+alt+n), src/hooks/use-shortcut.ts (combos only), src/hooks/use-is-os.ts (DELETED), src/features/settings/components/shortcut-remap-row.tsx + src/components/shared/keyboard-shortcuts-list.tsx + src/components/layouts/app-top-header.tsx (KeyCombo migration), src/components/shared/app-global-keybinds.tsx (go-to-create-note), src/routes/_app/notes/$noteId.tsx + src/features/notes/components/note-card.tsx + src/features/notes/hooks/use-note-card.ts (include-in-chat), src/features/notes/hooks/use-note-create.ts + use-note-details.ts (enabled: isDirty), src/routes/_app/notes/create.tsx (save-hint), messages/en.json, messages/vi.json"
     },
@@ -539,10 +420,7 @@
       "id": "feat-053",
       "name": "Toast Audit + KBD Audit + Chat-Loading Investigation (2026-08-13)",
       "description": "DONE: (1) Chat-loading bug investigation — NO FIX APPLIED (user directive: backend-only if the bug is there; it isn't). Backend loadMessagesPage already returns each offset window in chronological order (rows.reverse() after DESC query), client [...pages].reverse().flat() is correct; verified live via Kong against demo conversation 4e9a8827-f084-40e3-91df-9c46026a8c4b (9 msgs, offset 0 = newest, offset 15 = []). useChat seeding confirmed (@ai-sdk/react 4.0.50 Chat constructor seeds ReactChatState from messages option). Spinners confirmed present (initial-load overlay + load-older pill). Gaps flagged, unfixed: no error/retry UI on messages-query failure; useChatModeGuard zustand hydration race on hard refresh in chat mode. (2) Toast audit: en/vi copy fixes (no !/trailing '.', outcome-first), new keys common_error_connection / chat_conversation_delete_failed / notes_page_toast_empty_trash_failed; error toasts across use-note-create, use-note-details, api/use-delete-note, api/use-generate-note-title, use-companion-settings, use-note-card ERROR_TOAST_MAP (7), use-notes-bulk-action ERROR_TOAST_MAP (9), use-empty-trash, use-companion-conversation (rename/favorite desc + delete split key), chat-bot chat_error_send (desc = common_error_connection instead of raw error.message). (3) KBD audit: lexical-toolbar 14 tooltips now OS-aware plain text via formatForDisplay — 12 registry-backed useShortcut combos (live/remap-aware, bare-label fallback when disabled) + undo mod+z / redo mod+shift+z canonicals (corrects old 'Ctrl+Y'); lexical_tooltip_* messages converted to '{label} ({combo})' interpolation in en+vi; dead header_search_tooltip removed. Verified: generate-translation, check, tsc -b, build (7046 modules).",
-      "dependencies": [
-        "feat-048",
-        "feat-050"
-      ],
+      "dependencies": ["feat-048", "feat-050"],
       "status": "done",
       "evidence": "services/ai/src/conversation/services.ts (verified correct, unchanged), src/components/shared/editor/lexical-toolbar.tsx (comboTitle helper + useShortcut combos + canonical undo/redo), src/hooks/use-shortcut.ts (reused), src/features/notes/hooks/use-note-card.ts + src/features/notes/hooks/api/use-notes-bulk-action.ts + src/features/notes/hooks/api/use-empty-trash.ts + src/features/notes/hooks/api/use-delete-note.ts + src/features/notes/hooks/api/use-generate-note-title.ts + src/features/notes/hooks/use-note-create.ts + src/features/notes/hooks/use-note-details.ts (toast descriptions), src/features/companion/hooks/use-companion-conversation.ts (delete split key + desc), src/features/companion/hooks/use-companion-settings.ts, src/features/companion/components/chat-bot.tsx (chat_error_send desc), messages/en.json, messages/vi.json (tooltip interpolation + new toast keys, header_search_tooltip removed)"
     },
@@ -550,10 +428,7 @@
       "id": "feat-054",
       "name": "Agent->Chat Mode Switch Navigates to Active Conversation (2026-08-13)",
       "description": "DONE (Option A - preserve & navigate): switching to chat mode now navigates instead of leaving the stale agent-mode selection in the store. nav-companion.tsx new handleLayoutModeChange(checked): setLayoutMode(checked ? 'chat' : 'agent'), then when switching to chat navigate to /chat/$conversationId (params from store activeConversationId) if a conversation is active, else /chat (new chat). Agent mode unchanged (sidebar-only, no navigation). beforeLoad guard on /chat routes passes because zustand persist writes layoutMode to localStorage synchronously before the navigate call. Clear-on-switch approach (settings-store) explicitly dropped per user choice. ALSO (per user): store activeConversationId now set for on-the-fly (streamed) conversations so the left sidebar highlights them - companion-chat.tsx captures X-Conversation-Id in a ref at headers time (handleConversationId still only invalidates the list; writing the store there would remount ChatBot mid-stream and kill the live response), then new onFinish passthrough (use-companion-chat-session.ts -> useChat, threaded via chat-bot.tsx) writes it to the store once the stream settles, guarded by activeConversationId === null. Verified: check, tsc -b. Manual smoke pending.",
-      "dependencies": [
-        "feat-044",
-        "feat-048"
-      ],
+      "dependencies": ["feat-044", "feat-048"],
       "status": "done",
       "evidence": "src/components/layouts/app-sidebar/nav-companion.tsx (handleLayoutModeChange + Switch onCheckedChange), src/features/companion/components/companion-chat.tsx (capturedConversationIdRef + handleConversationFinish), src/features/companion/components/chat-bot.tsx (onFinish prop), src/features/companion/hooks/use-companion-chat-session.ts (onFinish passthrough)"
     },
@@ -561,9 +436,7 @@
       "id": "feat-056",
       "name": "Chat Rework: Input Attachments + Suggestion Pills + Versioned Message Tree (2026-08-14)",
       "description": "DONE (rework of feat-055 per user feedback): (P1 DONE) note attachments injected DIRECTLY into the prompt-input attachments row (chips show truncated .md filename, max 10 via store cap + PromptInput maxFiles/onError toast chat_attachments_max; NoteAttachmentSync bridges chat-note-attachment-store <-> usePromptInputAttachments bidirectionally; submit sends message.files only; fileToFilePart removed); suggestions render ONLY as Suggestions/Suggestion pills (NoteAttachmentSuggestions, summarize/translate/polish/ask); NewChatBranching + chat-note-attachments.tsx + chat_branching_* keys deleted; empty state = plain ConversationEmptyState. (P1 DONE) MessageActions aligned via group-[.is-user]:justify-end in ai-elements/message.tsx. (P2 DONE, code) backend message tree: messages.parent_id (self-FK cascade) + conversations.current_message_id (FK set-null) + drizzle migration 20260814064433_powerful_groot with LAG backfill of existing rows + current_message_id seeding; chat POST accepts parentMessageId → prepareChatTurn loads ACTIVE PATH context (loadActivePath walks parent chain, replaces flat loadHistory window); POST /chat/regenerate (findMessageById + role check, replays parent prompt, saves new sibling + sets currentMessageId); PATCH /conversations/:id/current-message; POST /conversations/:id/clone (upToMessageId, parent remap to new UUIDs, transaction, same title). (P3 DONE, code) client: lib/message-tree.ts (buildTree/getActivePath/getRecentContext/addMessage/retryAssistantMessage/editUserMessage/switchVersion/getVersionInfo, nodes carry UIMessage + derived text), store/chat-message-tree-store.ts, transport branches on trigger 'regenerate-message' (POST /api/v1/ai/regenerate, sends assistantMessageId; send sends parentMessageId resolved from tree store first, fallback second-to-last id — fixes first-message edits losing the parent), tree rebuilt from GET rows (parentId) + conversation.currentMessageId on mount (fallback: linear chain), live display = active path via chat.setMessages; actions per role (assistant: retry/branch/copy/more-menu, user: edit/copy). (P4 DONE) bug-fix + UX pass per user report: mount-only guarded tree effect (was: rebuild+clobber on every loadedMessages/currentMessageId change → wiped live streams, flapped version counts 3/3→2/2, stale-refetch jumps); handleFinish skips tree add + restores retrySnapshotRef (chat.setMessages(snapshot) + switchVersion back to retried assistant) on SDK error (onFinish fires with isError, chat.regenerate never rejects); handleRetry guards target (assistant role + parentId present, else toast chat_message_retry_failed); custom MessageVersionSelector deleted, replaced with ai-elements MessageBranch/MessageBranchContent/MessageBranchSelector/MessageBranchPrevious/MessageBranchPage/MessageBranchNext/MessageToolbar wrapping MessageBody (siblings render from tree nodes, live message for current), selector shown only on assistant messages with >1 siblings, onBranchChange → switchVersion; MessageMoreMenu (DropdownMenu, MoreHorizontalIcon trigger) after Copy with Branch + Create note (navigates /notes/create?content=... via getCopyableMessageText, key chat_message_create_note); MessageBody extracted (sources/reasoning/files/text, edit form w-full); conversation-list-item delete confirm switched from raw AlertDialog to useConfirm destructive; new i18n chat_message_more / chat_message_create_note / chat_message_retry_failed (en/vi). Verified: generate-translation, check, tsc -b, build (7086 modules).",
-      "dependencies": [
-        "feat-055"
-      ],
+      "dependencies": ["feat-055"],
       "status": "done",
       "evidence": "services/ai/src/database/schema.ts (parent_id, current_message_id) + services/ai/drizzle/20260814064433_powerful_groot/migration.sql (backfill), services/ai/src/chat/{route,services,schemas}.ts (parentMessageId, loadActivePath, regenerate, createChatStreamResponse), services/ai/src/conversation/{route,services,repository,schemas,index}.ts (clone, current-message, findMessageById, insertMessage parentId), client/src/features/companion/lib/message-tree.ts (NEW), client/src/store/chat-message-tree-store.ts (NEW), client/src/features/companion/config/companion-chat-transport.ts (trigger branching + tree-parent resolver), client/src/features/companion/components/chat-bot.tsx (mount-only guarded tree effect, retrySnapshotRef + isError restore, handleRetry guard, MessageBranch adoption, MessageBody, MessageMoreMenu, w-full edit form), client/src/features/companion/hooks/use-companion-chat-session.ts (onFinish isError type), client/src/features/companion/hooks/use-companion-conversation.ts (clone + current-message mutations), client/src/features/companion/components/conversation-list-item.tsx (useConfirm delete), client/src/features/companion/types/api.ts + types/companion.ts (parentId, currentMessageId, clone, current-message), client/src/features/companion/components/chat-suggestions.tsx (Suggestions-only), client/src/store/chat-note-attachment-store.ts (MAX_CHAT_ATTACHMENTS, add returns boolean, replace), client/src/components/ai-elements/message.tsx (action alignment), messages/en.json, messages/vi.json"
     },
@@ -571,9 +444,7 @@
       "id": "feat-057",
       "name": "Chat UX Pass 2: Prefill Store, Streaming UI, User Versioning, Note Restore, Dead Code",
       "description": "DONE: (1) Create-note prefill moved off ?content= into transient src/store/note-create-prefill-store.ts (set/consume one-shot); callers chat-bot handleCreateNote (truncates to NOTE_CONTENT_MAX_LENGTH=1500 constant in notes/constants.ts, reused by schemas.ts) + command-palette /create; notes/create.tsx dropped validateSearch content/stripSearchParams; use-note-create consumes store on mount with setValue(..., { shouldDirty: true, shouldValidate: true }) — fixes prefilled form Save staying disabled (was: defaultValues → never dirty). (2) Streaming UI: action buttons hidden while the last message streams (plain path MessageActions gated !isStreaming && !isEditing; branch path MessageToolbar fully hidden) — shimmer-only look; Reasoning already default-closed (defaultOpen={false} → ai-elements isExplicitlyClosed). (3) User-message versioning: getVersionInfo now filters siblings by role (fixes mixed user-edit/assistant siblings appearing as versions in both selectors); MessageView branch UI applies to any role (assistant toolbar = Retry+Copy+MoreMenu, user = Edit+Copy); edit works inside branch content (isEditing/save/cancel per sibling id, MessageEditForm keyed by message.id). (4) Note details restore: NEW api/use-restore-note.ts (PATCH ACTIVE, restored toasts); use-note-details exposes restoreNote + isRestoring; $noteId shows Restore (RotateCcwIcon, notes_card_restore) instead of Move to trash on desktop + mobile dropdown when note.trashed; isBusy includes isRestoring. (5) Dead code: companion-context-bar.tsx + companion-quick-actions.tsx deleted (both were imported-but-never-rendered — clears both app-right-sidebar lint warnings); companion_context_* orphan keys removed (en/vi); companion_quick_* keys + config/companion-prompts.ts kept (consumed by NoteAttachmentSuggestions). (6) Include-in-chat suggestions race FIXED: NoteAttachmentSync merged to one effect — add store→input first, prune only when nothing pending, over-cap toast once (maxFilesToastShownRef) then prune. (7) R7 (user report): version switch showed only up-to-selected-message (following messages vanished) — switchVersion now walks first-child chain to deepest descendant (Claude-style branch display; childrenIds[0] = original continuation; no-op guard kept); getVersionInfo no longer bails on parentId===null and derives root siblings by scanning null-parent nodes (first message edit now shows a selector); handleSwitchVersion PATCHes the deepest leaf id (not the selected version id) so reloads restore the same full branch. Verified: generate-translation, check (pre-existing warnings only), tsc -b, build (7082 modules).",
-      "dependencies": [
-        "feat-056"
-      ],
+      "dependencies": ["feat-056"],
       "status": "done",
       "evidence": "client/src/store/note-create-prefill-store.ts (NEW), client/src/features/notes/constants.ts (NOTE_CONTENT_MAX_LENGTH), client/src/features/notes/schemas.ts, client/src/features/notes/hooks/use-note-create.ts (consume + shouldDirty), client/src/routes/_app/notes/create.tsx (search removed), client/src/features/command-palette/components/command-palette.tsx (/create store), client/src/features/companion/components/chat-bot.tsx (handleCreateNote, streaming gating, user branch toolbar, NoteAttachmentSync race fix), client/src/features/companion/lib/message-tree.ts (getVersionInfo role filter), client/src/features/notes/hooks/api/use-restore-note.ts (NEW) + hooks/api/index.ts, client/src/features/notes/hooks/use-note-details.ts (restoreNote + isRestoring), client/src/routes/_app/notes/$noteId.tsx (Restore swap), client/src/features/companion/components/companion-context-bar.tsx (DELETED), companion-quick-actions.tsx (DELETED), client/src/components/layouts/app-right-sidebar.tsx (imports removed), messages/en.json, messages/vi.json (companion_context_* removed)"
     },
@@ -581,10 +452,7 @@
       "id": "feat-058",
       "name": "Include-in-chat via prompt attachments only + Agent->Chat mode-switch guard (2026-08-14)",
       "description": "DONE (per user: \"include note files through prompt attachments, NOT NoteAttachmentSync ... DO NOT use any beside prompt attachments\"; suggestions removed per \"NoteAttachmentSuggestions => remove this\" / \"remove unused\"; NO ai-elements files touched). (1) Notes now enter the composer as plain prompt-attachment files: chat-note-attachment-store.ts slimmed to a one-shot pending queue (ChatNoteAttachment / buildNoteChatAttachment / add / clear / MAX_CHAT_ATTACHMENTS; replace + remove deleted). PromptInputAttachmentsDisplay (features/companion/components/chat-attachment.tsx) is the single injection point - consume-once effect reads the pending store, attachments.add(pending.slice(0, capacity).map((n) => n.file)) (toast chat_attachments_max when at cap), then clear(). NoteAttachmentSync deleted from chat-bot.tsx. NoteAttachmentSuggestions + handleSuggestionSelect removed; files chat-suggestions.tsx, chat-suggestion.tsx, config/companion-prompts.ts DELETED (zero consumers; buildQuickActionPrompt already had no callers; ai-elements/suggestion.tsx kept unused per constraint). Producers (use-note-card.ts includeInChat, $noteId.tsx includeInChat) unchanged. Included note renders as a removable chip (AttachmentRemove) like any manual upload; store cleared at injection. (2) Agent->chat mode-switch guard (user rule: carry the conversation only when it has messages and is in use; otherwise /chat + null). nav-companion.tsx handleLayoutModeChange now computes hasMessages = (activeConversationId in useGetConversationsQuery list) OR (queryClient cache [\"companion-conversation-messages\", id] has non-empty pages) -> navigate /chat/$conversationId only then; else setActiveConversationId(null) + navigate /chat. Fixes the reported bug: stale/deleted conversation id navigated to /chat/<id> showing empty chat (silent 404, no error UI) + no sidebar highlight. useQueryClient imported. Verified: generate-translation, check (pre-existing warnings only), tsc -b, build (7058 modules). No i18n changes (no new/removed user-facing strings; chat_attachments_max reused). Manual smoke pending.",
-      "dependencies": [
-        "feat-054",
-        "feat-057"
-      ],
+      "dependencies": ["feat-054", "feat-057"],
       "status": "done",
       "evidence": "client/src/features/companion/components/chat-attachment.tsx (consume-once injection in PromptInputAttachmentsDisplay), client/src/store/chat-note-attachment-store.ts (pending queue, replace/remove removed), client/src/features/companion/components/chat-bot.tsx (NoteAttachmentSync + suggestions removed), chat-suggestions.tsx (DELETED), chat-suggestion.tsx (DELETED), client/src/features/companion/config/companion-prompts.ts (DELETED), client/src/components/layouts/app-sidebar/nav-companion.tsx (has-messages guard + useQueryClient)"
     },
@@ -592,11 +460,7 @@
       "id": "feat-059",
       "name": "Centralized Global Shortcuts + Editor Link/Highlight Shortcuts + IME Bullet-List Fix (2026-08-16)",
       "description": "DONE: (1) Global shortcuts centralized in src/providers/global-shortcuts-provider.tsx (NEW): GlobalShortcutsProvider + useRegisterGlobalShortcut; registers every section:'global' combo (override-aware via getEffectiveCombos) exactly once through getHotkeyManager() with preventDefault+stopPropagation (app shortcuts now beat browser defaults, e.g. mod+b sidebar vs native bold, mod+k vs browser find); per-shortcut ref-counted registration list with row options recomputed via setOptions (enabled: any-consumer-enabled, ignoreInputs: all-ignore-typed), handler closures always fresh (no ref writes during render); throws outside provider. use-hotkey-shortcut.ts reimplemented as thin wrapper (same signature, zero call-site changes: app-global-keybinds, sidebar, route.tsx, command-palette, use-form-save-shortcut). Mounted at top of AppLayout in routes/_app/route.tsx. (2) Editor shortcuts: lexical-keyboard-shortcuts.tsx matchesCombo now bails on event.isComposing (IME-safe); matched handlers call preventDefault + stopPropagation (editor wins over command palette while typing — mod+k no longer opens the palette from the editor); new editor-link (mod+k) + editor-highlight (mod+shift+h) registry entries + dispatch cases (TOGGLE_LINK_DIALOG_COMMAND; highlight via $wrapSelectionInMarkNode/$unwrapMarkNode with mark id 'synapse-highlight'). (3) NEW lexical-link-shortcut-plugin.tsx: TOGGLE_LINK_DIALOG_COMMAND + shadcn Dialog+Input (i18n lexical_link_dialog_*), opens only when selection non-collapsed or caret inside an existing link (prefills URL), save dispatches TOGGLE_LINK_COMMAND with url.trim() || null (null = unlink), Enter submits / Escape cancels. (4) NEW lexical-bullet-list-shortcut-plugin.tsx: converts '- '/'* '/'+ ' at root line start to unordered list even when the Vietnamese IME swallows the space keydown — KEY_DOWN_COMMAND path (spliceText marker removal + INSERT_UNORDERED_LIST_COMMAND) + update-listener fallback (editorState.read detection + editor.update removal) mounted AFTER MarkdownShortcutPlugin so the library transformer wins when it fires. (5) Dependency hygiene: removed stale nested node_modules/lexical copies under @lexical/link + @lexical/extension (were breaking $isLinkNode/$findMatchingParent typing). New i18n: keyboard_shortcuts_link/highlight + lexical_link_dialog_* (en/vi). Verified: bun --bun install, generate-translation, bun --bun check (exit 0), bunx tsc -b, bun --bun run build.",
-      "dependencies": [
-        "feat-049",
-        "feat-050",
-        "feat-052"
-      ],
+      "dependencies": ["feat-049", "feat-050", "feat-052"],
       "status": "done",
       "evidence": "client/src/providers/global-shortcuts-provider.tsx (NEW) + providers/index.ts, client/src/hooks/use-hotkey-shortcut.ts (wrapper), client/src/routes/_app/route.tsx (provider mount), client/src/config/keyboard-shortcuts.ts (editor-link/editor-highlight), client/src/components/shared/editor/lexical-keyboard-shortcuts.tsx (isComposing guard + preventDefault/stopPropagation + link/highlight dispatch), lexical-link-shortcut-plugin.tsx (NEW), lexical-bullet-list-shortcut-plugin.tsx (NEW), lexical-editor.tsx (plugin mounts), messages/en.json, messages/vi.json"
     },
@@ -604,10 +468,7 @@
       "id": "feat-060",
       "name": "Shortcut Mapping Overhaul + Bulk-Bar Trash Semantics + Markdown Link in Toolbar (2026-08-17)",
       "description": "DONE (per user spec): (1) New global shortcut mapping: go-to-notes = 'g n' sequence (G then N, navigate /notes), go-to-create-note = ['c', 'mod+n'] (was mod+alt+n), toggle-theme = 'mod+alt+t' (Ctrl+Alt+T → useTheme().toggleTheme()); quick-note (mod+alt+n popup) DROPPED per user (app has no quick-note feature). Sequence support added to GlobalShortcutsProvider: combos containing whitespace register via getSequenceManager().register(steps, ...) (HotkeyManager.register does not accept sequences); handles map typed structurally (setOptions/unregister shared by both handle types). Input protection verified in library source (manager.utils.js): shouldIgnoreInputEvent covers input/textarea/select/contentEditable via focused element + composedPath, so 'c'/'g n'/'mod+n' stay inert while typing (useHotkeyShortcut registers ignoreInputs: true by default). findShortcutConflict now normalizes sequences token-wise. (2) Bulk bar semantics: TRASH button in notes-bulk-actions.tsx said notes_bulk_delete ('Delete') but performs move-to-trash — relabeled to new notes_bulk_move_to_trash ('Move to trash'/'Chuyển vào thùng rác'), orphaned notes_bulk_delete removed; audit of per-card dropdown, $noteId inline actions, trash view, and TRASH toast (notes_page_toast_trashed) confirmed already correct. (3) Markdown info moved OUT of the shortcuts dialog title into the toolbar as a small 'Markdown' link (new key lexical_shortcuts_markdown, title = lexical_shortcuts_tooltip_info) next to ShortcutsHelpDialog; dialog title cleaned up. (4) Shortcuts dialogs scoped: sidebar-keyboard-shortcuts-dialog now shows ['global'] only (editor dialog was already ['editor']). New i18n en/vi: keyboard_shortcuts_go_to_notes, keyboard_shortcuts_toggle_theme, notes_bulk_move_to_trash, lexical_shortcuts_markdown. Verified: generate-translation, bun --bun check (exit 0), bunx tsc -b, bun --bun run build.",
-      "dependencies": [
-        "feat-049",
-        "feat-059"
-      ],
+      "dependencies": ["feat-049", "feat-059"],
       "status": "done",
       "evidence": "client/src/config/keyboard-shortcuts.ts (go-to-notes 'g n', go-to-create-note ['c','mod+n'], toggle-theme, token-wise conflict), client/src/providers/global-shortcuts-provider.tsx (SequenceManager branch + HotkeyHandleLike), client/src/components/shared/app-global-keybinds.tsx (go-to-notes + toggle-theme), client/src/features/notes/components/notes-bulk-actions.tsx (notes_bulk_move_to_trash), client/src/components/shared/editor/lexical-toolbar.tsx (Markdown link), lexical-shortcuts-dialog.tsx (title cleanup), client/src/components/shared/sidebar-keyboard-shortcuts-dialog.tsx (global-only), messages/en.json, messages/vi.json"
     }

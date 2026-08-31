@@ -1,16 +1,12 @@
 import { Link, useRouter } from '@tanstack/react-router';
 
-import {
-  Style as DiceBearStyle,
-  Avatar as DiceBearAvatar,
-} from '@dicebear/core';
+import { Style as DiceBearStyle, Avatar as DiceBearAvatar } from '@dicebear/core';
 import definition from '@dicebear/styles/identicon.json' with { type: 'json' };
 
 import { signOut, useSession } from '@/lib/auth';
 import { clearTokenCache } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,14 +22,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import {
-  BadgeCheckIcon,
-  BellIcon,
-  ChevronsUpDown,
-  LogOutIcon,
-} from 'lucide-react';
+import { BadgeCheckIcon, BellIcon, ChevronsUpDown, LogOutIcon } from 'lucide-react';
 
 function Loading() {
   return (
@@ -92,9 +84,7 @@ export default function NavUser() {
               >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">
-                    {user.fallbackName}
-                  </AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{user.fallbackName}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
@@ -116,9 +106,7 @@ export default function NavUser() {
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">
-                      {user.fallbackName}
-                    </AvatarFallback>
+                    <AvatarFallback className="rounded-lg">{user.fallbackName}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{user.name}</span>
@@ -150,7 +138,7 @@ export default function NavUser() {
 
             <DropdownMenuItem
               variant="destructive"
-              onClick={handleSignOut}
+              onClick={() => void handleSignOut()}
               className="cursor-pointer"
               disabled={isPending}
             >

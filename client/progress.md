@@ -117,16 +117,15 @@
 
 ### What's Done (feat-055 — Note dropdown Option B + note-as-chat-attachment + copy-everywhere + branching)
 
-- [x] **Option B dropdown (per user)** — notes dropdowns (list card + $noteId details) restructured with visual hierarchy: **Move to trash** = neutral (outline) item, **Delete permanently** = destructive (red) item. Trash view: Restore / Delete permanently; archive view: Unarchive / Move to trash; active view: Pin / Archive / Move to trash / Delete permanently. New `note-card-dropdown.tsx` (viewMode branches, `w-52`); `note-card.tsx` + `$noteId.tsx` consume it. Detail page keeps **inline** desktop buttons (hidden md:flex: Move to trash + Delete permanently) + the dropdown goes `md:hidden` on mobile. New keys `notes_page_action_trash`, `notes_page_card_copy_content`, `notes_page_toast_copy_content(_failed)`; `notes_page_action_delete` orphan removed. `isBusy = isUpdating || isDeleting || isTrashing` in `$noteId.tsx`; new `api/use-trash-note.ts` mutation (PATCH TRASHED, toasts `notes_page_toast_trashed[_desc]`/`notes_page_toast_trash_failed`), `use-note-details.moveNoteToTrash` (trash → navigate /notes).
+- [x] **Option B dropdown (per user)** — notes dropdowns (list card + $noteId details) restructured with visual hierarchy: **Move to trash** = neutral (outline) item, **Delete permanently** = destructive (red) item. Trash view: Restore / Delete permanently; archive view: Unarchive / Move to trash; active view: Pin / Archive / Move to trash / Delete permanently. New `note-card-dropdown.tsx` (viewMode branches, `w-52`); `note-card.tsx` + `$noteId.tsx`consume it. Detail page keeps **inline** desktop buttons (hidden md:flex: Move to trash + Delete permanently) + the dropdown goes`md:hidden`on mobile. New keys`notes_page_action_trash`, `notes_page_card_copy_content`, `notes_page_toast_copy_content(_failed)`; `notes_page_action_delete`orphan removed.`isBusy = isUpdating || isDeleting || isTrashing`in`$noteId.tsx`; new `api/use-trash-note.ts`mutation (PATCH TRASHED, toasts`notes_page_toast_trashed[_desc]`/`notes_page_toast_trash_failed`), `use-note-details.moveNoteToTrash` (trash → navigate /notes).
 - [x] **Include-in-chat → attachment** — per user: "Remove Move action; AI SDK v7 has a native solution — refer ai-elements". `includeInChat` on note cards + $noteId now adds a note attachment to the new `src/store/chat-note-attachment-store.ts` (zustand: `ChatNoteAttachment { content, file, id, title }`, `buildNoteChatAttachment` builds a real `File` `"{safeTitle}.md"` with `text/markdown` type, dedupe by note id) and navigates/open-sidebar via `useGoToCompanion`. Companion shows removable chips (`chat-note-attachments.tsx` uses ai-elements `Attachments variant="inline"` + `AttachmentPreview`/`AttachmentRemove`; removal clears the store).
 - [x] **sendMessage files (AI SDK v7)** — `chat-bot.tsx` submit now sends `chat.sendMessage({ text, files: [...inputFiles, ...noteFileParts] })` (FileUIPart[] via FileReader→data URL); no more `chat_attachments_not_supported` toast (key removed). `fileToFilePart`/`decodeDataUrl`/`isTextLikeMediaType`/`flattenFilePartsToText` live in new `src/features/companion/utils/file-parts.ts`. **Backend is text-only** → `CompanionChatTransport.prepareSendMessagesRequest` now flattens `file` parts before sending: text-like media types (`text/*`, application/json/xml/ld+json/csv/markdown) decode to `\n\n[Attachment: name]\n{content}`, others → `[Attachment: name (mediaType)]` placeholder.
 - [x] **Copy on EVERY message (user + assistant)** — `MessageAssistantActions` (Insert/Replace via editorBridge + copy, shown only when bridge present) replaced by a single `MessageCopyAction` rendered on both roles; copy includes typed text + decoded note content for data-URL file parts (`getCopyableMessageText`). Keys `chat_message_copy`/`chat_message_copied` replace `companion_message_*` (4 orphan keys removed).
-- [x] **Message file-part rendering** — FileUIPart has no `id` (verified ai/dist/index.d.ts:1916-1950) → message `file` parts render as inline `Attachment` chips with `id: part.url` (satisfies `AttachmentData`). 
+- [x] **Message file-part rendering** — FileUIPart has no `id` (verified ai/dist/index.d.ts:1916-1950) → message `file` parts render as inline `Attachment` chips with `id: part.url` (satisfies `AttachmentData`).
 - [x] **Branching suggestions (Gemini-style)** — new `chat-suggestions.tsx`: `NewChatBranching` chip group (brainstorm / summarize my notes / first draft / plan my day + `chat_branching_hint`) in the empty state, and `NoteAttachmentSuggestions` (summarize/translate/polish/ask, only when note attachments exist) above the prompt input; both send via `chat.sendMessage({ text })`. `companion-prompts.ts` gained `buildNoteAttachmentsPrompt(id, ChatNoteAttachment[])` (reuses truncate/getLocale, 4000 chars).
 - [x] **i18n** — 12 new keys en/vi (notes_page_action_trash, notes_page_card_copy_content, notes_page_toast_copy_content(_failed), chat_message_copy(_copied), chat_branching_hint/brainstorm/summarize_notes/draft/plan); removed chat_attachments_not_supported, companion_message_insert/replace/copy/copied, notes_page_action_delete. `generate-translation` ✓.
 - [x] **Verification** — `bun --bun run generate-translation` ✓, `bun --bun check` ✓ (exit 0), `bunx tsc -b` ✓, `bun --bun run build` ✓ (vite dev build). feature_list.json feat-055 added.
 - [ ] **Known notes** — (1) Manual smoke pending: include note in chat → chip appears + removable; send → text-only backend receives `[Attachment: Title.md]\n{content}`; copy button on user bubbles too; branching chips on new chat; desktop vs mobile detail-page trash buttons. (2) File reader errors surface as rejected promise inside `sendWithNoteAttachments` (no toast) — minor. (3) `useMemo` import + dead `FilePlusIcon/ReplaceIcon` cleaned during lint pass. (4) Not committed (user manages git).
-
 
 ### What's Done (feat-054 — Agent→Chat mode switch navigation)
 
@@ -195,7 +194,6 @@ Three bugs fixed (2026-08-11, on top of staged feat-044..047):
 - [x] **Artifacts** — `feature_list.json` feat-048 added; `progress.md` updated; no commit (user manages).
 - [ ] **Known note** — end-to-end scroll-up pagination still needs a manual smoke test with the ai-service up (no local DB run this session); logic verified against installed `@ai-sdk/react@4.0.50` + `ai@7.0.47` sources.
 
-
 ### What's Done (feat-044 — Layout switching: Chat vs Agent workspaces)
 
 - [x] **Types** — `LayoutMode = 'agent' | 'chat'` (was `'servant' | 'chat'`) in `src/components/layouts/types.ts`.
@@ -248,7 +246,6 @@ Three bugs fixed (2026-08-11, on top of staged feat-044..047):
 - [x] **Artifacts** — `feature_list.json` feat-043 done (43 feats, valid JSON); no commit (user manages).
 - [ ] **Known note** — shared `validation_title_max` says "at most 200" but the conversation schema caps at 100 (server parity); key text is shared with notes (200) so left untouched.
 
-
 ### What's Done (feat-042 — schema validation i18n + favorites empty-state keys)
 
 - [x] **Fixed translation (build break)** — `notes-list-empty.tsx` referenced `notes_page_no_favorites` / `notes_page_no_favorites_desc` which never existed. Added: en "No favorite notes" / "Star notes to keep them close.", vi "Không có ghi chú yêu thích" / "Đánh dấu sao ghi chú để xem chúng ở đây." (placed after the archived pair).
@@ -260,7 +257,6 @@ Three bugs fixed (2026-08-11, on top of staged feat-044..047):
 - [x] **New i18n (12 keys × en/vi)** — `notes_page_no_favorites{,desc}`, `validation_page_invalid`, `validation_page_size_invalid`, `validation_page_size_max`, `validation_id_required`, `validation_content_required`, `validation_content_max`, `validation_title_max`, `validation_ids_required`, `validation_sort_invalid`, `validation_tab_invalid`. 600/600 keys, parity 0/0.
 - [x] **Verification** — `generate-translation` ✓ (600/600, parity 0/0), `check` ✓ exit 0 (pre-existing warnings only). `build`: ALL translation-related errors gone (notes-list-empty, schemas). The 12 remaining structural errors from the user's refactor (nav-main href, 11 deprecated notes files) were fixed by the USER (see "Refactor breakage resolved" below).
 - [x] **Artifacts** — `feature_list.json` feat-042 done (42 feats, valid JSON); no commit (user manages).
-
 
 ### What's Done (feat-041 — conversation list in sidebar + store-driven chat page)
 
@@ -278,7 +274,6 @@ Three bugs fixed (2026-08-11, on top of staged feat-044..047):
 - `nav-main.tsx` hrefs updated to the new routes (`/notes/favorites`, `/notes/archive`, `/notes/trash`) AND `routeTree.gen.ts` regenerated to include `/notes/archive` (matches the renamed route file `notes/archive.tsx`).
 - Deprecated notes files (`note-batch-actions.tsx`, `note-form.tsx`, `quick-create-note-dialog.tsx`, `quick-edit-note-dialog.tsx`, `template-selector.tsx`) — broken imports/references (deleted `@/features/notes/fetch`, removed schema exports, deleted `@/features/chat/lib/companion-config`) commented out; files kept as reference-only and compile.
 - Verified: working tree == staged (95 files, nothing unstaged); no remaining `companion-config`/`noteFormSchema`/`NoteFormValues` references in deprecated files. Build status: user fixed before commit; no build re-run after their fix (next session should run `./init.sh`/`bun --bun run build` to confirm).
-
 
 ### What's Done (feat-040 — bulk actions: toasts + majority rule + empty-trash clear)
 
@@ -397,11 +392,13 @@ Three bugs fixed (2026-08-11, on top of staged feat-044..047):
 ### What's Next
 
 Remaining features from `feature_list.json` (not-started):
+
 1. Chat with Note (feat-035) — needs backend first: optional `noteId` in `chatRequestSchema` + RAG scoping to that note's embedding; then wire note-card action (i18n key `notes_page_card_chat_with_note` reserved)
 2. AI Tab Completion Plugin (feat-023)
 3. Voice-to-Text in Notes (feat-024)
 4. PDF Export (feat-027)
 5. Quick Note Dialog (feat-028)
+
 ### What's Done (feat-030 — Layout Refresh)
 
 - [x] **Breadcrumb system** — `src/types/breadcrumb.ts` (route type augmentation), `src/hooks/use-breadcrumb.ts` (useMatches + staticData + aliases), `src/components/common/app-breadcrumb.tsx` (shadcn wiring)
@@ -432,6 +429,7 @@ Remaining features from `feature_list.json` (not-started):
 ### What's Next
 
 Remaining features from `feature_list.json` (not-started):
+
 1. Chat with Note (feat-035) — needs backend first: optional `noteId` in `chatRequestSchema` + RAG scoping to that note's embedding; then wire note-card action (i18n key `notes_page_card_chat_with_note` reserved)
 2. AI Tab Completion Plugin (feat-023)
 3. Voice-to-Text in Notes (feat-024)

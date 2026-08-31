@@ -1,9 +1,3 @@
 export type LayoutMode = 'agent' | 'chat';
 
-export type AppTab =
-  | 'notes'
-  | 'chat'
-  | 'tags'
-  | 'archived'
-  | 'settings'
-  | 'profile';
+export type AppTab = 'archived' | 'settings' | 'profile' | 'notes' | 'chat' | 'tags';

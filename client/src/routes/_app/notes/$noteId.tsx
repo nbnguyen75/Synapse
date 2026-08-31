@@ -1,17 +1,10 @@
-import { useEffect } from 'react';
 import { Controller } from 'react-hook-form';
+import { useEffect } from 'react';
 
 import { createFileRoute, redirect, useParams } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 import { z } from 'zod/v4';
-
-import { useGoToCompanion } from '@/features/companion/hooks';
-import { useNoteDetails } from '@/features/notes/hooks';
-import {
-  getMarkdownReadTimeSync,
-  exportMarkdown,
-} from '@/features/notes/service';
 
 import {
   buildNoteChatAttachment,
@@ -21,13 +14,12 @@ import { useCompanionContextStore } from '@/store/companion-context-store';
 
 import { createTitle } from '@/config/metadata';
 
-import { $fetch } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+import { $fetch } from '@/lib/fetch';
 
-import { MarkdownRenderer } from '@/components/shared';
 import { LexicalEditor } from '@/components/shared/editor';
+import { MarkdownRenderer } from '@/components/shared';
 
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,9 +27,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FieldLabel } from '@/components/ui/field';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 import {
   ArrowLeftIcon,
@@ -54,7 +47,14 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 
+import { getMarkdownReadTimeSync, exportMarkdown } from '@/features/notes/service';
+import { useGoToCompanion } from '@/features/companion/hooks';
+import { useNoteDetails } from '@/features/notes/hooks';
+
 export const Route = createFileRoute('/_app/notes/$noteId')({
+  validateSearch: z.object({
+    from: z.enum(['favorites', 'archive', 'trash']).optional(),
+  }),
   loader: async ({ params }) => {
     const { noteId } = params;
     try {
@@ -69,21 +69,16 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
       throw redirect({ to: '/notes' });
     }
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: createTitle(
-          loaderData?.title ? loaderData.title : m.notes_page_detail_title(),
-        ),
-      },
-    ],
-  }),
   staticData: {
     breadcrumb: ({ loaderData, params }) =>
       (loaderData as { title?: string })?.title || params.noteId,
   },
-  validateSearch: z.object({
-    from: z.enum(['favorites', 'archive', 'trash']).optional(),
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        title: createTitle(loaderData?.title ? loaderData.title : m.notes_page_detail_title()),
+      },
+    ],
   }),
   component: NoteDetailsPage,
 });
@@ -109,9 +104,7 @@ function NoteDetailsPage() {
   const { isRestoring, isDeleting, isTrashing, isUpdating } = status;
 
   const { noteId } = useParams({ from: '/_app/notes/$noteId' });
-  const setActiveDocument = useCompanionContextStore(
-    (state) => state.setActiveDocument,
-  );
+  const setActiveDocument = useCompanionContextStore((state) => state.setActiveDocument);
   const addNoteAttachment = useChatNoteAttachmentStore((state) => state.add);
   const goToCompanion = useGoToCompanion();
 
@@ -144,7 +137,13 @@ function NoteDetailsPage() {
   }, [noteId, watchedTitle, watchedContent, setActiveDocument]);
 
   return (
-    <form onSubmit={saveChanges} className="h-full">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        void saveChanges(event);
+      }}
+      className="h-full"
+    >
       <Tabs
         defaultValue="preview"
         value={activeTab}
@@ -171,9 +170,7 @@ function NoteDetailsPage() {
                 className="h-8 gap-1.5 text-xs font-semibold rounded-md"
               >
                 <SaveIcon className="size-3.5" />
-                {isUpdating
-                  ? m.notes_page_edit_saving()
-                  : m.notes_page_edit_save_short()}
+                {isUpdating ? m.notes_page_edit_saving() : m.notes_page_edit_save_short()}
               </Button>
             </div>
 
@@ -206,28 +203,20 @@ function NoteDetailsPage() {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="rounded-lg"
-                      disabled={isBusy}
-                    >
+                    <Button variant="ghost" size="icon-sm" className="rounded-lg" disabled={isBusy}>
                       <MoreHorizontalIcon className="size-4" />
                     </Button>
                   }
                 />
 
                 <DropdownMenuContent align="end" className="w-52">
-                  <DropdownMenuItem
-                    onClick={includeInChat}
-                    className="cursor-pointer"
-                  >
+                  <DropdownMenuItem onClick={includeInChat} className="cursor-pointer">
                     <MessagesSquareIcon className="size-4 mr-2 text-violet-400 dark:text-violet-600" />
                     <span>{m.notes_page_include_in_chat()}</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
-                    onClick={() => copyContent(watchedContent)}
+                    onClick={() => void copyContent(watchedContent)}
                     className="cursor-pointer"
                   >
                     <CopyIcon className="size-4 mr-2" />
@@ -252,25 +241,19 @@ function NoteDetailsPage() {
                   <DropdownMenuSeparator />
 
                   {isTrashed ? (
-                    <DropdownMenuItem
-                      onClick={restoreNote}
-                      className="cursor-pointer"
-                    >
+                    <DropdownMenuItem onClick={restoreNote} className="cursor-pointer">
                       <RotateCcwIcon className="size-4 mr-2" />
                       <span>{m.notes_card_restore()}</span>
                     </DropdownMenuItem>
                   ) : (
-                    <DropdownMenuItem
-                      onClick={moveNoteToTrash}
-                      className="cursor-pointer"
-                    >
+                    <DropdownMenuItem onClick={moveNoteToTrash} className="cursor-pointer">
                       <Trash2Icon className="size-4 mr-2" />
                       <span>{m.notes_page_action_trash()}</span>
                     </DropdownMenuItem>
                   )}
 
                   <DropdownMenuItem
-                    onClick={deleteNotePermanently}
+                    onClick={() => void deleteNotePermanently()}
                     variant="destructive"
                     className="cursor-pointer"
                   >
@@ -285,10 +268,7 @@ function NoteDetailsPage() {
           <div className="flex flex-1 overflow-hidden">
             <div className="flex-1 overflow-y-auto">
               <div className="mx-auto max-w-5xl px-6 py-8 md:py-12 space-y-4">
-                <TabsContent
-                  value="edit"
-                  className="m-0 focus-visible:outline-none min-h-125"
-                >
+                <TabsContent value="edit" className="m-0 focus-visible:outline-none min-h-125">
                   <Controller
                     name="title"
                     control={control}
@@ -317,10 +297,7 @@ function NoteDetailsPage() {
                   />
                 </TabsContent>
 
-                <TabsContent
-                  value="preview"
-                  className="m-0 focus-visible:outline-none min-h-125"
-                >
+                <TabsContent value="preview" className="m-0 focus-visible:outline-none min-h-125">
                   <FieldLabel className="w-full resize-none bg-transparent text-3xl md:text-4xl font-extrabold tracking-tight outline-none placeholder:text-muted-foreground/30 text-foreground border-none focus:ring-0 shadow-none py-7 px-0 select-text">
                     {watchedTitle}
                   </FieldLabel>
@@ -328,9 +305,7 @@ function NoteDetailsPage() {
                   <div className="border border-border/80 rounded-xl bg-background flex flex-col focus-within:border-primary/80 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-200 px-5 py-5 h-full max-h-120 overflow-y-auto">
                     <MarkdownRenderer
                       className="h-full"
-                      content={
-                        watchedContent || m.notes_page_empty_preview_fallback()
-                      }
+                      content={watchedContent || m.notes_page_empty_preview_fallback()}
                     />
                   </div>
                 </TabsContent>

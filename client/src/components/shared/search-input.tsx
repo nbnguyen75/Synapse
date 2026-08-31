@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 
 import { useDebounce } from '@/hooks/use-debounce';
 
-import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
 import { Input } from '@/components/ui/input';
 

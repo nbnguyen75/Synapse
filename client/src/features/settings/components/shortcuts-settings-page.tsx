@@ -24,9 +24,7 @@ export default function ShortcutsSettingsPage() {
   return (
     <div className="mt-6 space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">
-          {m.settings_shortcuts_description()}
-        </p>
+        <p className="text-sm text-muted-foreground">{m.settings_shortcuts_description()}</p>
 
         <Button
           variant="outline"
@@ -40,9 +38,7 @@ export default function ShortcutsSettingsPage() {
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">
-          {KEYBOARD_SHORTCUT_SECTIONS.global.label()}
-        </h2>
+        <h2 className="text-sm font-semibold">{KEYBOARD_SHORTCUT_SECTIONS.global.label()}</h2>
 
         <div className="space-y-2">
           {globalShortcuts.map((entry) => (
@@ -52,9 +48,7 @@ export default function ShortcutsSettingsPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">
-          {KEYBOARD_SHORTCUT_SECTIONS.editor.label()}
-        </h2>
+        <h2 className="text-sm font-semibold">{KEYBOARD_SHORTCUT_SECTIONS.editor.label()}</h2>
 
         <div className="space-y-3">
           {editorGroups.map((group) => (

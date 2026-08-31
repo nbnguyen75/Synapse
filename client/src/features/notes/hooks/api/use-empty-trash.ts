@@ -1,30 +1,18 @@
-import {
-  useMutation,
-  useQueryClient,
-  type MutateOptions,
-} from '@tanstack/react-query';
+import { useMutation, useQueryClient, type MutateOptions } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import { noteKeys } from '@/features/notes/keys';
-
 import { useConfirm } from '@/providers/confirm-provider';
 
-import {
-  $fetch,
-  type InferRequestType,
-  type InferResponseType,
-} from '@/lib/fetch';
+import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
 
-type RequestType = InferRequestType<typeof $fetch.api.v1.notes.trash.$delete>;
-type ResponseType = InferResponseType<
-  typeof $fetch.api.v1.notes.trash.$delete
->['data'];
+import { noteKeys } from '@/features/notes/keys';
 
-export function useEmptyTrash(
-  options: MutateOptions<ResponseType, Error, RequestType> = {},
-) {
+type RequestType = InferRequestType<typeof $fetch.api.v1.notes.trash.$delete>;
+type ResponseType = InferResponseType<typeof $fetch.api.v1.notes.trash.$delete>['data'];
+
+export function useEmptyTrash(options: MutateOptions<ResponseType, Error, RequestType> = {}) {
   const confirm = useConfirm();
 
   const queryClient = useQueryClient();
@@ -34,7 +22,7 @@ export function useEmptyTrash(
     ...restProps
   } = useMutation<ResponseType, Error, RequestType>({
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.all });
+      void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       toast.success(m.notes_page_toast_empty_trash());
     },

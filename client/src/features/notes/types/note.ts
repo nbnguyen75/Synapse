@@ -11,11 +11,6 @@ export interface Note {
   id: string;
 }
 
-export type NoteViewMode = 'active' | 'archive' | 'favorites' | 'trash';
+export type NoteViewMode = 'favorites' | 'archive' | 'active' | 'trash';
 
-export type NotesEmptyVariant =
-  | 'active'
-  | 'archived'
-  | 'favorites'
-  | 'trash'
-  | 'no-results';
+export type NotesEmptyVariant = 'no-results' | 'favorites' | 'archived' | 'active' | 'trash';

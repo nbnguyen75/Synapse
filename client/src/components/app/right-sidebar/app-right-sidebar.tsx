@@ -2,16 +2,16 @@ import type { ChatBotHandle } from '@/features/companion/components/chat-bot';
 
 import { useRef } from 'react';
 
-import CompanionChat from '@/features/companion/components/companion-chat';
-
 import { useSettingsStore } from '@/store/settings-store';
 
-import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
 
 import { XIcon } from 'lucide-react';
+
+import CompanionChat from '@/features/companion/components/companion-chat';
 
 export default function AppRightSidebar({ className }: { className?: string }) {
   const setRightSidebarOpen = useSettingsStore((s) => s.setRightSidebarOpen);
@@ -19,10 +19,7 @@ export default function AppRightSidebar({ className }: { className?: string }) {
 
   return (
     <div
-      className={cn(
-        'flex h-full w-full flex-col bg-sidebar text-sidebar-foreground',
-        className,
-      )}
+      className={cn('flex h-full w-full flex-col bg-sidebar text-sidebar-foreground', className)}
     >
       <div className="flex flex-col gap-2 p-2">
         <Button

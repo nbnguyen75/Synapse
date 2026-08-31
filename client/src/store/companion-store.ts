@@ -6,7 +6,6 @@ interface CompanionState {
 }
 
 export const useCompanionStore = create<CompanionState>()((set) => ({
-  setActiveConversationId: (activeConversationId) =>
-    set({ activeConversationId }),
+  setActiveConversationId: (activeConversationId) => set({ activeConversationId }),
   activeConversationId: null,
 }));

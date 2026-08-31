@@ -1,7 +1,7 @@
 import type { LayoutMode } from '@/components/app/types';
 
-import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { create } from 'zustand';
 
 const SETTINGS_STORAGE_KEY = 'synapse-settings';
 

@@ -1,9 +1,5 @@
 import { useEffect, useRef } from 'react';
 
-import { CodeNode, CodeHighlightNode } from '@lexical/code';
-import { LinkNode, AutoLinkNode } from '@lexical/link';
-import { ListNode, ListItemNode } from '@lexical/list';
-import { $createMarkNode, $isMarkNode, MarkNode } from '@lexical/mark';
 import {
   $convertFromMarkdownString,
   $convertToMarkdownString,
@@ -11,9 +7,13 @@ import {
   type TextMatchTransformer,
 } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { $getRoot, TextNode, ParagraphNode, $createTextNode } from 'lexical';
+import { $createMarkNode, $isMarkNode, MarkNode } from '@lexical/mark';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
+import { CodeNode, CodeHighlightNode } from '@lexical/code';
+import { HeadingNode, QuoteNode } from '@lexical/rich-text';
+import { LinkNode, AutoLinkNode } from '@lexical/link';
+import { ListNode, ListItemNode } from '@lexical/list';
 
 export const ALLOWED_NODES = [
   HeadingNode,
@@ -52,10 +52,7 @@ export const CUSTOM_TRANSFORMERS = [
     } => {
       const deps = (transformer as { dependencies?: unknown[] }).dependencies;
       return (
-        !deps ||
-        deps.every((dep) =>
-          ALLOWED_NODES.includes(dep as (typeof ALLOWED_NODES)[number]),
-        )
+        !deps || deps.every((dep) => ALLOWED_NODES.includes(dep as (typeof ALLOWED_NODES)[number]))
       );
     },
   ),
@@ -114,11 +111,7 @@ export function SyncStatePlugin({ value }: { value: string }) {
   return null;
 }
 
-export function EditorOnChangePlugin({
-  onChange,
-}: {
-  onChange: (val: string) => void;
-}) {
+export function EditorOnChangePlugin({ onChange }: { onChange: (val: string) => void }) {
   return (
     <OnChangePlugin
       onChange={(editorState) => {

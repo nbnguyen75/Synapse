@@ -1,9 +1,5 @@
+import type { Note, NotesEmptyVariant, NoteViewMode } from '@/features/notes/types';
 import type { NotesQueryParams } from '@/features/notes/schemas';
-import type {
-  Note,
-  NotesEmptyVariant,
-  NoteViewMode,
-} from '@/features/notes/types';
 import type { PaginatedData } from '@/types/response';
 
 import { m } from '@/paraglide/messages';
@@ -58,15 +54,14 @@ export const EMPTY_PAGINATED: PaginatedData<Note> = {
   page: 0,
 };
 
-export const NOTE_SORT_OPTIONS: { value: NoteSortableField; label: string }[] =
-  [
-    { label: m.notes_page_sort_updated(), value: 'updatedAt,desc' },
-    { label: m.notes_page_sort_updated_asc(), value: 'updatedAt,asc' },
-    { label: m.notes_page_sort_created_new(), value: 'createdAt,desc' },
-    { label: m.notes_page_sort_created_old(), value: 'createdAt,asc' },
-    { label: m.notes_page_sort_title_az(), value: 'title,asc' },
-    { label: m.notes_page_sort_title_za(), value: 'title,desc' },
-  ];
+export const NOTE_SORT_OPTIONS: { value: NoteSortableField; label: string }[] = [
+  { label: m.notes_page_sort_updated(), value: 'updatedAt,desc' },
+  { label: m.notes_page_sort_updated_asc(), value: 'updatedAt,asc' },
+  { label: m.notes_page_sort_created_new(), value: 'createdAt,desc' },
+  { label: m.notes_page_sort_created_old(), value: 'createdAt,asc' },
+  { label: m.notes_page_sort_title_az(), value: 'title,asc' },
+  { label: m.notes_page_sort_title_za(), value: 'title,desc' },
+];
 
 interface NotesViewConfig {
   filters: { archived?: boolean; favorite?: boolean; trashed?: boolean };

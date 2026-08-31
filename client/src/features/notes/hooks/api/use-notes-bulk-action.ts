@@ -1,23 +1,15 @@
 import type { BulkNoteAction } from '@/features/notes/constants';
 
-import {
-  useMutation,
-  useQueryClient,
-  type MutateOptions,
-} from '@tanstack/react-query';
+import { useMutation, useQueryClient, type MutateOptions } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
-import { noteKeys } from '@/features/notes/keys';
-
 import { useConfirm } from '@/providers/confirm-provider';
 
-import {
-  $fetch,
-  type InferRequestType,
-  type InferResponseType,
-} from '@/lib/fetch';
+import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+
+import { noteKeys } from '@/features/notes/keys';
 
 const SUCCESS_TOAST_MAP: Record<BulkNoteAction, () => void> = {
   DELETE_PERMANENT: () => toast.success(m.notes_page_toast_deleted()),
@@ -82,12 +74,8 @@ export function showBulkNoteActionErrorToast(action: BulkNoteAction) {
   if (handler) handler();
 }
 
-type RequestType = InferRequestType<
-  typeof $fetch.api.v1.notes.bulk.actions.$post
->;
-type ResponseType = InferResponseType<
-  typeof $fetch.api.v1.notes.bulk.actions.$post
->['data'];
+type RequestType = InferRequestType<typeof $fetch.api.v1.notes.bulk.actions.$post>;
+type ResponseType = InferResponseType<typeof $fetch.api.v1.notes.bulk.actions.$post>['data'];
 
 export function useNotesBulkAction(
   selectedIds: Set<string>,
@@ -102,7 +90,7 @@ export function useNotesBulkAction(
     ...restProps
   } = useMutation<ResponseType, Error, RequestType>({
     onSuccess: (_, { body: { action } }) => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.all });
+      void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       showBulkNoteActionSuccessToast(action);
     },

@@ -8,14 +8,6 @@ import { useNavigate } from '@tanstack/react-router';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
-import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
-import { noteKeys } from '@/features/notes/keys';
-import {
-  countWordsMarkdownSync,
-  exportMarkdown,
-  getMarkdownReadTimeSync,
-} from '@/features/notes/service';
-
 import {
   buildNoteChatAttachment,
   useChatNoteAttachmentStore,
@@ -23,8 +15,16 @@ import {
 
 import { useConfirm } from '@/providers';
 
-import { $fetch } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
+import { $fetch } from '@/lib/fetch';
+
+import {
+  countWordsMarkdownSync,
+  exportMarkdown,
+  getMarkdownReadTimeSync,
+} from '@/features/notes/service';
+import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
+import { noteKeys } from '@/features/notes/keys';
 
 export interface NoteWithDetails extends Note {
   tags?: string[];
@@ -82,10 +82,7 @@ type NoteActionResultData<T extends NoteActionType> = Awaited<
   ReturnType<(typeof NOTE_ACTIONS)[T]>
 >['data'];
 
-async function executeNoteAction<T extends NoteActionType>(
-  type: T,
-  note: Note,
-) {
+async function executeNoteAction(type: NoteActionType, note: Note) {
   const actionFn = NOTE_ACTIONS[type];
   if (!actionFn) throw new Error(`Unsupported note action: ${type}`);
 
@@ -124,9 +121,7 @@ const ERROR_TOAST_MAP = {
     }),
 } as const;
 
-type ToastHandler<K extends NoteActionType> = (
-  data: NoteActionResultData<K>,
-) => void;
+type ToastHandler<K extends NoteActionType> = (data: NoteActionResultData<K>) => void;
 
 type SuccessToastMap = {
   [K in NoteActionType]: ToastHandler<K>;
@@ -135,25 +130,19 @@ type SuccessToastMap = {
 const SUCCESS_TOAST_MAP: SuccessToastMap = {
   favorite: (data) => {
     const { favorite: isFav, title } = data;
-    toast.success(
-      isFav ? m.notes_page_toast_favorited() : m.notes_page_toast_unfavorited(),
-      {
-        description: (isFav
-          ? m.notes_page_toast_favorited_desc
-          : m.notes_page_toast_unfavorited_desc)({ title }),
-      },
-    );
+    toast.success(isFav ? m.notes_page_toast_favorited() : m.notes_page_toast_unfavorited(), {
+      description: (isFav
+        ? m.notes_page_toast_favorited_desc
+        : m.notes_page_toast_unfavorited_desc)({ title }),
+    });
   },
   pin: (data) => {
     const { pinned: isPinned, title } = data;
-    toast.success(
-      isPinned ? m.notes_page_toast_pinned() : m.notes_page_toast_unpinned(),
-      {
-        description: (isPinned
-          ? m.notes_page_toast_pinned_desc
-          : m.notes_page_toast_unpinned_desc)({ title }),
-      },
-    );
+    toast.success(isPinned ? m.notes_page_toast_pinned() : m.notes_page_toast_unpinned(), {
+      description: (isPinned ? m.notes_page_toast_pinned_desc : m.notes_page_toast_unpinned_desc)({
+        title,
+      }),
+    });
   },
   unarchive: (data) => {
     toast.success(m.notes_page_toast_unarchived(), {
@@ -189,12 +178,7 @@ interface UseNoteCardOptions {
   note: NoteWithDetails;
 }
 
-export function useNoteCard({
-  onToggleSelect,
-  onSelectRange,
-  viewMode,
-  note,
-}: UseNoteCardOptions) {
+export function useNoteCard({ onToggleSelect, onSelectRange, viewMode, note }: UseNoteCardOptions) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const confirm = useConfirm();
@@ -202,7 +186,7 @@ export function useNoteCard({
   // 1. Mutations
   const { mutate: _execute, isPending } = useMutation({
     onSuccess: ({ data, type }) => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.all });
+      void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       (SUCCESS_TOAST_MAP[type] as ToastHandler<typeof type>)?.(data);
     },
@@ -220,14 +204,8 @@ export function useNoteCard({
   const visibleTags = useMemo(() => tags.slice(0, MAX_VISIBLE_TAGS), [tags]);
   const remainingTagsCount = Math.max(0, tags.length - MAX_VISIBLE_TAGS);
 
-  const wordCount = useMemo(
-    () => countWordsMarkdownSync(note.content),
-    [note.content],
-  );
-  const readTime = useMemo(
-    () => getMarkdownReadTimeSync(note.content),
-    [note.content],
-  );
+  const wordCount = useMemo(() => countWordsMarkdownSync(note.content), [note.content]);
+  const readTime = useMemo(() => getMarkdownReadTimeSync(note.content), [note.content]);
 
   const canPinFavorite = viewMode !== 'archive' && viewMode !== 'trash';
 
@@ -261,8 +239,7 @@ export function useNoteCard({
 
   const openDetail = () => {
     void navigate({
-      search:
-        viewMode && viewMode !== 'active' ? { from: viewMode } : undefined,
+      search: viewMode && viewMode !== 'active' ? { from: viewMode } : undefined,
       params: { noteId: note.id },
       to: '/notes/$noteId',
     });

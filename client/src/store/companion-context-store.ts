@@ -18,11 +18,9 @@ interface CompanionContextState {
   editorBridge: CompanionEditorBridge | null;
 }
 
-export const useCompanionContextStore = create<CompanionContextState>()(
-  (set) => ({
-    setActiveDocument: (activeDocument) => set({ activeDocument }),
-    setEditorBridge: (editorBridge) => set({ editorBridge }),
-    activeDocument: null,
-    editorBridge: null,
-  }),
-);
+export const useCompanionContextStore = create<CompanionContextState>()((set) => ({
+  setActiveDocument: (activeDocument) => set({ activeDocument }),
+  setEditorBridge: (editorBridge) => set({ editorBridge }),
+  activeDocument: null,
+  editorBridge: null,
+}));

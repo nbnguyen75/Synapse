@@ -3,9 +3,6 @@ import type { LexicalCommand } from 'lexical';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { TOGGLE_LINK_COMMAND, $isLinkNode } from '@lexical/link';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $findMatchingParent,
   $getSelection,
@@ -13,11 +10,13 @@ import {
   COMMAND_PRIORITY_LOW,
   createCommand,
 } from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { TOGGLE_LINK_COMMAND, $isLinkNode } from '@lexical/link';
+import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod/v4';
 
 import { m } from '@/paraglide/messages';
 
-import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -26,6 +25,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Field, FieldError } from '@/components/ui/field';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export const TOGGLE_LINK_DIALOG_COMMAND: LexicalCommand<void> = createCommand(
@@ -65,19 +65,14 @@ export default function LinkShortcutPlugin() {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return false;
       if (!selection.isCollapsed()) return true;
-      return (
-        $findMatchingParent(selection.anchor.getNode(), $isLinkNode) !== null
-      );
+      return $findMatchingParent(selection.anchor.getNode(), $isLinkNode) !== null;
     });
     if (!canEditLink) return;
 
     const currentUrl = editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return '';
-      const linkNode = $findMatchingParent(
-        selection.anchor.getNode(),
-        $isLinkNode,
-      );
+      const linkNode = $findMatchingParent(selection.anchor.getNode(), $isLinkNode);
       return linkNode?.getURL() ?? '';
     });
 
@@ -126,7 +121,7 @@ export default function LinkShortcutPlugin() {
           onSubmit={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            form.handleSubmit(onSubmit)(event);
+            void form.handleSubmit(onSubmit)(event);
           }}
         >
           <Controller
@@ -145,19 +140,13 @@ export default function LinkShortcutPlugin() {
                   }}
                 />
 
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setIsOpen(false)}
-            >
+            <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>
               {m.lexical_link_dialog_cancel()}
             </Button>
 

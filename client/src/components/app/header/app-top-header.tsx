@@ -1,9 +1,8 @@
-import { Fragment } from 'react/jsx-runtime';
-
 import { useNavigate } from '@tanstack/react-router';
 
 import LangEnIcon from '@iconify-react/circle-flags/lang-en';
 import LangViIcon from '@iconify-react/circle-flags/lang-vi';
+import { Fragment } from 'react/jsx-runtime';
 
 import { useElementWidth } from '@/hooks/use-element-width';
 
@@ -11,13 +10,12 @@ import { useSettingsStore } from '@/store/settings-store';
 
 import { useTheme } from '@/providers/theme-provider';
 
-import { m } from '@/paraglide/messages';
 import { getLocale, setLocale, type Locale } from '@/paraglide/runtime';
+import { m } from '@/paraglide/messages';
 
 import { AppBreadcrumb } from '@/components/app/breadcrumbs';
 import { KeyCombo } from '@/components/shared';
 
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,14 +29,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { SidebarManagerTrigger } from '@/components/ui/sidebar';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from '@/components/ui/tooltip';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 
 import {
   PanelRightIcon,
@@ -89,10 +83,7 @@ export default function AppTopHeader() {
       className="flex h-14 items-center justify-between gap-2 border-b border-border bg-background/80 px-3 md:px-4 backdrop-blur-md shrink-0 @container/top-header"
     >
       <div className="flex items-center gap-2 min-w-0 flex-1">
-        <SidebarManagerTrigger
-          name="left"
-          className="-ml-1 cursor-pointer shrink-0"
-        />
+        <SidebarManagerTrigger name="left" className="-ml-1 cursor-pointer shrink-0" />
         <div className="min-w-0 flex-1 truncate">
           <AppBreadcrumb containerWidth={headerWidth} />
         </div>
@@ -102,19 +93,14 @@ export default function AppTopHeader() {
         <Button
           variant="ghost"
           size="icon-sm"
-          onClick={() =>
-            window.dispatchEvent(new CustomEvent('open-command-palette'))
-          }
+          onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
           className="cursor-pointer @[680px]/top-header:w-auto @[680px]/top-header:px-3"
         >
           <SearchIcon className="size-4 shrink-0" />
           <span className="truncate hidden @[680px]/top-header:inline text-xs text-muted-foreground ml-1.5">
             {m.header_search_placeholder()}
           </span>
-          <KeyCombo
-            combo="mod+k"
-            className="ml-2 hidden @[680px]/top-header:inline-flex"
-          />
+          <KeyCombo combo="mod+k" className="ml-2 hidden @[680px]/top-header:inline-flex" />
         </Button>
 
         <DropdownMenu>
@@ -135,15 +121,13 @@ export default function AppTopHeader() {
                   />
                 }
               />
-              <TooltipContent side="bottom">
-                {m.header_new_tooltip()}
-              </TooltipContent>
+              <TooltipContent side="bottom">{m.header_new_tooltip()}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
           <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuItem
-              onClick={() => navigate({ to: '/notes/create' })}
+              onClick={() => void navigate({ to: '/notes/create' })}
               className="cursor-pointer text-xs"
             >
               <FileTextIcon className="size-4 mr-2" />
@@ -169,15 +153,13 @@ export default function AppTopHeader() {
                 </Button>
               }
             />
-            <TooltipContent side="bottom">
-              {m.header_current_theme({ theme })}
-            </TooltipContent>
+            <TooltipContent side="bottom">{m.header_current_theme({ theme })}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
         <Select
           items={locales}
-          onValueChange={(v) => setLocale(v as Locale)}
+          onValueChange={(v) => void setLocale(v as Locale)}
           value={getLocale()}
         >
           <SelectTrigger
@@ -202,10 +184,7 @@ export default function AppTopHeader() {
 
         {layoutMode === 'agent' && (
           <>
-            <Separator
-              orientation="vertical"
-              className="mx-0.5 data-[orientation=vertical]:h-4"
-            />
+            <Separator orientation="vertical" className="mx-0.5 data-[orientation=vertical]:h-4" />
 
             <Button
               variant="ghost"
@@ -215,9 +194,7 @@ export default function AppTopHeader() {
               onClick={() =>
                 useSettingsStore
                   .getState()
-                  .setRightSidebarOpen(
-                    !useSettingsStore.getState().rightSidebar.open,
-                  )
+                  .setRightSidebarOpen(!useSettingsStore.getState().rightSidebar.open)
               }
             >
               <PanelRightIcon className="size-4" />

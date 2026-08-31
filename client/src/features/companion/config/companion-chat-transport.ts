@@ -22,19 +22,17 @@ export function getDefaultMessageMetadata() {
 }
 
 export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
-  private conversationId: string | undefined;
+  private conversationId: undefined | string;
 
   constructor(
-    initialConversationId: string | undefined,
+    initialConversationId: undefined | string,
     onConversationId?: (conversationId: string) => void,
     getExtraMetadata?: () => Record<string, unknown>,
   ) {
     const api = `${env.VITE_API_URL}/api/v1/ai/chat`;
     super({
       prepareSendMessagesRequest: async ({ messageId, messages, trigger }) => {
-        const lastUserMessage = [...messages]
-          .reverse()
-          .find((message) => message.role === 'user');
+        const lastUserMessage = [...messages].reverse().find((message) => message.role === 'user');
 
         if (!lastUserMessage) {
           throw new Error('No user message to send.');
@@ -62,17 +60,16 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
           ...lastUserMessage,
           metadata: {
             ...getDefaultMessageMetadata(),
-            ...(lastUserMessage.metadata as
-              | Record<string, unknown>
-              | undefined),
+            ...(lastUserMessage.metadata as Record<string, unknown> | undefined),
             ...(getExtraMetadata ? getExtraMetadata() : {}),
           },
           parts: lastUserMessage.parts,
         };
 
         const treeParentId = this.conversationId
-          ? useChatMessageTreeStore.getState().getTree(this.conversationId)
-              ?.nodes[lastUserMessage.id]?.parentId
+          ? useChatMessageTreeStore.getState().getTree(this.conversationId)?.nodes[
+              lastUserMessage.id
+            ]?.parentId
           : undefined;
 
         return {

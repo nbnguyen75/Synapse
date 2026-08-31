@@ -12,9 +12,7 @@ interface UseBreadcrumbOptions {
   aliases?: Record<string, string>;
 }
 
-export function useBreadcrumb(
-  options?: UseBreadcrumbOptions,
-): BreadcrumbItem[] {
+export function useBreadcrumb(options?: UseBreadcrumbOptions): BreadcrumbItem[] {
   const matches = useMatches();
   const aliases = options?.aliases;
 

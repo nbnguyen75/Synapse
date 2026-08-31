@@ -5,14 +5,10 @@ import { useMemo } from 'react';
 
 import { useNavigate, useSearch } from '@tanstack/react-router';
 
-import { NOTE_VIEW_CONFIG } from '@/features/notes/constants';
-import {
-  useEmptyTrash,
-  useInfiniteNotes,
-  useNotesBulkAction,
-} from '@/features/notes/hooks/api';
-
 import { useMultiSelect } from '@/hooks/use-multi-select';
+
+import { useEmptyTrash, useInfiniteNotes, useNotesBulkAction } from '@/features/notes/hooks/api';
+import { NOTE_VIEW_CONFIG } from '@/features/notes/constants';
 
 export function useNotesView(viewMode: NoteViewMode) {
   const navigate = useNavigate();
@@ -20,12 +16,7 @@ export function useNotesView(viewMode: NoteViewMode) {
   const { q: query, sort } = search;
 
   // 1. Config & Param Calculations
-  const {
-    filters: apiFilters,
-    emptyVariant,
-    description,
-    title,
-  } = NOTE_VIEW_CONFIG[viewMode];
+  const { filters: apiFilters, emptyVariant, description, title } = NOTE_VIEW_CONFIG[viewMode];
 
   const apiParams = {
     ...search,
@@ -35,12 +26,11 @@ export function useNotesView(viewMode: NoteViewMode) {
 
   const { page, ...stableParams } = apiParams;
 
-  const { isFetchingNextPage, fetchNextPage, hasNextPage, isLoading, data } =
-    useInfiniteNotes(stableParams, page);
-  const notes = useMemo(
-    () => data?.pages.flatMap((page) => page.items) ?? [],
-    [data],
+  const { isFetchingNextPage, fetchNextPage, hasNextPage, isLoading, data } = useInfiniteNotes(
+    stableParams,
+    page,
   );
+  const notes = useMemo(() => data?.pages.flatMap((page) => page.items) ?? [], [data]);
   const totalElements = data?.pages[0]?.totalElements ?? 0;
 
   const multiSelect = useMultiSelect();

@@ -1,30 +1,24 @@
-import type {
-  RegisterFormInput,
-  RegisterPayload,
-} from '@/features/auth/schemas';
+import type { RegisterFormInput, RegisterPayload } from '@/features/auth/schemas';
 
 import { useState, type BaseSyntheticEvent, type ComponentProps } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 
-import { cn } from '@/lib/utils';
 import { m } from '@/paraglide/messages';
+import { cn } from '@/lib/utils';
 
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
 } from '@/components/ui/input-group';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 
 import { Icon } from '@iconify/react';
 
 interface RegisterFormProps extends Omit<ComponentProps<'form'>, 'onSubmit'> {
-  onSubmit?: (
-    data: RegisterPayload,
-    $event?: BaseSyntheticEvent,
-  ) => Promise<void> | void;
+  onSubmit?: (data: RegisterPayload, $event?: BaseSyntheticEvent) => Promise<void> | void;
   form: UseFormReturn<RegisterFormInput>;
   isPending?: boolean;
 }
@@ -42,7 +36,10 @@ export default function RegisterForm({
 
   return (
     <form
-      onSubmit={handleSubmit((data, $event) => onSubmit?.(data, $event))}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void handleSubmit((data, $event) => onSubmit?.(data, $event))(event);
+      }}
       className={cn('w-full space-y-4', className)}
       {...restProps}
     >
@@ -51,10 +48,7 @@ export default function RegisterForm({
         control={control}
         render={({ fieldState, field }) => (
           <Field data-invalid={fieldState.invalid}>
-            <FieldLabel
-              className="text-xs font-medium"
-              htmlFor="register-email"
-            >
+            <FieldLabel className="text-xs font-medium" htmlFor="register-email">
               {m.register_page_email_label()}
             </FieldLabel>
 
@@ -77,10 +71,7 @@ export default function RegisterForm({
         control={control}
         render={({ fieldState, field }) => (
           <Field data-invalid={fieldState.invalid}>
-            <FieldLabel
-              className="text-xs font-medium"
-              htmlFor="register-password"
-            >
+            <FieldLabel className="text-xs font-medium" htmlFor="register-password">
               {m.register_page_password_label()}
             </FieldLabel>
 
@@ -100,16 +91,9 @@ export default function RegisterForm({
                   size="icon-xs"
                   onClick={() => setShowPassword(!showPassword)}
                   className="dark:text-muted-foreground text-muted-foreground/80 dark:hover:text-foreground hover:text-foreground/80 hover:bg-transparent! cursor-pointer"
-                  title={
-                    showPassword
-                      ? m.login_page_hide_password()
-                      : m.login_page_show_password()
-                  }
+                  title={showPassword ? m.login_page_hide_password() : m.login_page_show_password()}
                 >
-                  <Icon
-                    icon={showPassword ? 'lucide:eye-off' : 'lucide:eye'}
-                    className="h-4 w-4"
-                  />
+                  <Icon icon={showPassword ? 'lucide:eye-off' : 'lucide:eye'} className="h-4 w-4" />
                 </InputGroupButton>
               </InputGroupAddon>
             </InputGroup>
@@ -124,10 +108,7 @@ export default function RegisterForm({
         control={control}
         render={({ fieldState, field }) => (
           <Field data-invalid={fieldState.invalid}>
-            <FieldLabel
-              className="text-xs font-medium"
-              htmlFor="register-confirm-password"
-            >
+            <FieldLabel className="text-xs font-medium" htmlFor="register-confirm-password">
               {m.register_page_password_label()}
             </FieldLabel>
 

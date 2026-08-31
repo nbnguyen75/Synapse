@@ -1,12 +1,8 @@
-import {
-  createFileRoute,
-  Outlet,
-  stripSearchParams,
-} from '@tanstack/react-router';
+import { createFileRoute, Outlet, stripSearchParams } from '@tanstack/react-router';
 
-import { NoteCardSkeleton } from '@/features/notes/components';
 import { DEFAULT_NOTES_QUERY_PARAMS } from '@/features/notes/constants';
 import { notesQueryParamsSchema } from '@/features/notes/schemas';
+import { NoteCardSkeleton } from '@/features/notes/components';
 
 const SKELETON_KEYS = [
   'skeleton-1',
@@ -25,9 +21,9 @@ export const Route = createFileRoute('/_app/notes/_list')({
       ))}
     </div>
   ),
+  validateSearch: notesQueryParamsSchema,
   search: {
     middlewares: [stripSearchParams(DEFAULT_NOTES_QUERY_PARAMS)],
   },
-  validateSearch: notesQueryParamsSchema,
   component: () => <Outlet />,
 });

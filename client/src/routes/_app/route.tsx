@@ -4,8 +4,6 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 
-import { CommandPalette } from '@/features/command-palette/components';
-
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -13,23 +11,21 @@ import { useSettingsStore } from '@/store/settings-store';
 
 import { ConfirmProvider } from '@/providers';
 
-import { AppTopHeader } from '@/components/app/header';
 import { AppGlobalKeybinds } from '@/components/app/keyboard-shortcuts';
-import { AppLeftSidebar } from '@/components/app/left-sidebar';
 import { AppRightSidebar } from '@/components/app/right-sidebar';
+import { AppLeftSidebar } from '@/components/app/left-sidebar';
+import { AppTopHeader } from '@/components/app/header';
 
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
 import {
   SidebarInset,
   SidebarManager,
   SidebarManagerProvider,
   SidebarProvider,
 } from '@/components/ui/sidebar';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
+
+import { CommandPalette } from '@/features/command-palette/components';
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: ({ location, context }) => {
@@ -48,8 +44,7 @@ export const Route = createFileRoute('/_app')({
 
 function AppLayout() {
   const rightPanelRef = useRef<PanelImperativeHandle>(null);
-  const { setRightSidebarOpen, setLayoutMode, rightSidebar, layoutMode } =
-    useSettingsStore();
+  const { setRightSidebarOpen, setLayoutMode, rightSidebar, layoutMode } = useSettingsStore();
   const isMobile = useIsMobile();
 
   const toggleRightSidebar = useCallback(() => {
@@ -71,13 +66,7 @@ function AppLayout() {
       panel.collapse();
       setRightSidebarOpen(false);
     }
-  }, [
-    isMobile,
-    layoutMode,
-    rightSidebar.open,
-    setLayoutMode,
-    setRightSidebarOpen,
-  ]);
+  }, [isMobile, layoutMode, rightSidebar.open, setLayoutMode, setRightSidebarOpen]);
 
   useEffect(() => {
     const panel = rightPanelRef.current;
@@ -131,10 +120,7 @@ function AppLayout() {
                 </Sheet>
               </>
             ) : (
-              <ResizablePanelGroup
-                orientation="horizontal"
-                className="overflow-hidden max-h-svh"
-              >
+              <ResizablePanelGroup orientation="horizontal" className="overflow-hidden max-h-svh">
                 <ResizablePanel className="flex flex-col h-full overflow-hidden bg-background">
                   <AppTopHeader />
 

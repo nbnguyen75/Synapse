@@ -8,23 +8,8 @@ import { useNavigate } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 
-import {
-  CommandPaletteOutput,
-  CommandPaletteSearchInput,
-  CommandPaletteSearchResults,
-  CommandPaletteFooter,
-} from '@/features/command-palette/components';
-import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
-import {
-  useGetNotes,
-  type Note,
-  useNoteCreatePrefillStore,
-} from '@/features/notes';
-import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
-import { getMarkdownReadTimeSync } from '@/features/notes/service';
-
-import { useDebounce } from '@/hooks/use-debounce';
 import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
+import { useDebounce } from '@/hooks/use-debounce';
 
 import { useTheme } from '@/providers/theme-provider';
 
@@ -45,13 +30,22 @@ import {
   ArrowRightIcon,
 } from 'lucide-react';
 
+import {
+  CommandPaletteOutput,
+  CommandPaletteSearchInput,
+  CommandPaletteSearchResults,
+  CommandPaletteFooter,
+} from '@/features/command-palette/components';
+import { useGetNotes, type Note, useNoteCreatePrefillStore } from '@/features/notes';
+import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
+import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
+import { getMarkdownReadTimeSync } from '@/features/notes/service';
+
 export default function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [commandOutput, setCommandOutput] = useState<CommandOutput | null>(
-    null,
-  );
+  const [commandOutput, setCommandOutput] = useState<CommandOutput | null>(null);
 
   const navigate = useNavigate();
   const { toggleTheme, theme } = useTheme();
@@ -212,7 +206,7 @@ export default function CommandPalette() {
               .getState()
               .set(contentPart.trim().slice(0, NOTE_CONTENT_MAX_LENGTH));
           }
-          navigate({ to: '/notes/create' });
+          void navigate({ to: '/notes/create' });
         },
         title: contentPart
           ? m.command_palette_create_title_with_title({ content: contentPart })
@@ -220,9 +214,7 @@ export default function CommandPalette() {
         subtitle: contentPart
           ? m.command_palette_create_subtitle_with_title()
           : m.command_palette_create_subtitle_empty(),
-        shortcut: formatForDisplay(
-          KEYBOARD_SHORTCUTS['go-to-create-note'].combos[0],
-        ),
+        shortcut: formatForDisplay(KEYBOARD_SHORTCUTS['go-to-create-note'].combos[0]),
         command: '/create',
         id: 'cmd_create',
         icon: PlusIcon,
@@ -238,7 +230,7 @@ export default function CommandPalette() {
       {
         action: () => {
           setIsOpen(false);
-          navigate({ to: '/notes' });
+          void navigate({ to: '/notes' });
         },
         subtitle: m.command_palette_subtitle_go_notes(),
         title: m.command_palette_title_go_notes(),
@@ -270,9 +262,7 @@ export default function CommandPalette() {
         subtitle: m.command_palette_subtitle_toggle_theme({
           mode: theme === 'dark' ? 'Light' : 'Dark',
         }),
-        shortcut: formatForDisplay(
-          KEYBOARD_SHORTCUTS['toggle-theme'].combos[0],
-        ),
+        shortcut: formatForDisplay(KEYBOARD_SHORTCUTS['toggle-theme'].combos[0]),
         icon: theme === 'dark' ? SunIcon : MoonIcon,
         title: m.command_palette_title_theme(),
         id: 'toggle_theme',
@@ -285,7 +275,7 @@ export default function CommandPalette() {
   const handleOpenNote = useCallback(
     (note: NoteItem) => {
       setIsOpen(false);
-      navigate({ params: { noteId: note.id }, to: '/notes/$noteId' });
+      void navigate({ params: { noteId: note.id }, to: '/notes/$noteId' });
     },
     [navigate],
   );
@@ -337,8 +327,7 @@ export default function CommandPalette() {
 
     // 3.3. Tìm kiếm nội dung tổng hợp khi gõ từ khóa
     const notesResults: GroupedCommandItem[] = notes.map((note) => ({
-      subtitle:
-        note.content?.slice(0, 80) || m.command_palette_note_no_content(),
+      subtitle: note.content?.slice(0, 80) || m.command_palette_note_no_content(),
       title: note.title || m.command_palette_note_untitled(),
       meta: new Date(note.updatedAt).toLocaleDateString(),
       action: () => handleOpenNote(note),
@@ -360,7 +349,7 @@ export default function CommandPalette() {
       combined.push({
         action: () => {
           setIsOpen(false);
-          navigate({ search: { q: term }, to: '/notes' });
+          void navigate({ search: { q: term }, to: '/notes' });
         },
         title: m.command_palette_view_all_title({ count: totalCount, term }),
         subtitle: m.command_palette_view_all_subtitle(),
@@ -371,26 +360,14 @@ export default function CommandPalette() {
     }
 
     return combined;
-  }, [
-    search,
-    notes,
-    slashCommands,
-    staticCommands,
-    handleOpenNote,
-    totalElements,
-    navigate,
-  ]);
+  }, [search, notes, slashCommands, staticCommands, handleOpenNote, totalElements, navigate]);
 
   const boundedSelectedIndex =
-    searchResults.length > 0
-      ? Math.min(selectedIndex, searchResults.length - 1)
-      : 0;
+    searchResults.length > 0 ? Math.min(selectedIndex, searchResults.length - 1) : 0;
 
   useEffect(() => {
     if (!isOpen || !resultsRef.current) return;
-    const el = resultsRef.current.querySelector(
-      `[data-index="${boundedSelectedIndex}"]`,
-    );
+    const el = resultsRef.current.querySelector(`[data-index="${boundedSelectedIndex}"]`);
     if (el) {
       el.scrollIntoView({ block: 'nearest' });
     }
@@ -407,10 +384,7 @@ export default function CommandPalette() {
       setSelectedIndex((prev) => (prev + 1) % (searchResults.length || 1));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex(
-        (prev) =>
-          (prev - 1 + searchResults.length) % (searchResults.length || 1),
-      );
+      setSelectedIndex((prev) => (prev - 1 + searchResults.length) % (searchResults.length || 1));
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (searchResults[boundedSelectedIndex]) {
@@ -424,14 +398,12 @@ export default function CommandPalette() {
       {
         callback: () =>
           setSelectedIndex(
-            (prev) =>
-              (prev - 1 + searchResults.length) % (searchResults.length || 1),
+            (prev) => (prev - 1 + searchResults.length) % (searchResults.length || 1),
           ),
         hotkey: 'ArrowUp',
       },
       {
-        callback: () =>
-          setSelectedIndex((prev) => (prev + 1) % (searchResults.length || 1)),
+        callback: () => setSelectedIndex((prev) => (prev + 1) % (searchResults.length || 1)),
         hotkey: 'ArrowDown',
       },
       {

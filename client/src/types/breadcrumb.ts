@@ -7,6 +7,6 @@ export type BreadcrumbFn = (opts: {
 
 declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
-    breadcrumb?: string | BreadcrumbFn;
+    breadcrumb?: BreadcrumbFn | string;
   }
 }

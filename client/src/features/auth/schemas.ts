@@ -3,10 +3,7 @@ import z from 'zod/v4';
 import { m } from '@/paraglide/messages';
 
 export const loginSchema = z.object({
-  password: z
-    .string()
-    .min(1, m.validation_password_required())
-    .min(6, m.validation_password_min()),
+  password: z.string().min(1, m.validation_password_required()).min(6, m.validation_password_min()),
   email: z.email(m.validation_email_invalid()),
 });
 

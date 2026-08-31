@@ -1,9 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 
-import { ConversationListItem } from '@/features/companion/components/conversation-list-item';
-import { useGetConversationsQuery } from '@/features/companion/hooks/use-companion-conversation';
-
 import { useCompanionStore } from '@/store/companion-store';
 import { useSettingsStore } from '@/store/settings-store';
 
@@ -20,11 +17,10 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 
-import {
-  BotIcon,
-  MessageCirclePlusIcon,
-  MessageSquareIcon,
-} from 'lucide-react';
+import { BotIcon, MessageCirclePlusIcon, MessageSquareIcon } from 'lucide-react';
+
+import { useGetConversationsQuery } from '@/features/companion/hooks/use-companion-conversation';
+import { ConversationListItem } from '@/features/companion/components/conversation-list-item';
 
 const RECENT_SKELETON_KEYS = ['recent-1', 'recent-2', 'recent-3'];
 
@@ -33,19 +29,13 @@ export default function NavCompanion() {
   const queryClient = useQueryClient();
   const { setRightSidebarOpen, setLayoutMode, layoutMode } = useSettingsStore();
 
-  const { setActiveConversationId, activeConversationId } = useCompanionStore(
-    (state) => state,
-  );
+  const { setActiveConversationId, activeConversationId } = useCompanionStore((state) => state);
 
   const { data: conversations = [], isLoading } = useGetConversationsQuery();
 
-  const favoriteConversations = conversations.filter(
-    (conversation) => conversation.favorited,
-  );
+  const favoriteConversations = conversations.filter((conversation) => conversation.favorited);
 
-  const recentConversations = conversations.filter(
-    (conversation) => !conversation.favorited,
-  );
+  const recentConversations = conversations.filter((conversation) => !conversation.favorited);
 
   const { use: useSidebar } = useSidebarManager();
 
@@ -56,7 +46,7 @@ export default function NavCompanion() {
     leftSidebar?.setOpenMobile(false);
 
     if (layoutMode === 'chat') {
-      navigate({ to: '/chat' });
+      void navigate({ to: '/chat' });
     } else {
       setRightSidebarOpen(true);
     }
@@ -69,9 +59,7 @@ export default function NavCompanion() {
     if (checked) {
       const hasMessages =
         (activeConversationId != null &&
-          conversations.some(
-            (conversation) => conversation.id === activeConversationId,
-          )) ||
+          conversations.some((conversation) => conversation.id === activeConversationId)) ||
         (activeConversationId != null &&
           (queryClient
             .getQueryData<{
@@ -81,13 +69,13 @@ export default function NavCompanion() {
             false));
 
       if (activeConversationId && hasMessages) {
-        navigate({
+        void navigate({
           params: { conversationId: activeConversationId },
           to: '/chat/$conversationId',
         });
       } else {
         setActiveConversationId(null);
-        navigate({ to: '/chat' });
+        void navigate({ to: '/chat' });
       }
 
       return;
@@ -103,7 +91,7 @@ export default function NavCompanion() {
     leftSidebar?.setOpenMobile(false);
 
     if (layoutMode === 'chat') {
-      navigate({ to: '/chat/$conversationId', params: { conversationId } });
+      void navigate({ to: '/chat/$conversationId', params: { conversationId } });
       leftSidebar?.setOpenMobile(false);
     } else {
       setRightSidebarOpen(true);
@@ -135,17 +123,12 @@ export default function NavCompanion() {
 
                   <div className="flex flex-col">
                     <span className="font-medium text-foreground">
-                      {layoutMode === 'agent'
-                        ? m.sidebar_mode_agent()
-                        : m.sidebar_mode_chat()}
+                      {layoutMode === 'agent' ? m.sidebar_mode_agent() : m.sidebar_mode_chat()}
                     </span>
                   </div>
                 </div>
 
-                <Switch
-                  checked={layoutMode === 'chat'}
-                  onCheckedChange={handleLayoutModeChange}
-                />
+                <Switch checked={layoutMode === 'chat'} onCheckedChange={handleLayoutModeChange} />
               </div>
             }
           />
@@ -187,9 +170,7 @@ export default function NavCompanion() {
             </SidebarMenuItem>
           ))
         ) : recentConversations.length === 0 ? (
-          <p className="px-3 py-2 text-sm text-muted-foreground">
-            {m.chat_conversations_empty()}
-          </p>
+          <p className="px-3 py-2 text-sm text-muted-foreground">{m.chat_conversations_empty()}</p>
         ) : (
           recentConversations.map((conversation) => (
             <ConversationListItem

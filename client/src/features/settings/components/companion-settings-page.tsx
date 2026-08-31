@@ -1,7 +1,28 @@
-import { useEffect } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useEffect } from 'react';
 
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
+
+import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
+
+import { m } from '@/paraglide/messages';
+
+import { LexicalEditor } from '@/components/shared/editor';
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
+
+import { SaveIcon } from 'lucide-react';
 
 import {
   companionSettingsSchema,
@@ -17,41 +38,13 @@ import {
   COMPANION_SETTINGS_PRESET_OPTIONS,
 } from '@/features/settings/constants';
 
-import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
-
-import { m } from '@/paraglide/messages';
-
-import { LexicalEditor } from '@/components/shared/editor';
-
-import { Button } from '@/components/ui/button';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
-
-import { SaveIcon } from 'lucide-react';
-
 export default function CompanionSettingsPage() {
   const {
     data: companionSettings = DEFAULT_COMPANION_SETTINGS,
     isLoading: isLoadingCompanionSettings,
   } = useGetCompanionSettingsQuery();
-  const {
-    isPending: isUpdatingCompanionSettings,
-    mutate: updateCompanionSettings,
-  } = useUpdateCompanionSettingsMutation();
+  const { isPending: isUpdatingCompanionSettings, mutate: updateCompanionSettings } =
+    useUpdateCompanionSettingsMutation();
 
   const form = useForm<CompanionSettingsFormInput>({
     resolver: standardSchemaResolver(companionSettingsSchema),
@@ -140,9 +133,10 @@ export default function CompanionSettingsPage() {
   return (
     <div className="mt-6">
       <form
-        onSubmit={handleSubmit((data) =>
-          onSubmit(data as CompanionSettingsPayload),
-        )}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleSubmit((data) => onSubmit(data as CompanionSettingsPayload))(event);
+        }}
         className="w-full space-y-5"
         id="companion-settings-form"
       >
@@ -175,10 +169,7 @@ export default function CompanionSettingsPage() {
           control={control}
           render={({ fieldState, field }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel
-                className="text-xs font-medium"
-                htmlFor="responseLength"
-              >
+              <FieldLabel className="text-xs font-medium" htmlFor="responseLength">
                 {m.settings_companion_response_length()}
               </FieldLabel>
 
@@ -189,9 +180,7 @@ export default function CompanionSettingsPage() {
                 items={COMPANION_RESPONSE_LENGTH_OPTIONS}
               >
                 <SelectTrigger id="responseLength" className="w-full">
-                  <SelectValue
-                    placeholder={m.settings_companion_response_length_placeholder()}
-                  />
+                  <SelectValue placeholder={m.settings_companion_response_length_placeholder()} />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -225,9 +214,7 @@ export default function CompanionSettingsPage() {
                 items={COMPANION_SETTINGS_LANGUAGE_OPTIONS}
               >
                 <SelectTrigger id="language" className="w-full">
-                  <SelectValue
-                    placeholder={m.settings_companion_language_placeholder()}
-                  />
+                  <SelectValue placeholder={m.settings_companion_language_placeholder()} />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -252,9 +239,7 @@ export default function CompanionSettingsPage() {
                 <FieldLabel className="text-xs font-medium" htmlFor="useEmoji">
                   {m.settings_companion_use_emoji()}
                 </FieldLabel>
-                <FieldDescription>
-                  {m.settings_companion_use_emoji_desc()}
-                </FieldDescription>
+                <FieldDescription>{m.settings_companion_use_emoji_desc()}</FieldDescription>
               </div>
 
               <Switch
@@ -284,9 +269,7 @@ export default function CompanionSettingsPage() {
                 items={COMPANION_SETTINGS_PRESET_OPTIONS}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue
-                    placeholder={m.settings_companion_preset_placeholder()}
-                  />
+                  <SelectValue placeholder={m.settings_companion_preset_placeholder()} />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -310,10 +293,7 @@ export default function CompanionSettingsPage() {
             control={control}
             render={({ fieldState, field }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel
-                  className="text-xs font-medium"
-                  htmlFor="customInstructions"
-                >
+                <FieldLabel className="text-xs font-medium" htmlFor="customInstructions">
                   {m.settings_companion_custom_instructions()}
                 </FieldLabel>
 
@@ -328,9 +308,7 @@ export default function CompanionSettingsPage() {
                   aria-invalid={fieldState.invalid}
                 />
 
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />

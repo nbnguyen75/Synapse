@@ -1,0 +1,117 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "unicorn", "react", "import", "oxc", "jsx-a11y", "promise"],
+  "options": {
+    "typeAware": true,
+  },
+  "env": {
+    "builtin": true,
+  },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "pedantic": "off",
+    "style": "off",
+  },
+  "rules": {
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "eslint/no-unused-vars": [
+      "warn",
+      {
+        "args": "after-used",
+        "vars": "all",
+        "ignoreRestSiblings": false,
+        "varsIgnorePattern": "^_",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "none",
+      },
+    ],
+    "eslint/no-shadow": "off",
+
+    "react/react-in-jsx-scope": "off",
+    "react/rules-of-hooks": "error",
+
+    "react/jsx-key": "error",
+    "react/jsx-no-duplicate-props": "error",
+
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true,
+      },
+    ],
+
+    "react/no-array-index-key": "warn",
+    "react/jsx-no-undef": "off",
+
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/heading-has-content": "error",
+    "jsx-a11y/label-has-associated-control": "error",
+    "jsx-a11y/click-events-have-key-events": "error",
+
+    "jsx-a11y/no-static-element-interactions": "warn",
+    "jsx-a11y/no-noninteractive-element-interactions": "warn",
+
+    "jsx-a11y/no-autofocus": "off",
+
+    "import/no-duplicates": "error",
+    "import/no-unassigned-import": "off",
+    "import/no-cycle": "off",
+
+    "typescript/only-throw-error": [
+      "error",
+      {
+        "allow": [
+          {
+            "package": "@tanstack/router-core",
+            "name": "Redirect",
+            "from": "package",
+          },
+          {
+            "package": "@tanstack/router-core",
+            "name": "NotFoundError",
+            "from": "package",
+          },
+        ],
+        "allowThrowingAny": false,
+        "allowThrowingUnknown": false,
+      },
+    ],
+
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": "error",
+
+    "typescript/no-unsafe-member-access": "warn",
+    "typescript/no-unsafe-argument": "warn",
+    "typescript/no-unsafe-return": "warn",
+
+    "typescript/no-unsafe-type-assertion": "off",
+    "typescript/no-unnecessary-type-assertion": "warn",
+    "typescript/no-unsafe-assignment": "off",
+    "typescript/no-unsafe-call": "off",
+    "typescript/restrict-template-expressions": "off",
+    "typescript/require-await": "off",
+    "typescript/array-type": "off",
+
+    "unicorn/no-array-reverse": "off",
+    "unicorn/no-array-sort": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "unicorn/prefer-node-protocol": "error",
+    "unicorn/throw-new-error": "warn",
+    "unicorn/prefer-number-properties": "warn",
+  },
+
+  "overrides": [
+    {
+      "files": [
+        "src/routes/**",
+        "src/main.tsx",
+        "src/components/shared/editor/**",
+        "src/providers/**",
+      ],
+      "rules": {
+        "react/only-export-components": "off",
+      },
+    },
+  ],
+}

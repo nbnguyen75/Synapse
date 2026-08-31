@@ -1,16 +1,9 @@
 import type { CompanionConversation } from '@/features/companion/types/companion';
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
-
-import {
-  useDeleteConversationMutation,
-  useRenameConversationMutation,
-  useToggleConversationFavoriteMutation,
-} from '@/features/companion/hooks/use-companion-conversation';
-import { renameConversationSchema } from '@/features/companion/schemas';
 
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -19,7 +12,12 @@ import { useConfirm } from '@/providers/confirm-provider';
 
 import { m } from '@/paraglide/messages';
 
-import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
@@ -27,26 +25,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from '@/components/ui/sidebar';
+
+import { MoreHorizontalIcon, PencilIcon, StarIcon, Trash2Icon } from 'lucide-react';
 
 import {
-  MoreHorizontalIcon,
-  PencilIcon,
-  StarIcon,
-  Trash2Icon,
-} from 'lucide-react';
+  useDeleteConversationMutation,
+  useRenameConversationMutation,
+  useToggleConversationFavoriteMutation,
+} from '@/features/companion/hooks/use-companion-conversation';
+import { renameConversationSchema } from '@/features/companion/schemas';
 
 interface ConversationListItemProps {
   conversation: CompanionConversation;
@@ -125,10 +116,7 @@ export function ConversationListItem({
 
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton
-        isActive={isActive}
-        onClick={() => onSelect(conversation.id)}
-      >
+      <SidebarMenuButton isActive={isActive} onClick={() => onSelect(conversation.id)}>
         <span className="min-w-0 flex-1 truncate text-left text-sm">
           {conversation.title ?? m.chat_conversation_untitled()}
         </span>
@@ -137,25 +125,17 @@ export function ConversationListItem({
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <SidebarMenuAction
-              aria-label={m.chat_conversation_action_menu()}
-              showOnHover
-            >
+            <SidebarMenuAction aria-label={m.chat_conversation_action_menu()} showOnHover>
               <MoreHorizontalIcon className="size-4" />
             </SidebarMenuAction>
           }
         />
 
-        <DropdownMenuContent
-          side={isMobile ? 'bottom' : 'right'}
-          className="w-52"
-        >
+        <DropdownMenuContent side={isMobile ? 'bottom' : 'right'} className="w-52">
           <DropdownMenuItem onClick={handleToggleFavorite}>
             <StarIcon
               className={
-                conversation.favorited
-                  ? 'size-4 text-amber-400'
-                  : 'size-4 text-muted-foreground'
+                conversation.favorited ? 'size-4 text-amber-400' : 'size-4 text-muted-foreground'
               }
             />
             {conversation.favorited
@@ -168,7 +148,7 @@ export function ConversationListItem({
             {m.chat_conversation_action_rename()}
           </DropdownMenuItem>
 
-          <DropdownMenuItem variant="destructive" onClick={handleDeleteClick}>
+          <DropdownMenuItem variant="destructive" onClick={void handleDeleteClick}>
             <Trash2Icon className="size-4" />
             {m.chat_conversation_action_delete()}
           </DropdownMenuItem>
@@ -181,10 +161,7 @@ export function ConversationListItem({
             <DialogTitle>{m.chat_conversation_rename_title()}</DialogTitle>
           </DialogHeader>
 
-          <form
-            className="space-y-4"
-            onSubmit={form.handleSubmit(handleRenameSubmit)}
-          >
+          <form className="space-y-4" onSubmit={void form.handleSubmit(handleRenameSubmit)}>
             <Field>
               <FieldLabel htmlFor="conversation-title">
                 {m.chat_conversation_action_rename()}
@@ -201,17 +178,11 @@ export function ConversationListItem({
             </Field>
 
             <DialogFooter>
-              <Button
-                type="button"
-                onClick={() => setIsRenameOpen(false)}
-                variant="ghost"
-              >
+              <Button type="button" onClick={() => setIsRenameOpen(false)} variant="ghost">
                 {m.chat_conversation_rename_cancel()}
               </Button>
               <Button
-                disabled={
-                  form.formState.isSubmitting || !form.formState.isDirty
-                }
+                disabled={form.formState.isSubmitting || !form.formState.isDirty}
                 type="submit"
               >
                 {m.chat_conversation_rename_save()}

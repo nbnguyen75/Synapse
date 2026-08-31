@@ -37,23 +37,21 @@ interface ChatNoteAttachmentState {
   clear: () => void;
 }
 
-export const useChatNoteAttachmentStore = create<ChatNoteAttachmentState>()(
-  (set) => ({
-    add: (attachment) => {
-      let added = false;
-      set((state) => {
-        if (state.attachments.some((item) => item.id === attachment.id)) {
-          return state;
-        }
-        if (state.attachments.length >= MAX_CHAT_ATTACHMENTS) {
-          return state;
-        }
-        added = true;
-        return { attachments: [...state.attachments, attachment] };
-      });
-      return added;
-    },
-    clear: () => set({ attachments: [] }),
-    attachments: [],
-  }),
-);
+export const useChatNoteAttachmentStore = create<ChatNoteAttachmentState>()((set) => ({
+  add: (attachment) => {
+    let added = false;
+    set((state) => {
+      if (state.attachments.some((item) => item.id === attachment.id)) {
+        return state;
+      }
+      if (state.attachments.length >= MAX_CHAT_ATTACHMENTS) {
+        return state;
+      }
+      added = true;
+      return { attachments: [...state.attachments, attachment] };
+    });
+    return added;
+  },
+  clear: () => set({ attachments: [] }),
+  attachments: [],
+}));

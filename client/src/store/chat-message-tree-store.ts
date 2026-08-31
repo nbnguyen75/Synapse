@@ -9,19 +9,17 @@ interface ChatMessageTreeState {
   clearTree: (conversationId: string) => void;
 }
 
-export const useChatMessageTreeStore = create<ChatMessageTreeState>()(
-  (set, get) => ({
-    clearTree: (conversationId) =>
-      set((state) => {
-        if (!state.trees[conversationId]) return state;
-        const { [conversationId]: _removed, ...trees } = state.trees;
-        return { trees };
-      }),
-    setTree: (conversationId, tree) =>
-      set((state) => ({
-        trees: { ...state.trees, [conversationId]: tree },
-      })),
-    getTree: (conversationId) => get().trees[conversationId],
-    trees: {},
-  }),
-);
+export const useChatMessageTreeStore = create<ChatMessageTreeState>()((set, get) => ({
+  clearTree: (conversationId) =>
+    set((state) => {
+      if (!state.trees[conversationId]) return state;
+      const { [conversationId]: _removed, ...trees } = state.trees;
+      return { trees };
+    }),
+  setTree: (conversationId, tree) =>
+    set((state) => ({
+      trees: { ...state.trees, [conversationId]: tree },
+    })),
+  getTree: (conversationId) => get().trees[conversationId],
+  trees: {},
+}));

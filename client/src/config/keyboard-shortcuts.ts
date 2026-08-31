@@ -5,29 +5,29 @@ import { m } from '@/paraglide/messages';
 export type ShortcutSectionId = 'global' | 'editor';
 
 export type ShortcutId =
-  | 'command-palette'
-  | 'toggle-left-sidebar'
-  | 'toggle-right-sidebar'
-  | 'go-to-notes'
-  | 'go-to-create-note'
-  | 'focus-search'
-  | 'save-note'
   | 'show-keyboard-shortcuts'
-  | 'toggle-theme'
-  | 'editor-bold'
-  | 'editor-italic'
-  | 'editor-underline'
+  | 'toggle-right-sidebar'
   | 'editor-strikethrough'
-  | 'editor-code'
+  | 'editor-numbered-list'
+  | 'toggle-left-sidebar'
+  | 'editor-normal-text'
+  | 'editor-bullet-list'
+  | 'go-to-create-note'
+  | 'editor-blockquote'
+  | 'editor-underline'
+  | 'editor-highlight'
+  | 'command-palette'
   | 'editor-heading1'
   | 'editor-heading2'
   | 'editor-heading3'
-  | 'editor-normal-text'
-  | 'editor-bullet-list'
-  | 'editor-numbered-list'
-  | 'editor-blockquote'
+  | 'editor-italic'
+  | 'focus-search'
+  | 'toggle-theme'
+  | 'go-to-notes'
+  | 'editor-bold'
+  | 'editor-code'
   | 'editor-link'
-  | 'editor-highlight';
+  | 'save-note';
 
 export interface KeyboardShortcutEntry {
   section: ShortcutSectionId;
@@ -38,10 +38,7 @@ export interface KeyboardShortcutEntry {
   group?: string;
 }
 
-export const KEYBOARD_SHORTCUT_SECTIONS: Record<
-  ShortcutSectionId,
-  { label: () => string }
-> = {
+export const KEYBOARD_SHORTCUT_SECTIONS: Record<ShortcutSectionId, { label: () => string }> = {
   global: { label: () => m.keyboard_shortcuts_global() },
   editor: { label: () => m.keyboard_shortcuts_editor() },
 };
@@ -211,12 +208,8 @@ export function getShortcut(id: ShortcutId): KeyboardShortcutEntry {
   return KEYBOARD_SHORTCUTS[id];
 }
 
-export function getShortcutsBySection(
-  section: ShortcutSectionId,
-): KeyboardShortcutEntry[] {
-  return Object.values(KEYBOARD_SHORTCUTS).filter(
-    (entry) => entry.section === section,
-  );
+export function getShortcutsBySection(section: ShortcutSectionId): KeyboardShortcutEntry[] {
+  return Object.values(KEYBOARD_SHORTCUTS).filter((entry) => entry.section === section);
 }
 
 /**
@@ -261,9 +254,7 @@ export function findShortcutConflict(
   targetId: ShortcutId,
   overrides: Partial<Record<ShortcutId, string[]>>,
 ): KeyboardShortcutEntry | null {
-  const proposed = new Set(
-    proposedCombos.map((combo) => normalizeComboForCompare(combo)),
-  );
+  const proposed = new Set(proposedCombos.map((combo) => normalizeComboForCompare(combo)));
 
   for (const entry of Object.values(KEYBOARD_SHORTCUTS)) {
     if (entry.id === targetId) continue;

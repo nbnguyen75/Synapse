@@ -1,16 +1,11 @@
 import { cn } from '@/lib/utils';
 
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 import { LayoutGridIcon, Table2Icon } from 'lucide-react';
 
-export type LayoutMode = 'grid' | 'table';
+export type LayoutMode = 'table' | 'grid';
 
 interface ViewToggleProps {
   onChange: (mode: LayoutMode) => void;
@@ -38,8 +33,7 @@ export default function ViewLayoutToggle({
                 className={cn(
                   'size-7 rounded-md cursor-pointer',
                   value === 'grid' && 'bg-background shadow-xs text-foreground',
-                  value !== 'grid' &&
-                    'text-muted-foreground hover:text-foreground',
+                  value !== 'grid' && 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 <LayoutGridIcon className="size-3.5" />
@@ -61,10 +55,8 @@ export default function ViewLayoutToggle({
                 onClick={() => onChange('table')}
                 className={cn(
                   'size-7 rounded-md cursor-pointer',
-                  value === 'table' &&
-                    'bg-background shadow-xs text-foreground',
-                  value !== 'table' &&
-                    'text-muted-foreground hover:text-foreground',
+                  value === 'table' && 'bg-background shadow-xs text-foreground',
+                  value !== 'table' && 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 <Table2Icon className="size-3.5" />

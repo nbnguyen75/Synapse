@@ -40,9 +40,7 @@ export function buildTree(
   const nodes: Record<string, MessageNode> = {};
   const childrenById = new Map<string, string[]>();
 
-  const ordered = [...messages].sort(
-    (a, b) => getMessageCreatedAt(a) - getMessageCreatedAt(b),
-  );
+  const ordered = [...messages].sort((a, b) => getMessageCreatedAt(a) - getMessageCreatedAt(b));
 
   for (const message of ordered) {
     const parentId = message.parentId ?? null;
@@ -71,9 +69,7 @@ export function buildTree(
   }
 
   const effectiveLeafId =
-    currentLeafId && nodes[currentLeafId]
-      ? currentLeafId
-      : (ordered.at(-1)?.id ?? null);
+    currentLeafId && nodes[currentLeafId] ? currentLeafId : (ordered.at(-1)?.id ?? null);
 
   return { currentLeafId: effectiveLeafId, nodes };
 }
@@ -93,10 +89,7 @@ export function getActivePath(
   return path.reverse();
 }
 
-export function getRecentContext(
-  state: ConversationTreeState,
-  limit = 5,
-): UIMessage[] {
+export function getRecentContext(state: ConversationTreeState, limit = 5): UIMessage[] {
   return getActivePath(state)
     .slice(-limit)
     .map((node) => node.message);
@@ -155,9 +148,7 @@ export function editUserMessage(
     return { editedMessage: null, state };
   }
 
-  const fileParts = target.message.parts.filter(
-    (part): part is FileUIPart => part.type === 'file',
-  );
+  const fileParts = target.message.parts.filter((part): part is FileUIPart => part.type === 'file');
 
   const editedMessage: UIMessage = {
     metadata: {
@@ -214,9 +205,7 @@ export function getVersionInfo(
         .filter((candidate) => candidate.parentId === null)
         .map((candidate) => candidate.id);
 
-  const sameRoleSiblings = siblings.filter(
-    (id) => state.nodes[id]?.role === node.role,
-  );
+  const sameRoleSiblings = siblings.filter((id) => state.nodes[id]?.role === node.role);
   if (sameRoleSiblings.length < 2) return null;
 
   const current = sameRoleSiblings.indexOf(messageId);

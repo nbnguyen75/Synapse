@@ -25,6 +25,4 @@ export interface PaginatedData<T> {
 
 export type PaginatedApiResponse<T> = ApiResponse<PaginatedData<T>>;
 
-export type PaginatedApiSuccessResponse<T> = ApiSuccessResponse<
-  PaginatedData<T>
->;
+export type PaginatedApiSuccessResponse<T> = ApiSuccessResponse<PaginatedData<T>>;

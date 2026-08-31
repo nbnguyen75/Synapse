@@ -1,32 +1,24 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 
 import { createFileRoute, Link } from '@tanstack/react-router';
 
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 
-import { LoginForm } from '@/features/auth/components';
-import {
-  loginSchema,
-  type LoginFormInput,
-  type LoginPayload,
-} from '@/features/auth/schemas';
-
-import { env } from '@/config/env';
 import { createTitle } from '@/config/metadata';
+import { env } from '@/config/env';
 
-import {
-  getTranslatedAuthErrorMessage,
-  signIn,
-  type AuthErrorCode,
-} from '@/lib/auth';
+import { getTranslatedAuthErrorMessage, signIn, type AuthErrorCode } from '@/lib/auth';
 import { m } from '@/paraglide/messages';
 
-import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
 import { Icon } from '@iconify/react';
+
+import { loginSchema, type LoginFormInput, type LoginPayload } from '@/features/auth/schemas';
+import { LoginForm } from '@/features/auth/components';
 
 export const Route = createFileRoute('/_auth/login')({
   head: () => ({
@@ -50,7 +42,7 @@ function RouteComponent() {
   });
 
   const {
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = form;
 
   const isPending = isSubmitting || isEmailPending || isSocialPending;
@@ -102,8 +94,7 @@ function RouteComponent() {
             const { message } = error;
 
             toast.error(m.login_page_oauth_failed(), {
-              description:
-                message || m.login_page_oauth_description({ provider }),
+              description: message || m.login_page_oauth_description({ provider }),
             });
 
             setIsSocialPending(false);
@@ -131,7 +122,6 @@ function RouteComponent() {
           <span
             // Paraglide message embeds a styled <span> for the app name via an
             // HTML param; the content is a static i18n string, never user input.
-            // oxlint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml
             dangerouslySetInnerHTML={{
               __html: m.login_page_welcome({
                 appName: `<span class="text-primary">${env.VITE_APP_NAME}</span>`,
@@ -164,7 +154,7 @@ function RouteComponent() {
           form="synapse-login-form"
           type="submit"
           className="w-full cursor-pointer"
-          disabled={isPending}
+          disabled={isPending || !isDirty}
         >
           {isSubmitting || isEmailPending ? (
             <div className="flex items-center gap-1.5">
@@ -191,7 +181,7 @@ function RouteComponent() {
         <Button
           variant="outline"
           type="button"
-          onClick={() => handleSocialLogin('github')}
+          onClick={() => void handleSocialLogin('github')}
           disabled={true}
           className="cursor-pointer h-9 font-medium transition-all text-xs"
         >
@@ -202,7 +192,7 @@ function RouteComponent() {
         <Button
           variant="outline"
           type="button"
-          onClick={() => handleSocialLogin('google')}
+          onClick={() => void handleSocialLogin('google')}
           disabled={isPending}
           className="cursor-pointer h-9 font-medium transition-all text-xs"
         >
@@ -215,18 +205,12 @@ function RouteComponent() {
       <div className="text-[10px] text-center text-muted-foreground/85 mt-8 leading-relaxed max-w-70">
         {m.login_page_footer()}{' '}
         {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid -- Placeholder Terms link, no route yet */}
-        <a
-          href="#"
-          className="underline hover:text-muted-foreground transition-colors"
-        >
+        <a href="#" className="underline hover:text-muted-foreground transition-colors">
           {m.login_page_terms()}
         </a>{' '}
         {m.login_page_and()}{' '}
         {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid -- Placeholder Privacy link, no route yet */}
-        <a
-          href="#"
-          className="underline hover:text-muted-foreground transition-colors"
-        >
+        <a href="#" className="underline hover:text-muted-foreground transition-colors">
           {m.login_page_privacy()}
         </a>
         .

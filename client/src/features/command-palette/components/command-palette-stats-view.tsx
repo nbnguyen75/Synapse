@@ -13,9 +13,7 @@ interface CommandPaletteStatsViewProps {
   };
 }
 
-export default function CommandPaletteStatsView({
-  data,
-}: CommandPaletteStatsViewProps) {
+export default function CommandPaletteStatsView({ data }: CommandPaletteStatsViewProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-xs font-semibold text-foreground tracking-wide uppercase">
@@ -34,12 +32,8 @@ export default function CommandPaletteStatsView({
             key={stat.label}
             className="rounded-xl border border-border/50 bg-card/50 p-3 flex flex-col"
           >
-            <span className="text-[10px] text-muted-foreground font-medium">
-              {stat.label}
-            </span>
-            <span className="text-xl font-bold text-foreground mt-1">
-              {stat.value}
-            </span>
+            <span className="text-[10px] text-muted-foreground font-medium">{stat.label}</span>
+            <span className="text-xl font-bold text-foreground mt-1">{stat.value}</span>
           </div>
         ))}
       </div>

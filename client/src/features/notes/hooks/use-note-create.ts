@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useEffect } from 'react';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -7,23 +7,19 @@ import { useNavigate } from '@tanstack/react-router';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 
-import { useGenerateNoteTitle } from '@/features/notes/hooks/api';
-import { noteKeys } from '@/features/notes/keys';
+import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
+
+import { $fetch, type InferRequestType, type InferResponseType } from '@/lib/fetch';
+import { m } from '@/paraglide/messages';
+
 import {
   noteInputSchema,
   type NoteFormInput,
   type NoteInputPayload,
 } from '@/features/notes/schemas';
 import { useNoteCreatePrefillStore } from '@/features/notes/store';
-
-import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
-
-import {
-  $fetch,
-  type InferRequestType,
-  type InferResponseType,
-} from '@/lib/fetch';
-import { m } from '@/paraglide/messages';
+import { useGenerateNoteTitle } from '@/features/notes/hooks/api';
+import { noteKeys } from '@/features/notes/keys';
 
 export function useNoteCreate() {
   const queryClient = useQueryClient();
@@ -66,13 +62,13 @@ export function useNoteCreate() {
     InferRequestType<(typeof $fetch.api.v1.notes)['$post']>
   >({
     onSuccess: ({ title, id }) => {
-      queryClient.invalidateQueries({ queryKey: noteKeys.all });
+      void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       toast.success(m.notes_page_toast_created(), {
         description: m.notes_page_toast_created_desc({ title }),
       });
 
-      navigate({ params: { noteId: id }, to: '/notes/$noteId', replace: true });
+      void navigate({ params: { noteId: id }, to: '/notes/$noteId', replace: true });
 
       form.reset({ title: undefined, content: '' });
     },
@@ -88,8 +84,7 @@ export function useNoteCreate() {
     },
   });
 
-  const { isPending: isGeneratingTitle, mutate: _generateNoteTitle } =
-    useGenerateNoteTitle();
+  const { isPending: isGeneratingTitle, mutate: _generateNoteTitle } = useGenerateNoteTitle();
 
   // 3. Handlers
   const createNote = (data: NoteInputPayload) => {

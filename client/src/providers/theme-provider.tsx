@@ -1,6 +1,6 @@
 import { createContext, use, useEffect, useMemo, useState } from 'react';
 
-type Theme = 'dark' | 'light' | 'system';
+type Theme = 'system' | 'light' | 'dark';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ type ThemeProviderProps = {
 
 type ThemeProviderState = {
   setTheme: (theme: Theme) => void;
-  resolvedTheme: 'dark' | 'light';
+  resolvedTheme: 'light' | 'dark';
   toggleTheme: () => void;
   theme: Theme;
 };
@@ -34,14 +34,12 @@ export function ThemeProvider({
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
   );
 
-  const getSystemTheme = (): 'dark' | 'light' => {
+  const getSystemTheme = (): 'light' | 'dark' => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     return mq.matches ? 'dark' : 'light';
   };
 
-  const [systemTheme, setSystemTheme] = useState<'dark' | 'light'>(
-    getSystemTheme,
-  );
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>(getSystemTheme);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -50,7 +48,7 @@ export function ThemeProvider({
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  const resolvedTheme: 'dark' | 'light' = useMemo(
+  const resolvedTheme: 'light' | 'dark' = useMemo(
     () => (currentTheme === 'system' ? systemTheme : currentTheme),
     [currentTheme, systemTheme],
   );
@@ -63,9 +61,7 @@ export function ThemeProvider({
 
   const setTheme = (newTheme: Theme) => {
     const hasAPI = !!document.startViewTransition;
-    const reducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (!hasAPI || reducedMotion) {
       localStorage.setItem(storageKey, newTheme);
@@ -81,8 +77,7 @@ export function ThemeProvider({
       root.classList.remove('light', 'dark');
 
       if (newTheme === 'system') {
-        const systemPref = window.matchMedia('(prefers-color-scheme: dark)')
-          .matches
+        const systemPref = window.matchMedia('(prefers-color-scheme: dark)').matches
           ? 'dark'
           : 'light';
         root.classList.add(systemPref);
@@ -95,8 +90,7 @@ export function ThemeProvider({
   const toggleTheme = () => {
     const isCurrentlyDark =
       currentTheme === 'dark' ||
-      (currentTheme === 'system' &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches);
+      (currentTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
     const nextTheme: Theme = isCurrentlyDark ? 'light' : 'dark';
     setTheme(nextTheme);
@@ -119,8 +113,7 @@ export function ThemeProvider({
 export const useTheme = () => {
   const context = use(ThemeProviderContext);
 
-  if (context === undefined)
-    throw new Error('useTheme must be used within a ThemeProvider');
+  if (context === undefined) throw new Error('useTheme must be used within a ThemeProvider');
 
   return context;
 };

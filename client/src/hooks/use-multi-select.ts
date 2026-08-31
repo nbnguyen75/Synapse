@@ -27,9 +27,7 @@ export function useMultiSelect() {
         return;
       }
       const [start, end] =
-        anchorIdx <= currentIdx
-          ? [anchorIdx, currentIdx]
-          : [currentIdx, anchorIdx];
+        anchorIdx <= currentIdx ? [anchorIdx, currentIdx] : [currentIdx, anchorIdx];
 
       setSelectedIds((prev) => {
         const next = new Set(prev);

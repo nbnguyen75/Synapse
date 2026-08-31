@@ -2,14 +2,11 @@ import type { NotesApiParams } from '@/features/notes/types';
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import { noteKeys } from '@/features/notes/keys';
-
 import { $fetch } from '@/lib/fetch';
 
-export function useInfiniteNotes(
-  params?: Omit<NotesApiParams, 'page'>,
-  initialPage: number = 1,
-) {
+import { noteKeys } from '@/features/notes/keys';
+
+export function useInfiniteNotes(params?: Omit<NotesApiParams, 'page'>, initialPage: number = 1) {
   return useInfiniteQuery({
     queryFn: async ({ pageParam }) => {
       const result = await $fetch.api.v1.notes.$get({

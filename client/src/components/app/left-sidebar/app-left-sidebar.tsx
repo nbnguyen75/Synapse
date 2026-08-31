@@ -6,7 +6,6 @@ import { m } from '@/paraglide/messages';
 
 import { AppLogo } from '@/components/app/logo';
 
-import { Badge } from '@/components/ui/badge';
 import {
   SidebarHeader,
   SidebarContent,
@@ -16,15 +15,14 @@ import {
   SidebarFooter,
   Sidebar,
 } from '@/components/ui/sidebar';
+import { Badge } from '@/components/ui/badge';
 
 import NavCompanion from './nav-companion';
-import NavMain from './nav-main';
 import NavSecondary from './nav-secondary';
+import NavMain from './nav-main';
 import NavUser from './nav-user';
 
-export default function AppLeftSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
+export default function AppLeftSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { side: _, ...restProps } = props;
 
   return (
@@ -40,12 +38,8 @@ export default function AppLeftSidebar({
                     <AppLogo className="rounded-sm" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">
-                      {env.VITE_APP_NAME}
-                    </span>
-                    <span className="truncate text-xs">
-                      {m.sidebar_knowledge_hub()}
-                    </span>
+                    <span className="truncate font-medium">{env.VITE_APP_NAME}</span>
+                    <span className="truncate text-xs">{m.sidebar_knowledge_hub()}</span>
                   </div>
                 </Link>
               }

@@ -39,6 +39,7 @@ export default function SelectionToolbar({
       return () => clearTimeout(timer);
     }
     prevCountRef.current = selectedCount;
+    return undefined;
   }, [selectedCount]);
 
   if (!visible) return null;
@@ -57,9 +58,7 @@ export default function SelectionToolbar({
         <div className="flex size-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
           {selectedCount}
         </div>
-        {countLabel && (
-          <span className="text-sm font-medium">{countLabel}</span>
-        )}
+        {countLabel && <span className="text-sm font-medium">{countLabel}</span>}
       </div>
 
       <div className="flex items-center gap-1">
