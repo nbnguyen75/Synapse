@@ -5,12 +5,12 @@ import type {
   NoteInputPayload,
   NotesQueryParams,
 } from '@/features/notes/schemas';
+import type { Note } from '@/features/notes/types/note';
+import type { EnsureRouter } from '@/lib/fetch';
 import type {
   ApiSuccessResponse,
   PaginatedApiSuccessResponse,
 } from '@/types/response';
-import type { Note } from '@/features/notes/types/note';
-import type { EnsureRouter } from '@/lib/fetch';
 
 export type NotesApiParams = Omit<NotesQueryParams, 'sort'> & {
   sort: (NotesQueryParams['sort'] | (string & {}))[];

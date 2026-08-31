@@ -1,9 +1,9 @@
+import type { NotesQueryParams } from '@/features/notes/schemas';
 import type {
   Note,
   NotesEmptyVariant,
   NoteViewMode,
 } from '@/features/notes/types';
-import type { NotesQueryParams } from '@/features/notes/schemas';
 import type { PaginatedData } from '@/types/response';
 
 import { m } from '@/paraglide/messages';

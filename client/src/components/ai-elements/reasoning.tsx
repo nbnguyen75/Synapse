@@ -13,11 +13,11 @@ import {
   useState,
 } from 'react';
 
-import { Streamdown, type PluginConfig } from 'streamdown';
-import { mermaid } from '@streamdown/mermaid';
+import { cjk } from '@streamdown/cjk';
 import { code } from '@streamdown/code';
 import { math } from '@streamdown/math';
-import { cjk } from '@streamdown/cjk';
+import { mermaid } from '@streamdown/mermaid';
+import { Streamdown, type PluginConfig } from 'streamdown';
 
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
 

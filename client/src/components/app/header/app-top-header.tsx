@@ -1,8 +1,9 @@
+import { Fragment } from 'react/jsx-runtime';
+
 import { useNavigate } from '@tanstack/react-router';
 
 import LangEnIcon from '@iconify-react/circle-flags/lang-en';
 import LangViIcon from '@iconify-react/circle-flags/lang-vi';
-import { Fragment } from 'react/jsx-runtime';
 
 import { useElementWidth } from '@/hooks/use-element-width';
 
@@ -10,12 +11,13 @@ import { useSettingsStore } from '@/store/settings-store';
 
 import { useTheme } from '@/providers/theme-provider';
 
-import { getLocale, setLocale, type Locale } from '@/paraglide/runtime';
 import { m } from '@/paraglide/messages';
+import { getLocale, setLocale, type Locale } from '@/paraglide/runtime';
 
 import { AppBreadcrumb } from '@/components/app/breadcrumbs';
 import { KeyCombo } from '@/components/shared';
 
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,15 +31,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { SidebarManagerTrigger } from '@/components/ui/sidebar';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider,
 } from '@/components/ui/tooltip';
-import { SidebarManagerTrigger } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
 
 import {
   PanelRightIcon,

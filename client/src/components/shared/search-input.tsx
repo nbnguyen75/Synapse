@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 
 import { useDebounce } from '@/hooks/use-debounce';
 
-import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
+import { m } from '@/paraglide/messages';
 
 import { Input } from '@/components/ui/input';
 
@@ -39,7 +39,7 @@ export default function SearchInput({
     // Reset the input whenever the external `defaultValue` (e.g. the route
     // search query) changes. This is an intentional "reset on prop change"
     // pattern; remounting via `key` would require every consumer to opt in.
-    // eslint-disable-next-line react-hooks/set-state-in-effect, @eslint-react/set-state-in-effect
+    // oxlint-disable-next-line @eslint-react/set-state-in-effect
     setValue(defaultValue);
     lastReportedRef.current = defaultValue;
   }, [defaultValue]);

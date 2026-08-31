@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 
 import { createFileRoute } from '@tanstack/react-router';
 
-import { useChatModeGuard } from '@/features/companion/hooks/use-chat-mode-guard';
 import ChatPage from '@/features/companion/components/chat-page';
+import { useChatModeGuard } from '@/features/companion/hooks/use-chat-mode-guard';
 
 import { useCompanionStore } from '@/store/companion-store';
 

@@ -6,7 +6,7 @@ export function useElementWidth<T extends HTMLElement>() {
 
   useLayoutEffect(() => {
     const element = ref.current;
-    if (!element) return;
+    if (!element) return undefined;
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {

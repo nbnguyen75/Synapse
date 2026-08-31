@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { m } from '@/paraglide/messages';
 
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 export default function GeneralSettingsPage() {
   // TODO: save to account later

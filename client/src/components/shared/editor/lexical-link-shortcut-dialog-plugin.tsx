@@ -3,6 +3,9 @@ import type { LexicalCommand } from 'lexical';
 import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { TOGGLE_LINK_COMMAND, $isLinkNode } from '@lexical/link';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $findMatchingParent,
   $getSelection,
@@ -10,13 +13,11 @@ import {
   COMMAND_PRIORITY_LOW,
   createCommand,
 } from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { TOGGLE_LINK_COMMAND, $isLinkNode } from '@lexical/link';
-import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod/v4';
 
 import { m } from '@/paraglide/messages';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -25,7 +26,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Field, FieldError } from '@/components/ui/field';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export const TOGGLE_LINK_DIALOG_COMMAND: LexicalCommand<void> = createCommand(

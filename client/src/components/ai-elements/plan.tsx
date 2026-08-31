@@ -6,6 +6,7 @@ import { createContext, useContext, useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -20,7 +21,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { Button } from '@/components/ui/button';
 
 import { Shimmer } from './shimmer';
 

@@ -8,23 +8,23 @@ import { useNavigate } from '@tanstack/react-router';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
+import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
+import { noteKeys } from '@/features/notes/keys';
 import {
   countWordsMarkdownSync,
   exportMarkdown,
   getMarkdownReadTimeSync,
 } from '@/features/notes/service';
-import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
-import { noteKeys } from '@/features/notes/keys';
 
 import {
   buildNoteChatAttachment,
   useChatNoteAttachmentStore,
 } from '@/store/chat-note-attachment-store';
 
-import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
-
 import { useConfirm } from '@/providers';
+
+import { $fetch } from '@/lib/fetch';
+import { m } from '@/paraglide/messages';
 
 export interface NoteWithDetails extends Note {
   tags?: string[];
@@ -304,7 +304,7 @@ export function useNoteCard({
   const previewContent = useMemo(() => {
     if (!note.content) return '';
     return note.content.length > PREVIEW_CHAR_LIMIT
-      ? `${note.content.slice(0, PREVIEW_CHAR_LIMIT)}`
+      ? note.content.slice(0, PREVIEW_CHAR_LIMIT)
       : note.content;
   }, [note.content]);
 

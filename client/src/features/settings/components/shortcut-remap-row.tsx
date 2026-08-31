@@ -3,8 +3,8 @@ import type { ReactHotkeyRecorder } from '@tanstack/react-hotkeys';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { useHotkeyRecorder } from '@tanstack/react-hotkeys';
 import { parseHotkey } from '@tanstack/hotkeys';
+import { useHotkeyRecorder } from '@tanstack/react-hotkeys';
 
 import { useShortcut } from '@/hooks/use-shortcut';
 

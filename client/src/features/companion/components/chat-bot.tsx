@@ -14,9 +14,16 @@ import {
 
 import { useNavigate } from '@tanstack/react-router';
 
-import { useStickToBottomContext } from 'use-stick-to-bottom';
 import { toast } from 'sonner';
+import { useStickToBottomContext } from 'use-stick-to-bottom';
 
+import { PromptInputAttachmentsDisplay } from '@/features/companion/components/chat-attachment';
+import { useCompanionChatSession } from '@/features/companion/hooks/use-companion-chat-session';
+import {
+  useGetConversationsQuery,
+  useCloneConversationMutation,
+  useSetCurrentMessageMutation,
+} from '@/features/companion/hooks/use-companion-conversation';
 import {
   addMessage,
   buildTree,
@@ -29,56 +36,22 @@ import {
   type TreeMessage,
 } from '@/features/companion/lib/message-tree';
 import {
-  useGetConversationsQuery,
-  useCloneConversationMutation,
-  useSetCurrentMessageMutation,
-} from '@/features/companion/hooks/use-companion-conversation';
-import {
   decodeDataUrl,
   isTextLikeMediaType,
 } from '@/features/companion/utils/file-parts';
-import { useCompanionChatSession } from '@/features/companion/hooks/use-companion-chat-session';
-import { PromptInputAttachmentsDisplay } from '@/features/companion/components/chat-attachment';
 import {
   NOTE_CONTENT_MAX_LENGTH,
   useNoteCreatePrefillStore,
 } from '@/features/notes';
 
-import { MAX_CHAT_ATTACHMENTS } from '@/store/chat-note-attachment-store';
 import { useChatMessageTreeStore } from '@/store/chat-message-tree-store';
+import { MAX_CHAT_ATTACHMENTS } from '@/store/chat-note-attachment-store';
 import { useCompanionStore } from '@/store/companion-store';
 import { useSettingsStore } from '@/store/settings-store';
 
-import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
+import { m } from '@/paraglide/messages';
 
-import {
-  PromptInput,
-  PromptInputActionAddAttachments,
-  PromptInputActionMenu,
-  PromptInputActionMenuContent,
-  PromptInputActionMenuTrigger,
-  PromptInputBody,
-  PromptInputFooter,
-  PromptInputHeader,
-  PromptInputSubmit,
-  PromptInputTextarea,
-  PromptInputTools,
-} from '@/components/ai-elements/prompt-input';
-import {
-  Message,
-  MessageAction,
-  MessageActions,
-  MessageBranch,
-  MessageBranchContent,
-  MessageBranchNext,
-  MessageBranchPage,
-  MessageBranchPrevious,
-  MessageBranchSelector,
-  MessageContent,
-  MessageResponse,
-  MessageToolbar,
-} from '@/components/ai-elements/message';
 import {
   Attachment,
   AttachmentHoverCard,
@@ -97,28 +70,55 @@ import {
   ConversationScrollButton,
 } from '@/components/ai-elements/conversation';
 import {
-  Source,
-  Sources,
-  SourcesContent,
-  SourcesTrigger,
-} from '@/components/ai-elements/sources';
+  Message,
+  MessageAction,
+  MessageActions,
+  MessageBranch,
+  MessageBranchContent,
+  MessageBranchNext,
+  MessageBranchPage,
+  MessageBranchPrevious,
+  MessageBranchSelector,
+  MessageContent,
+  MessageResponse,
+  MessageToolbar,
+} from '@/components/ai-elements/message';
+import {
+  PromptInput,
+  PromptInputActionAddAttachments,
+  PromptInputActionMenu,
+  PromptInputActionMenuContent,
+  PromptInputActionMenuTrigger,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputHeader,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from '@/components/ai-elements/prompt-input';
 import {
   Reasoning,
   ReasoningContent,
   ReasoningTrigger,
 } from '@/components/ai-elements/reasoning';
-import { SpeechInput } from '@/components/ai-elements/speech-input';
 import { Shimmer } from '@/components/ai-elements/shimmer';
+import {
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger,
+} from '@/components/ai-elements/sources';
+import { SpeechInput } from '@/components/ai-elements/speech-input';
 
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Textarea } from '@/components/ui/textarea';
 import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 
 import {
   CheckIcon,
@@ -887,7 +887,7 @@ function MessageBody({
                 href={part.type === 'source-url' ? part.url : undefined}
                 // Source parts carry no stable id; they are positional and
                 // static once delivered, so the list index is a safe key.
-                // eslint-disable-next-line @eslint-react/no-array-index-key
+                // oxlint-disable-next-line @eslint-react/no-array-index-key
                 key={index}
                 title={part.title}
               />
@@ -900,7 +900,7 @@ function MessageBody({
           defaultOpen={false}
           // Reasoning parts have no id; positional ordering is stable for a
           // given message, so the list index is a safe key.
-          // eslint-disable-next-line @eslint-react/no-array-index-key
+          // oxlint-disable-next-line @eslint-react/no-array-index-key
           key={index}
           isStreaming={part.state === 'streaming'}
         >
@@ -976,7 +976,7 @@ function MessageBody({
         textParts.map((part, index) => (
           // Text parts have no id and may change content while streaming;
           // a content-derived key would remount and interrupt animations.
-          // eslint-disable-next-line @eslint-react/no-array-index-key
+          // oxlint-disable-next-line @eslint-react/no-array-index-key
           <MessageContent key={index}>
             <MessageResponse isAnimating={isStreaming}>
               {part.text}

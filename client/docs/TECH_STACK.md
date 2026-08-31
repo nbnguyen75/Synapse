@@ -5,9 +5,9 @@
 - **Package manager / runtime:** Bun (`bun --bun ...` used for scripts, lint-staged, checks)
 - **Build tool:** Vite 8
 - **Language:** TypeScript (via `@typescript/native` / TS 6, strict setup)
-- **Linting:** oxlint + ESLint 10 (`eslint-plugin-oxlint`, `eslint-plugin-perfectionist`,
-  `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`, `typescript-eslint`)
-- **Formatting:** Prettier 3
+- **Linting:** oxlint (type-aware via `oxlint-tsgolint`; `@eslint-react/eslint-plugin` +
+  `eslint-plugin-perfectionist` loaded as JS plugins — perfectionist handles non-import sort rules only; import sorting is done by Oxfmt)
+- **Formatting:** Oxfmt (Prettier-compatible; bundles Prettier internally for Markdown/HTML files; `sortImports` for 25-group import ordering per `.oxfmtrc.json`)
 - **Git hooks:** Husky + lint-staged (`bun --bun check` on staged files)
 
 ## Framework & Routing
@@ -106,13 +106,14 @@
 | `preview`              | Preview production build                                            |
 | `generate-routes`      | Regenerate TanStack Router route tree (`tsr generate`)              |
 | `generate-translation` | Compile Paraglide translations (also runs on `postinstall`)         |
-| `lint`                 | `oxlint` + `eslint`                                                 |
-| `format`               | Prettier write                                                      |
-| `check`                | Prettier + oxlint --fix + eslint --fix (used by lint-staged and CI) |
+| `lint`                 | `oxlint`                                                           |
+| `format`               | `oxfmt` (writes, respects `.oxfmtrc.json` ignorePatterns)         |
+| `format:check`         | `oxfmt --check` (CI gate: exit 1 when files would change)         |
+| `check`                | `oxfmt` + `oxlint --fix` (used by lint-staged and CI)              |
 
 ## Version Notes
 
-- React 19, Vite 8, Tailwind 4, TanStack Router/Query 5.x, ESLint 10 — this is a
+- React 19, Vite 8, Tailwind 4, TanStack Router/Query 5.x, oxlint 1.x — this is a
   bleeding-edge stack. Don't downgrade to "familiar" older APIs (e.g. old
   Tailwind config syntax, old React Router patterns) out of habit — check the
   installed major version before writing code.

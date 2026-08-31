@@ -1,17 +1,17 @@
-import { Controller } from 'react-hook-form';
 import { useEffect } from 'react';
+import { Controller } from 'react-hook-form';
 
 import { createFileRoute, redirect, useParams } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 import { z } from 'zod/v4';
 
+import { useGoToCompanion } from '@/features/companion/hooks';
+import { useNoteDetails } from '@/features/notes/hooks';
 import {
   getMarkdownReadTimeSync,
   exportMarkdown,
 } from '@/features/notes/service';
-import { useGoToCompanion } from '@/features/companion/hooks';
-import { useNoteDetails } from '@/features/notes/hooks';
 
 import {
   buildNoteChatAttachment,
@@ -21,12 +21,13 @@ import { useCompanionContextStore } from '@/store/companion-context-store';
 
 import { createTitle } from '@/config/metadata';
 
-import { m } from '@/paraglide/messages';
 import { $fetch } from '@/lib/fetch';
+import { m } from '@/paraglide/messages';
 
-import { LexicalEditor } from '@/components/shared/editor';
 import { MarkdownRenderer } from '@/components/shared';
+import { LexicalEditor } from '@/components/shared/editor';
 
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,10 +35,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FieldLabel } from '@/components/ui/field';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import {
   ArrowLeftIcon,

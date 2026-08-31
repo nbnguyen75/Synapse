@@ -18,8 +18,8 @@ import {
 
 import { cn } from '@/lib/utils';
 
-import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
+import { ButtonGroup, ButtonGroupText } from '@/components/ui/button-group';
 
 export type AudioPlayerProps = Omit<
   ComponentProps<typeof MediaController>,

@@ -1,5 +1,5 @@
-import { useForm, useWatch } from 'react-hook-form';
 import { useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
@@ -7,14 +7,14 @@ import { useNavigate } from '@tanstack/react-router';
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 
+import { useGenerateNoteTitle } from '@/features/notes/hooks/api';
+import { noteKeys } from '@/features/notes/keys';
 import {
   noteInputSchema,
   type NoteFormInput,
   type NoteInputPayload,
 } from '@/features/notes/schemas';
 import { useNoteCreatePrefillStore } from '@/features/notes/store';
-import { useGenerateNoteTitle } from '@/features/notes/hooks/api';
-import { noteKeys } from '@/features/notes/keys';
 
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 

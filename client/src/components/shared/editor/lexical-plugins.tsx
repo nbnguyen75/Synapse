@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react';
 
+import { CodeNode, CodeHighlightNode } from '@lexical/code';
+import { LinkNode, AutoLinkNode } from '@lexical/link';
+import { ListNode, ListItemNode } from '@lexical/list';
+import { $createMarkNode, $isMarkNode, MarkNode } from '@lexical/mark';
 import {
   $convertFromMarkdownString,
   $convertToMarkdownString,
@@ -7,13 +11,9 @@ import {
   type TextMatchTransformer,
 } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getRoot, TextNode, ParagraphNode, $createTextNode } from 'lexical';
-import { $createMarkNode, $isMarkNode, MarkNode } from '@lexical/mark';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import { CodeNode, CodeHighlightNode } from '@lexical/code';
-import { ListNode, ListItemNode } from '@lexical/list';
-import { LinkNode, AutoLinkNode } from '@lexical/link';
+import { $getRoot, TextNode, ParagraphNode, $createTextNode } from 'lexical';
 
 export const ALLOWED_NODES = [
   HeadingNode,

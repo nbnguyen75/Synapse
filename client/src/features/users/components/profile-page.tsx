@@ -1,8 +1,8 @@
-import { m } from '@/paraglide/messages';
 import { useSession } from '@/lib/auth';
+import { m } from '@/paraglide/messages';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { Mail, Calendar } from 'lucide-react';
 

@@ -3,6 +3,7 @@ import type { Note, NoteViewMode } from '@/features/notes/types';
 
 import { m } from '@/paraglide/messages';
 
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 
 import {
   ArchiveIcon,

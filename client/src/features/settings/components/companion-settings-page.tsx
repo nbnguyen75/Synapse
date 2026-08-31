@@ -1,5 +1,5 @@
-import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useEffect } from 'react';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 
@@ -23,6 +23,14 @@ import { m } from '@/paraglide/messages';
 
 import { LexicalEditor } from '@/components/shared/editor';
 
+import { Button } from '@/components/ui/button';
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -30,16 +38,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 import { SaveIcon } from 'lucide-react';
 

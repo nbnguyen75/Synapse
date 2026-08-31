@@ -130,10 +130,10 @@ setTimeout(fn, RETRY_DELAY_MS)
 
 ## React Compiler Lint Rules — Known Failure Patterns
 
-These are enforced by `eslint-plugin-react-hooks` and will fail `bun run check`/`lint`.
-Do not generate code that triggers them.
+These are enforced by the `@eslint-react` ruleset (via oxlint) and will fail
+`bun run check`/`lint`. Do not generate code that triggers them.
 
-### 1. Never create components during render (`react-hooks/static-components`)
+### 1. Never create components during render (`@eslint-react/static-components`)
 
 Resolving a component reference (e.g. picking an icon component from a map/lookup
 function) inside the render body and then using it as JSX creates a **new**
@@ -160,7 +160,7 @@ function fresh on every render and hand its result straight to JSX without
 memoizing it — either hoist the resolution to module scope (if it doesn't
 depend on props), or wrap it in `useMemo` keyed on the actual dependency.
 
-### 2. Never call `setState` synchronously inside a plain `useEffect` body (`react-hooks/set-state-in-effect`)
+### 2. Never call `setState` synchronously inside a plain `useEffect` body (`@eslint-react/set-state-in-effect`)
 
 The lint rule tracks **when** `setState` runs, not how it's spelled. Wrapping
 the call in a local function does **not** fix it if that function is still

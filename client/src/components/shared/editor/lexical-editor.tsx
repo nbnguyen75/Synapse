@@ -2,27 +2,31 @@ import type { EditorThemeClasses } from 'lexical';
 
 import { useEffect, type HTMLAttributes } from 'react';
 
+import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
+import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
+import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
+import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
 import {
   LexicalComposer,
   type InitialConfigType,
 } from '@lexical/react/LexicalComposer';
-import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
-import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { ClickableLinkPlugin } from '@lexical/react/LexicalClickableLinkPlugin';
-import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
-import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
+import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 
-import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
+import { m } from '@/paraglide/messages';
 
+import CompanionBridgePlugin from './companion-bridge-plugin';
+import BulletListShortcutPlugin from './lexical-bullet-list-shortcut-plugin';
+import KeyboardShortcutsPlugin from './lexical-keyboard-shortcuts';
+import LinkShortcutDialogPlugin from './lexical-link-shortcut-dialog-plugin';
 import {
   CUSTOM_TRANSFORMERS,
   InitialStatePlugin,
@@ -31,12 +35,8 @@ import {
   ALLOWED_NODES,
   MATCHERS,
 } from './lexical-plugins';
-import BulletListShortcutPlugin from './lexical-bullet-list-shortcut-plugin';
-import LinkShortcutDialogPlugin from './lexical-link-shortcut-dialog-plugin';
-import KeyboardShortcutsPlugin from './lexical-keyboard-shortcuts';
-import CompanionBridgePlugin from './companion-bridge-plugin';
-import MarkdownPastePlugin from './markdown-paste-plugin';
 import Toolbar from './lexical-toolbar';
+import MarkdownPastePlugin from './markdown-paste-plugin';
 
 export const editorTheme: EditorThemeClasses = {
   codeHighlight: {

@@ -1,18 +1,18 @@
 'use client';
 
-import type { ComponentProps, HTMLAttributes, ReactNode } from 'react';
 import type { FileUIPart, SourceDocumentUIPart } from 'ai';
+import type { ComponentProps, HTMLAttributes, ReactNode } from 'react';
 
 import { createContext, useCallback, useContext, useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 
+import { Button } from '@/components/ui/button';
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import { Button } from '@/components/ui/button';
 
 import {
   FileTextIcon,
@@ -29,10 +29,16 @@ import {
 // ============================================================================
 
 export type AttachmentData =
-  (FileUIPart & { id: string }) | (SourceDocumentUIPart & { id: string });
+  | (FileUIPart & { id: string })
+  | (SourceDocumentUIPart & { id: string });
 
 export type AttachmentMediaCategory =
-  'image' | 'video' | 'audio' | 'document' | 'source' | 'unknown';
+  | 'image'
+  | 'video'
+  | 'audio'
+  | 'document'
+  | 'source'
+  | 'unknown';
 
 export type AttachmentVariant = 'grid' | 'inline' | 'list';
 

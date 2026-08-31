@@ -73,13 +73,13 @@ Before ending a session:
 Active checks (mirrors `init.sh`):
 ```bash
 bun --bun install
-bun --bun check       # prettier --write + oxlint --fix + eslint --fix
+bun --bun check       # oxfmt --write + oxlint --fix
 ```
 
 Disabled for now (commented out in `init.sh` — enable when you want stricter
 gating, e.g. before a milestone or in CI):
 ```bash
-bun --bun lint         # oxlint + eslint, no-fix
+bun --bun lint         # oxlint, no-fix
 tsc -b                 # type-check
 bun --bun run build
 ```

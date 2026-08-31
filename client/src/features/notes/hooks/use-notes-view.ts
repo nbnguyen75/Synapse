@@ -5,12 +5,12 @@ import { useMemo } from 'react';
 
 import { useNavigate, useSearch } from '@tanstack/react-router';
 
+import { NOTE_VIEW_CONFIG } from '@/features/notes/constants';
 import {
   useEmptyTrash,
   useInfiniteNotes,
   useNotesBulkAction,
 } from '@/features/notes/hooks/api';
-import { NOTE_VIEW_CONFIG } from '@/features/notes/constants';
 
 import { useMultiSelect } from '@/hooks/use-multi-select';
 

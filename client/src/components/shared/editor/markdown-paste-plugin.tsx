@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+import { $generateNodesFromMarkdownString } from '@lexical/markdown';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   COMMAND_PRIORITY_HIGH,
   PASTE_COMMAND,
@@ -7,8 +9,6 @@ import {
   $getSelection,
   type PasteCommandType,
 } from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $generateNodesFromMarkdownString } from '@lexical/markdown';
 
 import { CUSTOM_TRANSFORMERS } from './lexical-plugins';
 

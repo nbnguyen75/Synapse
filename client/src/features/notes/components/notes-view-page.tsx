@@ -10,8 +10,8 @@ import {
 import { NOTE_SORT_OPTIONS } from '@/features/notes/constants';
 import { useNotesView } from '@/features/notes/hooks';
 
-import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
+import { m } from '@/paraglide/messages';
 
 import {
   PageHeader,
@@ -23,6 +23,7 @@ import {
   PageHeaderToolbar,
 } from '@/components/shared/page-header';
 
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -30,7 +31,6 @@ import {
   SelectValue,
   SelectItem,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 
 import { Loader2Icon, PlusIcon, Trash2Icon } from 'lucide-react';
 
@@ -57,7 +57,7 @@ export default function NotesViewPage({ viewMode }: NotesViewPageProps) {
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
-    if (!sentinel || !hasNextPage) return;
+    if (!sentinel || !hasNextPage) return undefined;
 
     const observer = new IntersectionObserver(
       (entries) => {

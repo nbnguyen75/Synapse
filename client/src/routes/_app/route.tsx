@@ -11,25 +11,25 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 import { useSettingsStore } from '@/store/settings-store';
 
-import { AppGlobalKeybinds } from '@/components/app/keyboard-shortcuts';
-import { AppRightSidebar } from '@/components/app/right-sidebar';
-import { AppLeftSidebar } from '@/components/app/left-sidebar';
-import { AppTopHeader } from '@/components/app/header';
+import { ConfirmProvider } from '@/providers';
 
-import {
-  SidebarInset,
-  SidebarManager,
-  SidebarManagerProvider,
-  SidebarProvider,
-} from '@/components/ui/sidebar';
+import { AppTopHeader } from '@/components/app/header';
+import { AppGlobalKeybinds } from '@/components/app/keyboard-shortcuts';
+import { AppLeftSidebar } from '@/components/app/left-sidebar';
+import { AppRightSidebar } from '@/components/app/right-sidebar';
+
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-
-import { ConfirmProvider } from '@/providers';
+import {
+  SidebarInset,
+  SidebarManager,
+  SidebarManagerProvider,
+  SidebarProvider,
+} from '@/components/ui/sidebar';
 
 export const Route = createFileRoute('/_app')({
   beforeLoad: ({ location, context }) => {

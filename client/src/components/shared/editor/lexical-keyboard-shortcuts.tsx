@@ -5,21 +5,6 @@ import { useEffect, useMemo, useRef } from 'react';
 import { normalizeHotkey, normalizeHotkeyFromEvent } from '@tanstack/hotkeys';
 
 import {
-  $createParagraphNode,
-  $findMatchingParent,
-  $getSelection,
-  $isRangeSelection,
-  COMMAND_PRIORITY_LOW,
-  FORMAT_TEXT_COMMAND,
-  KEY_DOWN_COMMAND,
-  type LexicalEditor as LexicalEditorType,
-} from 'lexical';
-import {
-  $createHeadingNode,
-  $createQuoteNode,
-  type HeadingTagType,
-} from '@lexical/rich-text';
-import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
@@ -29,7 +14,22 @@ import {
   $wrapSelectionInMarkNode,
 } from '@lexical/mark';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import {
+  $createHeadingNode,
+  $createQuoteNode,
+  type HeadingTagType,
+} from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
+import {
+  $createParagraphNode,
+  $findMatchingParent,
+  $getSelection,
+  $isRangeSelection,
+  COMMAND_PRIORITY_LOW,
+  FORMAT_TEXT_COMMAND,
+  KEY_DOWN_COMMAND,
+  type LexicalEditor as LexicalEditorType,
+} from 'lexical';
 
 import { useShortcutsStore } from '@/store/shortcuts-store';
 

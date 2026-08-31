@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 
-import { useGetConversationsQuery } from '@/features/companion/hooks/use-companion-conversation';
 import { ConversationListItem } from '@/features/companion/components/conversation-list-item';
+import { useGetConversationsQuery } from '@/features/companion/hooks/use-companion-conversation';
 
 import { useCompanionStore } from '@/store/companion-store';
 import { useSettingsStore } from '@/store/settings-store';

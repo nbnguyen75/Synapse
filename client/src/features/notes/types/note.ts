@@ -14,4 +14,8 @@ export interface Note {
 export type NoteViewMode = 'active' | 'archive' | 'favorites' | 'trash';
 
 export type NotesEmptyVariant =
-  'active' | 'archived' | 'favorites' | 'trash' | 'no-results';
+  | 'active'
+  | 'archived'
+  | 'favorites'
+  | 'trash'
+  | 'no-results';

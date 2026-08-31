@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+import { INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
   $isRangeSelection,
@@ -9,8 +11,6 @@ import {
   KEY_DOWN_COMMAND,
   mergeRegister,
 } from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
 
 /**
  * Matches a caret sitting right after a bullet-list marker at the start of a

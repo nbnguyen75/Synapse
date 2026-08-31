@@ -1,13 +1,13 @@
 import type {
-  CompanionConversation,
-  CompanionSettings,
-} from '@/features/companion/types/companion';
-import type {
   CompanionSettingsPayload,
   ConversationIdParams,
 } from '@/features/companion/schemas';
-import type { ApiSuccessResponse } from '@/types/response';
+import type {
+  CompanionConversation,
+  CompanionSettings,
+} from '@/features/companion/types/companion';
 import type { EnsureRouter } from '@/lib/fetch';
+import type { ApiSuccessResponse } from '@/types/response';
 import type { UIMessage } from 'ai';
 
 export type CompanionFetchRouter = EnsureRouter<{

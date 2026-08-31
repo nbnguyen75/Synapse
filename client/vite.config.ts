@@ -1,15 +1,15 @@
 import path from 'path';
 
-import { tanstackRouter } from '@tanstack/router-plugin/vite';
 import { devtools } from '@tanstack/devtools-vite';
+import { tanstackRouter } from '@tanstack/router-plugin/vite';
 
-import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
-import { imagetools } from 'vite-imagetools';
-import tailwindcss from '@tailwindcss/vite';
 import babel from '@rolldown/plugin-babel';
-import { VitePWA } from 'vite-plugin-pwa';
+import tailwindcss from '@tailwindcss/vite';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import { imagetools } from 'vite-imagetools';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
 export default defineConfig({

@@ -22,7 +22,7 @@ const SKELETON_KEYS = [
 
 interface NotesListProps {
   onCreateClick?: (
-    event: BaseUIEvent<React.MouseEvent<HTMLButtonElement, MouseEvent>>,
+    event: BaseUIEvent<React.MouseEvent<HTMLButtonElement>>,
   ) => void;
   renderItem: (note: Note) => ReactNode;
   emptyVariant: NotesEmptyVariant;

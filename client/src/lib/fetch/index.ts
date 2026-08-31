@@ -2,8 +2,8 @@ import type { AppFetchRouter } from '@/types/app';
 
 import { env } from '@/config/env';
 
-import { createRpcClient } from '@/lib/fetch/rpc';
 import { authClient } from '@/lib/auth';
+import { createRpcClient } from '@/lib/fetch/rpc';
 
 let cachedToken: string | undefined;
 let tokenExpiresAt = 0;

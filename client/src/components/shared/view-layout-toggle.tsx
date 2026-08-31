@@ -1,12 +1,12 @@
 import { cn } from '@/lib/utils';
 
+import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
 
 import { LayoutGridIcon, Table2Icon } from 'lucide-react';
 

@@ -95,7 +95,8 @@ type ProxyTree<
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 type RpcResponse<T> =
-  { error: null; data: T } | { error: ApiErrorResponse; data: null };
+  | { error: null; data: T }
+  | { error: ApiErrorResponse; data: null };
 
 const METHOD_KEY_MAP: Record<string, HttpMethod> = {
   $delete: 'DELETE',
@@ -146,7 +147,7 @@ export function createRpcClient<Router extends BaseRouter>(
 export function createRpcClient<Router extends BaseRouter>(
   baseUrl?: string,
   option?: CreateRpcClientOption,
-): ProxyTree<Router, false>;
+): ProxyTree<Router>;
 
 export function createRpcClient<Router extends BaseRouter>(
   baseUrl: string | undefined = env.VITE_API_URL,

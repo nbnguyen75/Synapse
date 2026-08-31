@@ -6,6 +6,7 @@ import { m } from '@/paraglide/messages';
 
 import { AppLogo } from '@/components/app/logo';
 
+import { Badge } from '@/components/ui/badge';
 import {
   SidebarHeader,
   SidebarContent,
@@ -15,11 +16,10 @@ import {
   SidebarFooter,
   Sidebar,
 } from '@/components/ui/sidebar';
-import { Badge } from '@/components/ui/badge';
 
 import NavCompanion from './nav-companion';
-import NavSecondary from './nav-secondary';
 import NavMain from './nav-main';
+import NavSecondary from './nav-secondary';
 import NavUser from './nav-user';
 
 export default function AppLeftSidebar({

@@ -6,8 +6,8 @@ import CompanionChat from '@/features/companion/components/companion-chat';
 
 import { useSettingsStore } from '@/store/settings-store';
 
-import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
+import { m } from '@/paraglide/messages';
 
 import { Button } from '@/components/ui/button';
 

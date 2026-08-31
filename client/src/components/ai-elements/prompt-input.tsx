@@ -1,5 +1,7 @@
 'use client';
 
+import type { BaseUIEvent } from '@base-ui/react';
+import type { ChatStatus, FileUIPart, SourceDocumentUIPart } from 'ai';
 import type {
   ChangeEvent,
   ChangeEventHandler,
@@ -14,8 +16,6 @@ import type {
   RefObject,
   SyntheticEvent,
 } from 'react';
-import type { ChatStatus, FileUIPart, SourceDocumentUIPart } from 'ai';
-import type { BaseUIEvent } from '@base-ui/react';
 
 import {
   Children,
@@ -48,6 +48,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card';
+import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
@@ -60,17 +65,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
+import { Spinner } from '@/components/ui/spinner';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Spinner } from '@/components/ui/spinner';
 
 import {
   CornerDownLeftIcon,
@@ -428,7 +428,7 @@ export const PromptInputActionAddAttachments = ({
   const attachments = usePromptInputAttachments();
 
   const handleSelect = useCallback(
-    (e: BaseUIEvent<SyntheticEvent<HTMLDivElement, Event>>) => {
+    (e: BaseUIEvent<SyntheticEvent<HTMLDivElement>>) => {
       e.preventDefault();
       attachments.openFileDialog();
     },
@@ -456,7 +456,7 @@ export const PromptInputActionAddScreenshot = ({
   const attachments = usePromptInputAttachments();
 
   const handleSelect = useCallback(
-    async (event: BaseUIEvent<SyntheticEvent<HTMLDivElement, Event>>) => {
+    async (event: BaseUIEvent<SyntheticEvent<HTMLDivElement>>) => {
       onSelect?.(event);
       if (event.defaultPrevented) {
         return;
@@ -1250,9 +1250,7 @@ export const PromptInputSubmit = ({
         return;
       }
       onClick?.(
-        e as unknown as BaseUIEvent<
-          React.MouseEvent<HTMLButtonElement, MouseEvent>
-        >,
+        e as unknown as BaseUIEvent<React.MouseEvent<HTMLButtonElement>>,
       );
     },
     [isGenerating, onStop, onClick],

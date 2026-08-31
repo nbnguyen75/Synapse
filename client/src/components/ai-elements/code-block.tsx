@@ -1,12 +1,12 @@
 'use client';
 
+import type { ComponentProps, HTMLAttributes } from 'react';
 import type {
   BundledLanguage,
   BundledTheme,
   HighlighterGeneric,
   ThemedToken,
 } from 'shiki';
-import type { ComponentProps, HTMLAttributes } from 'react';
 
 import {
   createContext,
@@ -23,6 +23,7 @@ import { createHighlighter } from 'shiki';
 
 import { cn } from '@/lib/utils';
 
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -30,7 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 
 import { CheckIcon, CopyIcon } from 'lucide-react';
 

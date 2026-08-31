@@ -1,6 +1,6 @@
-import { Link } from '@tanstack/react-router';
-
 import { Fragment } from 'react/jsx-runtime';
+
+import { Link } from '@tanstack/react-router';
 
 import {
   useBreadcrumb,
@@ -20,13 +20,13 @@ import {
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
 } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 
 function renderCrumb(crumb: BreadcrumbItemData) {
   return (

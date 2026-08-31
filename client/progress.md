@@ -2,11 +2,30 @@
 
 ## Current State
 
-**Last Updated:** 2026-08-29
-**Session ID:** lint-cleanup-061
-**Active Feature:** lint cleanup — `bun --bun check` now exits 0 with zero problems (1 error + 27 warnings fixed).
+**Last Updated:** 2026-08-31
+**Session ID:** sort-imports-to-oxfmt-064
+**Active Feature:** tooling migration — perfectionist `sort-imports` replaced by oxfmt `sortImports` (25-group config, alphabetical ordering).
 
 ## Status
+
+### What's Done (sort-imports-to-oxfmt-064 — import sorting moved from perfectionist to oxfmt)
+
+- [x] **Added `sortImports` to `.oxfmtrc.json`** — 16 custom groups (react, tanstack, lib-ui, ai-libs, routes, layouts, modules, hooks, store, providers, config, libs, ai-elements, shadcn, components, assets) with 25 position groups (type, builtin, react, tanstack, external, lib-ui, ai-libs, routes, layouts, modules, hooks, store, providers, config, libs, components, ai-elements, shadcn, parent, sibling, index, assets, side_effect_style, style, import). Glob patterns ported from perfectionist regex (negative-lookahead workaround: ai-elements + shadcn defined before components in `customGroups` for first-match priority). `newlinesBetween: true`, `order: "asc"` (alphabetical — oxfmt has no line-length sort option).
+- [x] **Removed `perfectionist/sort-imports`** from `.oxlintrc.json` (other 6 perfectionist sort rules unchanged).
+- [x] **One-time repo-wide import reorder** — 95 files changed (alphabetical per new group positions). Spot-checked: main.tsx, __root.tsx, chat-bot.tsx, voice-selector.tsx, calendar.tsx, canvas.tsx, login-form.tsx, settings-store.ts — all group placements and within-group alphabetical orders verified correct.
+- [x] **Docs updated** — `docs/TECH_STACK.md` (Linting bullet + Formatting bullet with sortImports note), `feature_list.json` feat-001 description, `progress.md` this entry.
+- [x] **Verification** — `bunx oxfmt --check .` ✓ (exit 0), `bun --bun check` ×2 ✓ (idempotent, exit 0), `bun --bun lint` ✓ (exit 0), `tsc -b` ✓ (exit 0). Not committed (user manages git).
+
+### What's Done (eslint-to-oxlint-062 — full ESLint → oxlint migration)
+
+- [x] **Migrated `.oxlintrc.json`** — regenerated from `eslint.config.js` via `@oxlint/migrate --type-aware --replace-eslint-comments` (185 rules; 4 unsupported + 2 nursery skipped). Hand-cleaned afterwards: dropped the auto-generated ignore noise + `src/components/ui/**`/`ai-elements/**` global ignore (now linted again), removed `eslint-plugin-simple-import-sort` (never installed), restored `perfectionist/sort-imports` (tool skips it due to an oxfmt-sorting warning; we use Prettier so it's readded with the full custom group config), merged both jsPlugins to root, added `typescript/no-unused-vars` with the `^_` ignore patterns, added a `ui`/`ai-elements` override turning the `@eslint-react/*` rules off (mirrors the old ESLint `ignores` on that block).
+- [x] **Type-aware on** — `options.typeAware: true` + `oxlint-tsgolint` (already installed by user) → 23 previously-skipped type-aware rules active (`only-throw-error` with TanStack `Redirect`/`NotFoundError` allow-list, `require-await`, `restrict-template-expressions`, `no-unsafe-*`, etc.). Verified firing via probes.
+- [x] **@eslint-react kept via jsPlugin** — per user decision (bug/perf coverage). Native `react/*` rules that duplicate the plugin were removed to avoid double-reporting; 5 native `react/*` names the migrate tool generated (`globals`, `immutability`, `incompatible-library`, `preserve-manual-memoization`, `refs`) don't exist in oxlint 1.78 and were dropped (plugin covers the intent).
+- [x] **ESLint deps removed** — from `package.json`: `eslint`, `@eslint/js`, `eslint-config-prettier`, `eslint-plugin-oxlint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`, `typescript-eslint`, `globals`, `glob`. Added `oxlint@^1.78.0`. Kept `@eslint-react/eslint-plugin` + `eslint-plugin-perfectionist` (jsPlugins). Deleted `eslint.config.js` + `.eslintcache`; note `eslint` remains in node_modules as a transitive dep of the @eslint-react monorepo (its JS runtime requires it).
+- [x] **Scripts** — `lint` = `oxlint .`; `check` = `prettier --list-different --write . && oxlint --fix .` (eslint runtime removed from both).
+- [x] **Comments converted** — remaining `eslint-disable` → `oxlint-disable` (voice-selector, login, search-input, chat-bot, settings). `src/paraglide/**` + `src/routeTree.gen.ts` keep generated `eslint-disable` (regenerated/ignored).
+- [x] **Docs updated** — AGENTS.md check/lint comments, `docs/TECH_STACK.md` linting + scripts + version notes, `docs/RULES.md` react-hooks rule names → `@eslint-react/*`, `tsconfig.node.json` dropped `eslint.config.js`, `feature_list.json` feat-001.
+- [x] **Verification** — `bun install` ✓, `bun --bun check` ✓ (idempotent, exit 0), `bunx --bun oxlint .` ✓ (exit 0), type-aware + jsPlugin rules verified with targeted probes (then removed). Not committed (user manages git).
 
 ### What's Done (lint-cleanup-061 — `bun --bun check` fully clean)
 

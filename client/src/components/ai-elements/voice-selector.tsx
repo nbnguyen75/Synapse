@@ -9,6 +9,7 @@ import { useControllableState } from '@radix-ui/react-use-controllable-state';
 
 import { cn } from '@/lib/utils';
 
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandDialog,
@@ -27,7 +28,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
 
 import {
   CircleSmallIcon,
@@ -194,7 +194,12 @@ export const VoiceSelectorSeparator = (props: VoiceSelectorSeparatorProps) => (
 
 export type VoiceSelectorGenderProps = ComponentProps<'span'> & {
   value?:
-    'male' | 'female' | 'transgender' | 'androgyne' | 'non-binary' | 'intersex';
+    | 'male'
+    | 'female'
+    | 'transgender'
+    | 'androgyne'
+    | 'non-binary'
+    | 'intersex';
 };
 
 export const VoiceSelectorGender = ({
@@ -203,7 +208,7 @@ export const VoiceSelectorGender = ({
   value,
   ...props
 }: VoiceSelectorGenderProps) => {
-  // eslint-disable-next-line no-useless-assignment
+  // oxlint-disable-next-line no-useless-assignment
   let icon: ReactNode | null = null;
 
   switch (value) {
@@ -284,7 +289,7 @@ export const VoiceSelectorAccent = ({
   value,
   ...props
 }: VoiceSelectorAccentProps) => {
-  // eslint-disable-next-line no-useless-assignment
+  // oxlint-disable-next-line no-useless-assignment
   let emoji: string | null = null;
 
   switch (value) {

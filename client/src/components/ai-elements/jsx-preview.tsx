@@ -1,7 +1,7 @@
 'use client';
 
-import type { TProps as JsxParserProps } from 'react-jsx-parser';
 import type { ComponentProps, ReactNode } from 'react';
+import type { TProps as JsxParserProps } from 'react-jsx-parser';
 
 import {
   createContext,

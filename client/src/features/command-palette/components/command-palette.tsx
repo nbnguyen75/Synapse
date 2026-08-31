@@ -14,17 +14,17 @@ import {
   CommandPaletteSearchResults,
   CommandPaletteFooter,
 } from '@/features/command-palette/components';
+import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import {
   useGetNotes,
   type Note,
   useNoteCreatePrefillStore,
 } from '@/features/notes';
-import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 import { NOTE_CONTENT_MAX_LENGTH } from '@/features/notes/constants';
 import { getMarkdownReadTimeSync } from '@/features/notes/service';
 
-import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useHotkeyShortcut } from '@/hooks/use-hotkey-shortcut';
 
 import { useTheme } from '@/providers/theme-provider';
 
@@ -324,7 +324,7 @@ export default function CommandPalette() {
       }
 
       const noteItems: GroupedCommandItem[] = notes.slice(0, 3).map((note) => ({
-        meta: `${new Date(note.updatedAt).toLocaleDateString()}`,
+        meta: new Date(note.updatedAt).toLocaleDateString(),
         title: note.title || m.command_palette_note_untitled(),
         action: () => handleOpenNote(note),
         id: `note_${note.id}`,

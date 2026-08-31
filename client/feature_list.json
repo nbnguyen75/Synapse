@@ -3,10 +3,10 @@
     {
       "id": "feat-001",
       "name": "Project Setup & Tooling",
-      "description": "Vite 8 + Bun + TypeScript 7 + React 19. ESLint, oxlint, Prettier, Husky pre-commit hooks, TanStack devtools.",
+      "description": "Vite 8 + Bun + TypeScript 7 + React 19. oxlint (type-aware + @eslint-react/perfectionist JS plugins for non-import sorts), Oxfmt (Prettier-compatible + sortImports import ordering), Husky pre-commit hooks, TanStack devtools.",
       "dependencies": [],
       "status": "done",
-      "evidence": "package.json, vite.config.ts, eslint.config.js, prettier.config.js, .husky/, init.sh"
+      "evidence": "package.json, .oxlintrc.json, .oxfmtrc.json, .husky/, init.sh"
     },
     {
       "id": "feat-002",

@@ -1,11 +1,11 @@
 import type { NoteFormInput, NoteInputPayload } from '@/features/notes/schemas';
 import type { Note } from '@/features/notes/types';
 
-import { useForm, useWatch } from 'react-hook-form';
 import { useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
-import { useNavigate, useRouter, useSearch } from '@tanstack/react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate, useRouter, useSearch } from '@tanstack/react-router';
 
 import { toast } from 'sonner';
 
@@ -19,14 +19,14 @@ import { noteKeys } from '@/features/notes/keys';
 
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 
+import { useConfirm } from '@/providers';
+
 import {
   $fetch,
   type InferRequestType,
   type InferResponseType,
 } from '@/lib/fetch';
 import { m } from '@/paraglide/messages';
-
-import { useConfirm } from '@/providers';
 
 export function useNoteDetails(initialData: Note) {
   const router = useRouter();

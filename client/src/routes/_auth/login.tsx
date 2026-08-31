@@ -1,20 +1,20 @@
-import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { createFileRoute, Link } from '@tanstack/react-router';
 
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 
+import { LoginForm } from '@/features/auth/components';
 import {
   loginSchema,
   type LoginFormInput,
   type LoginPayload,
 } from '@/features/auth/schemas';
-import { LoginForm } from '@/features/auth/components';
 
-import { createTitle } from '@/config/metadata';
 import { env } from '@/config/env';
+import { createTitle } from '@/config/metadata';
 
 import {
   getTranslatedAuthErrorMessage,
@@ -23,8 +23,8 @@ import {
 } from '@/lib/auth';
 import { m } from '@/paraglide/messages';
 
-import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 
 import { Icon } from '@iconify/react';
 
@@ -131,7 +131,7 @@ function RouteComponent() {
           <span
             // Paraglide message embeds a styled <span> for the app name via an
             // HTML param; the content is a static i18n string, never user input.
-            // eslint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml
+            // oxlint-disable-next-line @eslint-react/dom-no-dangerously-set-innerhtml
             dangerouslySetInnerHTML={{
               __html: m.login_page_welcome({
                 appName: `<span class="text-primary">${env.VITE_APP_NAME}</span>`,

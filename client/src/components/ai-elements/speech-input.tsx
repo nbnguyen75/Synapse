@@ -6,16 +6,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils';
 
-import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 
 import { MicIcon, SquareIcon } from 'lucide-react';
 
 interface SpeechRecognition extends EventTarget {
   onerror:
-    ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null;
+    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void)
+    | null;
   onresult:
-    ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null;
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void)
+    | null;
   onstart: ((this: SpeechRecognition, ev: Event) => void) | null;
   onend: ((this: SpeechRecognition, ev: Event) => void) | null;
   interimResults: boolean;

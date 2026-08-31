@@ -5,11 +5,13 @@ import { memo } from 'react';
 import { NoteCardDropdown } from '@/features/notes/components/note-card-dropdown';
 import { useNoteCard } from '@/features/notes/hooks';
 
-import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
+import { m } from '@/paraglide/messages';
 
 import MarkdownRenderer from '@/components/shared/markdown-renderer';
 
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -18,8 +20,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 import { BookOpenIcon, CalendarIcon, PinIcon, StarIcon } from 'lucide-react';
 

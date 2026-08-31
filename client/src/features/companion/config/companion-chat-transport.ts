@@ -63,7 +63,8 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
           metadata: {
             ...getDefaultMessageMetadata(),
             ...(lastUserMessage.metadata as
-              Record<string, unknown> | undefined),
+              | Record<string, unknown>
+              | undefined),
             ...(getExtraMetadata ? getExtraMetadata() : {}),
           },
           parts: lastUserMessage.parts,

@@ -33,7 +33,11 @@ const useStrictModeSafeInit = () => {
 };
 
 export type PersonaState =
-  'idle' | 'listening' | 'thinking' | 'speaking' | 'asleep';
+  | 'idle'
+  | 'listening'
+  | 'thinking'
+  | 'speaking'
+  | 'asleep';
 
 interface StableCallbacks {
   onLoadError?: RiveParameters['onLoadError'];

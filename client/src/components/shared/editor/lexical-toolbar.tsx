@@ -2,6 +2,14 @@
 
 import { formatForDisplay } from '@tanstack/hotkeys';
 
+import { $isLinkNode } from '@lexical/link';
+import {
+  $isListNode,
+  INSERT_UNORDERED_LIST_COMMAND,
+  INSERT_ORDERED_LIST_COMMAND,
+} from '@lexical/list';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $isHeadingNode } from '@lexical/rich-text';
 import {
   $getSelection,
   $isRangeSelection,
@@ -12,14 +20,6 @@ import {
   COMMAND_PRIORITY_LOW,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import {
-  $isListNode,
-  INSERT_UNORDERED_LIST_COMMAND,
-  INSERT_ORDERED_LIST_COMMAND,
-} from '@lexical/list';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $isHeadingNode } from '@lexical/rich-text';
-import { $isLinkNode } from '@lexical/link';
 
 import { useShortcut } from '@/hooks/use-shortcut';
 

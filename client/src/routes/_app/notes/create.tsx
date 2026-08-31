@@ -13,6 +13,8 @@ import { m } from '@/paraglide/messages';
 import { MarkdownRenderer, KeyCombo } from '@/components/shared';
 import { LexicalEditor } from '@/components/shared/editor';
 
+import { Button } from '@/components/ui/button';
+import { Field, FieldError } from '@/components/ui/field';
 import {
   InputGroup,
   InputGroupAddon,
@@ -20,8 +22,6 @@ import {
   InputGroupInput,
 } from '@/components/ui/input-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Field, FieldError } from '@/components/ui/field';
-import { Button } from '@/components/ui/button';
 
 import {
   ArrowLeftIcon,

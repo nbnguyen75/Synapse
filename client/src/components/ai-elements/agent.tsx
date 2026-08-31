@@ -1,7 +1,7 @@
 'use client';
 
-import type { ComponentProps } from 'react';
 import type { Tool } from 'ai';
+import type { ComponentProps } from 'react';
 
 import { memo } from 'react';
 

@@ -1,7 +1,7 @@
 import type { ShortcutId } from '@/config/keyboard-shortcuts';
 
-import { persist } from 'zustand/middleware';
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface ShortcutsState {
   setBinding: (id: ShortcutId, combos: string[] | null) => void;

@@ -1,5 +1,5 @@
-import type { Note, NoteViewMode } from '@/features/notes/types';
 import type { BulkNoteAction } from '@/features/notes/constants';
+import type { Note, NoteViewMode } from '@/features/notes/types';
 
 import { m } from '@/paraglide/messages';
 

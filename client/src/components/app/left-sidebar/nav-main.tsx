@@ -7,8 +7,8 @@ import { useCurrentPathname } from '@/hooks/use-pathname';
 import { useCompanionStore } from '@/store/companion-store';
 import { useSettingsStore } from '@/store/settings-store';
 
-import { m } from '@/paraglide/messages';
 import { cn } from '@/lib/utils';
+import { m } from '@/paraglide/messages';
 
 import {
   SidebarGroup,

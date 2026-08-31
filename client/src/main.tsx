@@ -1,21 +1,21 @@
 import type { AuthContext } from '@/types/app';
 
-import ReactDOM from 'react-dom/client';
 import { StrictMode } from 'react';
+import ReactDOM from 'react-dom/client';
 
+import { HotkeysProvider } from '@tanstack/react-hotkeys';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
-import { HotkeysProvider } from '@tanstack/react-hotkeys';
 
 import { registerSW } from 'virtual:pwa-register';
 
 import { routeTree } from '@/routeTree.gen';
 
+import { ThemeProvider, GlobalShortcutsProvider } from '@/providers';
+
 import { useSession } from '@/lib/auth';
 
 import { DefaultLoaderPage, ErrorPage } from '@/components/app/pages';
-
-import { ThemeProvider, GlobalShortcutsProvider } from '@/providers';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -94,7 +94,7 @@ const handleChunkError = (errorMessage?: string) => {
 
 window.addEventListener('error', (event) => handleChunkError(event.message));
 window.addEventListener('unhandledrejection', (event) =>
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+  // oxlint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
   handleChunkError(event.reason?.message || String(event.reason)),
 );
 

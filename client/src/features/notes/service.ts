@@ -1,7 +1,7 @@
 import type { Note } from '@/features/notes/types';
 
-import strip from 'strip-markdown';
 import { remark } from 'remark';
+import strip from 'strip-markdown';
 
 import { m } from '@/paraglide/messages';
 

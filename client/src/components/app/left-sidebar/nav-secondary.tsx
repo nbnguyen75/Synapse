@@ -5,8 +5,8 @@ import { useSettingsStore } from '@/store/settings-store';
 
 import { m } from '@/paraglide/messages';
 
-import KeyboardShortcutsDialog from '@/components/shared/sidebar-keyboard-shortcuts-dialog';
 import { KeyCombo } from '@/components/shared';
+import KeyboardShortcutsDialog from '@/components/shared/sidebar-keyboard-shortcuts-dialog';
 
 import {
   SidebarGroup,

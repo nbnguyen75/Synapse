@@ -1,7 +1,7 @@
 'use client';
 
-import type { ComponentProps } from 'react';
 import type { UIMessage } from 'ai';
+import type { ComponentProps } from 'react';
 
 import { useCallback } from 'react';
 

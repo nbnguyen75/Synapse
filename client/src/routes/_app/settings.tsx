@@ -1,4 +1,4 @@
-/* eslint-disable perfectionist/sort-objects */
+/* oxlint-disable perfectionist/sort-objects */
 import type { SettingsTab } from '@/features/settings/constants';
 
 import { useState, type ElementType } from 'react';

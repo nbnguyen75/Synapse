@@ -2,10 +2,10 @@ import { useCallback, useMemo, useRef } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import { useGetConversationMessagesInfiniteQuery } from '@/features/companion/hooks/use-companion-conversation';
 import ChatBot, {
   type ChatBotHandle,
 } from '@/features/companion/components/chat-bot';
+import { useGetConversationMessagesInfiniteQuery } from '@/features/companion/hooks/use-companion-conversation';
 
 import { useCompanionStore } from '@/store/companion-store';
 

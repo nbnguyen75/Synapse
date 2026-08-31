@@ -1,17 +1,17 @@
-import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { createFileRoute, Link } from '@tanstack/react-router';
 
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { toast } from 'sonner';
 
+import { RegisterForm } from '@/features/auth/components';
 import {
   registerSchema,
   type RegisterFormInput,
   type RegisterPayload,
 } from '@/features/auth/schemas';
-import { RegisterForm } from '@/features/auth/components';
 
 import { createTitle } from '@/config/metadata';
 
@@ -22,8 +22,8 @@ import {
 } from '@/lib/auth';
 import { m } from '@/paraglide/messages';
 
-import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 
 export const Route = createFileRoute('/_auth/register')({
   head: () => ({
