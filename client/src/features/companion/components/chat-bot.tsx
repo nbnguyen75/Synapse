@@ -211,7 +211,7 @@ function ChatBot({
             null,
         };
       });
-      const leaf = conversation?.currentMessageId ?? rows.at(-1)?.id ?? null;
+      const leaf = conversation?.currentMessageId ?? rows.at(-1)?.id;
       nextTree = buildTree(rows, leaf);
       setTree(initialConversationId, nextTree);
     }
@@ -283,9 +283,9 @@ function ChatBot({
         } else {
           const rows: Array<TreeMessage> = chat.messages.map((message, index) => ({
             ...message,
-            parentId: index === 0 ? null : (chat.messages[index - 1]?.id ?? null),
+            parentId: index === 0 ? undefined : chat.messages[index - 1]?.id,
           }));
-          setTree(conversationId, buildTree(rows, rows.at(-1)?.id ?? null));
+          setTree(conversationId, buildTree(rows, rows.at(-1)?.id));
         }
       }
       onFinish?.(result);
@@ -305,7 +305,8 @@ function ChatBot({
       if (!tree) return;
 
       const target = tree.nodes[assistantMessageId];
-      if (target.role !== 'assistant' || !target.parentId) {
+      // oxlint-disable-next-line typescript/no-unnecessary-condition -- missing keys return undefined at runtime
+      if (!target || target.role !== 'assistant' || !target.parentId) {
         toast.error(m.chat_message_retry_failed());
         return;
       }
@@ -434,6 +435,8 @@ function ChatBot({
   const lastMessage = liveMessages[liveMessages.length - 1];
   const isAwaitingResponse =
     isGenerating &&
+    // oxlint-disable-next-line typescript/no-unnecessary-condition -- empty array yields undefined
+    !!lastMessage &&
     (lastMessage.role === 'user' ||
       (lastMessage.role === 'assistant' && lastMessage.parts.length === 0));
 
@@ -651,7 +654,11 @@ function MessageView({
   const isEditing = editingMessageId === message.id;
   const actionsDisabled = isGenerating || isStreaming;
   const tree = useChatMessageTreeStore((state) => state.trees[conversationId ?? '']);
-  const versionInfo = useMemo(() => getVersionInfo(tree, message.id), [message.id, tree]);
+  const versionInfo = useMemo(
+    // oxlint-disable-next-line typescript/no-unnecessary-condition -- tree is undefined before the store loads
+    () => (tree ? getVersionInfo(tree, message.id) : null),
+    [message.id, tree],
+  );
 
   if (versionInfo) {
     return (

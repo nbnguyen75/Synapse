@@ -160,3 +160,7 @@ dev-dist
 .eslintcache
 
 **/vite.config.*.timestamp-*.*
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

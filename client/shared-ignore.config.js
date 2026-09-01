@@ -71,13 +71,14 @@ export const FORMAT_IGNORE_PATTERNS = [
   // Editor / tooling
   // ============================================================
 
-  '.vscode/**',
   '.gitignore',
   '.prettierignore',
 ];
 
 export const LINT_IGNORE_PATTERNS = [
   ...FORMAT_IGNORE_PATTERNS,
+  '.vscode/**',
+
   // ============================================================
   // Tooling configuration
   // ============================================================

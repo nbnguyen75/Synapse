@@ -41,7 +41,10 @@ export default function LoginForm({
 
   return (
     <form
-      onSubmit={void handleSubmit((data, $event) => onSubmit?.(data, $event))}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void handleSubmit((data, $event) => onSubmit?.(data, $event))(event);
+      }}
       className={cn('w-full space-y-4', className)}
       {...restProps}
     >
@@ -83,7 +86,7 @@ export default function LoginForm({
                 size="xs"
                 type="button"
                 onClick={() => {
-                  setValue('email', 'demo@example.com', {
+                  setValue('email', 'demo@synapse.dev', {
                     shouldDirty: true,
                     shouldTouch: true,
                     shouldValidate: true,
