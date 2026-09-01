@@ -1,0 +1,183 @@
+import { defineConfig } from 'oxlint';
+
+import { LINT_IGNORE_PATTERNS } from './shared-ignore.config.js';
+
+export default defineConfig({
+  plugins: ['eslint', 'typescript', 'unicorn', 'react', 'import', 'oxc', 'jsx-a11y', 'promise'],
+  ignorePatterns: LINT_IGNORE_PATTERNS,
+  jsPlugins: [
+    {
+      name: 'tanstack-router',
+      specifier: '@tanstack/eslint-plugin-router',
+    },
+  ],
+  options: {
+    typeAware: true,
+  },
+  env: {
+    builtin: true,
+    browser: true,
+  },
+
+  categories: {
+    correctness: 'error',
+    suspicious: 'warn',
+    pedantic: 'off',
+    style: 'off',
+  },
+  rules: {
+    'no-console': ['error', { allow: ['warn', 'error'] }],
+    'eslint/no-unused-vars': [
+      'warn',
+      {
+        args: 'after-used',
+        vars: 'all',
+        ignoreRestSiblings: false,
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+        caughtErrors: 'none',
+      },
+    ],
+    'eslint/no-shadow': 'off',
+
+    'react/react-in-jsx-scope': 'off',
+    'react/rules-of-hooks': 'error',
+
+    'react/jsx-key': 'error',
+    'react/jsx-no-duplicate-props': 'error',
+
+    'react/only-export-components': [
+      'warn',
+      {
+        allowConstantExport: true,
+      },
+    ],
+
+    'react/no-array-index-key': 'warn',
+    'react/jsx-no-undef': 'off',
+
+    'jsx-a11y/alt-text': 'error',
+    'jsx-a11y/heading-has-content': 'error',
+    'jsx-a11y/label-has-associated-control': 'error',
+    'jsx-a11y/click-events-have-key-events': 'error',
+
+    'jsx-a11y/no-static-element-interactions': 'warn',
+    'jsx-a11y/no-noninteractive-element-interactions': 'warn',
+
+    'jsx-a11y/no-autofocus': 'off',
+
+    'import/no-unassigned-import': 'off',
+    'import/no-cycle': 'off',
+
+    'typescript/only-throw-error': [
+      'error',
+      {
+        allow: [
+          {
+            package: '@tanstack/router-core',
+            name: 'Redirect',
+            from: 'package',
+          },
+          {
+            package: '@tanstack/router-core',
+            name: 'NotFoundError',
+            from: 'package',
+          },
+        ],
+        allowThrowingAny: false,
+        allowThrowingUnknown: false,
+      },
+    ],
+
+    'typescript/no-floating-promises': 'error',
+    'typescript/no-misused-promises': 'error',
+
+    'typescript/no-unsafe-member-access': 'warn',
+    'typescript/no-unsafe-argument': 'warn',
+    'typescript/no-unsafe-return': 'warn',
+
+    'typescript/no-unsafe-type-assertion': ['warn'],
+    'typescript/no-unsafe-assignment': 'off',
+    'typescript/no-unsafe-call': 'off',
+    'typescript/restrict-template-expressions': 'off',
+
+    'unicorn/no-array-reverse': 'warn',
+    'unicorn/no-array-sort': 'warn',
+    'unicorn/consistent-function-scoping': 'warn',
+    'unicorn/prefer-node-protocol': 'error',
+    'unicorn/throw-new-error': 'warn',
+    'unicorn/prefer-number-properties': 'warn',
+
+    // * From @tanstack/eslint-config ported most of rules
+    'typescript/array-type': [
+      'error',
+      {
+        default: 'generic',
+        readonly: 'generic',
+      },
+    ],
+
+    'typescript/ban-ts-comment': [
+      'error',
+      {
+        'ts-expect-error': false,
+        'ts-ignore': 'allow-with-description',
+      },
+    ],
+
+    'typescript/consistent-type-imports': [
+      'error',
+      {
+        prefer: 'type-imports',
+        fixStyle: 'separate-type-imports',
+      },
+    ],
+
+    'typescript/method-signature-style': ['error', 'property'],
+
+    'typescript/no-duplicate-enum-values': 'error',
+    'typescript/no-extra-non-null-assertion': 'error',
+    'typescript/no-for-in-array': 'error',
+
+    'typescript/no-inferrable-types': [
+      'error',
+      {
+        ignoreParameters: true,
+      },
+    ],
+
+    'typescript/no-explicit-any': 'error',
+    'typescript/no-misused-new': 'error',
+    'typescript/no-namespace': 'error',
+    'typescript/no-non-null-asserted-optional-chain': 'error',
+
+    'typescript/no-unnecessary-condition': 'error',
+    'typescript/no-unnecessary-type-assertion': 'error',
+
+    'typescript/no-unsafe-function-type': 'error',
+    'typescript/no-wrapper-object-types': 'error',
+
+    'typescript/prefer-as-const': 'error',
+    'typescript/prefer-for-of': 'warn',
+
+    'typescript/require-await': 'warn',
+    'typescript/triple-slash-reference': 'error',
+
+    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    'import/first': 'error',
+    'import/newline-after-import': 'error',
+    'import/no-commonjs': 'error',
+    'import/no-duplicates': 'error',
+
+    'tanstack-router/create-route-property-order': 'error',
+  },
+
+  overrides: [
+    {
+      files: ['src/routes/**', 'src/main.tsx'],
+      rules: {
+        'react/only-export-components': 'off',
+      },
+    },
+  ],
+});

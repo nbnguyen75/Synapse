@@ -11,9 +11,9 @@
     "preview": "vite preview",
     "generate-routes": "tsr generate",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
-    "format": "oxfmt --ignore-path=.gitignore --ignore-path=.oxlintignore",
-    "lint": "oxlint --ignore-path .oxlintignore . && eslint --cache .",
-    "check": "oxfmt --ignore-path=.gitignore --ignore-path=.oxlintignore && oxlint --ignore-path .oxlintignore --fix && eslint --cache --fix .",
+    "format": "oxfmt",
+    "lint": "oxlint && eslint --cache .",
+    "check": "oxfmt && oxlint --fix && eslint --cache --fix .",
     "prepare": "husky"
   },
   "dependencies": {
@@ -104,6 +104,7 @@
     "@types/node": "^26.4.0",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
+    "@typescript-eslint/parser": "^8.69.0",
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.1.0",
     "babel-plugin-react-compiler": "^1.0.0",

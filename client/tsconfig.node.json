@@ -20,5 +20,11 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts",
+    "eslint.config.js",
+    "oxfmt.config.ts",
+    "oxlint.config.ts",
+    "shared-ignore.config.js"
+  ]
 }

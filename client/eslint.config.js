@@ -1,33 +1,33 @@
 // @ts-check
-import { resolve } from 'node:path';
+import path from 'node:path';
 
-import { defineConfig, includeIgnoreFile } from 'eslint/config';
+import { defineConfig, globalIgnores, includeIgnoreFile } from 'eslint/config';
 import perfectionist from 'eslint-plugin-perfectionist';
 import tsParser from '@typescript-eslint/parser';
 import { glob } from 'glob';
+import { LINT_IGNORE_PATTERNS } from './shared-ignore.config.js';
 
 const rootDir = import.meta.dirname;
 
-const rootGitignorePath = resolve(rootDir, '.gitignore');
+const rootGitignorePath = path.resolve(rootDir, '.gitignore');
 
 const gitignoreFiles = await glob('**/.gitignore', {
   ignore: ['**/node_modules/**', 'docs/**', 'public/**'],
   absolute: true,
 });
 
-const sharedIgnoreFiles = await glob('**/.ignore', {
-  ignore: ['**/node_modules/**'],
-  absolute: true,
-});
+const ignoreFiles = [
+  rootGitignorePath,
+  ...gitignoreFiles.filter((file) => file !== rootGitignorePath),
+];
 
 export default defineConfig([
-  includeIgnoreFile(
-    // oxlint-disable-next-line typescript/no-unsafe-argument
-    [rootGitignorePath, ...gitignoreFiles, ...sharedIgnoreFiles],
-    {
-      gitignoreResolution: true,
-    },
-  ),
+  includeIgnoreFile(ignoreFiles, {
+    gitignoreResolution: true,
+  }),
+
+  globalIgnores(LINT_IGNORE_PATTERNS, 'Project Ignore Patterns'),
+
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
 

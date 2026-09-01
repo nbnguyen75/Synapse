@@ -47,7 +47,7 @@ A feature is done only when ALL of the following are true:
 - [ ] Target behavior is implemented
 - [ ] Placed per `docs/ARCHITECTURE.md` (feature folder, thin route, correct layer)
 - [ ] No violations of the split-component triggers in `docs/RULES.md`
-       (prop explosion, ternary pyramid, inline `.map()` state, `useEffect` tower, prop drilling)
+      (prop explosion, ternary pyramid, inline `.map()` state, `useEffect` tower, prop drilling)
 - [ ] New user-facing strings added to Paraglide (`messages/en.json` AND `messages/vi.json`), not hardcoded
 - [ ] Required verification actually ran (`./init.sh`)
 - [ ] Evidence recorded in `feature_list.json` or `progress.md`
@@ -71,6 +71,7 @@ Before ending a session:
 ```
 
 Active checks (mirrors `init.sh`):
+
 ```bash
 bun --bun install
 bun --bun check       # oxfmt --write + oxlint --fix
@@ -78,6 +79,7 @@ bun --bun check       # oxfmt --write + oxlint --fix
 
 Disabled for now (commented out in `init.sh` — enable when you want stricter
 gating, e.g. before a milestone or in CI):
+
 ```bash
 bun --bun lint         # oxlint, no-fix
 tsc -b                 # type-check
@@ -87,6 +89,7 @@ bun --bun run build
 ## Escalation
 
 If you encounter:
+
 - **Architecture decisions**: Consult `docs/ARCHITECTURE.md`, otherwise ask user
 - **Unclear requirements**: Consult `docs/PRODUCT.md`, otherwise ask user
 - **Dependency question** ("do I need to install X?"): Check `docs/TECH_STACK.md` first —
