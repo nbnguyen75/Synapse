@@ -14,7 +14,7 @@
     "format": "oxfmt",
     "lint": "oxlint && eslint --cache .",
     "check": "oxfmt && oxlint --fix && eslint --cache --fix .",
-    "prepare": "husky"
+    "prepare": "cd .. && husky client/.husky"
   },
   "dependencies": {
     "@ai-sdk/react": "4.0.80",
