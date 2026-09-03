@@ -10,16 +10,7 @@ import { Button } from '@/components/ui/button';
 
 import { PlusIcon } from 'lucide-react';
 
-import { NotesListEmpty, NoteCardSkeleton } from '@/features/notes/components';
-
-const SKELETON_KEYS = [
-  'skeleton-1',
-  'skeleton-2',
-  'skeleton-3',
-  'skeleton-4',
-  'skeleton-5',
-  'skeleton-6',
-];
+import { NotesListEmpty, NotesListCardSkeleton } from '@/features/notes/components';
 
 interface NotesListProps {
   onCreateClick?: (event: BaseUIEvent<React.MouseEvent<HTMLButtonElement>>) => void;
@@ -30,10 +21,6 @@ interface NotesListProps {
   notes: Array<Note>;
 }
 
-function Container({ children }: { children: ReactNode }) {
-  return <div className="grid gap-4 grid-cols-1 @4xl:grid-cols-2 @8xl:grid-cols-3">{children}</div>;
-}
-
 export default function NotesList({
   loadingCardCount = 6,
   onCreateClick,
@@ -42,14 +29,7 @@ export default function NotesList({
   isLoading,
   notes,
 }: NotesListProps) {
-  if (isLoading)
-    return (
-      <Container>
-        {SKELETON_KEYS.slice(0, loadingCardCount).map((key) => (
-          <NoteCardSkeleton key={key} />
-        ))}
-      </Container>
-    );
+  if (isLoading) return <NotesListCardSkeleton loadingCardCount={loadingCardCount} />;
 
   if (notes.length < 1)
     return (
@@ -64,10 +44,10 @@ export default function NotesList({
     );
 
   return (
-    <Container>
+    <div className="grid gap-4 grid-cols-1 @4xl:grid-cols-2 @8xl:grid-cols-3">
       {notes.map((note) => (
         <Fragment key={note.id}>{renderItem(note)}</Fragment>
       ))}
-    </Container>
+    </div>
   );
 }

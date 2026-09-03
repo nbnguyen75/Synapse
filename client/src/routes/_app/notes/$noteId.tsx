@@ -48,6 +48,7 @@ import {
 } from 'lucide-react';
 
 import { getMarkdownReadTimeSync, exportMarkdown } from '@/features/notes/service';
+import { NoteDetailSkeleton } from '@/features/notes/components';
 import { useGoToCompanion } from '@/features/companion/hooks';
 import { useNoteDetails } from '@/features/notes/hooks';
 
@@ -90,6 +91,9 @@ export const Route = createFileRoute('/_app/notes/$noteId')({
     ],
   }),
   component: NoteDetailsPage,
+  pendingComponent: () => <NoteDetailSkeleton />,
+  pendingMs: 150,
+  pendingMinMs: 300,
 });
 
 function NoteDetailsPage() {

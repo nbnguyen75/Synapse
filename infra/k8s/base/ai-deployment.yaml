@@ -21,7 +21,7 @@ spec:
             [
               "sh",
               "-c",
-              "until nc -z postgres 5432; do echo waiting for postgres...; sleep 2; done;",
+              "until nc -z postgres 5433; do echo waiting for postgres...; sleep 2; done;",
             ]
         - name: wait-for-rabbitmq
           image: busybox:1.36

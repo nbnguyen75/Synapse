@@ -8,7 +8,6 @@ export const Route = createFileRoute('/_auth')({
       throw redirect({ to: '/notes' });
     }
   },
-  preloadStaleTime: 1000 * 60 * 5,
   component: RouteComponent,
 });
 

@@ -38,7 +38,6 @@ export const Route = createFileRoute('/_app')({
       });
     }
   },
-  preloadStaleTime: 1000 * 60 * 5,
   component: AppLayout,
 });
 

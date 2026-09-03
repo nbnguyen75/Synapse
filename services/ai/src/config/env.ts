@@ -10,7 +10,7 @@ export const env = createEnv({
 			)
 			.optional()
 			.default([]),
-		DATABASE_URL: z.url().trim().default('postgresql://synapse:root@postgres:5432/ai_db'),
+		DATABASE_URL: z.url().trim().default('postgresql://synapse:root@postgres:5433/ai_db'),
 		AUTH_JWKS_URL: z.url().trim().default('http://auth:5001/.well-known/jwks.json'),
 		GOOGLE_VERTEX_LOCATION: z.string().trim().default('global'),
 		GOOGLE_GENERATIVE_AI_API_KEY: z.string().trim().optional(),

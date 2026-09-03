@@ -37,7 +37,10 @@ const router = createRouter({
     queryClient,
   },
   defaultPendingComponent: () => <DefaultLoaderPage />,
-  defaultPendingMinMs: 1000,
+  defaultPendingMs: 300,
+  defaultPendingMinMs: 700,
+  defaultPreload: 'intent',
+  defaultPreloadDelay: 50,
   routeTree,
 });
 
