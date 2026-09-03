@@ -8,6 +8,8 @@ import { standardSchemaResolver } from '@hookform/resolvers/standard-schema';
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+import { useChatMessageTreeStore } from '@/store/chat-message-tree-store';
+
 import { useConfirm } from '@/providers/use-confirm';
 
 import { m } from '@/paraglide/messages';
@@ -59,6 +61,7 @@ export function ConversationListItem({
   const { mutate: renameConversation } = useRenameConversationMutation();
   const { mutate: deleteConversation } = useDeleteConversationMutation();
   const { mutate: toggleFavorite } = useToggleConversationFavoriteMutation();
+  const clearTree = useChatMessageTreeStore((state) => state.clearTree);
 
   const form = useForm<{ title: string }>({
     resolver: standardSchemaResolver(renameConversationSchema),
@@ -73,10 +76,10 @@ export function ConversationListItem({
   };
 
   const handleRenameSubmit = ({ title }: { title: string }) => {
-    renameConversation({
-      params: { id: conversation.id },
-      body: { title },
-    });
+    renameConversation(
+      { params: { id: conversation.id }, body: { title } },
+      { onSuccess: () => clearTree(conversation.id) },
+    );
     setIsRenameOpen(false);
   };
 
@@ -90,7 +93,12 @@ export function ConversationListItem({
   const handleDeleteConfirm = () => {
     deleteConversation(
       { params: { id: conversation.id } },
-      { onSuccess: () => onDeleted(conversation.id) },
+      {
+        onSuccess: () => {
+          clearTree(conversation.id);
+          onDeleted(conversation.id);
+        },
+      },
     );
   };
 
@@ -113,6 +121,8 @@ export function ConversationListItem({
       params: { id: conversation.id },
     });
   };
+
+  const { handleSubmit } = form;
 
   return (
     <SidebarMenuItem>
@@ -148,7 +158,13 @@ export function ConversationListItem({
             {m.chat_conversation_action_rename()}
           </DropdownMenuItem>
 
-          <DropdownMenuItem variant="destructive" onClick={void handleDeleteClick}>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={(event) => {
+              event.preventDefault();
+              void handleDeleteClick();
+            }}
+          >
             <Trash2Icon className="size-4" />
             {m.chat_conversation_action_delete()}
           </DropdownMenuItem>
@@ -161,7 +177,12 @@ export function ConversationListItem({
             <DialogTitle>{m.chat_conversation_rename_title()}</DialogTitle>
           </DialogHeader>
 
-          <form className="space-y-4" onSubmit={void form.handleSubmit(handleRenameSubmit)}>
+          <form
+            className="space-y-4"
+            onSubmit={(event) => {
+              void handleSubmit(handleRenameSubmit)(event);
+            }}
+          >
             <Field>
               <FieldLabel htmlFor="conversation-title">
                 {m.chat_conversation_action_rename()}

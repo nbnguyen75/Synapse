@@ -2,9 +2,19 @@
 
 ## Current State
 
-**Last Updated:** 2026-08-31
-**Session ID:** oxlint-warnings-clean-065
-**Active Feature:** tooling hardening — `bun --bun check` clean with 0 warnings (re-enabled suppressed rules + fixed root causes; provider/editor refactors).
+**Last Updated:** 2026-09-03
+**Session ID:** conversation-tree-fix-066
+**Active Feature:** feat-061 — conversation parent-item & versioning load fix + broken `void fn-ref` no-op handlers.
+
+## Status
+
+### What's Done (conversation-tree-fix-066 — feat-061)
+
+- [x] **Parent-item/versioning load fix (root cause)** — `chat-bot.tsx` tree-rebuild rows corrupted server `parentId`. The old normalization `(typeof embeddedParentId === 'string' ? embeddedParentId : null) ?? loadedMessages[index-1]?.id ?? null` (a) left API roots at `parentId: null`, which `getRootIds`/`getSiblingIds` only recognize as `undefined`, so roots were invisible to versioning, and (b) the `?? previous.id` fallback re-parented every non-first root to the prior message, destroying genuine multi-root trees (first-message edits, branching, retries) → `getVersionInfo` never saw ≥2 same-role siblings → no version selector + broken parent links. Now: server `parentId` authoritative; `typeof 'string'` guard passes through; explicit `null` → `undefined` (root); fall back to `loadedMessages[index-1]?.id` only when the field is entirely absent (API always supplies it, so it's inert). First attempt produced a `{}` type error (TS couldn't narrow `message.parentId` from the ternary) — resolved with an explicit `let parentId` + if/else form.
+- [x] **clearTree wired** — `store/chat-message-tree-store.ts` `clearTree` existed but was never called → a once-corrupted tree was reused on later loads. Wired `clearTree(conversation.id)` in `conversation-list-item.tsx` into rename `onSuccess` and delete `onSuccess` (before `onDeleted`).
+- [x] **Broken `void fn-ref` handlers fixed** — `onClick={void handleCopy}` → `onClick={() => void handleCopy()}` (chat-bot.tsx); `onStop={void chat.stop}` → `onStop={() => void chat.stop()}` (chat-bot.tsx); `onClick={void copyContent}` → `onClick={() => void copyContent()}` (note-card-dropdown.tsx). These were silent no-ops (never called the function). Repo-wide grep confirms zero remaining `on*={void fnRef}` no-call patterns. Correct `onClick={() => void navigate(...)}` call-styles left untouched.
+- [x] **Verification** — `bun --bun check` ✓ (exit 0), `bun tsc -b` ✓ (exit 0). feature_list.json feat-061 added (JSON valid, 60 features). Not committed (user manages git).
+- [ ] **Known notes** — (1) Manual smoke pending: load a conversation whose first message was edited (expect '1 of 2' version selector + both branches loadable), branch/retry a reply (siblings appear under same parent), rename or delete a conversation (tree cache cleared). (2) `companion-chat.tsx` `[...data.pages].toReversed().flat()` page-ordering assumption no longer affects tree correctness now that the linear index fallback is gone.
 
 ## Status
 

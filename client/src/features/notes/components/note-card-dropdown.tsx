@@ -72,7 +72,7 @@ export function NoteCardDropdown({ viewMode, actions, note }: NoteCardDropdownPr
           </DropdownMenuItem>
         )}
 
-        <DropdownMenuItem onClick={void copyContent}>
+        <DropdownMenuItem onClick={() => void copyContent()}>
           <CopyIcon className="mr-2 size-3.5" />
           {m.notes_page_card_copy_content()}
         </DropdownMenuItem>

@@ -201,15 +201,22 @@ function ChatBot({
       if (loadedMessages.length === 0) return;
 
       const rows: Array<TreeMessage> = loadedMessages.map((message, index) => {
-        const embeddedParentId = 'parentId' in message ? message.parentId : undefined;
-        return {
-          ...message,
-          parentId:
-            // oxlint-disable-next-line typescript/no-unnecessary-condition -- parentId may exist at runtime on UIMessage even if not in type
-            (typeof embeddedParentId === 'string' ? embeddedParentId : null) ??
-            loadedMessages[index - 1].id ??
-            null,
-        };
+        const hasEmbeddedParentId = 'parentId' in message;
+        // oxlint-disable-next-line typescript/no-unnecessary-condition -- parentId may exist at runtime on UIMessage even if not in type
+        const embeddedParentId = hasEmbeddedParentId ? message.parentId : undefined;
+
+        let parentId: undefined | string;
+        if (typeof embeddedParentId === 'string') {
+          parentId = embeddedParentId;
+        } else if (hasEmbeddedParentId) {
+          // Server sent null: this is a tree root. The tree primitives
+          // (getRootIds / getSiblingIds) recognize roots only as `undefined`.
+          parentId = undefined;
+        } else {
+          parentId = loadedMessages[index - 1]?.id;
+        }
+
+        return { ...message, parentId };
       });
       const leaf = conversation?.currentMessageId ?? rows.at(-1)?.id;
       nextTree = buildTree(rows, leaf);
@@ -549,7 +556,7 @@ function ChatBot({
 
                 <PromptInputSubmit
                   disabled={isSubmitDisabled}
-                  onStop={void chat.stop}
+                  onStop={() => void chat.stop()}
                   status={status}
                 />
               </PromptInputFooter>
@@ -1038,7 +1045,7 @@ function MessageCopyAction({ text }: { text: string }) {
     <MessageAction
       tooltip={m.chat_message_copy()}
       label={m.chat_message_copy()}
-      onClick={void handleCopy}
+      onClick={() => void handleCopy()}
     >
       <CopyIcon />
     </MessageAction>
