@@ -54,7 +54,7 @@ function InnerApp() {
   const { data: session, isPending } = useSession();
 
   if (isPending) {
-    return null;
+    return <DefaultLoaderPage />;
   }
 
   const auth: AuthContext = session?.user

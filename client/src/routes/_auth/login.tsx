@@ -14,6 +14,8 @@ import { env } from '@/config/env';
 import { getTranslatedAuthErrorMessage, signIn } from '@/lib/auth';
 import { m } from '@/paraglide/messages';
 
+import { DefaultLoaderPage } from '@/components/app/pages';
+
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 
@@ -30,6 +32,9 @@ export const Route = createFileRoute('/_auth/login')({
       },
     ],
   }),
+  pendingComponent: () => <DefaultLoaderPage />,
+  pendingMs: 150,
+  pendingMinMs: 300,
   component: RouteComponent,
 });
 
