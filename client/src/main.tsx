@@ -30,7 +30,8 @@ const queryClient = new QueryClient({
 });
 
 const router = createRouter({
-  defaultErrorComponent: ({ error, reset }) => <ErrorPage error={error} reset={reset} />,
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  defaultErrorComponent: ({ error, reset }) => <ErrorPage error={error as Error} reset={reset} />,
   defaultNotFoundComponent: () => <ErrorPage statusCode={404} />,
   context: {
     auth: undefined!,

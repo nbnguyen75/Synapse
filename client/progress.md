@@ -526,3 +526,13 @@ Remaining features from `feature_list.json` (not-started):
 - Temp recovery scripts (recover-messages.js, rebuild-from-head.js, rename-companion.js, verify-recovery.js, fix-auth-keys.js, rename-sources.js) live in `%temp%\opencode\` — no longer needed but kept as incident evidence
 - Tag filter is hardcoded — wire to real tag data when tags API is ready
 - View toggle state is local — promote to URL search param if persistence needed
+
+## Agent Harness Port (2026-09-17)
+
+- Ported knowledge assets into client from the A.R.I.A desktop repo (project-level .agents harness).
+- Added 7 rules (.agents/rules/*.md), 13 skills (.agents/skills/), 11 skills mirrored to .claude/skills/, plus adapted .agents/README.md and .claude/README.md.
+- skills-lock.json regenerated: 19 entries, computedHash values recomputed from on-disk SKILL.md (fixed stale shadcn entry).
+- shared-ignore.config.js now ignores whole .agents/** and .claude/** trees.
+- AGENTS.md gained a "Skills & Rules" section; docs/RULES.md wins on stack conflicts (react-hook-form) with ported rules (TanStack Form / useConfirm references kept verbatim).
+- Excluded (deliberate): desktop/Tauri/Rust rules+skills (rust.md, product.md, aria-architecture, desktop-auth, desktop-release, tauri-lifecycle); tanstack-query-best-practices and tanstack-router-best-practices (replaced by official tanstack-query/tanstack-router already in repo); source's improve skill (kept repo-local copy).
+- Assets under .agents/ and .claude/ are verified-against-upstream; keep byte-identical unless explicitly adapted.

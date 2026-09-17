@@ -33,6 +33,41 @@ If baseline verification is failing, repair that first before adding new scope.
   `messages/vi.json` and run `bun run generate-translation` instead
 - **Leave clean state**: Next session must be able to run `./init.sh` immediately
 
+## Skills & Rules
+
+- **Always read `.agents/rules/*.md`** (typescript, i18n, security, phase-gate,
+  ponytail, forms-and-views, improve) together with `docs/RULES.md`. Where a
+  ported rule conflicts with `docs/RULES.md` or the live stack (e.g. ported
+  rules mention `@tanstack/react-form` or a `useConfirm` dialog), `docs/RULES.md`
+  and the installed stack (shadcn Form + react-hook-form + zod, sonner) win.
+  `rules/rust.md` and `rules/product.md` were intentionally not ported (no
+  Tauri/Rust backend, different product).
+- **Mandatory skill**: `improve` (always active).
+- **Skill routing** — load ONE skill per task:
+
+| Task                           | Skill                                              |
+| ------------------------------ | -------------------------------------------------- |
+| Forms (react-hook-form + zod)  | `react-hook-form`, `shadcn`                        |
+| UI Design & Layout             | `frontend-design`, `better-layout`, `better-ui`    |
+| AI / chat UI                   | `ai-elements`                                      |
+| Routing                        | `tanstack-router`                                  |
+| Server State & Caching         | `tanstack-query`                                   |
+| Tables / Data Grid             | `tanstack-table`                                   |
+| Refactor / Component Splitting | `refactor`                                         |
+| i18n & Catalogs                | `i18n-paraglide`                                   |
+| Auth (client)                  | `better-auth-client`                               |
+| Debugging                      | `diagnosing-bugs`                                  |
+| Code review                    | `code-review-and-quality`                          |
+| Architecture / improvement     | `improve`                                          |
+| Research / Writing             | `research`, `writing-for-agents`, `better-writing` |
+
+- `ponytail` / `ponytail-review` are always active via the `opencode.json`
+  plugin. `better-auth-client` is the React/web variant — the desktop-flavored
+  lines in it (OS-backed secure storage, `desktop-auth`) are inert in Synapse.
+- Assets under `.agents/` and `.claude/` are verified-against-upstream (tracked
+  in `skills-lock.json`); keep them byte-identical unless a task explicitly
+  adapts them.
+
 ## Required Artifacts
 
 - `feature_list.json` — Feature state tracker (source of truth)

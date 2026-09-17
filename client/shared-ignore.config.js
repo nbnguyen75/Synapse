@@ -56,8 +56,8 @@ export const FORMAT_IGNORE_PATTERNS = [
   // Agent / AI working files
   // ============================================================
 
-  '.agents/**/scripts',
-  '.claude/**/scripts',
+  '.agents/**',
+  '.claude/**',
   'init.sh',
 
   // ============================================================
