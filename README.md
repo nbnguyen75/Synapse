@@ -16,13 +16,11 @@
 [![Vite][vite-shield]][vite-url]
 [![TanStack Query][tanstack-shield]][tanstack-url]
 [![Kong][kong-shield]][kong-url]
-[![PostgreSQL][postgres-shield]][postgres-url]
+[![Neon][neon-shield]][neon-url]
 [![pgvector][pgvector-shield]][pgvector-url]
-[![Kubernetes][k8s-shield]][k8s-url]
-[![Skaffold][skaffold-shield]][skaffold-url]
 [![Google Pub/Sub][pubsub-shield]][pubsub-url]
 [![Cloud Scheduler][scheduler-shield]][scheduler-url]
-[![Google Cloud][gcp-shield]][gcp-url]
+[![Cloud Run][cloudrun-shield]][cloudrun-url]
 
 </div>
 
@@ -55,7 +53,7 @@
     </li>
     <li><a href="#architecture">Architecture</a></li>
     <li><a href="#ai-service-architecture">AI Service Architecture</a></li>
-    <li><a href="#notification-architecture">Notification Architecture</a></li>
+    <li><a href="#notification-architecture-planned">Notification Architecture (Planned)</a></li>
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
@@ -64,7 +62,6 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#timeline">Timeline</a></li>
     <li><a href="#architecture-decision-records">Architecture Decision Records</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
@@ -75,11 +72,11 @@
 
 ## About The Project
 
-**Synapse** is a personal knowledge assistant that turns notes into a queryable knowledge base. Users create notes, the system generates embeddings for retrieval, and the AI service answers questions using RAG. The system is designed as a small polyglot microservices showcase with clear boundaries between product features, AI infrastructure, and asynchronous work.
+**Synapse** is a personal knowledge assistant that turns notes into a queryable knowledge base. Users create notes, the system generates embeddings for retrieval, and the AI service answers questions using RAG. The system is a small polyglot microservices showcase with clear boundaries between product features, AI infrastructure, and asynchronous work — each service owns its own runtime, its own database, and its own reason for existing.
 
 ### MVP scope
 
-The MVP focuses on the core path:
+The MVP covers the core path:
 
 ```text
 Login
@@ -95,21 +92,23 @@ Retrieve relevant notes
 Generate a grounded AI answer
 ```
 
-The reminder and notification flow is a follow-up feature built on top of the same service boundaries.
+Reminders and notifications are a planned follow-up feature, built on the same service boundaries already in place.
 
 | Component | Stack | Responsibility |
 |---|---|---|
-| Auth | Hono + better-auth on **Bun** | Authentication and user identity |
-| Notes | **Java Spring Boot** | Note and reminder domain APIs + PostgreSQL persistence |
-| AI Service | Hono on **Node.js** | RAG, AI model routing, streaming, generation and tools |
-| Notification/Worker | Hono on **Bun** | Asynchronous embedding/notification work |
-| Gateway | **Kong** | Edge routing, JWT verification and rate limiting |
-| Client | React + Vite + TanStack Router/Query + shadcn | User interface and Service Worker |
-| Database | PostgreSQL + **pgvector** | Persistent relational data + vector search |
-| Async | **Pub/Sub** | Decoupled background/event delivery |
-| Scheduler | **Cloud Scheduler** | Time-based reminder trigger |
+| Auth | Hono + better-auth on **Bun** | Authentication and user identity, JWT issuance via cookie, JWKS exposure |
+| Notes | **Java Spring Boot** | Note domain APIs + PostgreSQL persistence, JWT verification via JWKS |
+| AI Service | Hono on **Node.js** | RAG, embeddings, streaming generation, agentic tools, JWT verification via JWKS |
+| Notification/Worker | Hono on **Bun** *(planned)* | Asynchronous reminder delivery |
+| Gateway | **Kong** | Edge routing and rate limiting |
+| Client | React + Vite + TanStack Router/Query + shadcn | User interface |
+| Database | **Neon (serverless PostgreSQL)** + **pgvector** | Isolated logical database per service, shared Neon project |
+| Async | **Google Cloud Pub/Sub** | Decoupled event delivery (`note.created` live; `reminder.due` planned) |
+| Scheduler | **Cloud Scheduler** *(planned)* | Time-based reminder trigger |
+| Deployment | **Google Cloud Run** | Serverless, scale-to-zero hosting for every service |
 
-The same service boundaries can run locally with Docker Compose or Kubernetes + Skaffold, then be deployed independently to Cloud Run.
+There is currently **no RBAC layer** — a valid JWT is sufficient to authorize a request, since every user only ever accesses their own data. This was a deliberate scope decision, not an oversight (see ADR-0005).
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
@@ -122,226 +121,186 @@ The same service boundaries can run locally with Docker Compose or Kubernetes + 
 * [![Vite][vite-shield]][vite-url]
 * [![TanStack Query][tanstack-shield]][tanstack-url]
 * [![Kong][kong-shield]][kong-url]
-* [![PostgreSQL][postgres-shield]][postgres-url]
+* [![Neon][neon-shield]][neon-url]
 * [![pgvector][pgvector-shield]][pgvector-url]
-* [![Kubernetes][k8s-shield]][k8s-url]
-* [![Skaffold][skaffold-shield]][skaffold-url]
 * [![Google Pub/Sub][pubsub-shield]][pubsub-url]
 * [![Cloud Scheduler][scheduler-shield]][scheduler-url]
-* [![Google Cloud][gcp-shield]][gcp-url]
+* [![Cloud Run][cloudrun-shield]][cloudrun-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Architecture
 
-> This diagram describes the target showcase architecture. Each service owns its own data boundary. A local PostgreSQL deployment may use one PostgreSQL server/container with separate logical databases, while the service ownership remains separate.
+> This diagram reflects the **actual current source**, not an aspirational target. Dotted lines/labels marked "planned" are not implemented yet. Each service owns its own logical database; all three currently live inside a **single shared Neon project** as separate logical databases, not separate physical clusters.
 
 ```mermaid
 flowchart TB
     subgraph Client
-        UI["React + Vite<br/>TanStack Router/Query + shadcn<br/>Service Worker"]
+        UI["React + Vite<br/>TanStack Router/Query + shadcn"]
     end
 
     subgraph Gateway
-        KONG["Kong Gateway<br/>DB-less / declarative config<br/>JWT Verify · Rate Limit"]
+        KONG["Kong Gateway<br/>Routing · Rate Limiting"]
     end
 
     subgraph Services
-        AUTH["Auth Service<br/>Hono + better-auth · Bun"]
-        NOTES["Notes Service<br/>Spring Boot"]
-        AI["AI Service<br/>Hono · Node.js<br/>RAG · Router · Tools"]
-        WORKER["Notification / Worker<br/>Hono · Bun"]
+        AUTH["Auth Service<br/>Hono + better-auth · Bun<br/>Issues JWT via cookie<br/>Exposes JWKS"]
+        NOTES["Notes Service<br/>Spring Boot<br/>CRUD · Verifies JWT via JWKS"]
+        AI["AI Service<br/>Hono · Node.js<br/>RAG · Agentic Tools<br/>Verifies JWT via JWKS"]
+        WORKER["Notification / Worker<br/>Hono · Bun<br/>— planned, not implemented"]
     end
 
-    subgraph Databases
-        AUTHDB[("Auth DB<br/>users · sessions")]
-        NOTESDB[("Notes DB<br/>notes · reminders")]
-        AIDB[("AI DB<br/>embeddings · vector data")]
-        NOTIFYDB[("Notification DB<br/>subscriptions · notifications")]
+    subgraph AIInternal["AI Service — internal (current state)"]
+        direction TB
+        CHAT["chat/services.ts<br/>directly calls Vertex model"]
+        PROVCLIENTS["Provider clients<br/>Vertex AI · Google AI Studio"]
+        ROUTERPLANNED["Semantic Router / Model Catalog<br/>/ Provider Registry<br/>— planned, not implemented"]
     end
 
-    subgraph AIInfra
-        ROUTER["Semantic Router"]
-        CATALOG["Model Catalog"]
-        REGISTRY["AI SDK Provider Registry"]
+    subgraph NeonProject["Neon Project — shared instance, isolated logical DBs"]
+        direction LR
+        AUTHDB[("auth_db")]
+        NOTESDB[("notes_db")]
+        AIDB[("ai_db<br/>+ pgvector")]
     end
 
-    subgraph Providers
-        VERTEX["Vertex AI"]
-        AISTUDIO["Google AI Studio"]
-        GROQ["Groq"]
-        HF["Hugging Face"]
-        CF["Cloudflare Workers AI"]
+    subgraph PubSubRegion["Google Cloud Pub/Sub"]
+        direction LR
+        TOPIC1(["note.created — live"])
+        TOPIC2(["reminder.due — planned"])
+        DLQ[("Dead-Letter Topic — planned")]
     end
 
-    subgraph Async
-        PUBSUB["Pub/Sub"]
-        SCHED["Cloud Scheduler"]
-    end
+    SCHED["Cloud Scheduler<br/>— planned"]
+    GEMINI["Gemini (Vertex AI /<br/>Google AI Studio)"]
 
     UI -->|HTTPS| KONG
     KONG --> AUTH
     KONG --> NOTES
     KONG --> AI
 
-    AUTH -->|owns| AUTHDB
-    NOTES -->|owns| NOTESDB
-    AI -->|owns| AIDB
-    WORKER -->|owns| NOTIFYDB
+    NOTES -.->|fetch JWKS, cached ~5-10min| AUTH
+    AI -.->|fetch JWKS, cached ~5-10min| AUTH
 
-    NOTES -->|"note.created"| PUBSUB
-    PUBSUB --> WORKER
-    WORKER -->|embedding job| AI
+    AUTH --> AUTHDB
+    NOTES --> NOTESDB
+    AI --> AIDB
 
+    NOTES -->|publish| TOPIC1
+    TOPIC1 -->|consume at /pubsub/note-events| AI
+    AI --> CHAT
+    CHAT --> PROVCLIENTS
+    PROVCLIENTS --> GEMINI
+    CHAT -.->|not yet wired| ROUTERPLANNED
+
+    AI -->|store embedding| AIDB
     AI -->|top-k retrieval| AIDB
-    AI --> ROUTER
-    ROUTER --> CATALOG
-    CATALOG --> REGISTRY
 
-    REGISTRY --> VERTEX
-    REGISTRY --> AISTUDIO
-    REGISTRY --> GROQ
-    REGISTRY --> HF
-    REGISTRY --> CF
+    AI -.->|publish, planned| TOPIC2
+    TOPIC2 -.->|consume, planned| WORKER
+    WORKER -.->|notify, planned| UI
 
-    SCHED -->|"reminder check"| PUBSUB
-    PUBSUB --> WORKER
-    WORKER -->|"Web Push"| UI
+    SCHED -.->|planned| TOPIC2
+    TOPIC1 -.->|failed delivery, planned| DLQ
+    TOPIC2 -.->|failed delivery, planned| DLQ
+
+    style Client fill:#1e293b,stroke:#3b82f6,color:#fff
+    style Gateway fill:#1e293b,stroke:#f59e0b,color:#fff
+    style AUTH fill:#1e293b,stroke:#ef4444,color:#fff
+    style NOTES fill:#1e293b,stroke:#22c55e,color:#fff
+    style AI fill:#1e293b,stroke:#a855f7,color:#fff
+    style WORKER fill:#1e293b,stroke:#eab308,color:#fff
+    style NeonProject fill:#0a0f1a,stroke:#475569,color:#94a3b8
+    style PubSubRegion fill:#0a0f1a,stroke:#0891b2,color:#94a3b8
+    style AIInternal fill:#0a0f1a,stroke:#a855f7,color:#94a3b8
+    style DLQ fill:#450a0a,stroke:#dc2626,color:#fff
+    style GEMINI fill:#0f172a,stroke:#8b5cf6,color:#fff
+    style ROUTERPLANNED fill:#1e1b0a,stroke:#eab308,color:#fbbf24
 ```
 
 ### Architecture at a glance
 
 | Layer | What it does |
 |---|---|
-| **Client** | Authentication UI, notes, chat, notification center and Service Worker |
-| **Kong** | Single entry point; DB-less declarative routing, request routing and lightweight local rate limiting |
-| **Auth Service** | Owns authentication and user identity data |
-| **Notes Service** | Owns notes/reminders and the Notes database |
-| **AI Service** | Owns retrieval, embeddings, model selection, streaming, generation and AI tools |
-| **Notification/Worker** | Owns notification subscriptions/state and handles asynchronous delivery |
+| **Client** | Login, notes management, and chat UI |
+| **Kong** | Single entry point; request routing and rate limiting (JWT verification happens downstream, not at Kong — see ADR-0002) |
+| **Auth Service** | Owns authentication, issues JWT via HTTP-only cookie, exposes JWKS |
+| **Notes Service** | Owns notes CRUD and the Notes database; verifies JWT via JWKS |
+| **AI Service** | Owns retrieval, embeddings, generation, agentic tools; verifies JWT via JWKS; currently calls the Vertex model directly (semantic router/registry planned, not wired in yet) |
+| **Notification/Worker** *(planned)* | Will own reminder delivery and notification state |
 | **Auth DB** | Data owned by Auth Service |
 | **Notes DB** | Data owned by Notes Service |
-| **AI DB** | Embeddings/vector data owned by AI Service |
-| **Notification DB** | Notification/subscription data owned by Notification/Worker |
-| **Semantic Router** | Chooses a logical model based on request characteristics |
-| **Model Catalog** | Describes supported logical models/capabilities |
-| **Provider Registry** | Resolves logical models to AI SDK `LanguageModel` instances |
-| **Providers** | Connect external model platforms without leaking provider details into feature code |
-| **Pub/Sub** | Async boundary between producers and background consumers |
-| **Cloud Scheduler** | Wakes the reminder flow at the required time |
+| **AI DB** | Embeddings/vector data owned by AI Service (pgvector) |
+| **Pub/Sub** | Async boundary — currently used for `note.created`; `reminder.due` planned |
+| **Cloud Scheduler** *(planned)* | Will trigger periodic reminder checks |
 
 **Database ownership rule:**
 
 ```text
 Auth Service
-   └── Auth DB
+   └── auth_db
 
 Notes Service
-   └── Notes DB
+   └── notes_db
 
 AI Service
-   └── AI DB
+   └── ai_db
        └── pgvector
-
-Notification/Worker
-   └── Notification DB
 ```
 
-For local development, these databases can still run inside one PostgreSQL server/container to keep setup lightweight:
-
-```text
-PostgreSQL container
-├── auth_db
-├── notes_db
-├── ai_db
-└── notification_db
-```
-
-The important boundary is **logical ownership**, not the number of PostgreSQL processes.
+All three logical databases run inside the **same Neon project** to keep infrastructure simple; the important boundary is **logical ownership**, not the number of physical database instances.
 
 **Request flow (RAG chat example):**
 
 1. The client sends a request through **Kong**.
-2. **AI Service** verifies the JWT locally using cached JWKS key material.
-3. **AI Service** retrieves the most relevant embeddings/notes from its own database.
-3. **Semantic Router** chooses a logical model.
-4. **Model Catalog** and **Provider Registry** resolve that model to an AI SDK `LanguageModel`.
-5. `streamText()` generates the answer.
-6. The response is streamed back to the client.
+2. **AI Service** verifies the JWT locally using a JWKS public key cached from Auth.
+3. **AI Service** retrieves the most relevant notes/embeddings from its own database (top-k similarity, hybrid full-text + vector search with Reciprocal Rank Fusion).
+4. The retrieved context is injected into a prompt and sent directly to the current Vertex model.
+5. The response is streamed back to the client.
 
-**Asynchronous flow:**
+**Current asynchronous flow:**
 
 ```text
 note.created
    ↓
 Pub/Sub
    ↓
-Worker
-   ↓
-AI embedding path
+AI Service (/pubsub/note-events)
    ↓
 AI DB / pgvector
 ```
 
-**Reminder flow:**
+**Planned reminder flow (not yet implemented):**
 
 ```text
 Cloud Scheduler
    ↓
 reminder check
    ↓
-Pub/Sub
+Pub/Sub (reminder.due)
    ↓
 Notification Worker
-   ├─ Notification DB
-   └─ Web Push
+   ↓
+Client
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## AI Service Architecture
 
-The AI service keeps **provider integration**, **model selection**, and **product features** separate:
+The AI service is intended to keep **provider integration**, **model selection**, and **product features** separate. This separation is the *target* design — a semantic router and provider registry are **not implemented yet**; `chat/services.ts` currently calls the Vertex model directly.
+
+**Current reality:**
 
 ```text
-providers/
-    provider SDK initialization
-
-ai/
-    model catalog + registry + semantic routing
-
-chat/ · generator/ · embeddings/
-    product-specific AI behavior
+chat/services.ts
+    ↓
+vertexGemini35FlashLite (direct call)
+    ↓
+streamText()
 ```
 
-Recommended structure:
-
-```text
-services/ai/src/
-├── ai/
-│   ├── catalog.ts
-│   ├── registry.ts
-│   ├── types.ts
-│   └── router/
-│       ├── semantic.ts
-│       ├── policy.ts
-│       └── index.ts
-├── providers/
-├── chat/
-├── embeddings/
-├── generator/
-├── conversation/
-├── database/
-├── lib/
-├── middleware/
-├── config/
-├── settings/
-├── types/
-├── app.ts
-└── index.ts
-```
-
-The intended dependency direction is:
+**Target design (not yet wired in):**
 
 ```text
 chat
@@ -352,32 +311,29 @@ model catalog
   ↓
 provider registry
   ↓
-LanguageModel
+LanguageModel (Vertex / Google AI Studio / others)
 ```
 
-`chat/services.ts` should not import a concrete provider model.
+Two provider clients already exist (Vertex AI and Google AI Studio), but nothing routes between them yet.
 
 ### Authentication and JWKS
 
-The AI service uses `jose` with a module-level `createRemoteJWKSet()`.
+The AI service and Notes service both verify JWTs **independently**, without calling the Auth service on every request:
 
-```ts
-const JWKS = createRemoteJWKSet(new URL(env.AUTH_JWKS_URL));
-
-await jwtVerify(token, JWKS, {
-    audience: env.PUBLIC_APP_NAME,
-    issuer: env.PUBLIC_APP_NAME,
-});
+```text
+request
+  ↓
+resource service (Notes or AI)
+  ↓
+JWKS cache (~5-10 min TTL)
+  ↓
+local JWT signature verification
 ```
 
-This means the service does **not** need to call the Auth service for every request.
+- The **AI service** uses `jose` with a module-level `createRemoteJWKSet()`.
+- The **Notes service** uses Spring Security's OAuth2 Resource Server, following the same fetch-cache-verify model.
 
-The public JWKS endpoint is fetched when the local JWKS cache needs it; JWT signature verification then happens locally inside the AI process.
-
-
-The Notes service follows the same architectural model through Spring Security OAuth2 Resource Server: fetch the issuer's JWKS, cache the key material, then verify JWTs locally.
-
-A useful operational consequence is:
+**Operational consequence:**
 
 ```text
 Auth service temporarily unavailable
@@ -387,86 +343,50 @@ existing signing keys already cached
 Notes / AI can continue verifying matching JWTs
 ```
 
-A new signing key still requires a successful JWKS refresh before tokens signed only by that key can be accepted.
+A newly rotated signing key still requires a successful JWKS refresh before tokens signed with it can be accepted.
 
-### Routing
-
-The first router is deterministic rather than LLM-based:
-
-```text
-prompt
-  ↓
-complexity / capability signals
-  ↓
-routing policy
-  ↓
-logical model id
-```
-
-This avoids an extra inference call just to select another model.
+There is currently **no RBAC** — verification confirms *who* the user is, not *what* they're allowed to do, since every user only accesses their own notes.
 
 ### RAG and embeddings
 
-The AI service owns retrieval and vector data.
+The AI service owns retrieval and vector data:
 
 ```text
 note
   ↓
 embedding
   ↓
-AI DB / pgvector
+AI DB / pgvector (HNSW index)
+  ↓
+hybrid retrieval (full-text + vector, RRF)
   ↓
 top-k retrieval
   ↓
 prompt context
   ↓
-selected language model
+Vertex model
 ```
-
-Embedding selection remains separate from chat model routing because embeddings and generation have different interfaces and responsibilities.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Notification Architecture
+## Notification Architecture (Planned)
 
-Notifications use a simple asynchronous path:
+Notifications and reminders are **not yet implemented**. The intended design:
 
 ```text
 Cloud Scheduler
       ↓
 reminder check
       ↓
-Pub/Sub
+Pub/Sub (reminder.due)
       ↓
 Notification Worker
       ├─ persist notification (is_read=false)
-      └─ send Web Push
+      └─ deliver to client
 ```
 
-The notification table is the durable unread state:
+This section documents the target design so the next implementation phase has a clear reference; nothing above reflects currently running code.
 
-| Column | Purpose |
-|---|---|
-| `id` | Primary key |
-| `user_id` | Owner |
-| `title`, `body` | Display content |
-| `type` | `reminder`, `system`, etc. |
-| `is_read` | Read/unread state |
-| `created_at` | Creation time |
-
-Client:
-
-```text
-open app
-   ↓
-GET /notifications?unread=true
-   ↓
-show unread badge/list
-   ↓
-PATCH /notifications/:id/read
-```
-
-There is no SSE, WebSocket, or continuous polling requirement for the reminder/notification path.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Getting Started
@@ -482,8 +402,8 @@ Synapse is designed to be runnable locally before any cloud deployment.
 * Node.js (LTS)
 * Java 21+ and Maven/Gradle
 * Docker & Docker Compose
-* [kind](https://kind.sigs.k8s.io/) for local Kubernetes
-* [Skaffold](https://skaffold.dev/) for local Kubernetes development
+* A [Neon](https://neon.tech/) project (or local PostgreSQL + pgvector for offline dev)
+* [Google Cloud SDK](https://cloud.google.com/sdk) (for Pub/Sub and Cloud Run)
 
 ### Installation
 
@@ -496,7 +416,7 @@ Synapse is designed to be runnable locally before any cloud deployment.
 2. Configure environment variables
 ```sh
    cp .env.example .env
-   # set the variables required by the current services
+   # set DB connection strings, JWKS URL, Gemini API key, Pub/Sub project/topic names
 ```
 
 3. Install dependencies
@@ -510,183 +430,26 @@ Synapse is designed to be runnable locally before any cloud deployment.
 
 ### Run locally with Docker Compose
 
-Use this as the simplest local path for the core application and PostgreSQL + pgvector:
+The simplest local path for the core application plus PostgreSQL + pgvector (and a local Pub/Sub emulator):
 
 ```sh
 docker compose up -d
 ```
 
-Then start the application services with their existing development commands.
+Then start each application service with its existing development command.
 
 Minimum smoke test:
 
 ```text
 login
   → create note
-  → embedding
+  → embedding generated (via Pub/Sub)
   → ask a question
   → retrieve relevant note
   → receive grounded AI answer
 ```
 
-### Run locally with Kubernetes + Skaffold
-
-Use this path when you want to exercise the service-to-service Kubernetes architecture locally.
-
-1. Create a local cluster:
-```sh
-kind create cluster --name synapse
-```
-
-2. Start the development loop:
-```sh
-skaffold dev
-```
-
-Or build/deploy once:
-
-```sh
-skaffold run
-```
-
-The Kubernetes manifests should provide the same service boundaries as the Docker Compose environment:
-
-```text
-Auth
-Notes
-AI
-Notification/Worker
-Kong
-PostgreSQL / pgvector
-```
-
-Use Docker Compose when you only need the application quickly. Use Skaffold + kind when you want to test Kubernetes service discovery, manifests, ingress/gateway behavior and container-to-container networking.
-
-### Cloud deployment
-
-Cloud deployment is a separate step:
-
-```text
-Cloud Run
-  ├─ Auth
-  ├─ Notes
-  ├─ AI
-  └─ Worker
-
-PostgreSQL + pgvector
-Pub/Sub
-Cloud Scheduler
-```
-
-Cloud components are not required to develop the core RAG flow locally.
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Usage
-
-### MVP
-
-The MVP demonstrates:
-
-```text
-Auth
-  ↓
-Notes CRUD
-  ↓
-Embedding + pgvector
-  ↓
-RAG chat
-  ↓
-Streaming AI response
-```
-
-The main demo question should be grounded in notes that the user has actually created.
-
-### Next features
-
-The next additions build on the same boundaries:
-
-```text
-Semantic Router
-  ↓
-Multi-provider model catalog
-  ↓
-Retry / fallback
-  ↓
-Event-driven embeddings
-  ↓
-Reminder + Web Push
-  ↓
-Cloud Scheduler + Pub/Sub
-  ↓
-Cloud Run deployment
-```
-
-The demo should make the architectural reason visible, not just the feature itself:
-
-```text
-"Why is this model selected?"
-"Why is this work asynchronous?"
-"Why does the reminder need a scheduler?"
-```
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-## Timeline
-
-> `✅` = implementation is present in the source tree.  
-> `🚧` = partially implemented or the source contains an inconsistency.  
-> `⬜` = not implemented in the current source.  
-> This scan does not claim a live local/cloud execution; runtime verification is marked separately when the source cannot prove it.
-
-The timeline below reflects the repository **as it exists now**, not the older roadmap.
-
-```mermaid
-timeline
-    title Synapse — Current Source State
-
-    section MVP
-        Local foundation : ✅ Compose + PostgreSQL/pgvector + Auth + AI + Notes + Client
-        Gateway : 🚧 DB-less + routes + rate limiting · only Kong-side JWT verification missing
-        Notes : ✅ CRUD + per-service DB + Spring Security JWT
-        AI / RAG : ✅ hybrid FTS + vector RRF + streaming chat + provider clients
-        Client : ✅ login + notes + chat UI
-
-    section Implemented Async
-        Embeddings : ✅ Notes → Pub/Sub → AI `/pubsub/note-events`
-        Event handling : 🚧 retry exists for embedding API calls · explicit event idempotency not implemented
-        Cloud deployment : ✅ Cloud Run deploy workflow for Auth / AI / Notes / Kong + Vercel client
-
-    section Current Next
-        AI routing : ⬜ Model Catalog + Provider Registry + Semantic Router
-        Multi-provider : 🚧 Vertex + Google AI Studio clients exist · no routing/fallback
-        Gateway security : ⬜ JWT verification at Kong
-
-    section Planned Product
-        Notifications : ⬜ notification service / DB / Web Push
-        Reminders : ⬜ reminder domain + Cloud Scheduler + Pub/Sub delivery flow
-        Agentic actions : 🚧 search tools exist · reminder tool not implemented
-
-    section Infrastructure
-        Kubernetes local : 🚧 manifests + kind/Skaffold config exist · K8s still contains RabbitMQ wiring
-        Observability : 🚧 health checks + correlation id + Resilience4j · centralized metrics/tracing not implemented
-        Resilience / benchmark : 🚧 retry + circuit breaker + k6 scripts exist · no provider benchmark/failure suite
-```
-
-### 🏗️ Epic 0.1: Local Foundation
-**Status:** ✅ Done (source)
-
-- [x] Monorepo structure
-- [x] Docker Compose baseline
-- [x] PostgreSQL + pgvector
-- [x] Auth service scaffold
-- [x] AI service scaffold
-- [x] Notes service scaffold
-- [x] Client scaffold
-- [ ] Live `docker compose up -d` verification from this source scan
-
-**Current local stack in `compose.yml`:**
+**Current local stack (`compose.yml`):**
 
 ```text
 PostgreSQL + pgvector
@@ -697,367 +460,67 @@ Notes
 Kong
 ```
 
----
+### Cloud deployment
 
-### 🚪 Epic 0.2: Kong Gateway
-**Status:** 🚧 Partial
-
-- [x] Kong DB-less / declarative configuration
-- [x] Auth route
-- [x] Notes route
-- [x] AI route
-- [x] Local rate limiting
-- [x] Correlation ID
-- [ ] JWT verification inside Kong
-
-Gateway-level JWT verification is the **only missing part** of the current security path.
-
-The current architecture already verifies JWTs inside the downstream services:
+The application deploys to **Google Cloud Run**, with **Neon** as the database and **Google Cloud Pub/Sub** for async events:
 
 ```text
-Client
+Cloud Run
+  ├─ Auth
+  ├─ Notes
+  ├─ AI
+  └─ Kong
+
+Neon (PostgreSQL + pgvector)
+Google Cloud Pub/Sub
+```
+
+Each Cloud Run service currently runs with `min-instances: 0` (scale-to-zero), trading occasional cold-start latency for near-zero idle cost. Cloud components are not required to develop the core RAG flow locally.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Usage
+
+### MVP (live)
+
+```text
+Auth (JWT via cookie)
   ↓
-Kong
-  ├─ routing
-  └─ rate limiting
-       ↓
-Notes / AI
+Notes CRUD
   ↓
-JWT verification at service
+Embedding + pgvector (async via Pub/Sub)
   ↓
-JWKS fetched from Auth
+RAG chat
   ↓
-local verification
+Streaming AI response
 ```
 
-**Exit:**
+The main demo question should be grounded in notes the user has actually created.
+
+### Next features (not yet built)
 
 ```text
-Client → Kong → Auth / Notes / AI
-             ↓
-      service-level JWT verification
+Semantic Router + Model Catalog + Provider Registry
+  ↓
+Multi-provider fallback
+  ↓
+Notification/Worker service
+  ↓
+Reminder domain + Cloud Scheduler
+  ↓
+reminder.due event + dead-letter queue
+  ↓
+Advanced agentic tools (create_reminder, proactive nudges)
+  ↓
+Observability (structured logs, metrics)
 ```
 
----
-
----
-
-### 📝 Epic 0.3: Notes Service
-**Status:** 🚧 Partial
-
-- [x] Spring Boot service
-- [x] Note entity + repository
-- [x] Create / Read / List / Update / Delete
-- [x] Pagination / filtering / bulk actions
-- [x] Notes database ownership (`notes_db`)
-- [x] JWT resource-server security
-- [ ] Reminder model
-- [ ] Live runtime verification
-
-The current `Note` domain contains note lifecycle state (`active`, `archived`, `trashed`, `favorite`, `pinned`) but **no reminder entity/domain model exists yet**.
-
----
-
-### 💻 Epic 0.4: React Client
-**Status:** ✅ Done (source)
-
-- [x] Login / register UI
-- [x] Notes list
-- [x] Create / edit / archive / trash / restore note flows
-- [x] Chat UI
-- [x] Conversation/message tree handling
-- [x] Client-side authentication and JWT token flow
-- [x] Client API layer
-- [ ] Final end-to-end runtime verification from this source scan
-
-The client feature inventory currently contains **53 completed features**, with a small number explicitly deferred/not started.
-
----
-
-### 🤖 Epic 1.1: AI Service + Provider Boundary
-**Status:** 🚧 Partial
-
-- [x] Provider SDK initialization under `services/ai/src/providers/`
-- [x] Vertex AI provider
-- [x] Google AI Studio provider
-- [x] Current Vertex chat model path
-- [x] Embedding model path
-- [ ] `ai/catalog.ts`
-- [ ] `ai/registry.ts`
-- [ ] `ai/types.ts`
-- [ ] Remove direct provider coupling from `chat/services.ts`
-
-**Current source reality:**
+The demo should make the architectural reasoning visible, not just the feature itself:
 
 ```text
-chat/services.ts
-    ↓
-vertexGemini35FlashLite
-    ↓
-streamText()
-```
-
-The provider layer exists, but the abstraction layer discussed in the architecture has not been implemented yet.
-
----
-
-### 🧠 Epic 1.2: Semantic Router
-**Status:** ⬜ Not Started
-
-- [ ] `ai/router/semantic.ts`
-- [ ] `ai/router/policy.ts`
-- [ ] `fast / balanced / reasoning`
-- [ ] Deterministic complexity scoring
-- [ ] Capability/tool routing
-- [ ] Logical `modelId`
-- [ ] Registry-based model resolution
-- [ ] Router tests
-
----
-
-### 🔎 Epic 1.3: RAG + Embeddings
-**Status:** ✅ Done (source)
-
-- [x] Embedding generation
-- [x] 768-dimension vector storage
-- [x] AI database (`ai_db`)
-- [x] pgvector HNSW index
-- [x] Full-text search
-- [x] Vector similarity search
-- [x] Hybrid RRF retrieval
-- [x] Top-k retrieval
-- [x] Tool-based note retrieval
-- [x] Conversation history retrieval
-- [x] Streaming AI response
-- [x] Retry for embedding API 429 responses
-- [ ] Re-run full end-to-end runtime verification
-
-The current RAG implementation is already beyond the original basic plan:
-
-```text
-FTS fast path
-   ↓ (if insufficient results)
-query embedding
-   ↓
-vector search + FTS
-   ↓
-Reciprocal Rank Fusion
-   ↓
-top-k notes
-   ↓
-AI tool / response generation
-```
-
----
-
-### 🔁 Epic 1.4: Multi-Provider + Fallback
-**Status:** 🚧 Partial
-
-- [x] Vertex provider client
-- [x] Google AI Studio provider client
-- [ ] Provider registry
-- [ ] Model catalog metadata
-- [ ] Semantic routing between providers/models
-- [x] Limited retry helper for rate-limit errors
-- [ ] Cross-provider fallback chain
-- [ ] Provider failure test suite
-
-There are already **two Google model integrations**, but the application currently selects the Vertex model directly.
-
----
-
-### 📬 Epic 2.1: Event-Driven Embeddings
-**Status:** 🚧 Partial → functionally implemented in local Compose
-
-- [x] Define `note.created`
-- [x] Define `note.updated`
-- [x] Define `note.deleted`
-- [x] Notes publishes events after transaction commit
-- [x] Local Pub/Sub emulator
-- [x] Pub/Sub topic/subscription initialization
-- [x] AI `/pubsub/note-events` consumer
-- [x] Upsert note mirror in AI DB
-- [x] Generate embeddings for changed notes
-- [x] Delete stale embeddings for trashed/deleted notes
-- [x] Retry embedding API rate-limit failures
-- [ ] Explicit Pub/Sub event idempotency strategy
-- [ ] Kubernetes environment aligned to the same Pub/Sub flow
-- [ ] Live event-flow verification
-
-**Actual current flow:**
-
-```text
-Notes Service
-   ↓
-Pub/Sub
-   ↓
-AI Service `/pubsub/note-events`
-   ↓
-AI DB
-   ├─ notes mirror
-   └─ note_embeddings
-```
-
-There is **no separate Worker service** in the current source for embeddings; AI consumes the Pub/Sub event itself.
-
----
-
-### 🔔 Epic 2.2: Notifications + Web Push
-**Status:** ⬜ Not Started
-
-- [ ] Notification service
-- [ ] Notification database
-- [ ] Push subscription storage
-- [ ] `/push-handler`
-- [ ] `/notifications?unread=true`
-- [ ] Mark-read endpoint
-- [ ] Service Worker push handling
-
-The current repository has notification-related UI/settings references, but no notification backend, Web Push implementation, or persistent notification model.
-
----
-
-### ⏰ Epic 2.3: Reminder Scheduling
-**Status:** ⬜ Not Started
-
-- [ ] Reminder domain model
-- [ ] Reminder creation tool
-- [ ] Reminder due-date query/check
-- [ ] Cloud Scheduler job
-- [ ] Pub/Sub reminder event
-- [ ] Notification Worker
-- [ ] Web Push delivery
-- [ ] Idempotency / duplicate protection
-
-Cloud Scheduler is **not present in the current repository source**.
-
----
-
-### ☁️ Epic 3.1: Cloud Deployment
-**Status:** ✅ Done (deployment source)
-
-- [x] Dockerfiles for Auth / AI / Notes / Kong
-- [x] Artifact Registry build/push workflow
-- [x] Cloud Run deployment for Auth
-- [x] Cloud Run deployment for AI
-- [x] Cloud Run deployment for Notes
-- [x] Cloud Run deployment for Kong gateway
-- [x] Vercel client deployment
-- [x] Runtime secrets supplied through deployment workflow
-- [x] `min-instances: 0` for current Cloud Run services
-- [ ] Separate Notification/Worker deployment
-- [ ] Cloud service-to-service authenticated invocation
-- [ ] Live deployment verification in this source scan
-
----
-
-### ☸️ Epic 3.2: Kubernetes Local with kind + Skaffold
-**Status:** 🚧 Partial
-
-- [x] kind-oriented manifests
-- [x] Deployment manifests
-- [x] Service manifests
-- [x] ConfigMap / Secret generation
-- [x] Kong deployment
-- [x] PostgreSQL deployment
-- [x] Separate logical databases (`auth_db`, `notes_db`, `ai_db`)
-- [x] Skaffold configuration
-- [x] Local port-forward configuration
-- [x] Kubernetes service discovery structure
-- [ ] Full cluster/runtime verification
-- [ ] Notification/Worker deployment
-- [ ] Pub/Sub emulator deployment/configuration in the K8s environment
-- [ ] Remove/replace stale RabbitMQ wiring
-
-**Important source mismatch:**
-
-```text
-Current application event flow:
-Notes → Pub/Sub → AI
-
-Current K8s manifests:
-Notes / AI → wait-for-rabbitmq
-```
-
-RabbitMQ manifests still exist under `infra/k8s/base/`, but the current Notes/AI application code uses Google Pub/Sub for note events. This needs cleanup before calling the Kubernetes architecture complete.
-
----
-
-### 📊 Epic 4.1: Observability
-**Status:** 🚧 Partial
-
-- [x] Health endpoint in Auth
-- [x] Health endpoint in AI
-- [x] Spring Actuator health in Notes
-- [x] Kong correlation ID
-- [x] Application/service error logging
-- [x] Spring logging configuration
-- [ ] Structured logging standard across all services
-- [ ] Centralized metrics
-- [ ] Distributed tracing
-- [ ] Cloud Monitoring dashboards
-- [ ] AI routing metrics
-- [ ] Worker event metrics
-
----
-
-### 🧰 Epic 4.2: Agentic Tools
-**Status:** 🚧 Partial
-
-- [x] `searchNotes`
-- [x] `searchChatHistories`
-- [x] `searchWeb`
-- [x] Tool schemas / validation
-- [x] Multi-step tool execution support (`stopWhen: isStepCount(5)`)
-- [ ] Create reminder tool
-- [ ] Tool authorization policy beyond user-scoped data/tool construction
-- [ ] Full reminder workflow
-
-The agentic foundation already exists, but the reminder action described by the future architecture does not.
-
----
-
-### 🧪 Epic 5.1: Resilience + Benchmark
-**Status:** 🚧 Partial
-
-- [x] AI retry helper for 429 rate-limit errors
-- [x] Notes → AI circuit breaker
-- [x] Notes → AI timeout protection
-- [x] k6 smoke tests for Auth
-- [x] k6 smoke tests for Notes
-- [x] k6 smoke tests through Kong
-- [ ] Provider failure/fallback test suite
-- [ ] Rate-limit behavior test suite
-- [ ] Worker retry/idempotency tests
-- [ ] Multi-provider benchmark
-- [ ] Cost/latency comparison report
-
----
-
-### 📌 Current Next Step
-
-**First priority:**
-
-```text
-ai/catalog.ts
-    ↓
-ai/registry.ts
-    ↓
-ai/router/semantic.ts
-    ↓
-refactor chat/services.ts
-```
-
-After that:
-
-```text
-multi-provider fallback
-    ↓
-clean K8s RabbitMQ leftovers
-    ↓
-notifications / reminder domain
-    ↓
-Scheduler + Pub/Sub reminder flow
+"Why is JWT verified locally instead of calling Auth every time?"
+"Why is embedding generation asynchronous?"
+"Why does the reminder flow need a scheduler?"
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -1065,11 +528,15 @@ Scheduler + Pub/Sub reminder flow
 ## Architecture Decision Records
 
 <details>
-<summary><strong>ADR-0001 — Kong DB-less</strong></summary>
+<summary><strong>ADR-0001 — Runtime chosen per workload, not standardized</strong></summary>
 
 **Status:** Accepted
 
-Kong uses DB-less declarative configuration for the MVP. Routing and local rate limiting stay at the edge; JWT verification remains in the downstream services until gateway-level JWT verification is explicitly added.
+**Context:** The system spans distinct workload types — a lightweight auth service, a data-heavy core domain, and an AI service dependent on a specific SDK ecosystem.
+
+**Decision:** Auth runs on Bun; Notes runs on Java Spring Boot; the AI service runs on Node.js.
+
+**Consequences:** Each service gets a runtime suited to it (fast cold-start vs. enterprise reliability vs. AI SDK maturity), at the cost of managing multiple build/tooling pipelines.
 
 </details>
 
@@ -1078,73 +545,63 @@ Kong uses DB-less declarative configuration for the MVP. Routing and local rate 
 
 **Status:** Accepted
 
-Notes and AI verify JWTs in the resource service itself.
+Notes and AI verify JWTs independently via a JWKS public key fetched from Auth and cached (~5-10 min), instead of calling Auth on every request or verifying at Kong.
 
-```text
-request
-  ↓
-resource service
-  ↓
-JWKS cache
-  ↓
-local JWT signature verification
-```
+**Why:** Resource servers keep working during a temporary Auth outage as long as the signing key is already cached; services stay loosely coupled and language-agnostic in how they verify tokens.
 
-The Auth service is the issuer/JWKS authority, not a dependency for every authenticated request.
-
-The AI service uses `jose.createRemoteJWKSet()`. Spring Security OAuth2 Resource Server provides the equivalent model in Notes.
-
-The JWKS cache is process-local and does not require an external cache.
-
-**Why:** resource servers can continue verifying tokens while the Auth service is temporarily unavailable, as long as the required signing key is already cached.
-
-**Trade-off:** each application instance maintains its own JWKS cache, and a newly rotated key requires a successful JWKS refresh before tokens using that key can be verified.
+**Trade-off:** Each service instance maintains its own JWKS cache, and a newly rotated key requires a successful refresh before it can be used. JWT verification logic is duplicated across Notes and AI rather than centralized at Kong.
 
 </details>
 
 <details>
-<summary><strong>ADR-0003 — Cloud Scheduler + Pub/Sub for Reminders</strong></summary>
+<summary><strong>ADR-0003 — Google Cloud Pub/Sub for Async Events</strong></summary>
 
 **Status:** Accepted
 
-**Context:** Reminders are time-based and should not require a long-lived client/server connection.
+**Context:** Synchronous embedding generation blocked the Notes service on the AI service's response, coupling note-creation latency to the AI/Gemini API response time.
 
-**Decision:**
+**Decision:** Use Google Cloud Pub/Sub for `note.created` (and planned `reminder.due`) events, since all services already run on Cloud Run and benefit from a managed, serverless-native messaging layer.
 
-```text
-Cloud Scheduler
-  ↓
-reminder check
-  ↓
-Pub/Sub
-  ↓
-Notification Worker
-  ↓
-Web Push
-```
-
-**Why:** The time trigger, asynchronous delivery and retryable work are cleanly separated.
-
-**Local rule:** The reminder-check operation remains manually callable so local development does not depend on Cloud Scheduler.
+**Consequences:** No message broker to operate manually, with built-in dead-letter topic support planned for reliability — at the cost of coupling to a specific cloud provider's messaging semantics.
 
 </details>
 
 <details>
-<summary><strong>ADR-0004 — Docker Compose + kind/Skaffold for Local Development</strong></summary>
+<summary><strong>ADR-0004 — Neon + Cloud Run instead of self-managed Kubernetes</strong></summary>
 
 **Status:** Accepted
 
-**Decision:** Support two local paths.
+**Context:** A full local Kubernetes setup (`kind`) was built and tested first — Dockerfiles, manifests, ConfigMaps, Kong-on-k8s routing, and DNS-based service discovery. Running that same setup on GKE 24/7 would incur real compute cost even when idle, disproportionate to the project's scale.
 
-```text
-Docker Compose
-→ fastest application/infrastructure loop
+**Decision:** Deploy all services to Google Cloud Run (pay-per-request, scale-to-zero) with Neon as a serverless PostgreSQL provider.
 
-kind + Skaffold
-→ Kubernetes networking, manifests, gateway and service-discovery validation
-```
+**Consequences:** Near-zero idle cost and no cluster to maintain, at the cost of less fine-grained control over networking and scheduling. The `kind` setup remains in the repo as a reference implementation, kept because it directly informed this decision — not because it was abandoned out of difficulty.
 
-Both paths represent the same logical service boundaries.
+</details>
+
+<details>
+<summary><strong>ADR-0005 — No RBAC in current scope</strong></summary>
+
+**Status:** Accepted
+
+**Context:** The project's core value is the RAG/agentic experience, not access control granularity, and every user only ever accesses their own notes.
+
+**Decision:** Skip role-based access control for now; a valid JWT alone is sufficient to authorize a request.
+
+**Consequences:** Simpler auth logic for the MVP; revisiting RBAC becomes a documented, deliberate future decision rather than an oversight.
+
+</details>
+
+<details>
+<summary><strong>ADR-0006 — Kong as the single gateway across all services</strong></summary>
+
+**Status:** Accepted
+
+**Context:** With services written in different languages, a language-agnostic entry point avoids duplicating routing/rate-limiting logic per service.
+
+**Decision:** Kong routes requests to all backend services; JWT verification itself happens downstream at each resource service (see ADR-0002), not at Kong.
+
+**Consequences:** Centralized routing and a single base URL for the client; JWT verification logic is duplicated across Notes and AI rather than centralized at the gateway, accepted as a reasonable trade-off for service independence.
 
 </details>
 
@@ -1152,8 +609,21 @@ Both paths represent the same logical service boundaries.
 
 ## Roadmap
 
-The current state and next steps are maintained in the Timeline above. The Timeline is synchronized to the latest scanned source tree.
+**Immediate priorities:**
 
+```text
+Semantic Router + Model Catalog + Provider Registry
+    ↓
+Notification/Worker service + reminder.due flow
+    ↓
+Retry + dead-letter queue hardening
+    ↓
+Advanced agentic tools (create_reminder, proactive nudges)
+    ↓
+Observability (structured logging, metrics)
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contributing
 
@@ -1175,8 +645,6 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 ## Contact
 
-<!-- Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com -->
-
 Project Link: [https://github.com/nbnguyen75/Synapse](https://github.com/nbnguyen75/Synapse)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -1186,6 +654,7 @@ Project Link: [https://github.com/nbnguyen75/Synapse](https://github.com/nbnguye
 * [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 * [Vercel AI SDK](https://sdk.vercel.ai/)
 * [pgvector](https://github.com/pgvector/pgvector)
+* [Neon](https://neon.tech/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -1217,17 +686,13 @@ Project Link: [https://github.com/nbnguyen75/Synapse](https://github.com/nbnguye
 [tanstack-url]: https://tanstack.com/query
 [kong-shield]: https://img.shields.io/badge/Kong-003459?style=for-the-badge&logo=kong&logoColor=white
 [kong-url]: https://konghq.com/
-[postgres-shield]: https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
-[postgres-url]: https://www.postgresql.org/
+[neon-shield]: https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=postgresql&logoColor=white
+[neon-url]: https://neon.tech/
 [pgvector-shield]: https://img.shields.io/badge/pgvector-4169E1?style=for-the-badge&logo=postgresql&logoColor=white
 [pgvector-url]: https://github.com/pgvector/pgvector
-[k8s-shield]: https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white
-[k8s-url]: https://kubernetes.io/
-[skaffold-shield]: https://img.shields.io/badge/Skaffold-64B5F6?style=for-the-badge&logo=googlecloud&logoColor=white
-[skaffold-url]: https://skaffold.dev/
 [pubsub-shield]: https://img.shields.io/badge/Google%20Pub%2FSub-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white
 [pubsub-url]: https://cloud.google.com/pubsub
 [scheduler-shield]: https://img.shields.io/badge/Cloud%20Scheduler-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white
 [scheduler-url]: https://cloud.google.com/scheduler
-[gcp-shield]: https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white
-[gcp-url]: https://cloud.google.com/
+[cloudrun-shield]: https://img.shields.io/badge/Cloud%20Run-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white
+[cloudrun-url]: https://cloud.google.com/run
