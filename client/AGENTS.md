@@ -42,24 +42,30 @@ If baseline verification is failing, repair that first before adding new scope.
   and the installed stack (shadcn Form + react-hook-form + zod, sonner) win.
   `rules/rust.md` and `rules/product.md` were intentionally not ported (no
   Tauri/Rust backend, different product).
-- **Mandatory skill**: `improve` (always active).
+- **Mandatory skills** (always active): `improve`,
+  `modern-javascript-patterns`, `vercel-composition-patterns`. The refactor
+  skill and the agents depend on modern-js patterns and composition patterns,
+  so load them alongside `refactor`.
 - **Skill routing** — load ONE skill per task:
 
-| Task                           | Skill                                              |
-| ------------------------------ | -------------------------------------------------- |
-| Forms (react-hook-form + zod)  | `react-hook-form`, `shadcn`                        |
-| UI Design & Layout             | `frontend-design`, `better-layout`, `better-ui`    |
-| AI / chat UI                   | `ai-elements`                                      |
-| Routing                        | `tanstack-router`                                  |
-| Server State & Caching         | `tanstack-query`                                   |
-| Tables / Data Grid             | `tanstack-table`                                   |
-| Refactor / Component Splitting | `refactor`                                         |
-| i18n & Catalogs                | `i18n-paraglide`                                   |
-| Auth (client)                  | `better-auth-client`                               |
-| Debugging                      | `diagnosing-bugs`                                  |
-| Code review                    | `code-review-and-quality`                          |
-| Architecture / improvement     | `improve`                                          |
-| Research / Writing             | `research`, `writing-for-agents`, `better-writing` |
+| Task                              | Skill                                                     |
+| --------------------------------- | --------------------------------------------------------- |
+| Forms (react-hook-form + zod)     | `react-hook-form`, `shadcn`                               |
+| UI Design & Layout                | `frontend-design`, `better-layout`, `better-ui`           |
+| AI / chat UI                      | `ai-elements`                                             |
+| Routing                           | `tanstack-router`, `tanstack-router-best-practices`       |
+| Server State & Caching            | `tanstack-query`, `tanstack-query-best-practices`         |
+| Tables / Data Grid                | `tanstack-table`                                          |
+| Modern JS / TS patterns           | `modern-javascript-patterns`, `typescript-advanced-types` |
+| Component composition             | `vercel-composition-patterns`                             |
+| React performance & best practice | `vercel-react-best-practices`                             |
+| Refactor / Component Splitting    | `refactor`                                                |
+| i18n & Catalogs                   | `i18n-paraglide`                                          |
+| Auth (client)                     | `better-auth-client`                                      |
+| Debugging                         | `diagnosing-bugs`                                         |
+| Code review                       | `code-review-and-quality`                                 |
+| Architecture / improvement        | `improve`                                                 |
+| Research / Writing                | `research`, `writing-for-agents`, `better-writing`        |
 
 - `ponytail` / `ponytail-review` are always active via the `opencode.json`
   plugin. `better-auth-client` is the React/web variant — the desktop-flavored
@@ -67,6 +73,9 @@ If baseline verification is failing, repair that first before adding new scope.
 - Assets under `.agents/` and `.claude/` are verified-against-upstream (tracked
   in `skills-lock.json`); keep them byte-identical unless a task explicitly
   adapts them.
+- Known adaptation: `modern-javascript-patterns` drops the "Use strict mode"
+  bullet (`'use strict'` is a no-op under ES modules/modern tooling); do not
+  restore it from upstream on re-sync.
 
 ## Required Artifacts
 

@@ -11,6 +11,9 @@ Read, in order:
    `improve.md`)
 3. relevant file(s) under `docs/` only if the task needs them (see AGENTS.md →
    Startup workflow)
-4. only the one skill under `.agents/skills/` that the current task needs
+4. Skills under `.agents/skills/`: always-active (`improve`,
+   `modern-javascript-patterns`, `vercel-composition-patterns`), plus the ONE
+   skill the current task needs — pick it from the routing table in AGENTS.md →
+   "Skills & Rules"
 
 Do not load the whole documentation set for every task.

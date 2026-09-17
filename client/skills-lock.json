@@ -1,42 +1,6 @@
 {
   "version": 1,
   "skills": {
-    "improve": {
-      "source": "shadcn/improve",
-      "sourceType": "github",
-      "skillPath": "skills/improve/SKILL.md",
-      "computedHash": "e671f31b276c4d91dc5a829e36561a6b5e8cb0090f665c272fff4a6e091b8884"
-    },
-    "react-hook-form": {
-      "source": "pproenca/dot-skills",
-      "sourceType": "github",
-      "skillPath": "skills/.curated/react-hook-form/SKILL.md",
-      "computedHash": "087be095717726b422ede104c16a8160450c7cc409f6aec5abcb556a6f4f7699"
-    },
-    "shadcn": {
-      "source": "shadcn-ui/ui",
-      "sourceType": "github",
-      "skillPath": "skills/shadcn/SKILL.md",
-      "computedHash": "e39871b64b1ba34f1aefc50ffea1b162c5a0750bc42a9ba54282ac503534429b"
-    },
-    "tanstack-query": {
-      "source": "tanstack-skills/tanstack-skills",
-      "sourceType": "github",
-      "skillPath": "plugins/tanstack-query/skills/tanstack-query/SKILL.md",
-      "computedHash": "da8249f258729528aab9eab1bb8ba5935863e2aca71f749e12486090cdd2423e"
-    },
-    "tanstack-router": {
-      "source": "tanstack-skills/tanstack-skills",
-      "sourceType": "github",
-      "skillPath": "plugins/tanstack-router/skills/tanstack-router/SKILL.md",
-      "computedHash": "0d193f9123e4148a0878c32d52936edb9c5a5769cd63b18be3611dead73df5b0"
-    },
-    "tanstack-table": {
-      "source": "tanstack-skills/tanstack-skills",
-      "sourceType": "github",
-      "skillPath": "plugins/tanstack-table/skills/tanstack-table/SKILL.md",
-      "computedHash": "07a1e90196fa90d2a240148a6a7fc5a3c5439410f01c27e4e1df8a703943e0ae"
-    },
     "ai-elements": {
       "source": "vercel/ai-elements",
       "sourceType": "github",
@@ -97,6 +61,24 @@
       "skillPath": "SKILL.md",
       "computedHash": "fecadde33a6b272c8191edbd2698d0c9cb172820f4f5590393df45bfdcde2017"
     },
+    "improve": {
+      "source": "shadcn/improve",
+      "sourceType": "github",
+      "skillPath": "skills/improve/SKILL.md",
+      "computedHash": "e671f31b276c4d91dc5a829e36561a6b5e8cb0090f665c272fff4a6e091b8884"
+    },
+    "modern-javascript-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/javascript-typescript/skills/modern-javascript-patterns/SKILL.md",
+      "computedHash": "b39a6d074904376b61daf71beb0eef48a92d55c33316141e4fab75801a3607be"
+    },
+    "react-hook-form": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.curated/react-hook-form/SKILL.md",
+      "computedHash": "087be095717726b422ede104c16a8160450c7cc409f6aec5abcb556a6f4f7699"
+    },
     "refactor": {
       "source": "./.agents/skills/refactor",
       "sourceType": "local",
@@ -108,6 +90,60 @@
       "sourceType": "github",
       "skillPath": "skills/engineering/research/SKILL.md",
       "computedHash": "524b404b1ca373a8b00f63a64667ec4b0a61c3c9cf4e8f246e639be859bb6979"
+    },
+    "shadcn": {
+      "source": "shadcn-ui/ui",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "e39871b64b1ba34f1aefc50ffea1b162c5a0750bc42a9ba54282ac503534429b"
+    },
+    "tanstack-query": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/tanstack-query/skills/tanstack-query/SKILL.md",
+      "computedHash": "da8249f258729528aab9eab1bb8ba5935863e2aca71f749e12486090cdd2423e"
+    },
+    "tanstack-query-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tanstack-query/SKILL.md",
+      "computedHash": "8149b5533879ffb726fb5788382e4858527d798e4ecd2b8c49f5c10c43526b58"
+    },
+    "tanstack-router": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/tanstack-router/skills/tanstack-router/SKILL.md",
+      "computedHash": "0d193f9123e4148a0878c32d52936edb9c5a5769cd63b18be3611dead73df5b0"
+    },
+    "tanstack-router-best-practices": {
+      "source": "deckardger/tanstack-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tanstack-router/SKILL.md",
+      "computedHash": "f8c3399dc6b644dc3b1c9f711ec08442ab408e561fcafba9b93a2417f6844730"
+    },
+    "tanstack-table": {
+      "source": "tanstack-skills/tanstack-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/tanstack-table/skills/tanstack-table/SKILL.md",
+      "computedHash": "07a1e90196fa90d2a240148a6a7fc5a3c5439410f01c27e4e1df8a703943e0ae"
+    },
+    "typescript-advanced-types": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/javascript-typescript/skills/typescript-advanced-types/SKILL.md",
+      "computedHash": "696b98d5a6f90a7d0f0797c6e24590deda11c42dab620c3f93c1d2befccbd7bb"
+    },
+    "vercel-composition-patterns": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/composition-patterns/SKILL.md",
+      "computedHash": "fb8f849b4d46c0c4d364ae6fb398a5cb693b54f9a4c31765a1ec0689c7cb93d5"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "3286ace648b4d740317b9c1cb7fbd38600eaacc62a8b57ea5e06fd2992b5582e"
     },
     "writing-for-agents": {
       "source": "mattpocock/skills",

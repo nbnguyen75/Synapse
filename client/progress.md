@@ -1,5 +1,31 @@
 # Session Progress Log
 
+## Status
+
+### What's Done (harness-skills-067 — 6 new agent skills wired into harness)
+
+- [x] **6 new skills added (user-installed, both trees)** — `modern-javascript-patterns`,
+      `typescript-advanced-types`, `vercel-composition-patterns`,
+      `vercel-react-best-practices`, `tanstack-query-best-practices`,
+      `tanstack-router-best-practices`. Verified byte-identical `.agents` ↔ `.claude`.
+- [x] **Always-active set expanded** — AGENTS.md "Mandatory skills": `improve`,
+      `modern-javascript-patterns`, `vercel-composition-patterns` (refactor + agents
+      depend on modern-js/composition patterns).
+- [x] **Routing table updated** — tanstack-query/router best-practices paired with the
+      base tanstack skills; `typescript-advanced-types`, `vercel-composition-patterns`,
+      `vercel-react-best-practices` rows added.
+- [x] **`modern-javascript-patterns` adapted** — dropped the "Use strict mode: 'use strict'"
+      bullet (no-op under ES modules); documented as a known adaptation in AGENTS.md;
+      `.claude` copy synced (hardlink, so it was automatic).
+- [x] **READMEs updated** — `.agents/README.md` + `.claude/README.md` now point at the
+      AGENTS.md routing table and name the always-active skills.
+- [x] **skills-lock.json regenerated** — 25 entries, 0 stale hashes (recomputed from
+      `.agents/skills/*/SKILL.md`).
+- [x] **Verification** — `bun --bun check` unchanged: only the 2 pre-existing
+      `react-hooks` errors in `src/features/notes/hooks/{use-note-card,use-note-details}.ts`
+      (from the user's staged strict-tsconfig migration); no new errors from harness files.
+      Not committed (user manages git).
+
 ## Current State
 
 **Last Updated:** 2026-09-03
