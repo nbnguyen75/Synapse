@@ -56,7 +56,7 @@ function RouteComponent() {
 
       await signUp.email(
         {
-          name: data.email.split('@')[0],
+          name: data.email.split('@')[0] ?? data.email,
           callbackURL: '/',
           password,
           email,

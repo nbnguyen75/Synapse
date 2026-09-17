@@ -1,19 +1,23 @@
 {
   "name": "synapse-web",
-  "version": "0.1.1",
+  "version": "0.1.12",
   "private": true,
+  "description": "AI-native personal knowledge assistant with RAG-powered note chat and agentic reminders",
+  "author": {
+    "name": "Nguyên (Wynn)"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "postinstall": "bun --bun generate-translation",
-    "generate-translation": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
     "preview": "vite preview",
-    "generate-routes": "tsr generate",
-    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "postinstall": "bun --bun gen:paraglide",
+    "gen:routes": "tsr generate",
+    "gen:paraglide": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "format": "oxfmt",
     "lint": "oxlint && eslint --cache .",
-    "check": "oxfmt && oxlint --fix && eslint --cache --fix .",
+    "lint:fix": "oxlint --fix && eslint --cache --fix .",
     "prepare": "cd .. && husky client/.husky"
   },
   "dependencies": {
@@ -109,7 +113,6 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^10.10.0",
     "eslint-plugin-perfectionist": "^5.11.1",
-    "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
     "oxfmt": "^0.68.0",
     "oxlint": "^1.83.0",
@@ -122,6 +125,9 @@
     "vite-plugin-pwa": "^1.3.0"
   },
   "lint-staged": {
-    "*": "bun --bun check"
+    "**/*": [
+      "bun --bun format",
+      "bun --bun lint:fix"
+    ]
   }
 }

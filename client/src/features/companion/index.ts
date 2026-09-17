@@ -1,4 +1,12 @@
-export * from './hooks/use-companion-conversation';
-export * from './hooks/use-companion-settings';
-export * from './constants';
-export * from './schemas';
+export { DEFAULT_COMPANION_SETTINGS } from './constants';
+export type {
+  CompanionSettingsLanguage,
+  CompanionResponseLength,
+  CompanionSettingsPreset,
+} from './constants';
+export {
+  useUpdateCompanionSettingsMutation,
+  useGetCompanionSettingsQuery,
+} from './hooks/use-companion-settings';
+export { companionSettingsSchema } from './schemas';
+export type { CompanionSettingsFormInput, CompanionSettingsPayload } from './schemas';

@@ -125,7 +125,7 @@ const AttachmentsContext = createContext<AttachmentsContextValue | null>(null);
 interface AttachmentContextValue {
   mediaCategory: AttachmentMediaCategory;
   variant: AttachmentVariant;
-  onRemove?: () => void;
+  onRemove?: (() => void) | undefined;
   data: AttachmentData;
 }
 

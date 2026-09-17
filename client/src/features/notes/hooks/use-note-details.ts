@@ -1,5 +1,5 @@
+import type { UpdateNoteRequest, UpdateNoteResponse } from '@/features/notes/api/notes.http';
 import type { NoteFormInput, NoteInputPayload } from '@/features/notes/schemas';
-import type { InferRequestType, InferResponseType } from '@/lib/fetch';
 import type { Note } from '@/features/notes/types';
 
 import { useForm, useWatch } from 'react-hook-form';
@@ -15,7 +15,6 @@ import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 import { useConfirm } from '@/providers';
 
 import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
 
 import {
   useDeleteNote,
@@ -23,7 +22,8 @@ import {
   useRestoreNote,
   useTrashNote,
 } from '@/features/notes/hooks/api';
-import { noteKeys } from '@/features/notes/keys';
+import { updateNoteClient } from '@/features/notes/api/notes.http';
+import { noteKeys } from '@/features/notes/api/notes.api';
 
 const copyContent = async (content: string) => {
   try {
@@ -65,6 +65,7 @@ export function useNoteDetails(initialData: Note) {
     },
     refetchIntervalInBackground: false,
   });
+  // oxlint-disable-next-line typescript/no-unnecessary-condition -- oxlint and tsc disagree on TanStack's conditional UseQueryResult data type here; tsc types queryNote as Note | undefined (initialData is optional), so the fallback is required for typecheck
   const note = queryNote ?? initialData;
 
   useEffect(() => {
@@ -94,9 +95,9 @@ export function useNoteDetails(initialData: Note) {
   });
 
   const { isPending: isUpdating, mutate: _updateNote } = useMutation<
-    InferResponseType<(typeof $fetch.api.v1.notes)[':id']['$put']>['data'],
+    UpdateNoteResponse,
     Error,
-    InferRequestType<(typeof $fetch.api.v1.notes)[':id']['$put']>
+    UpdateNoteRequest
   >({
     onSuccess: ({ title }) => {
       void queryClient.invalidateQueries({ queryKey: noteKeys.detail(note.id) });
@@ -114,11 +115,7 @@ export function useNoteDetails(initialData: Note) {
         description: m.common_error_connection(),
       });
     },
-    mutationFn: async (args) => {
-      const result = await $fetch.api.v1.notes[':id'].$put(args);
-
-      return result.data;
-    },
+    mutationFn: updateNoteClient,
   });
 
   const { isPending: isDeleting, mutate: deleteNote } = useDeleteNote();

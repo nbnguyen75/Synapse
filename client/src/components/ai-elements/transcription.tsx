@@ -14,7 +14,7 @@ type TranscriptionSegment = TranscriptionResult['segments'][number];
 interface TranscriptionContextValue {
   onTimeUpdate: (time: number) => void;
   segments: TranscriptionSegment[];
-  onSeek?: (time: number) => void;
+  onSeek?: ((time: number) => void) | undefined;
   currentTime: number;
 }
 
@@ -48,9 +48,9 @@ export const Transcription = ({
   ...props
 }: TranscriptionProps) => {
   const [currentTime, setCurrentTime] = useControllableState({
-    prop: externalCurrentTime,
-    onChange: onSeek,
     defaultProp: 0,
+    ...(onSeek !== undefined ? { onChange: onSeek } : {}),
+    ...(externalCurrentTime !== undefined ? { prop: externalCurrentTime } : {}),
   });
 
   const contextValue = useMemo(

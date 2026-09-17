@@ -32,7 +32,8 @@ export function useMultiSelect() {
       setSelectedIds((prev) => {
         const next = new Set(prev);
         for (let i = start; i <= end; i++) {
-          next.add(orderedIds[i]);
+          const itemId = orderedIds[i];
+          if (itemId !== undefined) next.add(itemId);
         }
         return next;
       });

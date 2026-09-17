@@ -1,11 +1,10 @@
+import type { noteKeys } from '@/features/notes/api/notes.api';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import type { Note } from '@/features/notes/types';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { $fetch } from '@/lib/fetch';
-
-import { noteKeys } from '@/features/notes/keys';
+import { noteDetailQueryOptions } from '@/features/notes/api/notes.api';
 
 type Options = Prettify<
   Omit<
@@ -16,17 +15,8 @@ type Options = Prettify<
 
 export function useGetNote(id: string, initialData?: Note, options: Options = {}) {
   const { data, ...restProps } = useQuery({
-    queryFn: async () => {
-      const result = await $fetch.api.v1.notes[':id'].$get({
-        params: {
-          id,
-        },
-      });
-
-      return result.data;
-    },
-    queryKey: noteKeys.detail(id),
-    initialData,
+    ...noteDetailQueryOptions(id),
+    ...(initialData === undefined ? {} : { initialData }),
     ...options,
   });
 

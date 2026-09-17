@@ -701,7 +701,7 @@ type SidebarRegistry = Record<string, SidebarContextProps>;
 
 type SidebarManagerContextProps = {
   register: (name: string, context: SidebarContextProps) => void;
-  use: (name: string) => SidebarContextProps | null;
+  use: (name: string) => SidebarContextProps | undefined;
   unregister: (name: string) => void;
 };
 

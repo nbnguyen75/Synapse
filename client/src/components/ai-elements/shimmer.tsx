@@ -1,9 +1,10 @@
 'use client';
 
-import type { CSSProperties, ElementType } from 'react';
+import type { ElementType } from 'react';
 
-import { memo, useMemo, createElement } from 'react';
+import { createElement, memo, useMemo } from 'react';
 
+import type { MotionStyle } from 'motion/react';
 import { motion } from 'motion/react';
 
 import { cn } from '@/lib/utils';
@@ -62,7 +63,7 @@ const ShimmerComponent = ({
         backgroundImage:
           'var(--bg), linear-gradient(var(--color-muted-foreground), var(--color-muted-foreground))',
         '--spread': `${dynamicSpread}px`,
-      } as CSSProperties,
+      } as MotionStyle,
       transition: {
         repeat: Number.POSITIVE_INFINITY,
         ease: 'linear',

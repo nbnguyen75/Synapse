@@ -91,6 +91,27 @@ export function buildTree(
   };
 }
 
+export function toTreeRows(messages: Array<UIMessage>): Array<TreeMessage> {
+  return messages.map((message, index) => {
+    const hasEmbeddedParentId = 'parentId' in message;
+    // oxlint-disable-next-line typescript/no-unnecessary-condition -- parentId may exist at runtime on UIMessage even if not in type
+    const embeddedParentId = hasEmbeddedParentId ? message.parentId : undefined;
+
+    let parentId: undefined | string;
+    if (typeof embeddedParentId === 'string') {
+      parentId = embeddedParentId;
+    } else if (hasEmbeddedParentId) {
+      // Server sent null: this is a tree root. The tree primitives
+      // (getRootIds / getSiblingIds) recognize roots only as `undefined`.
+      parentId = undefined;
+    } else {
+      parentId = messages[index - 1]?.id;
+    }
+
+    return { ...message, parentId };
+  });
+}
+
 export function getActivePath(
   state: ConversationTreeState,
   leafId: undefined | string = state.currentLeafId,

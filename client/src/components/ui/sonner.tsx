@@ -11,12 +11,15 @@ import {
   Loader2Icon,
 } from 'lucide-react';
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = 'system' } = useTheme();
+const Toaster = ({ theme: themeProp, ...props }: ToasterProps) => {
+  const { theme: currentTheme = 'system' } = useTheme();
+  const resolvedTheme: 'dark' | 'light' | 'system' =
+    themeProp ??
+    (currentTheme === 'dark' || currentTheme === 'light' ? currentTheme : 'system');
 
   return (
     <Sonner
-      theme={theme as ToasterProps['theme']}
+      theme={resolvedTheme}
       className="toaster group"
       icons={{
         loading: <Loader2Icon className="size-4 animate-spin" />,

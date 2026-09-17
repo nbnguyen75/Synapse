@@ -27,9 +27,9 @@ import {
 
 interface FileTreeContextType {
   togglePath: (path: string) => void;
-  onSelect?: (path: string) => void;
+  onSelect?: ((path: string) => void) | undefined;
   expandedPaths: Set<string>;
-  selectedPath?: string;
+  selectedPath?: string | undefined;
 }
 
 // Default noop for context default value

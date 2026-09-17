@@ -54,7 +54,7 @@ export default function ShortcutsSettingsPage() {
           {editorGroups.map((group) => (
             <div key={group} className="space-y-2">
               <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {group && EDITOR_SHORTCUT_GROUPS[group].label()}
+                {group && EDITOR_SHORTCUT_GROUPS[group]?.label()}
               </h3>
 
               <div className="grid grid-cols-2 gap-2">

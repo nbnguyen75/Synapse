@@ -65,9 +65,9 @@ export default function CommandPalette() {
   });
   const notes = useMemo<Array<Note>>(() => data.items, [data.items]);
 
-  const focusInput = () => {
+  const focusInput = useCallback(() => {
     setTimeout(() => inputRef.current?.focus(), 10);
-  };
+  }, []);
 
   useEffect(() => {
     const handleToggle = () => {
@@ -95,7 +95,7 @@ export default function CommandPalette() {
       window.removeEventListener('toggle-command-palette', handleToggle);
       window.removeEventListener('open-command-palette', handleOpen);
     };
-  }, []);
+  }, [focusInput]);
 
   useHotkeyShortcut(
     'command-palette',
@@ -215,7 +215,7 @@ export default function CommandPalette() {
         subtitle: contentPart
           ? m.command_palette_create_subtitle_with_title()
           : m.command_palette_create_subtitle_empty(),
-        shortcut: formatForDisplay(KEYBOARD_SHORTCUTS['go-to-create-note'].combos[0]),
+        shortcut: formatForDisplay(KEYBOARD_SHORTCUTS['go-to-create-note'].combos[0] ?? ''),
         command: '/create',
         id: 'cmd_create',
         icon: PlusIcon,
@@ -263,7 +263,7 @@ export default function CommandPalette() {
         subtitle: m.command_palette_subtitle_toggle_theme({
           mode: theme === 'dark' ? 'Light' : 'Dark',
         }),
-        shortcut: formatForDisplay(KEYBOARD_SHORTCUTS['toggle-theme'].combos[0]),
+        shortcut: formatForDisplay(KEYBOARD_SHORTCUTS['toggle-theme'].combos[0] ?? ''),
         icon: theme === 'dark' ? SunIcon : MoonIcon,
         title: m.command_palette_title_theme(),
         id: 'toggle_theme',
@@ -303,15 +303,17 @@ export default function CommandPalette() {
       const quickItems: Array<GroupedCommandItem> = createCmd ? [createCmd] : [];
 
       if (notes.length > 0) {
-        const recentNote = notes[0];
-        quickItems.push({
-          title: recentNote.title || m.command_palette_note_untitled(),
-          meta: getMarkdownReadTimeSync(recentNote.content),
-          action: () => handleOpenNote(recentNote),
-          id: `recent_${recentNote.id}`,
-          icon: FileTextIcon,
-          group: 'quick',
-        });
+        const [recentNote] = notes;
+        if (recentNote) {
+          quickItems.push({
+            title: recentNote.title || m.command_palette_note_untitled(),
+            meta: getMarkdownReadTimeSync(recentNote.content),
+            action: () => handleOpenNote(recentNote),
+            id: `recent_${recentNote.id}`,
+            icon: FileTextIcon,
+            group: 'quick',
+          });
+        }
       }
 
       const noteItems: Array<GroupedCommandItem> = notes.slice(0, 3).map((note) => ({

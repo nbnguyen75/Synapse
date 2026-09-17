@@ -58,6 +58,7 @@ export default function AppBreadcrumb({
 
   const collapsed = containerWidth <= HEADER_BREADCRUMB_COLLAPSE_WIDTH && crumbs.length > 2;
   const intermediates = collapsed ? crumbs.slice(1, -1) : [];
+  const first = crumbs[0];
   const last = crumbs[crumbs.length - 1];
 
   return (
@@ -72,7 +73,7 @@ export default function AppBreadcrumb({
           ))
         ) : (
           <>
-            {renderCrumb(crumbs[0])}
+            {first && renderCrumb(first)}
 
             <BreadcrumbSeparator className="shrink-0" />
 
@@ -108,7 +109,7 @@ export default function AppBreadcrumb({
 
             <BreadcrumbSeparator className="shrink-0" />
 
-            {renderCrumb({ ...last, isLast: true })}
+            {last && renderCrumb({ ...last, isLast: true })}
           </>
         )}
       </BreadcrumbList>

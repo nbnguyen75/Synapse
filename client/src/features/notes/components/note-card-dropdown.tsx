@@ -1,5 +1,5 @@
-import type { NoteActionType } from '@/features/notes/hooks/use-note-card';
-import type { Note, NoteViewMode } from '@/features/notes/types';
+import type { NoteActionType, NoteWithDetails } from '@/features/notes/hooks/use-note-card';
+import type { NoteViewMode } from '@/features/notes/types';
 
 import { m } from '@/paraglide/messages';
 
@@ -26,10 +26,6 @@ import {
   XCircleIcon,
 } from 'lucide-react';
 
-interface NoteWithDetails extends Note {
-  tags?: Array<string>;
-}
-
 interface NoteCardDropdownProps {
   actions: {
     execute: ((type: NoteActionType) => Promise<void>) | ((type: NoteActionType) => void);
@@ -38,7 +34,7 @@ interface NoteCardDropdownProps {
     exportNote: () => void;
     openDetail: () => void;
   };
-  viewMode?: NoteViewMode;
+  viewMode?: NoteViewMode | undefined;
   note: NoteWithDetails;
 }
 

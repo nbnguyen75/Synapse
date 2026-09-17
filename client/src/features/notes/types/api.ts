@@ -45,7 +45,7 @@ export type NotesFetchRouter = EnsureRouter<{
   '/api/v1/notes': {
     $get: {
       response: PaginatedApiSuccessResponse<Note>;
-      query: NotesApiParams | undefined;
+      query?: NotesApiParams | undefined;
     };
     $post: {
       response: ApiSuccessResponse<Note>;

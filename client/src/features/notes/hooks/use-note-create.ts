@@ -1,5 +1,5 @@
+import type { CreateNoteRequest, CreateNoteResponse } from '@/features/notes/api/notes.http';
 import type { NoteFormInput, NoteInputPayload } from '@/features/notes/schemas';
-import type { InferRequestType, InferResponseType } from '@/lib/fetch';
 
 import { useForm, useWatch } from 'react-hook-form';
 import { useEffect } from 'react';
@@ -13,12 +13,12 @@ import { toast } from 'sonner';
 import { useFormSaveShortcut } from '@/hooks/use-form-save-shortcut';
 
 import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
 
 import { useNoteCreatePrefillStore } from '@/features/notes/store';
+import { createNoteClient } from '@/features/notes/api/notes.http';
 import { useGenerateNoteTitle } from '@/features/notes/hooks/api';
 import { noteInputSchema } from '@/features/notes/schemas';
-import { noteKeys } from '@/features/notes/keys';
+import { noteKeys } from '@/features/notes/api/notes.api';
 
 export function useNoteCreate() {
   const queryClient = useQueryClient();
@@ -56,9 +56,9 @@ export function useNoteCreate() {
   });
 
   const { isPending: isCreating, mutate: _createNote } = useMutation<
-    InferResponseType<(typeof $fetch.api.v1.notes)['$post']>['data'],
+    CreateNoteResponse,
     Error,
-    InferRequestType<(typeof $fetch.api.v1.notes)['$post']>
+    CreateNoteRequest
   >({
     onSuccess: ({ title, id }) => {
       void queryClient.invalidateQueries({ queryKey: noteKeys.all });
@@ -76,11 +76,7 @@ export function useNoteCreate() {
         description: m.common_error_connection(),
       });
     },
-    mutationFn: async (args) => {
-      const result = await $fetch.api.v1.notes.$post(args);
-
-      return result.data;
-    },
+    mutationFn: createNoteClient,
   });
 
   const { isPending: isGeneratingTitle, mutate: _generateNoteTitle } = useGenerateNoteTitle();

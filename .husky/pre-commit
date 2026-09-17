@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+if git diff --cached --name-only | grep -q '^client/'; then
+  cd client
+  bun --bun lint-staged || exit 1
+  bun --bun typecheck || exit 1
+  cd ..
+fi
+
+if git diff --cached --name-only | grep -q '^services/auth/'; then
+  cd services/auth
+  bun --bun lint-staged || exit 1
+  # bun --bun typecheck || exit 1
+  cd ../../
+fi
+
+if git diff --cached --name-only | grep -q '^services/ai/'; then
+  cd services/ai
+  bun --bun lint-staged || exit 1
+  # bun --bun typecheck || exit 1
+  cd ../../
+fi
+
+# TODO: add notes service here

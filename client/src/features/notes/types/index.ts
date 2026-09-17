@@ -1,2 +1,2 @@
-export * from './note';
-export * from './api';
+export type { NotesApiParams } from './api';
+export type { NotesEmptyVariant, NoteViewMode, Note } from './note';

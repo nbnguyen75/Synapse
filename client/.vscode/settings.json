@@ -38,7 +38,15 @@
     "**/paraglide": true,
     "**/deprecated": true,
     "**/project.inlang": true,
-    "**/.eslintcache": true
+    "**/.eslintcache": true,
+    "**/.agents": true,
+    "**/.claude": true,
+    "**/.github": true,
+    "**/docs": true,
+    "**/public": true,
+    "**/scripts": true,
+    "**/CLAUDE.md": true,
+    "**/components.json": true
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.prettier": "never",
@@ -71,7 +79,9 @@
     "activityBarTop.inactiveForeground": "#15202b99",
     "commandCenter.foreground": "#15202b",
     "statusBar.debuggingBackground": "#7c85ed",
-    "statusBar.debuggingForeground": "#15202b"
+    "statusBar.debuggingForeground": "#15202b",
+    "activityBar.activeBorder": "#15202b",
+    "activityBarTop.activeBorder": "#15202b"
   },
   "peacock.color": "#7c85ed",
   "js/ts.updateImportsOnFileMove.enabled": "always",

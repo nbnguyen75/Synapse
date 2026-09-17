@@ -13,9 +13,8 @@ export default function AppGlobalKeybinds() {
   const navigate = useNavigate();
   const { toggleTheme } = useTheme();
 
-  const { use: useSidebar } = useSidebarManager();
-
-  const leftSidebar = useSidebar('left');
+  const sidebarManager = useSidebarManager();
+  const leftSidebar = sidebarManager.use('left');
 
   const { setActiveConversationId, activeConversationId } = useCompanionStore((state) => state);
 

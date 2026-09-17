@@ -1,3 +1,4 @@
+import type { ContentEditableProps } from '@lexical/react/LexicalContentEditable';
 import type { InitialConfigType } from '@lexical/react/LexicalComposer';
 import type { EditorThemeClasses } from 'lexical';
 import type { HTMLAttributes } from 'react';
@@ -166,7 +167,8 @@ export default function LexicalEditor({
           <RichTextPlugin
             contentEditable={
               <ContentEditable
-                {...restProps}
+                // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- restProps are caller-supplied HTMLAttributes while Lexical's element props are narrower under exactOptionalPropertyTypes; React treats explicit undefined identically to absent, so this is runtime-neutral
+                {...(restProps as ContentEditableProps)}
                 spellCheck={false}
                 className="min-h-60 max-h-125 overflow-y-auto px-4 py-3.5 outline-none focus:ring-0 text-sm scrollbar-none **:[[style]]:text-inherit! **:[[style]]:bg-transparent!"
               />

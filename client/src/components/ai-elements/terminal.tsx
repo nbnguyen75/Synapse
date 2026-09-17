@@ -22,7 +22,7 @@ import { CheckIcon, CopyIcon, TerminalIcon, Trash2Icon } from 'lucide-react';
 
 interface TerminalContextType {
   isStreaming: boolean;
-  onClear?: () => void;
+  onClear?: (() => void) | undefined;
   autoScroll: boolean;
   output: string;
 }

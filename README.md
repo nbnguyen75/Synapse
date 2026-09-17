@@ -29,7 +29,7 @@
   <h3 align="center">🧠 Synapse</h3>
 
   <p align="center">
-    An AI-powered personal knowledge assistant - capture notes, chat with them via RAG, and let agentic tools handle reminders for you.
+    Notes that don't just sit there - Synapse retrieves relevant context to answer questions (RAG) and takes action on your behalf (agentic tool-calling).
     <br />
     <a href="https://github.com/nbnguyen75/Synapse"><strong>Explore the docs »</strong></a>
     <br />

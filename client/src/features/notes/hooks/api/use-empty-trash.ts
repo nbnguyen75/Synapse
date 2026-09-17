@@ -1,4 +1,7 @@
-import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+import type {
+  EmptyTrashNotesRequest,
+  EmptyTrashNotesResponse,
+} from '@/features/notes/api/notes.http';
 import type { MutateOptions } from '@tanstack/react-query';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -8,14 +11,13 @@ import { toast } from 'sonner';
 import { useConfirm } from '@/providers/use-confirm';
 
 import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
 
-import { noteKeys } from '@/features/notes/keys';
+import { emptyTrashNotesClient } from '@/features/notes/api/notes.http';
+import { noteKeys } from '@/features/notes/api/notes.api';
 
-type RequestType = InferRequestType<typeof $fetch.api.v1.notes.trash.$delete>;
-type ResponseType = InferResponseType<typeof $fetch.api.v1.notes.trash.$delete>['data'];
-
-export function useEmptyTrash(options: MutateOptions<ResponseType, Error, RequestType> = {}) {
+export function useEmptyTrash(
+  options: MutateOptions<EmptyTrashNotesResponse, Error, EmptyTrashNotesRequest> = {},
+) {
   const confirm = useConfirm();
 
   const queryClient = useQueryClient();
@@ -23,7 +25,7 @@ export function useEmptyTrash(options: MutateOptions<ResponseType, Error, Reques
     mutateAsync: _,
     mutate,
     ...restProps
-  } = useMutation<ResponseType, Error, RequestType>({
+  } = useMutation<EmptyTrashNotesResponse, Error, EmptyTrashNotesRequest>({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
@@ -34,11 +36,7 @@ export function useEmptyTrash(options: MutateOptions<ResponseType, Error, Reques
         description: m.common_error_connection(),
       });
     },
-    mutationFn: async () => {
-      const result = await $fetch.api.v1.notes.trash.$delete();
-
-      return result.data;
-    },
+    mutationFn: emptyTrashNotesClient,
   });
 
   const executeEmptyTrash = async () => {

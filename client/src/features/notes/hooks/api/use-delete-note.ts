@@ -1,22 +1,18 @@
-import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+import type { DeleteNoteRequest, DeleteNoteResponse } from '@/features/notes/api/notes.http';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
 import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
 
-import { noteKeys } from '@/features/notes/keys';
+import { deleteNoteClient } from '@/features/notes/api/notes.http';
+import { noteKeys } from '@/features/notes/api/notes.api';
 
 export function useDeleteNote() {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    InferResponseType<(typeof $fetch.api.v1.notes)[':id']['$delete']>['data'],
-    Error,
-    InferRequestType<(typeof $fetch.api.v1.notes)[':id']['$delete']>
-  >({
+  return useMutation<DeleteNoteResponse, Error, DeleteNoteRequest>({
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
@@ -29,10 +25,6 @@ export function useDeleteNote() {
         description: m.common_error_connection(),
       });
     },
-    mutationFn: async (args) => {
-      const result = await $fetch.api.v1.notes[':id'].$delete(args);
-
-      return result.data;
-    },
+    mutationFn: deleteNoteClient,
   });
 }

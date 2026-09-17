@@ -35,11 +35,11 @@ interface HotkeyHandleLike {
  * soon as any consumer asked for `allowWhenTyping`.
  */
 function computeRowOptions(registrations: Array<GlobalShortcutRegistration> | undefined): {
-  ignoreInputs: undefined | boolean;
+  ignoreInputs?: boolean;
   enabled: boolean;
 } {
   if (!registrations || registrations.length === 0) {
-    return { ignoreInputs: undefined, enabled: true };
+    return { enabled: true };
   }
   return {
     ignoreInputs: registrations.every((registration) => registration.ignoreInputs),
@@ -155,7 +155,7 @@ export function GlobalShortcutsProvider({ children }: { children: ReactNode }) {
     for (const id of handlesRef.current.keys()) {
       syncRowOptions(id);
     }
-  }, [overrides, syncRowOptions]);
+  }, [syncRowOptions]);
 
   return <GlobalShortcutsContext value={{ register }}>{children}</GlobalShortcutsContext>;
 }

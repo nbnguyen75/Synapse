@@ -35,9 +35,9 @@ import { ChevronsUpDownIcon } from 'lucide-react';
 const deviceIdRegex = /\(([\da-fA-F]{4}:[\da-fA-F]{4})\)$/;
 
 interface MicSelectorContextType {
-  onValueChange?: (value: string) => void;
-  onOpenChange?: (open: boolean) => void;
-  setWidth?: (width: number) => void;
+  onValueChange?: ((value: string) => void) | undefined;
+  onOpenChange?: ((open: boolean) => void) | undefined;
+  setWidth?: ((width: number) => void) | undefined;
   value: undefined | string;
   data: MediaDeviceInfo[];
   open: boolean;
@@ -174,14 +174,14 @@ export const MicSelector = ({
   ...props
 }: MicSelectorProps) => {
   const [value, onValueChange] = useControllableState<undefined | string>({
-    onChange: controlledOnValueChange,
     defaultProp: defaultValue,
-    prop: controlledValue,
+    ...(controlledOnValueChange !== undefined ? { onChange: controlledOnValueChange } : {}),
+    ...(controlledValue !== undefined ? { prop: controlledValue } : {}),
   });
   const [open, onOpenChange] = useControllableState({
-    onChange: controlledOnOpenChange,
     defaultProp: defaultOpen,
-    prop: controlledOpen,
+    ...(controlledOnOpenChange !== undefined ? { onChange: controlledOnOpenChange } : {}),
+    ...(controlledOpen !== undefined ? { prop: controlledOpen } : {}),
   });
   const [width, setWidth] = useState(200);
   const { hasPermission, loadDevices, devices, loading } = useAudioDevices();
@@ -270,7 +270,11 @@ export const MicSelectorContent = ({
       style={{ width }}
       {...popoverOptions}
     >
-      <Command onValueChange={onValueChange} value={value} {...props} />
+      <Command
+        {...(onValueChange !== undefined ? { onValueChange } : {})}
+        {...(value !== undefined ? { value } : {})}
+        {...props}
+      />
     </PopoverContent>
   );
 };

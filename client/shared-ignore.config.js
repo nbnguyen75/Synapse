@@ -77,17 +77,13 @@ export const FORMAT_IGNORE_PATTERNS = [
 
 export const LINT_IGNORE_PATTERNS = [
   ...FORMAT_IGNORE_PATTERNS,
-  '.vscode/**',
-
-  // ============================================================
-  // Tooling configuration
-  // ============================================================
-
-  'eslint.config.js',
-  '.oxlintrc.*',
-  'oxlint.config.*',
-  '.oxfmtrc.*',
-  'oxfmt.config.*',
-  'next.config.ts',
-  'shared-ignore.config.js',
+  '**/*',
+  '!src/**',
+  'src/assets/**',
+  '!src/assets/styles.css',
+  'src/paraglide/**',
+  'src/components/ui/**',
+  'src/components/ai-elements/**',
+  'src/routeTree.gen.ts',
+  'src/**/__tests__/**',
 ];

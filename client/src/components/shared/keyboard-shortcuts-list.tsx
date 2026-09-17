@@ -26,7 +26,7 @@ function ShortcutRow({ entry }: { entry: KeyboardShortcutEntry }) {
     >
       <span className="text-muted-foreground">{entry.label()}</span>
       {combos.length > 0 ? (
-        <KeyCombo combo={combos[0]} />
+        <KeyCombo combo={combos[0] ?? ''} />
       ) : (
         <span className="text-xs text-muted-foreground">{m.settings_shortcuts_disabled()}</span>
       )}
@@ -42,7 +42,7 @@ function renderEditorGroup(shortcuts: Array<KeyboardShortcutEntry>) {
       {groups.map((group) => (
         <div key={group}>
           <h5 className="font-semibold text-foreground text-xs mb-2">
-            {group && EDITOR_SHORTCUT_GROUPS[group].label()}
+            {group && EDITOR_SHORTCUT_GROUPS[group]?.label()}
           </h5>
           <div className="grid grid-cols-2 gap-2">
             {shortcuts

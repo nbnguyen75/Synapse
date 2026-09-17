@@ -3,20 +3,14 @@ set -e
 
 echo "=== Harness Initialization ==="
 
-echo "=== bun --bun install ==="
+echo ">> Checking dependencies..."
 bun --bun install
 
-echo "=== bun --bun check ==="
-bun --bun check
+echo ">> Running typecheck..."
+bun --bun typecheck
 
-# echo "=== bun --bun lint ==="
-# bun --bun lint
-
-# echo "=== tsc -b ==="
-# tsc -b
-
-# echo "=== bun --bun run build ==="
-# bun --bun run build
+echo ">> Running linter..."
+bun --bun lint
 
 echo "=== Verification Complete ==="
 echo ""

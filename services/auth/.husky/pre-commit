@@ -1,2 +1,0 @@
-cd services/auth
-bun --bun lint-staged

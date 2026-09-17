@@ -16,15 +16,15 @@ import {
 import { useConfirm } from '@/providers';
 
 import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
 
 import {
   countWordsMarkdownSync,
   exportMarkdown,
   getMarkdownReadTimeSync,
 } from '@/features/notes/service';
+import { deleteNoteClient, patchNoteClient } from '@/features/notes/api/notes.http';
 import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
-import { noteKeys } from '@/features/notes/keys';
+import { noteKeys } from '@/features/notes/api/notes.api';
 
 export interface NoteWithDetails extends Note {
   tags?: Array<string>;
@@ -35,58 +35,56 @@ const PREVIEW_CHAR_LIMIT = 300;
 
 const NOTE_ACTIONS = {
   favorite: (note: Note) =>
-    $fetch.api.v1.notes[':id'].$patch({
+    patchNoteClient({
       body: { favorite: !note.favorite },
       params: { id: note.id },
     }),
 
   archive: (note: Note) =>
-    $fetch.api.v1.notes[':id'].$patch({
+    patchNoteClient({
       body: { status: 'ARCHIVED' },
       params: { id: note.id },
     }),
 
   unarchive: (note: Note) =>
-    $fetch.api.v1.notes[':id'].$patch({
+    patchNoteClient({
       body: { status: 'ACTIVE' },
       params: { id: note.id },
     }),
 
   pin: (note: Note) =>
-    $fetch.api.v1.notes[':id'].$patch({
+    patchNoteClient({
       body: { pinned: !note.pinned },
       params: { id: note.id },
     }),
 
   restore: (note: Note) =>
-    $fetch.api.v1.notes[':id'].$patch({
+    patchNoteClient({
       body: { status: 'ACTIVE' },
       params: { id: note.id },
     }),
 
   trash: (note: Note) =>
-    $fetch.api.v1.notes[':id'].$patch({
+    patchNoteClient({
       body: { status: 'TRASHED' },
       params: { id: note.id },
     }),
 
   delete: (note: Note) =>
-    $fetch.api.v1.notes[':id'].$delete({
+    deleteNoteClient({
       params: { id: note.id },
     }),
 } as const;
 
 export type NoteActionType = keyof typeof NOTE_ACTIONS;
 
-type NoteActionResultData<T extends NoteActionType> = Awaited<
-  ReturnType<(typeof NOTE_ACTIONS)[T]>
->['data'];
+type NoteActionResultData<T extends NoteActionType> = Awaited<ReturnType<(typeof NOTE_ACTIONS)[T]>>;
 
 async function executeNoteAction(type: NoteActionType, note: Note) {
   const actionFn = NOTE_ACTIONS[type];
 
-  const result = await actionFn(note);
-  return result.data;
+  const data = await actionFn(note);
+  return data;
 }
 
 const ERROR_TOAST_MAP = {
@@ -171,9 +169,9 @@ const SUCCESS_TOAST_MAP: SuccessToastMap = {
 };
 
 interface UseNoteCardOptions {
-  onToggleSelect?: (id: string) => void;
-  onSelectRange?: (id: string) => void;
-  viewMode?: NoteViewMode;
+  onToggleSelect?: ((id: string) => void) | undefined;
+  onSelectRange?: ((id: string) => void) | undefined;
+  viewMode?: NoteViewMode | undefined;
   note: NoteWithDetails;
 }
 
@@ -194,7 +192,7 @@ export function useNoteCard({ onToggleSelect, onSelectRange, viewMode, note }: U
       return { data, type };
     },
     onError: (_, type) => {
-      ERROR_TOAST_MAP[type]?.();
+      ERROR_TOAST_MAP[type]();
     },
   });
 
@@ -238,9 +236,9 @@ export function useNoteCard({ onToggleSelect, onSelectRange, viewMode, note }: U
 
   const openDetail = () => {
     void navigate({
-      search: viewMode && viewMode !== 'active' ? { from: viewMode } : undefined,
       params: { noteId: note.id },
       to: '/notes/$noteId',
+      ...(viewMode && viewMode !== 'active' ? { search: { from: viewMode } } : {}),
     });
   };
 

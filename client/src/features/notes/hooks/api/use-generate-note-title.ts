@@ -1,23 +1,19 @@
-import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+import type {
+  GenerateNoteTitleRequest,
+  GenerateNoteTitleResponse,
+} from '@/features/notes/api/notes.http';
 
 import { useMutation } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
 import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
+
+import { generateNoteTitleClient } from '@/features/notes/api/notes.http';
 
 export function useGenerateNoteTitle() {
-  return useMutation<
-    InferResponseType<(typeof $fetch.api.v1.ai.generator)['note-title']['$post']>['data'],
-    Error,
-    InferRequestType<(typeof $fetch.api.v1.ai.generator)['note-title']['$post']>
-  >({
-    mutationFn: async (args) => {
-      const result = await $fetch.api.v1.ai.generator['note-title'].$post(args);
-
-      return result.data;
-    },
+  return useMutation<GenerateNoteTitleResponse, Error, GenerateNoteTitleRequest>({
+    mutationFn: generateNoteTitleClient,
     onError: () => {
       toast.error(m.notes_page_ai_title_failed(), {
         description: m.common_error_connection(),

@@ -479,6 +479,14 @@
       "dependencies": ["feat-056"],
       "status": "done",
       "evidence": "client/src/features/companion/components/chat-bot.tsx (parentId normalization rows + MessageCopyAction onClick + PromptInputSubmit onStop), client/src/features/companion/components/conversation-list-item.tsx (clearTree on rename/delete), client/src/store/chat-message-tree-store.ts (clearTree wired), client/src/features/notes/components/note-card-dropdown.tsx (copyContent onClick)"
+    },
+    {
+      "id": "feat-062",
+      "name": "src/ Refactor Sweep (2026-09-17)",
+      "description": "DONE (4 phases, behavior-preserving, no-new-errors discipline): (1) dead-code purge — deleted notes/components/deprecated/* (8 files), shared/paginator.tsx, use-pagination.ts, 8 orphan template_* i18n keys (en/vi). (2) API-layer strict split — new features/notes/api/notes.http.ts (9 standalone *Client fns) + notes.api.ts (noteKeys + 3 queryOptions, absorbs deleted keys.ts/queries.ts); new features/companion/api/companion.http.ts (9 *Client fns) + companion.api.ts (companionKeys + 3 query options); 13 hook files slimmed; MESSAGE_PAGE_SIZE to companion/constants.ts. Root type fix (type-only): rpc.ts EndpointDef.query accepts undefined + notes list query optional — NotesFetchRouter satisfies BaseRouter again (tsc 76->72, lint 26->9 as dependent no-unsafe-* warnings evaporate). (3) All 10 export-* facades converted to explicit named exports trimmed to consumed symbols. (4) chat-bot.tsx 1053->232 lines (message-view/body/edit-form/more-menu/copy-action, conversation-load-older, use-message-tree hook, lib/message-text.ts, lib toTreeRows); $noteId route thinned to ~50 lines (UI to note-detail-page.tsx via getRouteApi, loader via getNoteClient); 6 medium files triaged (splits skipped: flat/cohesive); note-card NoteWithDetails dedup. NOT smoke-tested; user manages commits.",
+      "dependencies": [],
+      "status": "done",
+      "evidence": "client/src/features/notes/api/notes.http.ts + notes.api.ts (NEW), client/src/features/companion/api/companion.http.ts + companion.api.ts (NEW), client/src/features/notes/keys.ts + queries.ts (DELETED), client/src/features/companion/components/message-view.tsx + message-body.tsx + message-edit-form.tsx + message-more-menu.tsx + message-copy-action.tsx + conversation-load-older.tsx (NEW), client/src/features/companion/hooks/use-message-tree.ts (NEW), client/src/features/companion/lib/message-text.ts (NEW), client/src/features/notes/components/note-detail-page.tsx (NEW), client/src/lib/fetch/rpc.ts (EndpointDef.query), client/src/features/notes/types/api.ts (query optional)"
     }
   ]
 }

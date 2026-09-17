@@ -24,7 +24,7 @@ interface JSXPreviewContextValue {
   setError: (error: Error | null) => void;
   setLastGoodJsx: (jsx: string) => void;
   bindings: JsxParserProps['bindings'];
-  onErrorProp?: (error: Error) => void;
+  onErrorProp?: ((error: Error) => void) | undefined;
   processedJsx: string;
   isStreaming: boolean;
   error: Error | null;
@@ -54,7 +54,11 @@ const matchJsxTag = (code: string) => {
     return null;
   }
 
-  const [fullMatch, tagName, attributes, selfClosing] = match;
+  const [fullMatch, tagName, attributes = '', selfClosing] = match;
+
+  if (!fullMatch || !tagName) {
+    return null;
+  }
 
   let type: 'self-closing' | 'closing' | 'opening';
   if (selfClosing) {

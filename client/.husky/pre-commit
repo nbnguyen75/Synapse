@@ -1,3 +1,0 @@
-cd client
-bun --bun lint-staged
-bun --bun typecheck

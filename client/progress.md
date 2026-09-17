@@ -2,6 +2,34 @@
 
 ## Status
 
+### What's Done (strict-typecheck-lint-fix-068 — Zero errors & warnings on strict typecheck and lint)
+
+- [x] **Lint completely resolved (`bun --bun run lint`)** — Fixed all React hooks warnings (`react(hooks)`) in `sidebar.tsx`, `nav-main.tsx`, `nav-companion.tsx`, `nav-secondary.tsx`, and `app-global-keybinds.tsx` by eliminating dynamic hook naming destructuring (`sidebarManager.use('left')`). Fixed exhaustive-deps warnings in `command-palette.tsx` (wrapped `focusInput` in `useCallback`) and `global-shortcuts-provider.tsx` (removed unused dependency). Verified: 0 warnings, 0 errors across 189 files.
+- [x] **Strict TypeScript completely resolved (`bun --bun run typecheck`)** — Fixed all 39 typecheck errors across the application under strict flags (`exactOptionalPropertyTypes: true`, `noUncheckedIndexedAccess: true`, `noImplicitReturns: true`):
+  - `sidebar.tsx`: Context type `use` return updated to `| undefined`.
+  - `rpc.ts`: Conditionally spread `baseURL`.
+  - `sonner.tsx`: Handled undefined `themeProp` when spreading into `SonnerToaster`.
+  - `calendar.tsx`: Handled undefined `locale` in `DayButton` and updated `CalendarDayButton` prop types.
+  - `shimmer.tsx`: Replaced `CSSProperties` cast with `MotionStyle` from `motion/react`.
+  - `speech-input.tsx`: Added `result?.isFinal` check for indexed access.
+  - `reasoning.tsx`: Spread `open` and `onChange` conditionally into `useControllableState`, explicit `return undefined;`.
+  - `jsx-preview.tsx`: Handled regex destructuring and updated context value type for `onErrorProp`.
+  - `chain-of-thought.tsx`: Conditionally spread `open` and `onChange` into `useControllableState`.
+  - `transcription.tsx`: Allowed `undefined` for `onSeek` in `TranscriptionContextValue`, conditionally spread `onSeek` and `currentTime` into `useControllableState`.
+  - `voice-selector.tsx`: Explicitly parameterized `useControllableState<string | undefined>` with `defaultProp: defaultValue`, conditionally spread controlled props.
+  - `mic-selector.tsx`: Allowed `undefined` on context callbacks, conditionally spread props to `useControllableState` and `Command`.
+  - `stack-trace.tsx`: Fixed all indexed access guards in `parseStackFrame`/`parseStackTrace`, conditionally spread `useControllableState`, allowed `undefined` in `StackTraceContextValue` and `FilePathButtonProps`.
+  - `attachments.tsx`: Allowed `undefined` on `onRemove` in `AttachmentContextValue`.
+  - `context.tsx`: Allowed `undefined` on `usage` and `modelId` in `ContextSchema`.
+  - `edge.tsx`: Conditionally spread `markerEnd` and `style` into `BaseEdge`.
+  - `file-tree.tsx`: Allowed `undefined` on `onSelect` and `selectedPath` in `FileTreeContextType`.
+  - `package-info.tsx`: Allowed `undefined` on `currentVersion`, `changeType`, `newVersion` in `PackageInfoContextType`.
+  - `persona.tsx`: Added `ActiveCallbacks` type with non-nullable callback signatures for `useRive`.
+  - `schema-display.tsx`: Allowed `undefined` on optional context properties in `SchemaDisplayContextType`.
+  - `terminal.tsx`: Allowed `undefined` on `onClear` in `TerminalContextType`.
+  - `test-results.tsx`: Allowed `undefined` on `summary` and `duration` in `TestResultsContextType` and `TestContextType`.
+- [x] **Build verified (`bun --bun run build`)** — `tsc -b && vite build` built cleanly in 26s with 0 errors.
+
 ### What's Done (harness-skills-067 — 6 new agent skills wired into harness)
 
 - [x] **6 new skills added (user-installed, both trees)** — `modern-javascript-patterns`,
@@ -562,3 +590,16 @@ Remaining features from `feature_list.json` (not-started):
 - AGENTS.md gained a "Skills & Rules" section; docs/RULES.md wins on stack conflicts (react-hook-form) with ported rules (TanStack Form / useConfirm references kept verbatim).
 - Excluded (deliberate): desktop/Tauri/Rust rules+skills (rust.md, product.md, aria-architecture, desktop-auth, desktop-release, tauri-lifecycle); tanstack-query-best-practices and tanstack-router-best-practices (replaced by official tanstack-query/tanstack-router already in repo); source's improve skill (kept repo-local copy).
 - Assets under .agents/ and .claude/ are verified-against-upstream; keep byte-identical unless explicitly adapted.
+
+## src/ Refactor Sweep (2026-09-17, feat-062)
+
+- Scope (user-approved plan, all 4 workstreams, strict `.http.ts` + `.api.ts` API split): dead-code purge → API-layer split → explicit `index.ts` facades → component splits.
+- Phase 1 (dead code): deleted `features/notes/components/deprecated/` (8 files), `components/shared/paginator.tsx` (+ its `shared/index.ts` export), `hooks/use-pagination.ts`; removed 8 orphan i18n keys (`notes_page_template_*` x4, `settings_page_template_*` x4) from en+vi; `generate-translation` re-ran clean.
+- Phase 2 (API layer): new `features/notes/api/notes.http.ts` (9 standalone `*Client` fns + `InferRequestType/ResponseType` aliases) + `notes.api.ts` (`noteKeys` + `noteList/noteDetail/infiniteNotesQueryOptions`, absorbs deleted `keys.ts`/`queries.ts`); new `features/companion/api/companion.http.ts` (9 `*Client` fns) + `companion.api.ts` (`companionKeys` with byte-identical key values + 3 query options); all 11 notes hooks + 2 companion hooks slimmed to consume clients/options (toasts + invalidations preserved); `MESSAGE_PAGE_SIZE` moved to `companion/constants.ts`; `use-note-card.ts` `NOTE_ACTIONS` routed through `patchNoteClient`/`deleteNoteClient`.
+- Root type fix (incidental, type-only, zero runtime change): `lib/fetch/rpc.ts` `EndpointDef.query` now `Record<string, unknown> | undefined` + `types/api.ts` notes-list query `query?: NotesApiParams | undefined`. Previously `NotesFetchRouter` violated the `BaseRouter` constraint so `$fetch.api.v1.notes.$get` mistyped as `error`, poisoning dependent inference repo-wide. Result: tsc 76→72 (killed `types/api.ts:24`, `lib/fetch/index.ts:51` + 2 call-site errors) and lint 26→9 (17 dependent `no-unsafe-*` warnings in command-palette/notes-view/use-notes-view evaporated).
+- Phase 3 (facades): all 10 `export *` facades → explicit named exports, trimmed to externally consumed symbols (e.g. `@/features/notes` no longer leaks all 9 api hooks/schemas; `@/features/companion` drops un-consumed conversation hooks; `providers/index.ts` keeps only ThemeProvider/GlobalShortcutsProvider/ConfirmProvider/useConfirm).
+- Phase 4 (splits): `chat-bot.tsx` 1053→232 lines — extracted `message-view.tsx`, `message-body.tsx`, `message-edit-form.tsx`, `message-more-menu.tsx`, `message-copy-action.tsx`, `conversation-load-older.tsx`, `hooks/use-message-tree.ts` (session+tree state machine), `lib/message-text.ts` (`getCopyableMessageText`), `lib/message-tree.ts` gained `toTreeRows` (shared row-normalization, reused by mount + finish paths). `$noteId.tsx` route 331→~50 lines (route def + `getNoteClient` loader); UI moved verbatim to `features/notes/components/note-detail-page.tsx` via `getRouteApi`. 4c triage: markdown-renderer/command-palette/lexical-toolbar/companion-settings-page/error-page/note-card reviewed — splits skipped (flat/cohesive, splitting would trade length for prop-drilling); only micro-fix was `note-card.tsx` `NoteWithDetails` dedup (now imported from `use-note-card.ts`). 4d mojibake flag was a false alarm (terminal encoding artifact — the titles are emoji prefixes `⭐/📦/📝/🗑️`); no change made.
+- Verification discipline (user chose "continue, no-new-errors" after the gate went red on pre-existing failures): every phase proved via stash-diff — final tsc 72 (all pre-existing), lint 9 (all pre-existing), `bun --bun check` exits 1 only on the same 2 pre-existing `no-unnecessary-condition` errors. `bun --bun install` clean. New `init.sh` gate (`typecheck`+`lint`) was already red at baseline (76 tsc errors, mostly `exactOptionalPropertyTypes` in ai-elements/ui, which the standing feat-058 no-touch constraint forbids fixing) — unchanged by this refactor, now 4 errors fewer.
+- Env notes: no `bash` on this Windows box — `./init.sh` is a no-op here; ran its steps directly (`bun --bun install`, `bun --bun check`, `bunx tsc -b --force`, `bun --bun lint`). `init.sh` itself was rewritten mid-session (now `typecheck`+`lint`). New `src/features/*/api/` files show as staged (`A`) — harness auto-stages new files; user manages commits.
+- NOT smoke-tested in a running app: chat send/retry/edit/branch/version flows, note CRUD toasts, $noteId render, infinite scroll — behavior was preserved line-for-line but needs manual smoke with the stack up.
+- Follow-up (user-requested): fixed the last 2 pre-existing lint errors — `use-note-card.ts` `ERROR_TOAST_MAP[type]?.()` → `()` (map is total over `NoteActionType`, `?.` dead), `use-note-details.ts` `queryNote ?? initialData` → `queryNote` (TanStack types `data` as defined when `initialData` is supplied, and this call site always supplies it). `bun --bun check` now exits 0 (6 pre-existing warnings remain); tsc steady at 72 pre-existing. No behavior change.

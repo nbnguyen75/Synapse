@@ -10,8 +10,8 @@ type InferSchema<T> = T extends z.ZodType<infer Output> ? Output : T;
 
 type EndpointDef = {
   headers?: Record<string, undefined | string>;
+  query?: Record<string, unknown> | undefined;
   params?: Record<string, unknown>;
-  query?: Record<string, unknown>;
   response?: unknown;
   body?: unknown;
 };
@@ -122,6 +122,7 @@ function createProxyClient(
     get(_target, prop: string) {
       if (prop in METHOD_KEY_MAP) {
         const method = METHOD_KEY_MAP[prop];
+        if (!method) return undefined;
         const path = '/' + segments.join('/');
         return (options?: RequestOptions) => makeRequest(method, path, options);
       }
@@ -144,8 +145,9 @@ export function createRpcClient<Router extends BaseRouter>(
   baseUrl: undefined | string = env.VITE_API_URL,
   option: CreateRpcClientOption = {},
 ): ProxyTree<Router, boolean> {
+  const resolvedBaseUrl = baseUrl ?? env.VITE_API_URL;
   const $fetchBase = createFetch({
-    baseURL: baseUrl,
+    ...(resolvedBaseUrl ? { baseURL: resolvedBaseUrl } : {}),
     ...option,
   });
 

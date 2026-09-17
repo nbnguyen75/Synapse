@@ -51,9 +51,8 @@ const navItems = [
 
 export default function NavMain() {
   const currentPath = useCurrentPathname();
-  const { use: useSidebar } = useSidebarManager();
-
-  const leftSidebar = useSidebar('left');
+  const sidebarManager = useSidebarManager();
+  const leftSidebar = sidebarManager.use('left');
 
   const { setActiveConversationId, activeConversationId } = useCompanionStore((state) => state);
 
@@ -72,7 +71,7 @@ export default function NavMain() {
       <SidebarMenu>
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeMap[item.href];
+          const isActive = activeMap[item.href] ?? false;
 
           return (
             <SidebarMenuItem key={item.href}>

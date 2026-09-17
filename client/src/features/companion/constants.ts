@@ -2,6 +2,8 @@ import type { CompanionSettings } from '@/features/companion/types';
 
 import { env } from '@/config/env';
 
+export const MESSAGE_PAGE_SIZE = 15;
+
 export const COMPANION_SETTINGS_RESPONSE_LENGTH = ['short', 'balanced', 'detailed'] as const;
 
 export type CompanionResponseLength = (typeof COMPANION_SETTINGS_RESPONSE_LENGTH)[number];

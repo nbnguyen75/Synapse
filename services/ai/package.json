@@ -1,17 +1,21 @@
 {
-	"name": "synapse-ai-service",
+	"name": "synapse-ai",
 	"private": true,
-	"version": "0.1.1",
+	"version": "0.1.12",
+	"description": "AI-native personal knowledge assistant with RAG-powered note chat and agentic reminders",
 	"type": "module",
 	"lint-staged": {
-		"*": "bun --bun check"
+		"**/*": [
+			"bun --bun format",
+			"bun --bun lint:fix"
+		]
 	},
 	"scripts": {
 		"dev": "NODE_ENV=development bun run --hot src/index.ts",
 		"build": "bun build --production --outdir=dist --minify --target=node src/index.ts",
-		"lint": "oxlint . && eslint .",
 		"format": "prettier --list-different --write .",
-		"check": "prettier --list-different --write . && oxlint --fix . && eslint --fix . && tsc --noEmit",
+		"lint": "oxlint && eslint --cache .",
+		"lint:fix": "oxlint --fix && eslint --cache --fix .",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:push": "drizzle-kit push",

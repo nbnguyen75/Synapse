@@ -1,36 +1,30 @@
-import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+import type {
+  UpdateCompanionSettingsRequest,
+  UpdateCompanionSettingsResponse,
+} from '@/features/companion/api/companion.http';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
 import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
 
-import { DEFAULT_COMPANION_SETTINGS } from '@/features/companion/constants';
+import {
+  companionKeys,
+  companionSettingsQueryOptions,
+} from '@/features/companion/api/companion.api';
+import { updateCompanionSettingsClient } from '@/features/companion/api/companion.http';
 
 export function useGetCompanionSettingsQuery() {
-  return useQuery({
-    queryFn: async () => {
-      const result = await $fetch.api.v1.ai.settings.$get();
-
-      return result.data;
-    },
-    placeholderData: (prevData) => prevData ?? DEFAULT_COMPANION_SETTINGS,
-    queryKey: ['companion-settings'],
-  });
+  return useQuery(companionSettingsQueryOptions());
 }
 
 export function useUpdateCompanionSettingsMutation() {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    InferResponseType<typeof $fetch.api.v1.ai.settings.$put>['data'],
-    Error,
-    InferRequestType<typeof $fetch.api.v1.ai.settings.$put>
-  >({
+  return useMutation<UpdateCompanionSettingsResponse, Error, UpdateCompanionSettingsRequest>({
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['companion-settings'] });
+      void queryClient.invalidateQueries({ queryKey: companionKeys.settings() });
 
       toast.success(m.settings_page_toast_saved());
     },
@@ -39,10 +33,6 @@ export function useUpdateCompanionSettingsMutation() {
         description: m.common_error_connection(),
       });
     },
-    mutationFn: async (args) => {
-      const result = await $fetch.api.v1.ai.settings.$put(args);
-
-      return result.data;
-    },
+    mutationFn: updateCompanionSettingsClient,
   });
 }

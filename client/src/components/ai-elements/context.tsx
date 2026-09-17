@@ -26,13 +26,15 @@ const ICON_STROKE_WIDTH = 2;
 type ModelId = string;
 
 interface ContextSchema {
-  usage?: LanguageModelUsage & {
-    cachedInputTokens?: number;
-    reasoningTokens?: number;
-  };
+  usage?:
+    | (LanguageModelUsage & {
+        cachedInputTokens?: number;
+        reasoningTokens?: number;
+      })
+    | undefined;
   usedTokens: number;
   maxTokens: number;
-  modelId?: ModelId;
+  modelId?: ModelId | undefined;
 }
 
 const ContextContext = createContext<ContextSchema | null>(null);

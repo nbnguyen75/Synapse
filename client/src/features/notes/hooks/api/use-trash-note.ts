@@ -1,22 +1,18 @@
-import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+import type { PatchNoteRequest, PatchNoteResponse } from '@/features/notes/api/notes.http';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { toast } from 'sonner';
 
 import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
 
-import { noteKeys } from '@/features/notes/keys';
+import { patchNoteClient } from '@/features/notes/api/notes.http';
+import { noteKeys } from '@/features/notes/api/notes.api';
 
 export function useTrashNote() {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    InferResponseType<(typeof $fetch.api.v1.notes)[':id']['$patch']>['data'],
-    Error,
-    InferRequestType<(typeof $fetch.api.v1.notes)[':id']['$patch']>
-  >({
+  return useMutation<PatchNoteResponse, Error, PatchNoteRequest>({
     onSuccess: (data) => {
       void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
@@ -29,10 +25,6 @@ export function useTrashNote() {
         description: m.common_error_connection(),
       });
     },
-    mutationFn: async (args) => {
-      const result = await $fetch.api.v1.notes[':id'].$patch(args);
-
-      return result.data;
-    },
+    mutationFn: patchNoteClient,
   });
 }

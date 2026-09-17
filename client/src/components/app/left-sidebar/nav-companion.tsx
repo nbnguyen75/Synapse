@@ -37,9 +37,8 @@ export default function NavCompanion() {
 
   const recentConversations = conversations.filter((conversation) => !conversation.favorited);
 
-  const { use: useSidebar } = useSidebarManager();
-
-  const leftSidebar = useSidebar('left');
+  const sidebarManager = useSidebarManager();
+  const leftSidebar = sidebarManager.use('left');
 
   const handleNewChat = () => {
     setActiveConversationId(null);

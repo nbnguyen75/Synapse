@@ -7,12 +7,12 @@ import { useChat } from '@ai-sdk/react';
 import { CompanionChatTransport } from '@/features/companion/config/companion-chat-transport';
 
 export interface UseCompanionChatSessionOptions {
-  onFinish?: (result: { message: UIMessage; isError?: boolean }) => void;
-  onConversationId?: (conversationId: string) => void;
+  onFinish?: ((result: { message: UIMessage; isError?: boolean }) => void) | undefined;
+  onConversationId?: ((conversationId: string) => void) | undefined;
+  initialMessages?: Array<UIMessage> | undefined;
+  initialConversationId?: undefined | string;
   extraMetadata?: Record<string, unknown>;
-  initialMessages?: Array<UIMessage>;
   onError?: (error: Error) => void;
-  initialConversationId?: string;
 }
 
 export function useCompanionChatSession({
@@ -37,11 +37,11 @@ export function useCompanionChatSession({
   );
 
   const chat = useChat({
-    messages: initialMessages,
+    messages: initialMessages ?? [],
     id: chatId,
     transport,
-    onFinish,
-    onError,
+    ...(onFinish ? { onFinish } : {}),
+    ...(onError ? { onError } : {}),
   });
 
   useEffect(() => {

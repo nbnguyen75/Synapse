@@ -84,7 +84,7 @@ function RouteComponent() {
               </Button>
 
               {isDirty && !isCreating && saveCombos.length > 0 && (
-                <KeyCombo combo={saveCombos[0]} className="ml-1 hidden sm:inline-flex" />
+                <KeyCombo combo={saveCombos[0] ?? ''} className="ml-1 hidden sm:inline-flex" />
               )}
             </div>
 

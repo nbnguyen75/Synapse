@@ -1,9 +1,9 @@
-export * from './use-generate-note-title';
-export * from './use-notes-bulk-action';
-export * from './use-infinite-notes';
-export * from './use-restore-note';
-export * from './use-delete-note';
-export * from './use-empty-trash';
-export * from './use-trash-note';
-export * from './use-get-notes';
-export * from './use-get-note';
+export { useDeleteNote } from './use-delete-note';
+export { useEmptyTrash } from './use-empty-trash';
+export { useGenerateNoteTitle } from './use-generate-note-title';
+export { useGetNote } from './use-get-note';
+export { useGetNotes } from './use-get-notes';
+export { useInfiniteNotes } from './use-infinite-notes';
+export { useNotesBulkAction } from './use-notes-bulk-action';
+export { useRestoreNote } from './use-restore-note';
+export { useTrashNote } from './use-trash-note';

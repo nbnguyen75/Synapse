@@ -1,1 +1,1 @@
-export * from './query';
+export { paginationQuerySchema } from './query';

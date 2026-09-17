@@ -14,7 +14,7 @@ import { useGetConversationMessagesInfiniteQuery } from '@/features/companion/ho
 import ChatBot from '@/features/companion/components/chat-bot';
 
 interface CompanionChatProps {
-  chatRef?: React.Ref<ChatBotHandle>;
+  chatRef?: React.Ref<ChatBotHandle> | undefined;
   centered?: boolean;
   className?: string;
 }

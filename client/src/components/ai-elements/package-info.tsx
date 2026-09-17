@@ -13,9 +13,9 @@ import { ArrowRightIcon, MinusIcon, PackageIcon, PlusIcon } from 'lucide-react';
 type ChangeType = 'removed' | 'major' | 'minor' | 'patch' | 'added';
 
 interface PackageInfoContextType {
-  currentVersion?: string;
-  changeType?: ChangeType;
-  newVersion?: string;
+  currentVersion?: string | undefined;
+  changeType?: ChangeType | undefined;
+  newVersion?: string | undefined;
   name: string;
 }
 

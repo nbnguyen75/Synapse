@@ -1,0 +1,17 @@
+{
+  "name": "synapse",
+  "version": "1.0.0",
+  "author": {
+    "name": "Nguyên (Wynn)"
+  },
+  "description": "AI-native personal knowledge assistant with RAG-powered note chat and agentic reminders",
+  "private": true,
+  "type": "module",
+  "dependencies": {},
+  "devDependencies": {
+    "husky": "^9.1.7"
+  },
+  "scripts": {
+    "prepare": "husky"
+  }
+}

@@ -118,7 +118,7 @@ export function ShortcutRemapRow({ entry }: ShortcutRemapRowProps) {
                 {m.settings_shortcuts_disabled()}
               </span>
             ) : (
-              <KeyCombo combo={combos[0]} />
+              <KeyCombo combo={combos[0] ?? ''} />
             )}
 
             <Button

@@ -1,2 +1,2 @@
-export * from './companion';
-export * from './api';
+export type { CompanionFetchRouter } from './api';
+export type { CompanionSettings } from './companion';

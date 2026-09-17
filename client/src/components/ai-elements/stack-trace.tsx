@@ -54,7 +54,7 @@ interface ParsedStackTrace {
 }
 
 interface StackTraceContextValue {
-  onFilePathClick?: (filePath: string, line?: number, column?: number) => void;
+  onFilePathClick?: ((filePath: string, line?: number, column?: number) => void) | undefined;
   setIsOpen: (open: boolean) => void;
   trace: ParsedStackTrace;
   isOpen: boolean;
@@ -79,9 +79,9 @@ const parseStackFrame = (line: string): StackFrame => {
   if (withParensMatch) {
     const [, functionName, filePath, lineNum, colNum] = withParensMatch;
     const isInternal =
-      filePath.includes('node_modules') ||
-      filePath.startsWith('node:') ||
-      filePath.includes('internal/');
+      (filePath?.includes('node_modules') ?? false) ||
+      (filePath?.startsWith('node:') ?? false) ||
+      (filePath?.includes('internal/') ?? false);
     return {
       columnNumber: colNum ? Number.parseInt(colNum, 10) : null,
       lineNumber: lineNum ? Number.parseInt(lineNum, 10) : null,
@@ -133,7 +133,7 @@ const parseStackTrace = (trace: string): ParsedStackTrace => {
     };
   }
 
-  const firstLine = lines[0].trim();
+  const firstLine = lines[0]?.trim() ?? '';
   let errorType: string | null = null;
   let errorMessage = firstLine;
 
@@ -141,7 +141,7 @@ const parseStackTrace = (trace: string): ParsedStackTrace => {
   const errorMatch = firstLine.match(ERROR_TYPE_REGEX);
   if (errorMatch) {
     const [, type, msg] = errorMatch;
-    errorType = type;
+    errorType = type ?? null;
     errorMessage = msg || '';
   }
 
@@ -180,8 +180,8 @@ export const StackTrace = memo(
   }: StackTraceProps) => {
     const [isOpen, setIsOpen] = useControllableState({
       defaultProp: defaultOpen,
-      onChange: onOpenChange,
-      prop: open,
+      ...(onOpenChange !== undefined ? { onChange: onOpenChange } : {}),
+      ...(open !== undefined ? { prop: open } : {}),
     });
 
     const parsedTrace = useMemo(() => parseStackTrace(trace), [trace]);
@@ -431,11 +431,13 @@ export type StackTraceFramesProps = ComponentProps<'div'> & {
 };
 
 interface FilePathButtonProps {
-  onFilePathClick?: (
-    filePath: string,
-    lineNumber?: number,
-    columnNumber?: number,
-  ) => void;
+  onFilePathClick?:
+    | ((
+        filePath: string,
+        lineNumber?: number,
+        columnNumber?: number,
+      ) => void)
+    | undefined;
   frame: StackFrame;
 }
 

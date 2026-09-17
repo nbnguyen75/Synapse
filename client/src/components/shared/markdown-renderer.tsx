@@ -44,7 +44,7 @@ function remarkHighlight() {
               });
             }
             newChildren.push({
-              children: [{ value: match[1], type: 'text' }],
+              children: [{ value: match[1] ?? '', type: 'text' }],
               data: { hName: 'mark' },
               type: 'mark',
             });

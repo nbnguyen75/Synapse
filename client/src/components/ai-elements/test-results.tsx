@@ -32,7 +32,7 @@ interface TestResultsSummary {
 }
 
 interface TestResultsContextType {
-  summary?: TestResultsSummary;
+  summary?: TestResultsSummary | undefined;
 }
 
 const TestResultsContext = createContext<TestResultsContextType>({});
@@ -345,7 +345,7 @@ export const TestSuiteContent = ({
 
 interface TestContextType {
   status: TestStatus;
-  duration?: number;
+  duration?: number | undefined;
   name: string;
 }
 

@@ -1,4 +1,7 @@
-import type { InferRequestType, InferResponseType } from '@/lib/fetch';
+import type {
+  BulkNoteActionsRequest,
+  BulkNoteActionsResponse,
+} from '@/features/notes/api/notes.http';
 import type { BulkNoteAction } from '@/features/notes/constants';
 import type { MutateOptions } from '@tanstack/react-query';
 
@@ -9,9 +12,9 @@ import { toast } from 'sonner';
 import { useConfirm } from '@/providers/use-confirm';
 
 import { m } from '@/paraglide/messages';
-import { $fetch } from '@/lib/fetch';
 
-import { noteKeys } from '@/features/notes/keys';
+import { bulkNoteActionsClient } from '@/features/notes/api/notes.http';
+import { noteKeys } from '@/features/notes/api/notes.api';
 
 const SUCCESS_TOAST_MAP: Record<BulkNoteAction, () => void> = {
   DELETE_PERMANENT: () => toast.success(m.notes_page_toast_deleted()),
@@ -76,12 +79,9 @@ export function showBulkNoteActionErrorToast(action: BulkNoteAction) {
   handler();
 }
 
-type RequestType = InferRequestType<typeof $fetch.api.v1.notes.bulk.actions.$post>;
-type ResponseType = InferResponseType<typeof $fetch.api.v1.notes.bulk.actions.$post>['data'];
-
 export function useNotesBulkAction(
   selectedIds: Set<string>,
-  options: MutateOptions<ResponseType, Error, RequestType> = {},
+  options: MutateOptions<BulkNoteActionsResponse, Error, BulkNoteActionsRequest> = {},
 ) {
   const confirm = useConfirm();
 
@@ -90,17 +90,13 @@ export function useNotesBulkAction(
     mutateAsync: _,
     mutate,
     ...restProps
-  } = useMutation<ResponseType, Error, RequestType>({
+  } = useMutation<BulkNoteActionsResponse, Error, BulkNoteActionsRequest>({
     onSuccess: (_, { body: { action } }) => {
       void queryClient.invalidateQueries({ queryKey: noteKeys.all });
 
       showBulkNoteActionSuccessToast(action);
     },
-    mutationFn: async (args) => {
-      const result = await $fetch.api.v1.notes.bulk.actions.$post(args);
-
-      return result.data;
-    },
+    mutationFn: bulkNoteActionsClient,
     onError: (_, { body: { action } }) => {
       showBulkNoteActionErrorToast(action);
     },

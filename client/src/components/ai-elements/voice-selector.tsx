@@ -79,9 +79,9 @@ export const VoiceSelector = ({
   ...props
 }: VoiceSelectorProps) => {
   const [value, setValue] = useControllableState({
-    defaultProp: defaultValue,
-    onChange: onValueChange,
-    prop: valueProp,
+    ...(defaultValue !== undefined ? { defaultProp: defaultValue } : {}),
+    ...(onValueChange !== undefined ? { onChange: onValueChange } : {}),
+    ...(valueProp !== undefined ? { prop: valueProp } : {}),
   });
 
   const [open, setOpen] = useControllableState({
@@ -91,7 +91,7 @@ export const VoiceSelector = ({
       } as DialogRootChangeEventDetails);
     },
     defaultProp: defaultOpen,
-    prop: openProp,
+    ...(openProp !== undefined ? { prop: openProp } : {}),
   });
 
   const voiceSelectorContext = useMemo(

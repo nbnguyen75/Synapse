@@ -20,9 +20,8 @@ import {
 import { KeyboardIcon, SettingsIcon } from 'lucide-react';
 
 export default function NavSecondary() {
-  const { use: useSidebar } = useSidebarManager();
-
-  const leftSidebar = useSidebar('left');
+  const sidebarManager = useSidebarManager();
+  const leftSidebar = sidebarManager.use('left');
 
   const { layoutMode } = useSettingsStore();
 

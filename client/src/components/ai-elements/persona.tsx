@@ -48,6 +48,15 @@ interface StableCallbacks {
   onReady?: () => void;
 }
 
+interface ActiveCallbacks {
+  onLoadError: NonNullable<RiveParameters['onLoadError']>;
+  onPause: NonNullable<RiveParameters['onPause']>;
+  onLoad: NonNullable<RiveParameters['onLoad']>;
+  onPlay: NonNullable<RiveParameters['onPlay']>;
+  onStop: NonNullable<RiveParameters['onStop']>;
+  onReady: () => void;
+}
+
 interface PersonaProps extends StableCallbacks {
   variant?: keyof typeof sources;
   state: PersonaState;
@@ -232,7 +241,7 @@ export const Persona: FC<PersonaProps> = memo(
       };
     }, [onLoad, onLoadError, onPause, onPlay, onReady, onStop]);
 
-    const stableCallbacks: StableCallbacks = useMemo(
+    const stableCallbacks: ActiveCallbacks = useMemo(
       () => ({
         onLoad: (loadedRive) => callbacksRef.current.onLoad?.(loadedRive),
         onLoadError: (err) => callbacksRef.current.onLoadError?.(err),

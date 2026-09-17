@@ -1,4 +1,5 @@
-import type { Note, NoteViewMode } from '@/features/notes/types';
+import type { NoteWithDetails } from '@/features/notes/hooks/use-note-card';
+import type { NoteViewMode } from '@/features/notes/types';
 
 import { memo } from 'react';
 
@@ -16,10 +17,6 @@ import { BookOpenIcon, CalendarIcon, PinIcon, StarIcon } from 'lucide-react';
 
 import { NoteCardDropdown } from '@/features/notes/components/note-card-dropdown';
 import { useNoteCard } from '@/features/notes/hooks';
-
-interface NoteWithDetails extends Note {
-  tags?: Array<string>;
-}
 
 interface NoteCardProps {
   onToggleSelect?: (id: string) => void;
