@@ -171,7 +171,7 @@ function ChatBot({
       )}
 
       <ConversationPromptInput
-        className={!centered ? '' : 'px-4'}
+        className={centered ? '' : 'px-4'}
         disabled={disabled}
         onStop={() => void chat.stop()}
         onSubmit={handleSubmit}

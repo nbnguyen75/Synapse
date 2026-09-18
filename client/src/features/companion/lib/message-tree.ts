@@ -91,6 +91,57 @@ export function buildTree(
   };
 }
 
+export function mergeTreeRows(
+  existing: ConversationTreeState | undefined,
+  rows: Array<TreeMessage>,
+  leafId: undefined | string = existing?.currentLeafId,
+): ConversationTreeState {
+  const nodes: Record<string, MessageNode> = {};
+
+  if (existing) {
+    for (const node of Object.values(existing.nodes)) {
+      nodes[node.id] = { ...node, childrenIds: [] };
+    }
+  }
+
+  for (const row of rows) {
+    const previous = nodes[row.id];
+    const createdAt = getMessageCreatedAt(row);
+
+    nodes[row.id] = previous
+      ? {
+          ...previous,
+          role: row.role,
+          message: row,
+          parentId: row.parentId,
+          createdAt: createdAt === 0 ? previous.createdAt : createdAt,
+          text: getMessageText(row),
+          childrenIds: [],
+        }
+      : {
+          id: row.id,
+          role: row.role,
+          message: row,
+          parentId: row.parentId,
+          childrenIds: [],
+          createdAt,
+          text: getMessageText(row),
+        };
+  }
+
+  for (const node of Object.values(nodes)) {
+    const parent = getNode(nodes, node.parentId);
+    if (parent) {
+      parent.childrenIds.push(node.id);
+    }
+  }
+
+  const fallbackLeafId = leafId ?? rows.at(-1)?.id;
+  const currentLeafId = fallbackLeafId && nodes[fallbackLeafId] ? fallbackLeafId : rows.at(-1)?.id;
+
+  return { nodes, currentLeafId };
+}
+
 export function toTreeRows(messages: Array<UIMessage>): Array<TreeMessage> {
   return messages.map((message, index) => {
     const hasEmbeddedParentId = 'parentId' in message;

@@ -487,6 +487,14 @@
       "dependencies": [],
       "status": "done",
       "evidence": "client/src/features/notes/api/notes.http.ts + notes.api.ts (NEW), client/src/features/companion/api/companion.http.ts + companion.api.ts (NEW), client/src/features/notes/keys.ts + queries.ts (DELETED), client/src/features/companion/components/message-view.tsx + message-body.tsx + message-edit-form.tsx + message-more-menu.tsx + message-copy-action.tsx + conversation-load-older.tsx (NEW), client/src/features/companion/hooks/use-message-tree.ts (NEW), client/src/features/companion/lib/message-text.ts (NEW), client/src/features/notes/components/note-detail-page.tsx (NEW), client/src/lib/fetch/rpc.ts (EndpointDef.query), client/src/features/notes/types/api.ts (query optional)"
+    },
+    {
+      "id": "feat-063",
+      "name": "Companion Pagination/Tree-Sync Fix (existing chat reload loses old messages)",
+      "description": "Post-021b35b refactor fix (2026-09-18): single-owner hydration (useMessageTree merge effect; useCompanionChatSession seeds once, no re-sync), mergeTreeRows upsert in lib/message-tree (pagination-safe, preserves branches), handleFinish merges full local tail (user node no longer dropped by at(-2) lookup), CompanionChat stays mounted under loading overlay + invalidates messages query on finish, transport prefers tree then embedded parentId then at(-2).",
+      "dependencies": ["feat-046", "feat-048", "feat-062"],
+      "status": "done",
+      "evidence": "src/features/companion/lib/message-tree.ts (mergeTreeRows), src/features/companion/hooks/use-message-tree.ts (single merge effect + handleFinish merge), src/features/companion/hooks/use-companion-chat-session.ts (seed-once), src/features/companion/components/companion-chat.tsx (no unmount + targeted invalidation), src/features/companion/config/companion-chat-transport.ts (parent fallback chain). Verified: format, lint (0 errors/warnings), typecheck, build (exit 0), ./init.sh silent. Manual smoke pending: open multi-page conversation, load-older keeps messages; reload keeps history; new-chat first turn routes without wipe. Not committed (user manages git)."
     }
   ]
 }

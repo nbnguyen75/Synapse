@@ -1,7 +1,7 @@
 import type { ConversationTreeState } from '@/features/companion/lib/message-tree';
 import type { FileUIPart, UIMessage } from 'ai';
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useNavigate } from '@tanstack/react-router';
 
@@ -14,10 +14,9 @@ import { useSettingsStore } from '@/store/settings-store';
 import { m } from '@/paraglide/messages';
 
 import {
-  addMessage,
-  buildTree,
   editUserMessage,
   getActivePath,
+  mergeTreeRows,
   retryAssistantMessage,
   switchVersion,
   toTreeRows,
@@ -88,16 +87,21 @@ export function useMessageTree({
 
   const tree = initialConversationId ? trees[initialConversationId] : undefined;
 
+  // Single owner of chat hydration: server pages merge into the tree, the
+  // active path syncs into useChat. Pagination-safe (merge upserts by id),
+  // no clobber of newly fetched older pages with a stale tree snapshot.
+  const chatMessages = chat.messages;
+  const setChatMessages = chat.setMessages;
+
   useEffect(() => {
     if (!initialConversationId || !loadedMessages || isGenerating) return;
+    if (loadedMessages.length === 0) return;
 
-    let nextTree = tree;
-    if (!nextTree) {
-      if (loadedMessages.length === 0) return;
-
-      const rows = toTreeRows(loadedMessages);
-      const leaf = conversation?.currentMessageId ?? rows.at(-1)?.id;
-      nextTree = buildTree(rows, leaf);
+    const rows = toTreeRows(loadedMessages);
+    const leaf = conversation?.currentMessageId ?? tree?.currentLeafId ?? rows.at(-1)?.id;
+    const nextTree = mergeTreeRows(tree, rows, leaf);
+    const coversRows = tree && rows.every((row) => tree.nodes[row.id]);
+    if (!tree || !coversRows || tree.currentLeafId !== leaf) {
       setTree(initialConversationId, nextTree);
     }
 
@@ -106,13 +110,14 @@ export function useMessageTree({
 
     const pathIds = path.map((node) => node.id);
     const isSynced =
-      chat.messages.length === pathIds.length &&
-      chat.messages.every((message, index) => message.id === pathIds[index]);
+      chatMessages.length === pathIds.length &&
+      chatMessages.every((message, index) => message.id === pathIds[index]);
     if (!isSynced) {
-      chat.setMessages(path.map((node) => node.message));
+      setChatMessages(path.map((node) => node.message));
     }
   }, [
-    chat,
+    chatMessages,
+    setChatMessages,
     conversation?.currentMessageId,
     initialConversationId,
     isGenerating,
@@ -120,19 +125,6 @@ export function useMessageTree({
     setTree,
     tree,
   ]);
-
-  useLayoutEffect(() => {
-    if (tree || !loadedMessages || loadedMessages.length === 0) {
-      return;
-    }
-    if (chat.messages.length >= loadedMessages.length) return;
-
-    const knownIds = new Set(chat.messages.map((message) => message.id));
-    const olderMessages = loadedMessages.filter((message) => !knownIds.has(message.id));
-    if (olderMessages.length === 0) return;
-
-    chat.setMessages((prev) => [...olderMessages, ...prev]);
-  }, [loadedMessages, chat, tree]);
 
   const retrySnapshotRef = useRef<{
     assistantMessageId: string;
@@ -158,17 +150,11 @@ export function useMessageTree({
       retrySnapshotRef.current = null;
 
       if (conversationId) {
-        const existingTree = getTree(conversationId);
-        if (existingTree) {
-          const previous = chat.messages.at(-2);
-          if (previous) {
-            const nextTree = existingTree;
-            setTree(conversationId, addMessage(nextTree, result.message, previous.id));
-          }
-        } else {
-          const rows = toTreeRows(chat.messages);
-          setTree(conversationId, buildTree(rows, rows.at(-1)?.id));
-        }
+        // chat.messages already holds the full local tail (user + assistant);
+        // merge upserts both so the user node is never dropped (the old
+        // at(-2) parent lookup skipped it) and other branches are preserved.
+        const rows = toTreeRows(chat.messages);
+        setTree(conversationId, mergeTreeRows(getTree(conversationId), rows, result.message.id));
       }
       onFinish?.(result);
     },

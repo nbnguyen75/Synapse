@@ -21,6 +21,7 @@
 		"**/.prettierrc": true,
     "**/CLAUDE.md": true,
     "**/.claude": true,
+    "**/.agents": true,
 	},
 	"editor.codeActionsOnSave": {
 		"source.fixAll.prettier": "never",

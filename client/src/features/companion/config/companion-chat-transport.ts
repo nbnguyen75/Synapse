@@ -78,9 +78,14 @@ export class CompanionChatTransport extends DefaultChatTransport<UIMessage> {
             ]?.parentId
           : undefined;
 
+        // oxlint-disable-next-line typescript/no-unnecessary-condition -- parentId may exist at runtime on UIMessage even if not in type
+        const embeddedParentId =
+          'parentId' in lastUserMessage ? lastUserMessage.parentId : undefined;
+        const serverParentId = typeof embeddedParentId === 'string' ? embeddedParentId : undefined;
+
         return {
           body: {
-            parentMessageId: treeParentId ?? messages.at(-2)?.id,
+            parentMessageId: treeParentId ?? serverParentId ?? messages.at(-2)?.id,
             conversationId: this.conversationId,
             message: messageWithMetadata,
           },

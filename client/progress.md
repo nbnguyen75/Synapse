@@ -2,6 +2,13 @@
 
 ## Status
 
+### What's Done (companion-pagination-fix-064 — feat-063, existing chat reload loses old messages)
+
+- [x] **Root cause** — post-`021b35b` split left 3 sources of truth (react-query infinite pages + zustand trees + `useChat.messages`) synced by 2 competing effects + 1 one-shot session sync: (a) tree built once from first page, later `fetchNextPage` pages re-clobbered by `getActivePath(oldTree)` while the prepend `useLayoutEffect` was dead (`if (tree) return`); (b) session sync ran once per id and ignored later pages; (c) `ChatBot` unmounted while `isLoading`; (d) `handleFinish` used `chat.messages.at(-2)` as parent, dropping the user node from the tree.
+- [x] **Fix (5 files, +107/-72)** — `lib/message-tree.ts`: new `mergeTreeRows` (O(n) upsert by id, rebuilds links, resolves leaf); `hooks/use-message-tree.ts`: single merge+sync effect with stable deps (no `chat` object dep, no layout effect), `handleFinish` merges full local tail; `hooks/use-companion-chat-session.ts`: seed-once, hydration owned by `useMessageTree`; `components/companion-chat.tsx`: stays mounted under loading overlay, targeted `conversationMessages(id)` invalidation on finish; `config/companion-chat-transport.ts`: parent fallback tree → embedded → `at(-2)` via `in` narrowing (no casts).
+- [x] **Verification** — `format` ✓ (222 files), `lint` ✓ (0 errors/warnings), `typecheck` ✓, `build` ✓ (exit 0), `./init.sh` silent ✓. `feature_list.json` feat-063 added (62 features, JSON valid). Not committed (user manages git).
+- [ ] **Manual smoke pending** — open multi-page conversation → load-older keeps messages; reload keeps history; new-chat first turn routes to `/chat/:id` without wipe; branch/retry/edit still version correctly.
+
 ### What's Done (strict-typecheck-lint-fix-068 — Zero errors & warnings on strict typecheck and lint)
 
 - [x] **Lint completely resolved (`bun --bun run lint`)** — Fixed all React hooks warnings (`react(hooks)`) in `sidebar.tsx`, `nav-main.tsx`, `nav-companion.tsx`, `nav-secondary.tsx`, and `app-global-keybinds.tsx` by eliminating dynamic hook naming destructuring (`sidebarManager.use('left')`). Fixed exhaustive-deps warnings in `command-palette.tsx` (wrapped `focusInput` in `useCallback`) and `global-shortcuts-provider.tsx` (removed unused dependency). Verified: 0 warnings, 0 errors across 189 files.

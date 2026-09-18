@@ -28,3 +28,13 @@ eslint.config.js
 .prettierrc
 .prettierignore
 **/.env*
+**/plans
+**/.agents
+**/AGENTS.md
+**/CLAUDE.md
+**/init.sh
+**/opencode.json
+**/tsconfig.tsbuildinfo
+**/progress.md
+**/skills-lock.json
+**/feature_list.json

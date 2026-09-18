@@ -1,12 +1,12 @@
 import { tool } from 'ai';
 import z from 'zod/v4';
 
-import { searchNotesHybrid } from '@/chat/repository';
+import { searchUserNotes } from '@/chat/notes';
 
 export function createSearchNotesTool(userId: string) {
 	return tool({
 		execute: async ({ query }) => {
-			const notes = await searchNotesHybrid({
+			const notes = await searchUserNotes({
 				limit: 5,
 				userId,
 				query

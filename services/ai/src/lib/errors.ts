@@ -22,12 +22,6 @@ export class NotFoundError extends AppError {
 	}
 }
 
-export class UnauthorizedError extends AppError {
-	constructor(message = "Bring your token, we're not letting strangers in.") {
-		super('UNAUTHORIZED', message, StatusCodes.UNAUTHORIZED);
-	}
-}
-
 export class ForbiddenError extends AppError {
 	constructor(message = 'Nice try, but this door needs a different key. (403)') {
 		super('FORBIDDEN', message, StatusCodes.FORBIDDEN);
@@ -42,11 +36,5 @@ export class ValidationError extends AppError {
 			StatusCodes.BAD_REQUEST,
 			details
 		);
-	}
-}
-
-export class ConflictError extends AppError {
-	constructor(message: string) {
-		super('CONFLICT', message, StatusCodes.CONFLICT);
 	}
 }

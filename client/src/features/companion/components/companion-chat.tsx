@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Spinner } from '@/components/ui/spinner';
 
 import { useGetConversationMessagesInfiniteQuery } from '@/features/companion/hooks/use-companion-conversation';
+import { companionKeys } from '@/features/companion/api/companion.api';
 import ChatBot from '@/features/companion/components/chat-bot';
 
 interface CompanionChatProps {
@@ -48,6 +49,13 @@ export default function CompanionChat({
   const handleConversationFinish = useCallback(() => {
     const capturedConversationId = capturedConversationIdRef.current;
 
+    if (capturedConversationId) {
+      // Refresh server history so reload/pagination sees the finished turn.
+      void queryClient.invalidateQueries({
+        queryKey: companionKeys.conversationMessages(capturedConversationId),
+      });
+    }
+
     if (capturedConversationId && !activeConversationId) {
       setActiveConversationId(capturedConversationId);
 
@@ -55,7 +63,7 @@ export default function CompanionChat({
         window.history.replaceState(null, '', `/chat/${capturedConversationId}`);
       }
     }
-  }, [activeConversationId, setActiveConversationId]);
+  }, [activeConversationId, queryClient, setActiveConversationId]);
 
   const isLoadingConversation = activeConversationId !== null && isLoading;
 
@@ -67,22 +75,20 @@ export default function CompanionChat({
         </div>
       )}
 
-      {!isLoadingConversation && (
-        <ChatBot
-          ref={chatRef}
-          className={cn('size-full mx-auto', centered && ' max-w-4xl')}
-          centered={centered}
-          disabled={isLoadingConversation}
-          initialConversationId={activeConversationId ?? undefined}
-          messages={activeConversationId ? messages : undefined}
-          key={activeConversationId ?? 'new-chat'}
-          onConversationId={handleConversationId}
-          onFinish={handleConversationFinish}
-          onLoadOlderMessages={activeConversationId ? () => void fetchNextPage() : undefined}
-          hasMoreMessages={hasNextPage}
-          isLoadingOlderMessages={isFetchingNextPage}
-        />
-      )}
+      <ChatBot
+        ref={chatRef}
+        className={cn('size-full mx-auto', centered && ' max-w-4xl')}
+        centered={centered}
+        disabled={isLoadingConversation}
+        initialConversationId={activeConversationId ?? undefined}
+        messages={activeConversationId ? messages : undefined}
+        key={activeConversationId ?? 'new-chat'}
+        onConversationId={handleConversationId}
+        onFinish={handleConversationFinish}
+        onLoadOlderMessages={activeConversationId ? () => void fetchNextPage() : undefined}
+        hasMoreMessages={hasNextPage}
+        isLoadingOlderMessages={isFetchingNextPage}
+      />
     </div>
   );
 }

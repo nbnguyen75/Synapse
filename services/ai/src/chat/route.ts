@@ -1,15 +1,10 @@
 import { Hono } from 'hono';
 
-import {
-	createChatStreamResponse,
-	extractQuestionText,
-	prepareChatTurn,
-	validateChatMessages
-} from '@/chat/services';
+import { checkConversationOwnership, findMessageById, loadActivePath } from '@/conversation';
+import { extractQuestionText, validateChatMessages } from '@/chat/messages';
 import { chatRequestSchema, regenerateRequestSchema } from '@/chat/schemas';
-import { checkConversationOwnership, loadActivePath } from '@/conversation';
+import { createChatStreamResponse, prepareChatTurn } from '@/chat/services';
 import { NotFoundError, ValidationError } from '@/lib/errors';
-import { findMessageById } from '@/conversation/repository';
 import { MAX_QUESTION_LENGTH } from '@/chat/constants';
 import { authJwksMiddleware } from '@/middleware/auth';
 import { zValidator } from '@/middleware/validation';

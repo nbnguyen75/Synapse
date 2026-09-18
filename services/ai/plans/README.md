@@ -6,9 +6,10 @@ starting, honor its STOP conditions, and update your row when done.
 
 ## Execution order & status
 
-| Plan | Title                                               | Priority | Effort | Depends on | Status |
-| ---- | --------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| 001  | Switch from Vertex AI to AI-Studio multi-key router | P1       | M      | —          | DONE   |
+| Plan | Title                                                               | Priority | Effort | Depends on | Status |
+| ---- | ------------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| 001  | Switch from Vertex AI to AI-Studio multi-key router                 | P1       | M      | —          | DONE   |
+| 002  | Refactor src/** per the Backend Refactoring & Optimization Playbook | P2       | S      | —          | DONE   |
 
 Status values: TODO | IN PROGRESS | DONE |
 BLOCKED (with one-line reason) | REJECTED (with one-line rationale).

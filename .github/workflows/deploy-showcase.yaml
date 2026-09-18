@@ -363,14 +363,6 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars "^@@@^KONG_DATABASE=off@@@KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml@@@KONG_PROXY_LISTEN=0.0.0.0:8000@@@KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=16k@@@KONG_NGINX_PROXY_PROXY_BUFFERS=4 16k@@@KONG_VIA_HEADER=off@@@KONG_HEADERS=off"
 
-      # - name: Patch Auth Service with Vercel Domain (the plot twist)
-      #   run: |
-      #     gcloud run services update synapse-auth \
-      #       --region ${{ env.GAR_LOCATION }} \
-      #       --min-instances 0 \
-      #       --max-instances 1 \
-      #       --update-env-vars "BETTER_AUTH_URL=${{ needs.setup.outputs.gateway_url }}"
-
   deploy-web-to-vercel:
     name: '📐 Deploy | "CSS is my passion" 🎨'
     needs: [setup]

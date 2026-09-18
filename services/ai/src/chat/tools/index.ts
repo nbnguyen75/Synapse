@@ -1,2 +1,2 @@
-export * from './notes';
-export * from './chat';
+export { createSearchChatHistoriesTool, createSearchWebTool } from './chat';
+export { createSearchNotesTool } from './notes';

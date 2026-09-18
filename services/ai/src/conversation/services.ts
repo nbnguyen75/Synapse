@@ -1,3 +1,4 @@
+import type { MessageMetadata } from '@/database/schema';
 import type { UIMessage } from 'ai';
 
 import { randomUUID } from 'node:crypto';
@@ -21,16 +22,23 @@ import {
 } from '@/conversation/repository';
 import { ForbiddenError, NotFoundError } from '@/lib/errors';
 
-interface MessageRow {
-	searchText: string | null;
-	parentId: string | null;
-	content: string | null;
-	conversationId: string;
-	metadata: unknown;
-	createdAt: Date;
-	parts: unknown;
-	role: string;
-	id: string;
+type MessageRow = Awaited<ReturnType<typeof findMessagesByConversationId>>[number];
+
+function extractPlainTextFromParts(parts: unknown): string {
+	if (!Array.isArray(parts)) return '';
+	return parts
+		.filter(
+			(p): p is { text: string; type: 'text' } =>
+				!!p &&
+				typeof p === 'object' &&
+				p.type === 'text' &&
+				'text' in p &&
+				typeof p.text === 'string'
+		)
+		.map((p) => p.text.trim())
+		.filter(Boolean)
+		.join(' ')
+		.trim();
 }
 
 function toUIMessage(r: MessageRow): { parentId: string | null } & UIMessage {
@@ -48,15 +56,7 @@ export async function getOrCreateConversation(userId: string, conversationId?: s
 		return createNewConversation(userId);
 	}
 
-	const conversation = await findConversationById(conversationId);
-	if (!conversation) {
-		throw new NotFoundError('Cuộc trò chuyện không tồn tại');
-	}
-	if (conversation.userId !== userId) {
-		throw new ForbiddenError('Bạn không có quyền truy cập cuộc trò chuyện này');
-	}
-
-	return conversation;
+	return checkConversationOwnership(userId, conversationId);
 }
 
 export async function checkConversationOwnership(userId: string, conversationId: string) {
@@ -93,12 +93,6 @@ export async function setConversationFavorite(
 ) {
 	await checkConversationOwnership(userId, conversationId);
 	await updateFavoriteConversation(conversationId, favorited);
-}
-
-export async function loadHistory(conversationId: string): Promise<UIMessage[]> {
-	const rows = await findMessagesByConversationId(conversationId);
-
-	return rows.map((r) => toUIMessage(r));
 }
 
 export async function loadActivePath(
@@ -139,7 +133,14 @@ export async function appendMessage(
 	message: UIMessage,
 	parentId?: string | null
 ) {
-	await insertMessage(conversationId, message, parentId);
+	await insertMessage(conversationId, {
+		metadata: (message.metadata ?? null) as MessageMetadata | null,
+		searchText: extractPlainTextFromParts(message.parts) || null,
+		parentId: parentId ?? null,
+		parts: message.parts,
+		role: message.role,
+		id: message.id
+	});
 	await updateCurrentMessage(conversationId, message.id);
 }
 
@@ -183,9 +184,10 @@ export async function cloneConversation(
 		idMap.set(row.id, newId);
 		return {
 			parentId: row.parentId ? (idMap.get(row.parentId) ?? null) : null,
-			parts: row.parts as UIMessage['parts'],
+			searchText: row.searchText,
 			createdAt: row.createdAt,
 			metadata: row.metadata,
+			parts: row.parts,
 			role: row.role,
 			id: newId
 		};

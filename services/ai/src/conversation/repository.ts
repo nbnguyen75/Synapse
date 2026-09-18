@@ -1,9 +1,12 @@
-import type { UIMessage } from 'ai';
-
 import { eq, desc, asc } from 'drizzle-orm';
 
-import { conversations, messages, type MessageMetadata } from '@/database/schema';
+import { conversations, messages } from '@/database/schema';
 import { db } from '@/database';
+
+export type NewMessageValues = Pick<
+	typeof messages.$inferInsert,
+	'searchText' | 'createdAt' | 'metadata' | 'parentId' | 'parts' | 'role' | 'id'
+>;
 
 export async function findConversationById(id: string) {
 	const [row] = await db.select().from(conversations).where(eq(conversations.id, id)).limit(1);
@@ -68,32 +71,11 @@ export async function findMessagesByConversationIdPage(
 		.offset(offset);
 }
 
-function extractPlainTextFromParts(parts: UIMessage['parts']): string {
-	if (!Array.isArray(parts)) return '';
-	return parts
-		.filter((p) => p.type === 'text' && 'text' in p && typeof p.text === 'string')
-		.map((p) => (p as { text: string; type: 'text' }).text.trim())
-		.filter(Boolean)
-		.join(' ')
-		.trim();
-}
-
 export async function insertMessage(
 	conversationId: string,
-	message: UIMessage,
-	parentId?: string | null
+	values: Omit<NewMessageValues, 'createdAt'>
 ) {
-	const plainText = extractPlainTextFromParts(message.parts);
-
-	await db.insert(messages).values({
-		metadata: message.metadata as MessageMetadata | null,
-		searchText: plainText,
-		parts: message.parts,
-		role: message.role,
-		conversationId,
-		id: message.id,
-		parentId
-	});
+	await db.insert(messages).values({ ...values, conversationId });
 }
 
 export async function findMessageById(id: string) {
@@ -122,31 +104,12 @@ export async function createConversationWithId(values: {
 	return row;
 }
 
-export async function insertMessagesBulk(
-	conversationId: string,
-	rows: Array<{
-		metadata: MessageMetadata | null;
-		parts: UIMessage['parts'];
-		parentId: string | null;
-		createdAt: Date;
-		role: string;
-		id: string;
-	}>
-) {
+export async function insertMessagesBulk(conversationId: string, rows: NewMessageValues[]) {
 	if (rows.length === 0) return;
 
 	await db.transaction(async (tx) => {
 		for (const row of rows) {
-			await tx.insert(messages).values({
-				searchText: extractPlainTextFromParts(row.parts),
-				role: row.role as UIMessage['role'],
-				createdAt: row.createdAt,
-				metadata: row.metadata,
-				parentId: row.parentId,
-				parts: row.parts,
-				conversationId,
-				id: row.id
-			});
+			await tx.insert(messages).values({ ...row, conversationId });
 		}
 	});
 }

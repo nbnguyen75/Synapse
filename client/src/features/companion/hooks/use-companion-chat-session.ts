@@ -1,6 +1,6 @@
 import type { UIMessage } from 'ai';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 
 import { useChat } from '@ai-sdk/react';
 
@@ -24,7 +24,6 @@ export function useCompanionChatSession({
   onError,
 }: UseCompanionChatSessionOptions) {
   const chatId = initialConversationId ?? 'new-chat';
-  const initializedIdRef = useRef<string | null>(null);
 
   const transport = useMemo(
     () =>
@@ -36,6 +35,8 @@ export function useCompanionChatSession({
     [initialConversationId, onConversationId, extraMetadata],
   );
 
+  // Seeded once by useChat; all later hydration (pagination, refetch,
+  // conversation switch) is owned by useMessageTree's single merge effect.
   const chat = useChat({
     messages: initialMessages ?? [],
     id: chatId,
@@ -43,20 +44,6 @@ export function useCompanionChatSession({
     ...(onFinish ? { onFinish } : {}),
     ...(onError ? { onError } : {}),
   });
-
-  useEffect(() => {
-    if (!initialConversationId) {
-      initializedIdRef.current = null;
-      return;
-    }
-
-    if (initializedIdRef.current !== initialConversationId) {
-      if (initialMessages && initialMessages.length > 0) {
-        chat.setMessages(initialMessages);
-        initializedIdRef.current = initialConversationId;
-      }
-    }
-  }, [initialConversationId, initialMessages, chat]);
 
   return chat;
 }

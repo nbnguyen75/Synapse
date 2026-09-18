@@ -25,7 +25,9 @@ export const authJwksMiddleware = createMiddleware<Env>(async (c, next) => {
 			audience: env.PUBLIC_APP_NAME,
 			issuer: env.PUBLIC_APP_NAME
 		});
-		c.set('userId', payload.sub as string);
+		if (!payload.sub)
+			throw new AppError('UNAUTHORIZED', 'Invalid token subject', StatusCodes.UNAUTHORIZED);
+		c.set('userId', payload.sub);
 		await next();
 	} catch {
 		throw new AppError('UNAUTHORIZED', 'Invalid or expired token', StatusCodes.UNAUTHORIZED);

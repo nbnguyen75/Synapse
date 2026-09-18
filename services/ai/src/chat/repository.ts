@@ -1,15 +1,7 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 
 import { messages, notes } from '@/database/schema';
-import { embedText } from '@/lib/ai';
 import { db } from '@/database';
-
-export type SimilarNote = {
-	title: string | null;
-	similarity: number;
-	content: string;
-	id: string;
-};
 
 /**
  * Searches older messages within a specific conversation.
@@ -55,17 +47,11 @@ export interface SearchNoteItem extends Record<string, unknown> {
 }
 
 /**
- * Performs a hybrid search across user notes using a two-tier execution strategy:
- *
- * 1. Tier 1 (Fast-Path Full-Text Search): Executes a lightweight PostgreSQL FTS query (\~3ms).
- *    If the returned record count satisfies the requested limit, the function returns immediately,
- *    bypassing the Embedding API HTTP round-trip (\~150-300ms) to significantly reduce TTFT.
- *
- * 2. Tier 2 (Postgres Native RRF Search): If Tier 1 yields insufficient results, it generates a query
- *    embedding and executes a unified PostgreSQL CTE using Reciprocal Rank Fusion (RRF).
- *    This blends Full-Text BM25 ranking (`ts_rank_cd`) with Vector Cosine Distance (`<=>`).
+ * Tier 1 (Fast-Path Full-Text Search): lightweight PostgreSQL FTS query (~3ms).
+ * Pure DB — no embedding calls. The caller decides whether the hit count
+ * satisfies the requested limit before paying for Tier 2.
  */
-export async function searchNotesHybrid({
+export async function searchNotesByFts({
 	limit = 5,
 	userId,
 	query
@@ -74,66 +60,61 @@ export async function searchNotesHybrid({
 	userId: string;
 	query: string;
 }) {
-	const trimmedQuery = query.trim();
-	if (!userId) return [];
-	if (!trimmedQuery) return getRecentNotes(userId, limit);
-
-	// ---------------------------------------------------------------------------
-	// TIER 1: FAST-PATH (Full-Text Search for Instant Early-Exit & Low TTFT)
-	// ---------------------------------------------------------------------------
-
 	const fastFtsQuery = sql`
     SELECT id, title, content, updated_at AS "updatedAt"
     FROM ${notes}
     WHERE user_id = ${userId}
       AND trashed = false
-      AND to_tsvector('simple', title || ' ' || content) @@ plainto_tsquery('simple', ${trimmedQuery})
-    ORDER BY ts_rank_cd(to_tsvector('simple', title || ' ' || content), plainto_tsquery('simple', ${trimmedQuery})) DESC
+      AND to_tsvector('simple', title || ' ' || content) @@ plainto_tsquery('simple', ${query})
+    ORDER BY ts_rank_cd(to_tsvector('simple', title || ' ' || content), plainto_tsquery('simple', ${query})) DESC
     LIMIT ${limit};
   `;
 
 	try {
 		const fastResults = await db.execute<SearchNoteItem>(fastFtsQuery);
 
-		if (fastResults.rows.length >= limit) {
-			return fastResults.rows.map((row) => ({
-				...row,
-				updatedAt: new Date(row.updatedAt)
-			}));
-		}
+		return fastResults.rows.map((row) => ({
+			...row,
+			updatedAt: new Date(row.updatedAt)
+		}));
 	} catch (error) {
-		console.warn(
-			'[searchNotesHybrid] Tier 1 Fast-Path FTS error, falling back to Tier 2:',
-			error
-		);
+		console.warn('[searchNotesByFts] Tier 1 Fast-Path FTS error:', error);
+		return [];
 	}
+}
 
-	// ---------------------------------------------------------------------------
-	// TIER 2: POSTGRES NATIVE RRF (Full-Text + Vector Cosine Distance Hybrid)
-	// ---------------------------------------------------------------------------
-	try {
-		const queryEmbedding = await embedText(trimmedQuery);
+/**
+ * Tier 2 (Postgres Native RRF): blends Full-Text BM25 ranking (`ts_rank_cd`)
+ * with Vector Cosine Distance (`<=>`) via Reciprocal Rank Fusion.
+ * Pure DB — the caller supplies a precomputed query embedding.
+ */
+export async function searchNotesByRrf({
+	embedding,
+	limit = 5,
+	userId,
+	query
+}: {
+	embedding: number[];
+	limit?: number;
+	userId: string;
+	query: string;
+}) {
+	const vectorSql = `[${embedding.join(',')}]`;
 
-		if (!queryEmbedding || queryEmbedding.length === 0) {
-			return getRecentNotes(userId, limit);
-		}
-
-		const vectorSql = `[${queryEmbedding.join(',')}]`;
-
-		const rrfQuery = sql`
+	const rrfQuery = sql`
       WITH fts_matches AS (
         SELECT 
           id,
           ROW_NUMBER() OVER (
             ORDER BY ts_rank_cd(
               to_tsvector('simple', title || ' ' || content), 
-              plainto_tsquery('simple', ${trimmedQuery})
+              plainto_tsquery('simple', ${query})
             ) DESC
           ) AS rank_fts
         FROM ${notes}
         WHERE user_id = ${userId} 
           AND trashed = false 
-          AND to_tsvector('simple', title || ' ' || content) @@ plainto_tsquery('simple', ${trimmedQuery})
+          AND to_tsvector('simple', title || ' ' || content) @@ plainto_tsquery('simple', ${query})
         LIMIT 20
       ),
       vec_matches AS (
@@ -158,11 +139,8 @@ export async function searchNotesHybrid({
       LIMIT ${limit};
     `;
 
+	try {
 		const result = await db.execute<{ rrf_score: number } & SearchNoteItem>(rrfQuery);
-
-		if (result.rows.length === 0) {
-			return getRecentNotes(userId, limit);
-		}
 
 		return result.rows.map((row) => ({
 			updatedAt: new Date(row.updatedAt),
@@ -171,12 +149,12 @@ export async function searchNotesHybrid({
 			id: row.id
 		}));
 	} catch (error) {
-		console.error('[searchNotesHybrid] Tier 2 RRF error:', error);
-		return getRecentNotes(userId, limit);
+		console.error('[searchNotesByRrf] Tier 2 RRF error:', error);
+		return [];
 	}
 }
 
-async function getRecentNotes(userId: string, limit: number) {
+export async function getRecentNotes(userId: string, limit: number) {
 	return db
 		.select({
 			updatedAt: notes.updatedAt,

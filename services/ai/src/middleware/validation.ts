@@ -20,7 +20,7 @@ export function zValidator<T extends ZodType, Target extends keyof ValidationTar
 			return fail(
 				c,
 				'VALIDATION_ERROR',
-				'The database is playing hide and seek right now.',
+				'Invalid request payload.',
 				StatusCodes.BAD_REQUEST,
 				details
 			);
