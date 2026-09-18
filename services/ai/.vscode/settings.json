@@ -18,7 +18,9 @@
 		"**/.eslintcache": true,
 		"**/drizzle": true,
 		"**/.prettierignore": true,
-		"**/.prettierrc": true
+		"**/.prettierrc": true,
+    "**/CLAUDE.md": true,
+    "**/.claude": true,
 	},
 	"editor.codeActionsOnSave": {
 		"source.fixAll.prettier": "never",

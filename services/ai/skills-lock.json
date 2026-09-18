@@ -1,0 +1,53 @@
+{
+	"version": 1,
+	"skills": {
+		"backend-architecture": {
+			"source": "./.agents/skills/backend-architecture",
+			"sourceType": "local",
+			"skillPath": "SKILL.md",
+			"computedHash": "c4d4babf728c4239632bd8e2bb97aaa2d9124a061c70a3734d4d510643612a92"
+		},
+		"code-review-and-quality": {
+			"source": "addyosmani/agent-skills",
+			"sourceType": "github",
+			"skillPath": "skills/code-review-and-quality/SKILL.md",
+			"computedHash": "6231479cc74c7ed70a5618b81b3f94034d9806c0319a1a23d15f9b94a368c581"
+		},
+		"codebase-design": {
+			"source": "mattpocock/skills",
+			"sourceType": "github",
+			"skillPath": "skills/engineering/codebase-design/SKILL.md",
+			"computedHash": "caea3cb8a8281ff829fd1a2b985044e77601b62f301adf43f689ccfc74c15f6f"
+		},
+		"diagnosing-bugs": {
+			"source": "mattpocock/skills",
+			"sourceType": "github",
+			"skillPath": "skills/engineering/diagnosing-bugs/SKILL.md",
+			"computedHash": "dcaaa3eb81195329f65f27574d9a67dc776160dd2e4d7798d1afb1e4a5f3695a"
+		},
+		"hono": {
+			"source": "honojs/skills",
+			"sourceType": "github",
+			"skillPath": "skills/hono/SKILL.md",
+			"computedHash": "1ddf701842fda610e65551fe5822f70c049bf4077e3513f55011fa7bade7aace"
+		},
+		"improve": {
+			"source": "shadcn/improve",
+			"sourceType": "github",
+			"skillPath": "skills/improve/SKILL.md",
+			"computedHash": "553713a1b9af40ec50c4018f75b8974bf728fe5abc8e125b748e2d718d5c31ea"
+		},
+		"refactor": {
+			"source": "./.agents/skills/refactor",
+			"sourceType": "local",
+			"skillPath": "SKILL.md",
+			"computedHash": "c6c07a923a18b10813258f77daf26166b18993d5dbde52c49c5ee137b805ceac"
+		},
+		"research": {
+			"source": "mattpocock/skills",
+			"sourceType": "github",
+			"skillPath": "skills/engineering/research/SKILL.md",
+			"computedHash": "2c8b768d5f0309eaea9f92ef740101e813645b39aef88fb82733a52eae23dc0b"
+		}
+	}
+}
