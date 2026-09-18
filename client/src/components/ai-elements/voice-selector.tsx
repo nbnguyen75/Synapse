@@ -65,7 +65,7 @@ export const useVoiceSelector = () => {
 export type VoiceSelectorProps = ComponentProps<typeof Dialog> & {
   onValueChange?: (value: undefined | string) => void;
   defaultValue?: string;
-  value?: string;
+  value?: undefined | string;
 };
 
 export const VoiceSelector = ({
@@ -78,8 +78,8 @@ export const VoiceSelector = ({
   children,
   ...props
 }: VoiceSelectorProps) => {
-  const [value, setValue] = useControllableState({
-    ...(defaultValue !== undefined ? { defaultProp: defaultValue } : {}),
+  const [value, setValue] = useControllableState<undefined | string>({
+    defaultProp: defaultValue,
     ...(onValueChange !== undefined ? { onChange: onValueChange } : {}),
     ...(valueProp !== undefined ? { prop: valueProp } : {}),
   });

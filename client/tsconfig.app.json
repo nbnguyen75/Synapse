@@ -33,5 +33,5 @@
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dev-dist", "src/components/ai-elements/**", "src/components/ui/**"]
+  "exclude": ["node_modules", "dev-dist"]
 }

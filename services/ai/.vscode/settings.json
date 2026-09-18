@@ -13,8 +13,12 @@
 		"**/node_modules": true,
 		"**/LICENSE": true,
 		"**/README.md": true,
-		"**/bun.lock": false,
-		"**/.husky": true
+		"**/bun.lock": true,
+		"**/.husky": true,
+		"**/.eslintcache": true,
+		"**/drizzle": true,
+		"**/.prettierignore": true,
+		"**/.prettierrc": true
 	},
 	"editor.codeActionsOnSave": {
 		"source.fixAll.prettier": "never",

@@ -134,7 +134,7 @@ function ChatBot({
               onLoadOlder={onLoadOlderMessages}
             />
           )}
-          <ConversationContent className={cn(centered && 'mx-auto w-full max-w-6xl')}>
+          <ConversationContent className={cn(centered && 'mx-auto w-full')}>
             {liveMessages.map((message, index) => (
               <MessageView
                 conversationId={initialConversationId}
@@ -171,7 +171,7 @@ function ChatBot({
       )}
 
       <ConversationPromptInput
-        centered={centered}
+        className={!centered ? '' : 'px-4'}
         disabled={disabled}
         onStop={() => void chat.stop()}
         onSubmit={handleSubmit}

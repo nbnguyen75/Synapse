@@ -128,7 +128,7 @@ function AppLayout() {
                   </main>
                 </ResizablePanel>
 
-                <ResizableHandle withHandle />
+                <ResizableHandle withHandle disabled={layoutMode === 'chat'} />
 
                 <ResizablePanel
                   panelRef={rightPanelRef}

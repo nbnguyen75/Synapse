@@ -20,39 +20,38 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:push": "drizzle-kit push",
 		"db:pull": "drizzle-kit pull",
-		"db:studio": "drizzle-kit studio",
-		"prepare": "husky"
+		"db:studio": "drizzle-kit studio"
 	},
 	"dependencies": {
-		"@ai-sdk/google": "^4.0.50",
-		"@ai-sdk/google-vertex": "^5.0.63",
-		"@hono/zod-validator": "^0.9.0",
+		"@ai-sdk/google": "^4.0.74",
+		"@ai-sdk/google-vertex": "^5.0.86",
+		"@hono/zod-validator": "^0.9.1",
 		"@t3-oss/env-core": "^0.13.11",
-		"@tavily/core": "^0.7.8",
-		"ai": "^7.0.78",
+		"@tavily/core": "^0.7.12",
+		"ai": "^7.0.105",
 		"drizzle-orm": "^0.45.2",
-		"hono": "^4.13.4",
+		"hono": "^4.13.8",
 		"http-status-codes": "^2.3.0",
-		"jose": "^6.2.10",
+		"jose": "^6.2.12",
 		"pg": "^8.23.0",
-		"zod": "^4.4.3"
+		"zod": "^4.6.5"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@hono/eslint-config": "^2.1.1",
-		"@types/bun": "latest",
-		"@types/node": "^26.3.0",
+		"@types/bun": "1.4.2",
+		"@types/node": "^26.6.1",
 		"@types/pg": "^8.23.1",
 		"drizzle-kit": "^0.31.10",
-		"eslint": "^10.9.1",
+		"eslint": "^10.10.0",
 		"eslint-config-prettier": "^10.1.8",
-		"eslint-plugin-oxlint": "^1.80.0",
-		"eslint-plugin-perfectionist": "^5.10.1",
-		"globals": "^17.11.0",
+		"eslint-plugin-oxlint": "^1.83.0",
+		"eslint-plugin-perfectionist": "^5.11.1",
+		"globals": "^17.12.0",
 		"husky": "^9.1.7",
-		"lint-staged": "^17.3.0",
-		"oxlint": "^1.80.0",
-		"prettier": "^3.9.6",
-		"typescript-eslint": "^8.68.0"
+		"lint-staged": "^17.5.1",
+		"oxlint": "^1.83.0",
+		"prettier": "^3.9.8",
+		"typescript-eslint": "^8.70.0"
 	}
 }

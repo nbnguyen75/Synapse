@@ -35,10 +35,10 @@ interface SchemaProperty {
 }
 
 interface SchemaDisplayContextType {
-  responseBody?: SchemaProperty[];
-  parameters?: SchemaParameter[];
-  requestBody?: SchemaProperty[];
-  description?: string;
+  responseBody?: SchemaProperty[] | undefined;
+  parameters?: SchemaParameter[] | undefined;
+  requestBody?: SchemaProperty[] | undefined;
+  description?: string | undefined;
   method: HttpMethod;
   path: string;
 }
@@ -377,10 +377,10 @@ export const SchemaDisplayResponse = ({
 };
 
 export type SchemaDisplayProps = HTMLAttributes<HTMLDivElement> & {
-  responseBody?: SchemaProperty[];
-  parameters?: SchemaParameter[];
-  requestBody?: SchemaProperty[];
-  description?: string;
+  responseBody?: SchemaProperty[] | undefined;
+  parameters?: SchemaParameter[] | undefined;
+  requestBody?: SchemaProperty[] | undefined;
+  description?: string | undefined;
   method: HttpMethod;
   path: string;
 };

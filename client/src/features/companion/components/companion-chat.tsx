@@ -62,15 +62,15 @@ export default function CompanionChat({
   return (
     <div className={cn('relative size-full overflow-hidden', className)}>
       {isLoadingConversation && (
-        <output className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[1px]">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[1px]">
           <Spinner className="size-6" />
-        </output>
+        </div>
       )}
 
       {!isLoadingConversation && (
         <ChatBot
           ref={chatRef}
-          className="size-full"
+          className={cn('size-full mx-auto', centered && ' max-w-4xl')}
           centered={centered}
           disabled={isLoadingConversation}
           initialConversationId={activeConversationId ?? undefined}
