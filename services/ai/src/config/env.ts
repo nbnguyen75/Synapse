@@ -3,6 +3,16 @@ import z from 'zod/v4';
 
 export const env = createEnv({
 	server: {
+		GOOGLE_GENERATIVE_AI_API_KEYS: z.preprocess(
+			(val) =>
+				typeof val === 'string'
+					? val
+							.split(',')
+							.map((v) => v.trim())
+							.filter(Boolean)
+					: val,
+			z.array(z.string().min(1)).min(1)
+		),
 		ORIGINS: z
 			.preprocess(
 				(val) => (typeof val === 'string' ? val.split(',').map((v) => v.trim()) : val),
@@ -10,13 +20,14 @@ export const env = createEnv({
 			)
 			.optional()
 			.default([]),
+		GOOGLE_GENERATIVE_AI_COOLDOWN_MS: z.coerce
+			.number()
+			.int()
+			.positive()
+			.optional()
+			.default(60000),
 		DATABASE_URL: z.url().trim().default('postgresql://synapse:root@postgres:5433/ai_db'),
 		AUTH_JWKS_URL: z.url().trim().default('http://auth:5001/.well-known/jwks.json'),
-		GOOGLE_VERTEX_LOCATION: z.string().trim().default('global'),
-		GOOGLE_GENERATIVE_AI_API_KEY: z.string().trim().optional(),
-		GOOGLE_VERTEX_PROJECT: z.string().trim().optional(),
-		GOOGLE_CLIENT_EMAIL: z.string().trim().optional(),
-		GOOGLE_PRIVATE_KEY: z.string().trim().optional(),
 		TAVILY_API_KEY: z.string().trim().optional()
 	},
 

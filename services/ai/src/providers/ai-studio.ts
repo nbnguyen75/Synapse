@@ -1,11 +1,30 @@
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import type { GoogleGenerativeAIProvider } from '@ai-sdk/google';
 
-import { env } from '@/config/env';
+import { pick } from '@/providers/router';
 
-export const googleAiStudio = createGoogleGenerativeAI({
-	apiKey: env.GOOGLE_GENERATIVE_AI_API_KEY
-});
+export interface PickedModel {
+	model: ReturnType<GoogleGenerativeAIProvider>;
+	reportRateLimit: () => void;
+	modelId: string;
+}
 
-export const aiStudio36FlashLite = googleAiStudio('gemini-3.5-flash-lite');
-export const aiStudioEmbedding001 = googleAiStudio.embeddingModel('gemini-embedding-001');
-export const aiStudioGemma431bIt = googleAiStudio('gemma-4-31b-it');
+export interface PickedEmbeddingModel {
+	model: ReturnType<GoogleGenerativeAIProvider['embeddingModel']>;
+	reportRateLimit: () => void;
+	modelId: string;
+}
+
+export function getChatModel(): PickedModel {
+	const { reportRateLimit, provider, modelId } = pick('chat');
+	return { model: provider(modelId), reportRateLimit, modelId };
+}
+
+export function getTitleModel(): PickedModel {
+	const { reportRateLimit, provider, modelId } = pick('title');
+	return { model: provider(modelId), reportRateLimit, modelId };
+}
+
+export function getEmbeddingModel(): PickedEmbeddingModel {
+	const { reportRateLimit, provider, modelId } = pick('embed');
+	return { model: provider.embeddingModel(modelId), reportRateLimit, modelId };
+}

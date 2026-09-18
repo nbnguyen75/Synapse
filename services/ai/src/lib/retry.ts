@@ -1,5 +1,9 @@
 import { APICallError } from 'ai';
 
+export function isRateLimitOrQuota(err: unknown): boolean {
+	return APICallError.isInstance(err) && (err.statusCode === 429 || err.statusCode === 403);
+}
+
 export async function withRetry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
 	let lastErr: unknown;
 
@@ -9,10 +13,7 @@ export async function withRetry<T>(fn: () => Promise<T>, retries = 3): Promise<T
 		} catch (err) {
 			lastErr = err;
 
-			const isRateLimit =
-				APICallError.isInstance(err) && (err.statusCode === 429 || /429/.test(err.message));
-
-			if (!isRateLimit) throw err;
+			if (!isRateLimitOrQuota(err)) throw err;
 
 			const delay = 2 ** i * 1000; // 1s, 2s, 4s
 			await new Promise((r) => setTimeout(r, delay));

@@ -287,7 +287,7 @@ jobs:
             --subnet default \
             --vpc-egress private-ranges-only \
             --allow-unauthenticated \
-            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AI_POOLED_URL }}@@@AUTH_JWKS_URL=${{ needs.setup.outputs.auth_jwks_url }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}@@@GOOGLE_GENERATIVE_AI_API_KEY=${{ secrets.AI_GOOGLE_GENERATIVE_AI_API_KEY }}@@@TAVILY_API_KEY=${{ secrets.AI_TAVILY_API_KEY }}@@@GOOGLE_CLIENT_EMAIL=${{ secrets.AI_GOOGLE_CLIENT_EMAIL }}@@@GOOGLE_VERTEX_PROJECT=${{ secrets.AI_GOOGLE_VERTEX_PROJECT }}@@@GOOGLE_PRIVATE_KEY=${{ secrets.AI_GOOGLE_PRIVATE_KEY }}"
+            --set-env-vars "^@@@^DATABASE_URL=${{ secrets.NEON_AI_POOLED_URL }}@@@AUTH_JWKS_URL=${{ needs.setup.outputs.auth_jwks_url }}@@@ORIGINS=${{ secrets.CLIENT_ORIGINS }}@@@GOOGLE_GENERATIVE_AI_API_KEYS=${{ secrets.AI_GOOGLE_GENERATIVE_AI_API_KEYS }}@@@TAVILY_API_KEY=${{ secrets.AI_TAVILY_API_KEY }}"
 
   deploy-notes-service:
     name: "📝 Deploy | May the Garbage Collector Have Mercy"

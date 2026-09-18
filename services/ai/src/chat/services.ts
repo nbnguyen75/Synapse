@@ -21,7 +21,8 @@ import { buildSystemInstruction, MAX_OUTPUT_TOKENS, type UserAiSettings } from '
 import { appendMessage, getOrCreateConversation, loadActivePath } from '@/conversation';
 import { CHAT_TEMPERATURE, RECENT_HISTORY_LIMIT } from '@/chat/constants';
 import { dataPartSchema, messageMetadataSchema } from '@/chat/schemas';
-import { vertexGemini35FlashLite } from '@/providers/agent-platform';
+import { getChatModel } from '@/providers/ai-studio';
+import { isRateLimitOrQuota } from '@/lib/retry';
 
 export function getChatTools(userId: string, conversationId: string) {
 	return {
@@ -167,6 +168,8 @@ interface CreateChatStreamOptions {
 export async function createChatStreamResponse(options: CreateChatStreamOptions) {
 	const { contextMessages, lastUserMessage, conversationId, settings } = options;
 
+	const picked = getChatModel();
+
 	const systemPrompt = buildSystemPrompt(settings, lastUserMessage.metadata as MessageMetadata);
 
 	const recentHistory = contextMessages.slice(-RECENT_HISTORY_LIMIT);
@@ -181,20 +184,21 @@ export async function createChatStreamResponse(options: CreateChatStreamOptions)
 	const segmenter = new Intl.Segmenter(segmenterLocale, { granularity: 'word' });
 
 	const result = streamText({
+		onError: ({ error }) => {
+			if (isRateLimitOrQuota(error)) picked.reportRateLimit();
+			console.error('[Chat streamText error]:', error);
+		},
 		experimental_transform: smoothStream({
 			chunking: segmenter,
 			delayInMs: 5
 		}),
-		onError: ({ error }) => {
-			console.error('[Chat streamText error]:', error);
-		},
 		maxOutputTokens: MAX_OUTPUT_TOKENS[settings.responseLength],
 		messages: await convertToModelMessages(cleanMessages),
 		tools: getChatTools(options.userId, conversationId),
-		model: vertexGemini35FlashLite,
 		temperature: CHAT_TEMPERATURE,
 		instructions: systemPrompt,
-		stopWhen: isStepCount(5)
+		stopWhen: isStepCount(5),
+		model: picked.model
 	});
 
 	const uiStream = toUIMessageStream({
@@ -214,7 +218,7 @@ export async function createChatStreamResponse(options: CreateChatStreamOptions)
 								totalTokens: usage.totalTokens
 							},
 							responseLength: settings.responseLength,
-							model: vertexGemini35FlashLite.modelId
+							model: picked.modelId
 						},
 						lastUserMessage.id
 					);

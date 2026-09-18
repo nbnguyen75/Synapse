@@ -4,8 +4,8 @@ import {
 	MAX_OUTPUT_TOKENS_GENERATE_TITLE,
 	TEMPERATURE_GENERATE_TITLE
 } from '@/generator/constants';
-import { vertexGemini25FlashLite } from '@/providers/agent-platform';
 import { outputNoteTitleSchema } from '@/generator/schemas';
+import { getTitleModel } from '@/providers/ai-studio';
 
 export async function generateNoteTitle(content: string) {
 	const controller = new AbortController();
@@ -27,7 +27,7 @@ export async function generateNoteTitle(content: string) {
 				}),
 				maxOutputTokens: MAX_OUTPUT_TOKENS_GENERATE_TITLE,
 				temperature: TEMPERATURE_GENERATE_TITLE,
-				model: vertexGemini25FlashLite,
+				model: getTitleModel().model,
 				prompt: content
 			});
 
