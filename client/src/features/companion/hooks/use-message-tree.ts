@@ -98,10 +98,20 @@ export function useMessageTree({
     if (loadedMessages.length === 0) return;
 
     const rows = toTreeRows(loadedMessages);
-    const leaf = conversation?.currentMessageId ?? tree?.currentLeafId ?? rows.at(-1)?.id;
+    // The local tree owns the leaf once it exists; the conversations-list
+    // snapshot can lag mid-stream (server currentMessageId still points at
+    // the user message before the assistant reply is persisted), and
+    // yanking the leaf backwards truncates chat.messages — dropping the
+    // just-streamed reply after every turn.
+    const leaf = tree?.currentLeafId ?? conversation?.currentMessageId ?? rows.at(-1)?.id;
     const nextTree = mergeTreeRows(tree, rows, leaf);
     const coversRows = tree && rows.every((row) => tree.nodes[row.id]);
-    if (!tree || !coversRows || tree.currentLeafId !== leaf) {
+    // Terminate against the merged tree's actual leaf, not the input leaf:
+    // a stale server id absent from this tree resolves to the rows.at(-1)
+    // fallback, which can never equal the input — looping setTree forever
+    // (maximum update depth exceeded). This comparison always converges.
+    const leafChanged = nextTree.currentLeafId !== tree?.currentLeafId;
+    if (!tree || !coversRows || leafChanged) {
       setTree(initialConversationId, nextTree);
     }
 

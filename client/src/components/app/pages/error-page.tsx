@@ -1,26 +1,20 @@
-import { useState } from 'react';
-
 import { useNavigate } from '@tanstack/react-router';
 
 import { StatusCodes } from 'http-status-codes';
-import { toast } from 'sonner';
 
 import { m } from '@/paraglide/messages';
 
+import {
+  StackTrace,
+  StackTraceError,
+  StackTraceErrorMessage,
+  StackTraceErrorType,
+  StackTraceFrames,
+} from '@/components/ai-elements/stack-trace';
+
 import { Button } from '@/components/ui/button';
 
-import {
-  ArrowLeft,
-  RotateCcw,
-  Home,
-  LogIn,
-  ChevronDown,
-  ChevronUp,
-  Bot,
-  Terminal,
-  CopyIcon,
-  CheckIcon,
-} from 'lucide-react';
+import { ArrowLeft, RotateCcw, Home, LogIn, Bot } from 'lucide-react';
 
 import { useGoToCompanion } from '@/features/companion/hooks/use-go-to-companion';
 
@@ -72,8 +66,6 @@ export default function ErrorPage({
   reset,
 }: ErrorPageProps) {
   const navigate = useNavigate();
-  const [showDetails, setShowDetails] = useState(false);
-  const [copied, setCopied] = useState(false);
   const goToCompanion = useGoToCompanion();
 
   const activeConfig = ERROR_CONFIG[statusCode] ?? DEFAULT_ERROR_CONFIG;
@@ -92,20 +84,6 @@ export default function ErrorPage({
       reset();
     } else {
       window.location.reload();
-    }
-  };
-
-  const handleCopyError = async () => {
-    if (!error) return;
-
-    const errorText = `${error.name || m.error_page_error_fallback()}: ${error.message || String(error)}\n${error.stack || ''}`;
-    try {
-      await navigator.clipboard.writeText(errorText);
-      setCopied(true);
-      toast.success(m.error_page_toast_copy_success());
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error(m.error_page_toast_copy_failed());
     }
   };
 
@@ -201,51 +179,18 @@ export default function ErrorPage({
           )}
         </div>
 
-        {activeConfig.category === 'server_error' && error && (
-          <div className="w-full pt-2">
-            <button
-              type="button"
-              onClick={() => setShowDetails((prev) => !prev)}
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        {/* Dev-only stack trace: always visible (no collapsible), never shipped to production */}
+        {import.meta.env.DEV && activeConfig.category === 'server_error' && error && (
+          <div className="w-full pt-2 text-left">
+            <StackTrace
+              trace={error.stack ?? `${error.name || 'Error'}: ${error.message || String(error)}`}
             >
-              <Terminal className="h-3.5 w-3.5" />
-              <span>{m.error_page_tech_details()}</span>
-              {showDetails ? (
-                <ChevronUp className="h-3 w-3" />
-              ) : (
-                <ChevronDown className="h-3 w-3" />
-              )}
-            </button>
-
-            {showDetails && (
-              <div className="mt-3 text-left bg-muted/50 rounded-lg p-3.5 border border-border/60 space-y-2 text-sm font-body animate-in fade-in duration-200">
-                <div className="flex items-center justify-between text-muted-foreground border-b border-border/40 pb-2">
-                  <span className="font-medium text-destructive">
-                    {error.name || m.error_page_error_fallback()}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => void handleCopyError()}
-                    className="flex items-center gap-1 text-[11px] hover:text-foreground cursor-pointer transition-colors"
-                  >
-                    {copied ? (
-                      <CheckIcon className="h-3 w-3 text-emerald-500" />
-                    ) : (
-                      <CopyIcon className="h-3 w-3" />
-                    )}
-                    <span>{copied ? m.error_page_copied() : m.error_page_copy()}</span>
-                  </button>
-                </div>
-                <div className="max-h-64 overflow-y-auto text-muted-foreground/90 whitespace-pre-wrap break-all text-md leading-relaxed">
-                  <span className="font-bold">{error.message || String(error)}</span>
-                  {error.stack && (
-                    <div className="mt-2 pt-2 border-t border-border/40 text-md opacity-70">
-                      {error.stack}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+              <StackTraceError>
+                <StackTraceErrorType />
+                <StackTraceErrorMessage />
+              </StackTraceError>
+              <StackTraceFrames />
+            </StackTrace>
           </div>
         )}
       </div>

@@ -495,6 +495,14 @@
       "dependencies": ["feat-046", "feat-048", "feat-062"],
       "status": "done",
       "evidence": "src/features/companion/lib/message-tree.ts (mergeTreeRows), src/features/companion/hooks/use-message-tree.ts (single merge effect + handleFinish merge), src/features/companion/hooks/use-companion-chat-session.ts (seed-once), src/features/companion/components/companion-chat.tsx (no unmount + targeted invalidation), src/features/companion/config/companion-chat-transport.ts (parent fallback chain). Verified: format, lint (0 errors/warnings), typecheck, build (exit 0), ./init.sh silent. Manual smoke pending: open multi-page conversation, load-older keeps messages; reload keeps history; new-chat first turn routes without wipe. Not committed (user manages git)."
+    },
+    {
+      "id": "feat-064",
+      "name": "Message-Tree Merge Loop Fix (new reply disappears / chat-mode crash) + Dev-only ErrorPage StackTrace",
+      "description": "Fixes feat-063 regression (2026-09-19): use-message-tree merge effect derived the leaf as conversation.currentMessageId ?? tree.currentLeafId — the conversations-list snapshot lags mid-stream (server id still points at the user message), yanking the active path backwards and truncating chat.messages after every turn (reply disappears). Worse, when that stale id was absent from the local tree, mergeTreeRows fell back to rows.at(-1).id which never equals the input leaf → setTree fired every render → React 'Maximum update depth exceeded' crash (user-reported stack: setTree ← use-message-tree ← zustand setState), surfacing as chat-mode 500 via the route error boundary. Fix: leaf = tree.currentLeafId ?? conversation.currentMessageId ?? rows.at(-1) (tree owns the leaf once it exists; server id still seeds fresh sessions) + terminate setTree against the merged tree's actual leaf (nextTree.currentLeafId !== tree.currentLeafId), which always converges. ErrorPage: custom collapsible tech-details panel + copy button replaced with ai-elements StackTrace composed non-collapsible (no Header/Content), rendered only under import.meta.env.DEV; production renders nothing. Removed 6 orphan error_page_* keys (en+vi), regen paraglide.",
+      "dependencies": ["feat-063"],
+      "status": "done",
+      "evidence": "src/features/companion/hooks/use-message-tree.ts (leaf reorder + leafChanged guard), src/components/app/pages/error-page.tsx (dev-only StackTrace, details panel removed), messages/en.json + messages/vi.json (6 orphan keys removed). Verified: gen:paraglide clean, install clean, typecheck exit 0, eslint 0 errors/warnings on touched files, oxfmt clean, no stale key references. Manual smoke pending: agent/chat mode reply persists after stream, reload keeps history, dev route error shows StackTrace, prod build has no stack. Not committed (user manages git)."
     }
   ]
 }
