@@ -12,18 +12,8 @@ export const FORMAT_IGNORE_PATTERNS = [
   // ============================================================
 
   '**/*.min.js',
-  'src/routeTree.gen.ts',
-  '**/.nx/**',
   '**/build/**',
-  '**/snap/**',
-
-  // ============================================================
-  // Assets / deprecated code
-  // ============================================================
-
-  'src/assets/*',
-  '!src/assets/styles.css',
-  '**/deprecated/**',
+  '**/dist/**',
 
   // ============================================================
   // Lock files
@@ -33,16 +23,13 @@ export const FORMAT_IGNORE_PATTERNS = [
   'pnpm-lock.yaml',
   'yarn.lock',
   'bun.lock',
-
   'LICENSE',
 
   // ============================================================
   // Build / generated output
   // ============================================================
 
-  '.turbo/**',
   'coverage/**',
-  'playwright-report/**',
   'test-results/**',
 
   // ============================================================
@@ -50,6 +37,7 @@ export const FORMAT_IGNORE_PATTERNS = [
   // ============================================================
 
   'public/**',
+  'drizzle/**',
 
   // ============================================================
   // Agent / AI working files
@@ -60,28 +48,13 @@ export const FORMAT_IGNORE_PATTERNS = [
   'init.sh',
 
   // ============================================================
-  // Shadcn and other libs
-  // ============================================================
-
-  'src/components/ui/**',
-  'src/components/ai-elements/**',
-
-  // ============================================================
   // Editor / tooling
   // ============================================================
 
   '.gitignore',
+  '.dockerignore',
+  '**/.env*',
+  '!.env.example',
 ];
 
-export const LINT_IGNORE_PATTERNS = [
-  ...FORMAT_IGNORE_PATTERNS,
-  '**/*',
-  '!src/**',
-  'src/assets/**',
-  '!src/assets/styles.css',
-  'src/paraglide/**',
-  'src/components/ui/**',
-  'src/components/ai-elements/**',
-  'src/routeTree.gen.ts',
-  'src/**/__tests__/**',
-];
+export const LINT_IGNORE_PATTERNS = ['**/*', '!src/**', '!seed/**', 'src/**/__tests__/**'];

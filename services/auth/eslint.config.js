@@ -1,177 +1,160 @@
+// @ts-check
 import path from 'node:path';
 
-import { defineConfig, includeIgnoreFile, globalIgnores } from 'eslint/config';
+import { defineConfig, globalIgnores, includeIgnoreFile } from 'eslint/config';
 import perfectionist from 'eslint-plugin-perfectionist';
-import prettier from 'eslint-config-prettier';
-import baseConfig from '@hono/eslint-config';
-import oxlint from 'eslint-plugin-oxlint';
-import ts from 'typescript-eslint';
-import globals from 'globals';
-import js from '@eslint/js';
+import tsParser from '@typescript-eslint/parser';
+import { glob } from 'glob';
+import { LINT_IGNORE_PATTERNS } from './shared-ignore.config.js';
 
-const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
+const rootDir = import.meta.dirname;
 
-export default defineConfig(
-	includeIgnoreFile(gitignorePath),
-	globalIgnores([
-		'drizzle/**',
-		'.vscode/**',
-		'**/*.min.js',
-		'.dockerignore',
-		'.gitignore',
-		'.env*',
-		'.prettierignore',
-		'README.md',
-		'bun.lock',
-		'Dockerfile'
-	]),
-	js.configs.recommended,
-	ts.configs.recommended,
-	prettier,
-	{
-		rules: {
-			'@typescript-eslint/no-unused-vars': [
-				'warn',
-				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
-			],
-			'@typescript-eslint/prefer-nullish-coalescing': 'warn',
-			'@typescript-eslint/no-unnecessary-condition': 'warn',
-			'no-console': ['warn', { allow: ['warn', 'error'] }],
-			'@typescript-eslint/no-unsafe-member-access': 'off',
-			'@typescript-eslint/prefer-optional-chain': 'warn',
-			'@typescript-eslint/no-unsafe-assignment': 'off',
-			'@typescript-eslint/no-explicit-any': 'error',
-			'@typescript-eslint/no-unsafe-return': 'warn',
-			'@typescript-eslint/no-unsafe-call': 'warn',
-			'no-undef': 'off'
-		},
-		languageOptions: {
-			parserOptions: {
-				projectService: true
-			},
-			globals: { ...globals.node }
-		},
-		files: ['**/*.ts', '**/*.js'],
-		plugins: {
-			baseConfig
-		}
-	},
-	{
-		rules: {
-			'perfectionist/sort-imports': [
-				'warn',
-				{
-					customGroups: [
-						{
-							elementNamePattern: ['^hono', '^hono.*'],
-							modifiers: ['value'],
-							groupName: 'hono'
-						},
-						{
-							elementNamePattern: '^@/.+',
-							groupName: 'internal',
-							modifiers: ['value']
-						},
-						{
-							elementNamePattern: '^@/modules*',
-							groupName: 'modules',
-							modifiers: ['value']
-						},
-						{
-							elementNamePattern: '^@/lib*',
-							modifiers: ['value'],
-							groupName: 'lib'
-						}
-					],
-					groups: ['type', 'builtin', 'external', 'hono', 'modules', 'lib', 'internal'],
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					tsconfig: {
-						rootDir: '.'
-					},
-					partitionByComment: false,
-					partitionByNewLine: false,
-					type: 'line-length',
-					newlinesBetween: 1,
-					order: 'desc'
-				}
-			],
-			'perfectionist/sort-variable-declarations': [
-				'warn',
-				{
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					type: 'line-length',
-					order: 'desc'
-				}
-			],
-			'perfectionist/sort-intersection-types': [
-				'warn',
-				{
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					type: 'line-length',
-					order: 'desc'
-				}
-			],
-			'perfectionist/sort-object-types': [
-				'warn',
-				{
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					type: 'line-length',
-					order: 'desc'
-				}
-			],
-			'perfectionist/sort-union-types': [
-				'warn',
-				{
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					type: 'line-length',
-					order: 'desc'
-				}
-			],
-			'perfectionist/sort-interfaces': [
-				'warn',
-				{
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					type: 'line-length',
-					order: 'desc'
-				}
-			],
-			'perfectionist/sort-jsx-props': [
-				'warn',
-				{
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					type: 'line-length',
-					order: 'desc'
-				}
-			],
-			'perfectionist/sort-classes': [
-				'warn',
-				{
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					type: 'line-length',
-					order: 'desc'
-				}
-			],
-			'perfectionist/sort-exports': [
-				'warn',
-				{
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					type: 'line-length',
-					order: 'desc'
-				}
-			],
-			'perfectionist/sort-objects': [
-				'warn',
-				{
-					fallbackSort: { type: 'alphabetical', order: 'asc' },
-					type: 'line-length',
-					order: 'desc'
-				}
-			]
-		},
-		files: ['**/*.ts', '**/*.js', 'eslint.config.js'],
-		plugins: {
-			perfectionist
-		}
-	},
-	...oxlint.configs['flat/recommended']
-);
+const rootGitignorePath = path.resolve(rootDir, '.gitignore');
+
+const gitignoreFiles = await glob('**/.gitignore', {
+  ignore: ['**/node_modules/**', 'docs/**', 'public/**', '.agents/**', '.claude/**'],
+  absolute: true,
+});
+
+const ignoreFiles = [
+  rootGitignorePath,
+  ...gitignoreFiles.filter((file) => file !== rootGitignorePath),
+];
+
+export default defineConfig([
+  includeIgnoreFile(ignoreFiles, {
+    gitignoreResolution: true,
+  }),
+
+  globalIgnores(LINT_IGNORE_PATTERNS, 'Project Ignore Patterns'),
+
+  {
+    files: ['**/*.{js,ts}'],
+
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
+
+    plugins: {
+      perfectionist,
+    },
+
+    rules: {
+      'perfectionist/sort-imports': [
+        'warn',
+        {
+          type: 'line-length',
+          order: 'desc',
+
+          fallbackSort: {
+            type: 'line-length',
+            order: 'desc',
+          },
+
+          sortBy: 'path',
+          ignoreCase: true,
+          specialCharacters: 'keep',
+
+          internalPattern: ['^@/.+'],
+
+          sortSideEffects: false,
+          partitionByComment: false,
+          partitionByNewLine: false,
+
+          newlinesBetween: 1,
+          newlinesInside: 0,
+
+          tsconfig: {
+            rootDir: '.',
+          },
+
+          customGroups: [
+            {
+              groupName: 'hono',
+              modifiers: ['value'],
+              elementNamePattern: '^hono(?:/.*)?$',
+            },
+            {
+              groupName: 'config',
+              modifiers: ['value'],
+              elementNamePattern: '^@/config(?:/.*)?$',
+            },
+            {
+              groupName: 'constants',
+              modifiers: ['value'],
+              elementNamePattern: '^@/constants(?:/.*)?$',
+            },
+            {
+              groupName: 'db',
+              modifiers: ['value'],
+              elementNamePattern: '^@/db(?:/.*)?$',
+            },
+            {
+              groupName: 'middlewares',
+              modifiers: ['value'],
+              elementNamePattern: '^@/middleware(?:/.*)?$',
+            },
+            {
+              groupName: 'features',
+              modifiers: ['value'],
+              elementNamePattern: '^@/features(?:/.*)?$',
+            },
+          ],
+
+          groups: [
+            'type-import',
+            'value-builtin',
+            'value-external',
+            'hono',
+            'config',
+            'constants',
+            'db',
+            'middlewares',
+            'features',
+            'value-internal',
+            ['value-parent', 'value-sibling', 'value-index'],
+            'side-effect-style',
+            'side-effect',
+            'style',
+            'unknown',
+          ],
+        },
+      ],
+      'perfectionist/sort-object-types': [
+        'warn',
+        {
+          type: 'line-length',
+          order: 'desc',
+        },
+      ],
+      'perfectionist/sort-interfaces': [
+        'warn',
+        {
+          type: 'line-length',
+          order: 'desc',
+        },
+      ],
+      'perfectionist/sort-named-exports': [
+        'warn',
+        {
+          type: 'line-length',
+          order: 'desc',
+        },
+      ],
+      'perfectionist/sort-union-types': [
+        'warn',
+        {
+          type: 'line-length',
+          order: 'desc',
+        },
+      ],
+    },
+  },
+]);

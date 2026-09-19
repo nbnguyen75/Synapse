@@ -1,9 +1,9 @@
 export {
-	appendMessage,
-	getOrCreateConversation,
-	loadActivePath,
-	loadMessagesPage,
-	checkConversationOwnership
+  checkConversationOwnership,
+  getOrCreateConversation,
+  loadMessagesPage,
+  loadActivePath,
+  appendMessage,
 } from './services';
 export { default as conversationRoute } from './route';
 export { findMessageById } from './repository';

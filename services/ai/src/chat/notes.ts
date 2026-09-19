@@ -7,33 +7,33 @@ import { embedText } from '@/lib/ai';
  * otherwise Tier 2 Postgres native RRF, falling back to recent notes.
  */
 export async function searchUserNotes({
-	limit = 5,
-	userId,
-	query
+  limit = 5,
+  userId,
+  query,
 }: {
-	limit?: number;
-	userId: string;
-	query: string;
+  limit?: number;
+  userId: string;
+  query: string;
 }) {
-	const trimmedQuery = query.trim();
-	if (!userId) return [];
-	if (!trimmedQuery) return getRecentNotes(userId, limit);
+  const trimmedQuery = query.trim();
+  if (!userId) return [];
+  if (!trimmedQuery) return getRecentNotes(userId, limit);
 
-	const fastHits = await searchNotesByFts({ query: trimmedQuery, userId, limit });
-	if (fastHits.length >= limit) return fastHits;
+  const fastHits = await searchNotesByFts({ query: trimmedQuery, userId, limit });
+  if (fastHits.length >= limit) return fastHits;
 
-	const queryEmbedding = await embedText(trimmedQuery);
-	if (!queryEmbedding || queryEmbedding.length === 0) {
-		return getRecentNotes(userId, limit);
-	}
+  const queryEmbedding = await embedText(trimmedQuery);
+  if (!queryEmbedding || queryEmbedding.length === 0) {
+    return getRecentNotes(userId, limit);
+  }
 
-	const rrfHits = await searchNotesByRrf({
-		embedding: queryEmbedding,
-		query: trimmedQuery,
-		userId,
-		limit
-	});
-	if (rrfHits.length === 0) return getRecentNotes(userId, limit);
+  const rrfHits = await searchNotesByRrf({
+    embedding: queryEmbedding,
+    query: trimmedQuery,
+    userId,
+    limit,
+  });
+  if (rrfHits.length === 0) return getRecentNotes(userId, limit);
 
-	return rrfHits;
+  return rrfHits;
 }

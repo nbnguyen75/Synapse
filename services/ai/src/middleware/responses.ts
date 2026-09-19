@@ -5,28 +5,30 @@ import type { Context } from 'hono';
 import { StatusCodes } from 'http-status-codes';
 
 export function ok<T>(c: Context, data: T, status = StatusCodes.OK) {
-	const body: ApiResponse<T> = {
-		timestamp: new Date().toISOString(),
-		success: true,
-		data
-	};
-	return c.json(body, status as ContentfulStatusCode);
+  const body: ApiResponse<T> = {
+    timestamp: new Date().toISOString(),
+    success: true,
+    data,
+  };
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- http-status-codes values are valid ContentfulStatusCode
+  return c.json(body, status as ContentfulStatusCode);
 }
 
 export function fail(
-	c: Context,
-	errorCode: string,
-	message: string,
-	status = StatusCodes.BAD_REQUEST,
-	details: unknown = null
+  c: Context,
+  errorCode: string,
+  message: string,
+  status = StatusCodes.BAD_REQUEST,
+  details: unknown = null,
 ) {
-	const body: ApiResponse<never> = {
-		timestamp: new Date().toISOString(),
-		success: false,
-		errorCode,
-		details,
-		message
-	};
+  const body: ApiResponse<never> = {
+    timestamp: new Date().toISOString(),
+    success: false,
+    errorCode,
+    details,
+    message,
+  };
 
-	return c.json(body, status as ContentfulStatusCode);
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- http-status-codes values are valid ContentfulStatusCode
+  return c.json(body, status as ContentfulStatusCode);
 }

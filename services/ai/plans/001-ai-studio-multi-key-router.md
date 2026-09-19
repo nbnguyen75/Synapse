@@ -154,75 +154,75 @@ export type RouteTask = 'chat' | 'title' | 'embed';
 type TaskChains = Record<RouteTask, readonly string[]>;
 
 const CHAINS: TaskChains = {
-	chat: [
-		'gemini-3.5-flash-lite',
-		'gemini-3.1-flash-lite',
-		'gemini-3.8-flash',
-		'gemini-3.7-flash',
-		'gemini-3.6-flash',
-		'gemini-3.5-flash',
-		'gemini-3-flash',
-		'gemini-2.5-flash'
-	],
-	title: ['gemini-2.5-flash-lite', 'gemini-3-flash', 'gemini-2.5-flash'],
-	embed: ['gemini-embedding-001', 'gemini-embedding-002']
+  chat: [
+    'gemini-3.5-flash-lite',
+    'gemini-3.1-flash-lite',
+    'gemini-3.8-flash',
+    'gemini-3.7-flash',
+    'gemini-3.6-flash',
+    'gemini-3.5-flash',
+    'gemini-3-flash',
+    'gemini-2.5-flash',
+  ],
+  title: ['gemini-2.5-flash-lite', 'gemini-3-flash', 'gemini-2.5-flash'],
+  embed: ['gemini-embedding-001', 'gemini-embedding-002'],
 };
 
 const providers: GoogleGenerativeAIProvider[] = env.GOOGLE_GENERATIVE_AI_API_KEYS.map((apiKey) =>
-	createGoogleGenerativeAI({ apiKey })
+  createGoogleGenerativeAI({ apiKey }),
 );
 
 const bannedUntil = new Map<string, number>(); // `${keyIndex}:${modelId}` -> unix ms expiry
 let roundRobinCursor = 0;
 
 function ban(keyIndex: number, modelId: string): void {
-	bannedUntil.set(`${keyIndex}:${modelId}`, Date.now() + env.GOOGLE_GENERATIVE_AI_COOLDOWN_MS);
+  bannedUntil.set(`${keyIndex}:${modelId}`, Date.now() + env.GOOGLE_GENERATIVE_AI_COOLDOWN_MS);
 }
 
 function isHealthy(keyIndex: number, modelId: string): boolean {
-	const until = bannedUntil.get(`${keyIndex}:${modelId}`);
-	return until === undefined || until <= Date.now();
+  const until = bannedUntil.get(`${keyIndex}:${modelId}`);
+  return until === undefined || until <= Date.now();
 }
 
 export interface PickedProvider {
-	provider: GoogleGenerativeAIProvider;
-	modelId: string;
-	reportRateLimit: () => void;
+  provider: GoogleGenerativeAIProvider;
+  modelId: string;
+  reportRateLimit: () => void;
 }
 
 export function pick(task: RouteTask): PickedProvider {
-	for (const modelId of CHAINS[task]) {
-		for (let step = 0; step < providers.length; step++) {
-			const keyIndex = (roundRobinCursor + step) % providers.length;
-			const provider = providers[keyIndex];
-			if (!provider || !isHealthy(keyIndex, modelId)) continue;
-			roundRobinCursor = (keyIndex + 1) % providers.length;
-			return { provider, modelId, reportRateLimit: () => ban(keyIndex, modelId) };
-		}
-	}
+  for (const modelId of CHAINS[task]) {
+    for (let step = 0; step < providers.length; step++) {
+      const keyIndex = (roundRobinCursor + step) % providers.length;
+      const provider = providers[keyIndex];
+      if (!provider || !isHealthy(keyIndex, modelId)) continue;
+      roundRobinCursor = (keyIndex + 1) % providers.length;
+      return { provider, modelId, reportRateLimit: () => ban(keyIndex, modelId) };
+    }
+  }
 
-	let deBanPair = '';
-	let earliest = Number.MAX_SAFE_INTEGER;
-	for (const modelId of CHAINS[task]) {
-		for (let keyIndex = 0; keyIndex < providers.length; keyIndex++) {
-			const until = bannedUntil.get(`${keyIndex}:${modelId}`);
-			if (until !== undefined && until < earliest) {
-				earliest = until;
-				deBanPair = `${keyIndex}:${modelId}`;
-			}
-		}
-	}
+  let deBanPair = '';
+  let earliest = Number.MAX_SAFE_INTEGER;
+  for (const modelId of CHAINS[task]) {
+    for (let keyIndex = 0; keyIndex < providers.length; keyIndex++) {
+      const until = bannedUntil.get(`${keyIndex}:${modelId}`);
+      if (until !== undefined && until < earliest) {
+        earliest = until;
+        deBanPair = `${keyIndex}:${modelId}`;
+      }
+    }
+  }
 
-	bannedUntil.delete(deBanPair);
-	const [keyIndexPart, modelId] = deBanPair.split(':');
-	const keyIndex = Number(keyIndexPart);
-	const provider = providers[keyIndex];
-	if (keyIndexPart === undefined || !modelId || Number.isNaN(keyIndex) || !provider) {
-		throw new Error('AI router: no viable (key, model) pair');
-	}
+  bannedUntil.delete(deBanPair);
+  const [keyIndexPart, modelId] = deBanPair.split(':');
+  const keyIndex = Number(keyIndexPart);
+  const provider = providers[keyIndex];
+  if (keyIndexPart === undefined || !modelId || Number.isNaN(keyIndex) || !provider) {
+    throw new Error('AI router: no viable (key, model) pair');
+  }
 
-	roundRobinCursor = (keyIndex + 1) % providers.length;
-	return { provider, modelId, reportRateLimit: () => ban(keyIndex, modelId) };
+  roundRobinCursor = (keyIndex + 1) % providers.length;
+  return { provider, modelId, reportRateLimit: () => ban(keyIndex, modelId) };
 }
 ```
 
@@ -241,30 +241,30 @@ import type { GoogleGenerativeAIProvider } from '@ai-sdk/google';
 import { pick } from '@/providers/router';
 
 export interface PickedModel {
-	model: ReturnType<GoogleGenerativeAIProvider>;
-	modelId: string;
-	reportRateLimit: () => void;
+  model: ReturnType<GoogleGenerativeAIProvider>;
+  modelId: string;
+  reportRateLimit: () => void;
 }
 
 export interface PickedEmbeddingModel {
-	model: ReturnType<GoogleGenerativeAIProvider['embeddingModel']>;
-	modelId: string;
-	reportRateLimit: () => void;
+  model: ReturnType<GoogleGenerativeAIProvider['embeddingModel']>;
+  modelId: string;
+  reportRateLimit: () => void;
 }
 
 export function getChatModel(): PickedModel {
-	const { provider, modelId, reportRateLimit } = pick('chat');
-	return { model: provider(modelId), modelId, reportRateLimit };
+  const { provider, modelId, reportRateLimit } = pick('chat');
+  return { model: provider(modelId), modelId, reportRateLimit };
 }
 
 export function getTitleModel(): PickedModel {
-	const { provider, modelId, reportRateLimit } = pick('title');
-	return { model: provider(modelId), modelId, reportRateLimit };
+  const { provider, modelId, reportRateLimit } = pick('title');
+  return { model: provider(modelId), modelId, reportRateLimit };
 }
 
 export function getEmbeddingModel(): PickedEmbeddingModel {
-	const { provider, modelId, reportRateLimit } = pick('embed');
-	return { model: provider.embeddingModel(modelId), modelId, reportRateLimit };
+  const { provider, modelId, reportRateLimit } = pick('embed');
+  return { model: provider.embeddingModel(modelId), modelId, reportRateLimit };
 }
 ```
 
@@ -279,7 +279,7 @@ Add an exported named gate and use it in `withRetry`:
 
 ```ts
 export function isRateLimitOrQuota(err: unknown): boolean {
-	return APICallError.isInstance(err) && (err.statusCode === 429 || err.statusCode === 403);
+  return APICallError.isInstance(err) && (err.statusCode === 429 || err.statusCode === 403);
 }
 ```
 
@@ -293,29 +293,29 @@ Replace the inline `isRateLimit` computation in `withRetry` with
 
 ```ts
 export async function embedText(text: string) {
-	try {
-		const { embedding } = await withRetry(async () => {
-			const picked = getEmbeddingModel();
-			try {
-				return await embed({
-					providerOptions: {
-						google: {
-							outputDimensionality: 768
-						}
-					},
-					model: picked.model,
-					value: text
-				});
-			} catch (error) {
-				if (isRateLimitOrQuota(error)) picked.reportRateLimit();
-				throw error;
-			}
-		});
-		return embedding;
-	} catch (e) {
-		console.error('[Embedding failed]:', e);
-		return null;
-	}
+  try {
+    const { embedding } = await withRetry(async () => {
+      const picked = getEmbeddingModel();
+      try {
+        return await embed({
+          providerOptions: {
+            google: {
+              outputDimensionality: 768,
+            },
+          },
+          model: picked.model,
+          value: text,
+        });
+      } catch (error) {
+        if (isRateLimitOrQuota(error)) picked.reportRateLimit();
+        throw error;
+      }
+    });
+    return embedding;
+  } catch (e) {
+    console.error('[Embedding failed]:', e);
+    return null;
+  }
 }
 ```
 
@@ -374,28 +374,28 @@ type GetChatModel = Awaited<ReturnType<typeof import('@/providers/ai-studio')>>[
 let getChatModel: GetChatModel;
 
 beforeAll(async () => {
-	process.env.GOOGLE_GENERATIVE_AI_API_KEYS = 'fake-key';
-	({ getChatModel } = await import('@/providers/ai-studio'));
+  process.env.GOOGLE_GENERATIVE_AI_API_KEYS = 'fake-key';
+  ({ getChatModel } = await import('@/providers/ai-studio'));
 });
 
 describe('AI Studio multi-key router', () => {
-	test('a banned (key, model) pair advances down the chat chain', () => {
-		const first = getChatModel();
-		expect(first.modelId).toBe('gemini-3.5-flash-lite');
-		first.reportRateLimit();
-		expect(getChatModel().modelId).toBe('gemini-3.1-flash-lite');
-	});
+  test('a banned (key, model) pair advances down the chat chain', () => {
+    const first = getChatModel();
+    expect(first.modelId).toBe('gemini-3.5-flash-lite');
+    first.reportRateLimit();
+    expect(getChatModel().modelId).toBe('gemini-3.1-flash-lite');
+  });
 
-	test('all-banned chain de-bans the earliest-expiring pair', () => {
-		let modelId = '';
-		for (let i = 0; i < 8; i++) {
-			const picked = getChatModel();
-			modelId = picked.modelId;
-			picked.reportRateLimit();
-		}
-		expect(modelId).toBe('gemini-2.5-flash');
-		expect(getChatModel().modelId).toBe('gemini-3.5-flash-lite');
-	});
+  test('all-banned chain de-bans the earliest-expiring pair', () => {
+    let modelId = '';
+    for (let i = 0; i < 8; i++) {
+      const picked = getChatModel();
+      modelId = picked.modelId;
+      picked.reportRateLimit();
+    }
+    expect(modelId).toBe('gemini-2.5-flash');
+    expect(getChatModel().modelId).toBe('gemini-3.5-flash-lite');
+  });
 });
 ```
 
@@ -404,13 +404,13 @@ describe('AI Studio multi-key router', () => {
 ### Step 11: env files + deploy workflow
 
 - `.env.example` lines 4-9 become:
-   ```
-   GOOGLE_GENERATIVE_AI_API_KEYS=
-   GOOGLE_GENERATIVE_AI_COOLDOWN_MS=60000
-   TAVILY_API_KEY=
-   ```
-   (drop `GOOGLE_GENERATIVE_AI_API_KEY`, `GOOGLE_CLIENT_EMAIL`,
-   `GOOGLE_VERTEX_LOCATION`, `GOOGLE_VERTEX_PROJECT`, `GOOGLE_PRIVATE_KEY`).
+  ```
+  GOOGLE_GENERATIVE_AI_API_KEYS=
+  GOOGLE_GENERATIVE_AI_COOLDOWN_MS=60000
+  TAVILY_API_KEY=
+  ```
+  (drop `GOOGLE_GENERATIVE_AI_API_KEY`, `GOOGLE_CLIENT_EMAIL`,
+  `GOOGLE_VERTEX_LOCATION`, `GOOGLE_VERTEX_PROJECT`, `GOOGLE_PRIVATE_KEY`).
 - `.env.docker`: verified it contains NO Google vars (only PORT, DATABASE_URL,
   RABBITMQ_URL, AUTH_JWKS_URL). Append a single
   `GOOGLE_GENERATIVE_AI_API_KEYS=` line holding the comma-joined real keys —

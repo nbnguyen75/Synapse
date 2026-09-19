@@ -2,6 +2,7 @@ import { logger } from 'hono/logger';
 import { Hono } from 'hono';
 
 import { errorHandler, notFoundHandler } from '@/middleware/errors';
+
 import { conversationRoute } from '@/conversation';
 import { generatorRoute } from '@/generator';
 import { pubsubRoute } from '@/embeddings';
@@ -13,10 +14,11 @@ const SKIP_LOG_PATHS = ['/health', '/favicon.ico'];
 const app = new Hono();
 
 app.use('*', async (c, next) => {
-	if (SKIP_LOG_PATHS.includes(c.req.path)) {
-		return next();
-	}
-	return logger()(c, next);
+  if (SKIP_LOG_PATHS.includes(c.req.path)) {
+    return next();
+  }
+  // oxlint-disable-next-line typescript/no-unsafe-argument -- Hono context generics differ per route; safe at runtime
+  return logger()(c, next);
 });
 
 app.onError(errorHandler);

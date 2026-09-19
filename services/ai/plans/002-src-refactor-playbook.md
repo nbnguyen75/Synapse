@@ -123,13 +123,13 @@ no UI types, no casts.
 3. Define one insert param type:
    ```ts
    export type NewMessageInput = {
-   	id: string;
-   	parentId: string | null;
-   	role: MessageRow['role'];
-   	parts: MessageRow['parts'];
-   	metadata: MessageRow['metadata'];
-   	searchText: string;
-   	createdAt?: Date;
+     id: string;
+     parentId: string | null;
+     role: MessageRow['role'];
+     parts: MessageRow['parts'];
+     metadata: MessageRow['metadata'];
+     searchText: string;
+     createdAt?: Date;
    };
    ```
 4. Rewrite `insertMessage(conversationId, message: UIMessage, parentId?)`

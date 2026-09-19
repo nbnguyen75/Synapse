@@ -1,86 +1,88 @@
 import { Hono } from 'hono';
 
+import { authJwksMiddleware } from '@/middleware/auth';
+import { zValidator } from '@/middleware/validation';
+
 import { checkConversationOwnership, findMessageById, loadActivePath } from '@/conversation';
 import { extractQuestionText, validateChatMessages } from '@/chat/messages';
 import { chatRequestSchema, regenerateRequestSchema } from '@/chat/schemas';
 import { createChatStreamResponse, prepareChatTurn } from '@/chat/services';
 import { NotFoundError, ValidationError } from '@/lib/errors';
 import { MAX_QUESTION_LENGTH } from '@/chat/constants';
-import { authJwksMiddleware } from '@/middleware/auth';
-import { zValidator } from '@/middleware/validation';
 import { getUserSettings } from '@/settings';
 
 function assertQuestionValid(question: string) {
-	if (!question.trim()) throw new ValidationError('Empty question');
-	if (question.length > MAX_QUESTION_LENGTH) {
-		throw new ValidationError(`Question too long (max ${MAX_QUESTION_LENGTH} characters)`);
-	}
+  if (!question.trim()) throw new ValidationError('Empty question');
+  if (question.length > MAX_QUESTION_LENGTH) {
+    throw new ValidationError(`Question too long (max ${MAX_QUESTION_LENGTH} characters)`);
+  }
 }
 
 const chatRoute = new Hono()
-	.basePath('/chat')
-	.use(authJwksMiddleware)
-	.post('/', zValidator('json', chatRequestSchema), async (c) => {
-		const userId = c.get('userId');
-		const body = c.req.valid('json');
+  .basePath('/chat')
+  .use(authJwksMiddleware)
+  .post('/', zValidator('json', chatRequestSchema), async (c) => {
+    const userId = c.get('userId');
+    const body = c.req.valid('json');
 
-		const validated = await validateChatMessages(body.message);
-		if (!validated.success) throw new ValidationError(validated.error.message);
+    const validated = await validateChatMessages(body.message);
+    if (!validated.success) throw new ValidationError(validated.error.message);
 
-		const { data: messages } = validated;
-		const lastUserMessage = messages[0];
-		const question = extractQuestionText(lastUserMessage);
-		assertQuestionValid(question);
+    const { data: messages } = validated;
+    const lastUserMessage = messages[0];
+    if (!lastUserMessage) throw new ValidationError('Empty message');
+    const question = extractQuestionText(lastUserMessage);
+    assertQuestionValid(question);
 
-		const [settings, { conversation, history }] = await Promise.all([
-			getUserSettings(userId),
-			prepareChatTurn(userId, body.conversationId, lastUserMessage, body.parentMessageId)
-		]);
+    const [settings, { conversation, history }] = await Promise.all([
+      getUserSettings(userId),
+      prepareChatTurn(userId, body.conversationId, lastUserMessage, body.parentMessageId),
+    ]);
 
-		return createChatStreamResponse({
-			conversationId: conversation.id,
-			contextMessages: history,
-			lastUserMessage,
-			settings,
-			userId
-		});
-	})
-	.post('/regenerate', zValidator('json', regenerateRequestSchema), async (c) => {
-		const userId = c.get('userId');
-		const { assistantMessageId, conversationId } = c.req.valid('json');
+    return createChatStreamResponse({
+      conversationId: conversation.id,
+      contextMessages: history,
+      lastUserMessage,
+      settings,
+      userId,
+    });
+  })
+  .post('/regenerate', zValidator('json', regenerateRequestSchema), async (c) => {
+    const userId = c.get('userId');
+    const { assistantMessageId, conversationId } = c.req.valid('json');
 
-		await checkConversationOwnership(userId, conversationId);
+    await checkConversationOwnership(userId, conversationId);
 
-		const assistantMessage = await findMessageById(assistantMessageId);
-		if (
-			assistantMessage?.conversationId !== conversationId ||
-			assistantMessage.role !== 'assistant'
-		) {
-			throw new NotFoundError('Tin nhắn không tồn tại trong cuộc trò chuyện này');
-		}
+    const assistantMessage = await findMessageById(assistantMessageId);
+    if (
+      assistantMessage?.conversationId !== conversationId ||
+      assistantMessage.role !== 'assistant'
+    ) {
+      throw new NotFoundError('Tin nhắn không tồn tại trong cuộc trò chuyện này');
+    }
 
-		if (!assistantMessage.parentId) {
-			throw new ValidationError('Tin nhắn này không thể tạo lại');
-		}
+    if (!assistantMessage.parentId) {
+      throw new ValidationError('Tin nhắn này không thể tạo lại');
+    }
 
-		const context = await loadActivePath(conversationId, assistantMessage.parentId);
-		const lastUserMessage = context.at(-1);
-		if (!lastUserMessage) {
-			throw new ValidationError('Không tìm thấy tin nhắn gốc');
-		}
+    const context = await loadActivePath(conversationId, assistantMessage.parentId);
+    const lastUserMessage = context.at(-1);
+    if (!lastUserMessage) {
+      throw new ValidationError('Không tìm thấy tin nhắn gốc');
+    }
 
-		const question = extractQuestionText(lastUserMessage);
-		assertQuestionValid(question);
+    const question = extractQuestionText(lastUserMessage);
+    assertQuestionValid(question);
 
-		const settings = await getUserSettings(userId);
+    const settings = await getUserSettings(userId);
 
-		return createChatStreamResponse({
-			contextMessages: context.slice(0, -1),
-			lastUserMessage,
-			conversationId,
-			settings,
-			userId
-		});
-	});
+    return createChatStreamResponse({
+      contextMessages: context.slice(0, -1),
+      lastUserMessage,
+      conversationId,
+      settings,
+      userId,
+    });
+  });
 
 export default chatRoute;

@@ -5,31 +5,32 @@ import { StatusCodes } from 'http-status-codes';
 
 import { createMiddleware } from 'hono/factory';
 
-import { AppError } from '@/lib/errors';
 import { env } from '@/config/env';
+
+import { AppError } from '@/lib/errors';
 
 const JWKS = createRemoteJWKSet(new URL(env.AUTH_JWKS_URL));
 
 export const authJwksMiddleware = createMiddleware<Env>(async (c, next) => {
-	if (c.req.path.startsWith('/pubsub')) {
-		return await next();
-	}
+  if (c.req.path.startsWith('/pubsub')) {
+    return await next();
+  }
 
-	const authHeader = c.req.header('Authorization');
-	if (!authHeader?.startsWith('Bearer '))
-		throw new AppError('UNAUTHORIZED', 'Missing token', StatusCodes.UNAUTHORIZED);
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader?.startsWith('Bearer '))
+    throw new AppError('UNAUTHORIZED', 'Missing token', StatusCodes.UNAUTHORIZED);
 
-	const token = authHeader.slice(7);
-	try {
-		const { payload } = await jwtVerify(token, JWKS, {
-			audience: env.PUBLIC_APP_NAME,
-			issuer: env.PUBLIC_APP_NAME
-		});
-		if (!payload.sub)
-			throw new AppError('UNAUTHORIZED', 'Invalid token subject', StatusCodes.UNAUTHORIZED);
-		c.set('userId', payload.sub);
-		await next();
-	} catch {
-		throw new AppError('UNAUTHORIZED', 'Invalid or expired token', StatusCodes.UNAUTHORIZED);
-	}
+  const token = authHeader.slice(7);
+  try {
+    const { payload } = await jwtVerify(token, JWKS, {
+      audience: env.PUBLIC_APP_NAME,
+      issuer: env.PUBLIC_APP_NAME,
+    });
+    if (!payload.sub)
+      throw new AppError('UNAUTHORIZED', 'Invalid token subject', StatusCodes.UNAUTHORIZED);
+    c.set('userId', payload.sub);
+    await next();
+  } catch {
+    throw new AppError('UNAUTHORIZED', 'Invalid or expired token', StatusCodes.UNAUTHORIZED);
+  }
 });

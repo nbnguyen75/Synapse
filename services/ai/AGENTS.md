@@ -13,8 +13,8 @@ This file follows the standard `AGENTS.md` convention — any coding agent worki
 - **Database & Persistence**: PostgreSQL with `pgvector` via Drizzle ORM (`drizzle-orm`, `drizzle-kit`).
 - **AI & LLM Integration**: Vercel AI SDK (`ai`, `@ai-sdk/google`, `@ai-sdk/google-vertex`) with Tavily search tools.
 - **Service Modular Monolith Architecture**: Organized by domain modules under `src/` (e.g. `src/chat`, `src/conversation`, `src/embeddings`, `src/generator`, `src/settings`, `src/database`, `src/middleware`, `src/providers`).
-   - Submodules expose public symbols via submodule `index.ts`.
-   - Layer separation within modules: `route.ts` (HTTP transport & Zod validation) -> `services.ts` (business & AI orchestration) -> `repository.ts` (Drizzle queries).
+  - Submodules expose public symbols via submodule `index.ts`.
+  - Layer separation within modules: `route.ts` (HTTP transport & Zod validation) -> `services.ts` (business & AI orchestration) -> `repository.ts` (Drizzle queries).
 - **Coding & Type Rules**: Strict rules are enforced in `.agents/rules/typescript.md` (English only, Zod v4 `zod/v4`, strict non-relative imports `@/...`, functional architecture, zero-`any`, no synthetic test bypasses).
 
 ## Folder Architecture
@@ -55,8 +55,8 @@ src/
 ## Mandatory Skills & Skill Routing
 
 - **Always Active (Mandatory)**:
-   - **`improve`**: High-level architectural survey, structural integrity, and self-contained execution plans.
-   - **`ponytail` / `ponytail-review`**: Implement simplest, minimal YAGNI solutions; eliminate bloat, wrapper objects, and dead abstractions.
+  - **`improve`**: High-level architectural survey, structural integrity, and self-contained execution plans.
+  - **`ponytail` / `ponytail-review`**: Implement simplest, minimal YAGNI solutions; eliminate bloat, wrapper objects, and dead abstractions.
 
 | Task                                         | Skill                                    |
 | -------------------------------------------- | ---------------------------------------- |

@@ -1,41 +1,42 @@
 import type { MessageMetadata } from '@/database/schema';
+import type { UserAiSettings } from '@/settings';
 
-import { buildSystemInstruction, type UserAiSettings } from '@/settings';
+import { buildSystemInstruction } from '@/settings';
 
 function getResponseLengthInstruction(length: 'balanced' | 'detailed' | 'short'): string {
-	switch (length) {
-		case 'short':
-			return `- **Độ dài**: Ngắn gọn (tối đa 2-3 câu). Trả lời trực tiếp vào trọng tâm.`;
-		case 'balanced':
-			return `- **Độ dài**: Vừa phải (dưới 250 từ). Trình bày tự nhiên, chỉ dùng danh sách hoặc ví dụ khi thực sự cần thiết.`;
-		case 'detailed':
-			return `- **Độ dài**: Chi tiết (khoảng 400-500 từ). Phân tích sâu, linh hoạt dùng định dạng và ví dụ để làm rõ ý.`;
-	}
+  switch (length) {
+    case 'short':
+      return `- **Độ dài**: Ngắn gọn (tối đa 2-3 câu). Trả lời trực tiếp vào trọng tâm.`;
+    case 'balanced':
+      return `- **Độ dài**: Vừa phải (dưới 250 từ). Trình bày tự nhiên, chỉ dùng danh sách hoặc ví dụ khi thực sự cần thiết.`;
+    case 'detailed':
+      return `- **Độ dài**: Chi tiết (khoảng 400-500 từ). Phân tích sâu, linh hoạt dùng định dạng và ví dụ để làm rõ ý.`;
+  }
 }
 
 export function buildSystemPrompt(
-	settings: UserAiSettings,
-	userMessageMetadata?: MessageMetadata
+  settings: UserAiSettings,
+  userMessageMetadata?: MessageMetadata,
 ): string {
-	const lengthInstruction = getResponseLengthInstruction(settings.responseLength);
+  const lengthInstruction = getResponseLengthInstruction(settings.responseLength);
 
-	const dateObj = userMessageMetadata?.createdAt
-		? new Date(userMessageMetadata.createdAt)
-		: new Date();
+  const dateObj = userMessageMetadata?.createdAt
+    ? new Date(userMessageMetadata.createdAt)
+    : new Date();
 
-	const currentDate = dateObj.toLocaleString('sv-SE', {
-		timeZone: userMessageMetadata?.timeZone,
-		minute: '2-digit',
-		month: '2-digit',
-		hour: '2-digit',
-		year: 'numeric',
-		day: '2-digit',
-		hour12: false
-	});
+  const currentDate = dateObj.toLocaleString('sv-SE', {
+    timeZone: userMessageMetadata?.timeZone,
+    minute: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    year: 'numeric',
+    day: '2-digit',
+    hour12: false,
+  });
 
-	const timeZoneStr = userMessageMetadata?.timeZone ? ` (${userMessageMetadata.timeZone})` : '';
+  const timeZoneStr = userMessageMetadata?.timeZone ? ` (${userMessageMetadata.timeZone})` : '';
 
-	return `Bạn là "${settings.botName}", trợ lý Synapse.
+  return `Bạn là "${settings.botName}", trợ lý Synapse.
 ${buildSystemInstruction(settings)}
 
 [ĐỘ DÀI]

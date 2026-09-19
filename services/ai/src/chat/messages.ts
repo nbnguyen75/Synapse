@@ -1,95 +1,98 @@
-import { safeValidateUIMessages, type UIMessage } from 'ai';
+import type { UIMessage } from 'ai';
+
+import { safeValidateUIMessages } from 'ai';
 
 import { dataPartSchema, messageMetadataSchema } from '@/chat/schemas';
 
 export async function validateChatMessages(message: unknown) {
-	return safeValidateUIMessages({
-		dataSchemas: { note_sources: dataPartSchema },
-		metadataSchema: messageMetadataSchema,
-		messages: [message]
-	});
+  return safeValidateUIMessages({
+    dataSchemas: { note_sources: dataPartSchema },
+    metadataSchema: messageMetadataSchema,
+    messages: [message],
+  });
 }
 
 export function extractQuestionText(message: UIMessage): string {
-	return message.parts
-		.filter((p) => p.type === 'text')
-		.map((p) => p.text)
-		.join(' ');
+  return message.parts
+    .filter((p) => p.type === 'text')
+    .map((p) => p.text)
+    .join(' ');
 }
 
 export function cleanPartsForStorage(parts: UIMessage['parts']): UIMessage['parts'] {
-	if (!Array.isArray(parts)) return [];
+  if (!Array.isArray(parts)) return [];
 
-	return parts.filter((part) => {
-		if ((part.type as string) === 'step-start' || (part.type as string) === 'step-finish') {
-			return false;
-		}
+  return parts.filter((part) => {
+    if ((part.type as string) === 'step-start' || (part.type as string) === 'step-finish') {
+      return false;
+    }
 
-		if (part.type === 'text') {
-			return typeof part.text === 'string' && part.text.trim().length > 0;
-		}
+    if (part.type === 'text') {
+      return typeof part.text === 'string' && part.text.trim().length > 0;
+    }
 
-		if (part.type === 'tool-invocation') {
-			return true;
-		}
+    if (part.type === 'tool-invocation') {
+      return true;
+    }
 
-		return false;
-	});
+    return false;
+  });
 }
 
 interface SanitizeOptions {
-	stripOldAttachments?: boolean;
-	maxHistory?: number;
+  stripOldAttachments?: boolean;
+  maxHistory?: number;
 }
 
-export function sanitizeMessages(messages: UIMessage[], options: SanitizeOptions = {}) {
-	const { stripOldAttachments = true, maxHistory = 10 } = options;
+export function sanitizeMessages(messages: Array<UIMessage>, options: SanitizeOptions = {}) {
+  const { stripOldAttachments = true, maxHistory = 10 } = options;
 
-	if (messages.length === 0) return [];
+  if (messages.length === 0) return [];
 
-	const recentMessages = messages.slice(-maxHistory);
-	const sanitized: UIMessage[] = [];
-	const lastIndex = recentMessages.length - 1;
+  const recentMessages = messages.slice(-maxHistory);
+  const sanitized: Array<UIMessage> = [];
+  const lastIndex = recentMessages.length - 1;
 
-	for (let i = 0; i < recentMessages.length; i++) {
-		const msg = recentMessages[i];
-		if (!Array.isArray(msg.parts) || msg.parts.length === 0) continue;
+  for (let i = 0; i < recentMessages.length; i++) {
+    const msg = recentMessages[i];
+    if (!msg) continue;
+    if (!Array.isArray(msg.parts) || msg.parts.length === 0) continue;
 
-		const isLatestMessage = i === lastIndex;
+    const isLatestMessage = i === lastIndex;
 
-		const cleanedParts = msg.parts.filter((part) => {
-			if (part.type === 'text') {
-				return typeof part.text === 'string' && part.text.trim().length > 0;
-			}
+    const cleanedParts = msg.parts.filter((part) => {
+      if (part.type === 'text') {
+        return typeof part.text === 'string' && part.text.trim().length > 0;
+      }
 
-			if (!isLatestMessage && stripOldAttachments && part.type === 'file') {
-				return false;
-			}
+      if (!isLatestMessage && stripOldAttachments && part.type === 'file') {
+        return false;
+      }
 
-			if (part.type === 'tool-invocation') {
-				return part.state === 'output-available';
-			}
+      if (part.type === 'tool-invocation') {
+        return part.state === 'output-available';
+      }
 
-			return false;
-		});
+      return false;
+    });
 
-		if (cleanedParts.length === 0) continue;
+    if (cleanedParts.length === 0) continue;
 
-		sanitized.push({
-			parts: cleanedParts,
-			role: msg.role,
-			id: msg.id
-		});
-	}
+    sanitized.push({
+      parts: cleanedParts,
+      role: msg.role,
+      id: msg.id,
+    });
+  }
 
-	let trimmed = sanitized.slice(-maxHistory);
+  let trimmed = sanitized.slice(-maxHistory);
 
-	const firstUserIdx = trimmed.findIndex((m) => m.role === 'user');
-	if (firstUserIdx > 0) {
-		trimmed = trimmed.slice(firstUserIdx);
-	} else if (firstUserIdx === -1) {
-		return [];
-	}
+  const firstUserIdx = trimmed.findIndex((m) => m.role === 'user');
+  if (firstUserIdx > 0) {
+    trimmed = trimmed.slice(firstUserIdx);
+  } else if (firstUserIdx === -1) {
+    return [];
+  }
 
-	return trimmed;
+  return trimmed;
 }

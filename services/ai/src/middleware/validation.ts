@@ -7,23 +7,23 @@ import { StatusCodes } from 'http-status-codes';
 import { fail } from '@/middleware/responses';
 
 export function zValidator<T extends ZodType, Target extends keyof ValidationTargets>(
-	target: Target,
-	schema: T
+  target: Target,
+  schema: T,
 ) {
-	return zv(target, schema, (result, c) => {
-		if (!result.success) {
-			const details = result.error.issues.map((issue) => ({
-				field: issue.path.join('.'),
-				message: issue.message
-			}));
+  return zv(target, schema, (result, c) => {
+    if (!result.success) {
+      const details = result.error.issues.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      }));
 
-			return fail(
-				c,
-				'VALIDATION_ERROR',
-				'Invalid request payload.',
-				StatusCodes.BAD_REQUEST,
-				details
-			);
-		}
-	});
+      return fail(
+        c,
+        'VALIDATION_ERROR',
+        'Invalid request payload.',
+        StatusCodes.BAD_REQUEST,
+        details,
+      );
+    }
+  });
 }

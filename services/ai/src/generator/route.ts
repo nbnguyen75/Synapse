@@ -1,20 +1,21 @@
 import { Hono } from 'hono';
 
-import { generateTitleRequestSchema } from '@/generator/schemas';
-import { generateNoteTitle } from '@/generator/services';
 import { authJwksMiddleware } from '@/middleware/auth';
 import { zValidator } from '@/middleware/validation';
 import { ok } from '@/middleware/responses';
 
+import { generateTitleRequestSchema } from '@/generator/schemas';
+import { generateNoteTitle } from '@/generator/services';
+
 const generatorRoute = new Hono()
-	.basePath('/generator')
-	.use(authJwksMiddleware)
-	.post('/note-title', zValidator('json', generateTitleRequestSchema), async (c) => {
-		const { content } = c.req.valid('json');
+  .basePath('/generator')
+  .use(authJwksMiddleware)
+  .post('/note-title', zValidator('json', generateTitleRequestSchema), async (c) => {
+    const { content } = c.req.valid('json');
 
-		const title = await generateNoteTitle(content);
+    const title = await generateNoteTitle(content);
 
-		return ok(c, { title });
-	});
+    return ok(c, { title });
+  });
 
 export default generatorRoute;

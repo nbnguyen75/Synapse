@@ -1,24 +1,46 @@
 #!/usr/bin/env sh
 
+echo "🔍 Running pre-commit checks..."
+
 if git diff --cached --name-only | grep -q '^client/'; then
+  echo "📦 [client] Staged changes detected"
   cd client
-  bun --bun lint-staged || exit 1
-  bun --bun typecheck || exit 1
+  echo "  → [client] Running lint-staged..."
+  bun --bun lint-staged || { echo "❌ [client] lint-staged failed"; exit 1; }
+  echo "  → [client] Running typecheck..."
+  bun --bun typecheck || { echo "❌ [client] typecheck failed"; exit 1; }
   cd ..
+  echo "✅ [client] Passed"
+else
+  echo "⏭️  [client] No staged changes, skipping"
 fi
 
 if git diff --cached --name-only | grep -q '^services/auth/'; then
+  echo "📦 [services/auth] Staged changes detected"
   cd services/auth
-  bun --bun lint-staged || exit 1
-  # bun --bun typecheck || exit 1
+  echo "  → [services/auth] Running lint-staged..."
+  bun --bun lint-staged || { echo "❌ [services/auth] lint-staged failed"; exit 1; }
+  echo "  → [services/auth] Running typecheck..."
+  bun --bun typecheck || { echo "❌ [services/auth] typecheck failed"; exit 1; }
   cd ../../
+  echo "✅ [services/auth] Passed"
+else
+  echo "⏭️  [services/auth] No staged changes, skipping"
 fi
 
 if git diff --cached --name-only | grep -q '^services/ai/'; then
+  echo "📦 [services/ai] Staged changes detected"
   cd services/ai
-  bun --bun lint-staged || exit 1
-  # bun --bun typecheck || exit 1
+  echo "  → [services/ai] Running lint-staged..."
+  bun --bun lint-staged || { echo "❌ [services/ai] lint-staged failed"; exit 1; }
+  echo "  → [services/ai] Running typecheck..."
+  bun --bun typecheck || { echo "❌ [services/ai] typecheck failed"; exit 1; }
   cd ../../
+  echo "✅ [services/ai] Passed"
+else
+  echo "⏭️  [services/ai] No staged changes, skipping"
 fi
 
 # TODO: add notes service here
+
+echo "🎉 All pre-commit checks passed"

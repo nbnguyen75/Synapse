@@ -8,42 +8,42 @@ import { db } from '@/database';
  * Supports both English and accent-insensitive Vietnamese queries (< 5ms response time).
  */
 export async function searchOlderMessages(conversationId: string, query: string, limit = 5) {
-	const trimmedQuery = query.trim();
+  const trimmedQuery = query.trim();
 
-	if (!trimmedQuery || !conversationId) {
-		return [];
-	}
+  if (!trimmedQuery || !conversationId) {
+    return [];
+  }
 
-	const searchPattern = `%${trimmedQuery}%`;
+  const searchPattern = `%${trimmedQuery}%`;
 
-	try {
-		return db
-			.select({
-				createdAt: messages.createdAt,
-				parts: messages.parts,
-				role: messages.role,
-				id: messages.id
-			})
-			.from(messages)
-			.where(
-				and(
-					eq(messages.conversationId, conversationId),
-					sql`unaccent(${messages.searchText}) ILIKE unaccent(${searchPattern})`
-				)
-			)
-			.orderBy(desc(messages.createdAt))
-			.limit(limit);
-	} catch (error) {
-		console.error('[searchOlderMessages] Query error:', error);
-		return [];
-	}
+  try {
+    return db
+      .select({
+        createdAt: messages.createdAt,
+        parts: messages.parts,
+        role: messages.role,
+        id: messages.id,
+      })
+      .from(messages)
+      .where(
+        and(
+          eq(messages.conversationId, conversationId),
+          sql`unaccent(${messages.searchText}) ILIKE unaccent(${searchPattern})`,
+        ),
+      )
+      .orderBy(desc(messages.createdAt))
+      .limit(limit);
+  } catch (error) {
+    console.error('[searchOlderMessages] Query error:', error);
+    return [];
+  }
 }
 
 export interface SearchNoteItem extends Record<string, unknown> {
-	content: string;
-	updatedAt: Date;
-	title: string;
-	id: string;
+  content: string;
+  updatedAt: Date;
+  title: string;
+  id: string;
 }
 
 /**
@@ -52,15 +52,15 @@ export interface SearchNoteItem extends Record<string, unknown> {
  * satisfies the requested limit before paying for Tier 2.
  */
 export async function searchNotesByFts({
-	limit = 5,
-	userId,
-	query
+  limit = 5,
+  userId,
+  query,
 }: {
-	limit?: number;
-	userId: string;
-	query: string;
+  limit?: number;
+  userId: string;
+  query: string;
 }) {
-	const fastFtsQuery = sql`
+  const fastFtsQuery = sql`
     SELECT id, title, content, updated_at AS "updatedAt"
     FROM ${notes}
     WHERE user_id = ${userId}
@@ -70,17 +70,17 @@ export async function searchNotesByFts({
     LIMIT ${limit};
   `;
 
-	try {
-		const fastResults = await db.execute<SearchNoteItem>(fastFtsQuery);
+  try {
+    const fastResults = await db.execute<SearchNoteItem>(fastFtsQuery);
 
-		return fastResults.rows.map((row) => ({
-			...row,
-			updatedAt: new Date(row.updatedAt)
-		}));
-	} catch (error) {
-		console.warn('[searchNotesByFts] Tier 1 Fast-Path FTS error:', error);
-		return [];
-	}
+    return fastResults.rows.map((row) => ({
+      ...row,
+      updatedAt: new Date(row.updatedAt),
+    }));
+  } catch (error) {
+    console.warn('[searchNotesByFts] Tier 1 Fast-Path FTS error:', error);
+    return [];
+  }
 }
 
 /**
@@ -89,19 +89,19 @@ export async function searchNotesByFts({
  * Pure DB — the caller supplies a precomputed query embedding.
  */
 export async function searchNotesByRrf({
-	embedding,
-	limit = 5,
-	userId,
-	query
+  embedding,
+  limit = 5,
+  userId,
+  query,
 }: {
-	embedding: number[];
-	limit?: number;
-	userId: string;
-	query: string;
+  embedding: Array<number>;
+  limit?: number;
+  userId: string;
+  query: string;
 }) {
-	const vectorSql = `[${embedding.join(',')}]`;
+  const vectorSql = `[${embedding.join(',')}]`;
 
-	const rrfQuery = sql`
+  const rrfQuery = sql`
       WITH fts_matches AS (
         SELECT 
           id,
@@ -139,31 +139,31 @@ export async function searchNotesByRrf({
       LIMIT ${limit};
     `;
 
-	try {
-		const result = await db.execute<{ rrf_score: number } & SearchNoteItem>(rrfQuery);
+  try {
+    const result = await db.execute<{ rrf_score: number } & SearchNoteItem>(rrfQuery);
 
-		return result.rows.map((row) => ({
-			updatedAt: new Date(row.updatedAt),
-			content: row.content,
-			title: row.title,
-			id: row.id
-		}));
-	} catch (error) {
-		console.error('[searchNotesByRrf] Tier 2 RRF error:', error);
-		return [];
-	}
+    return result.rows.map((row) => ({
+      updatedAt: new Date(row.updatedAt),
+      content: row.content,
+      title: row.title,
+      id: row.id,
+    }));
+  } catch (error) {
+    console.error('[searchNotesByRrf] Tier 2 RRF error:', error);
+    return [];
+  }
 }
 
 export async function getRecentNotes(userId: string, limit: number) {
-	return db
-		.select({
-			updatedAt: notes.updatedAt,
-			content: notes.content,
-			title: notes.title,
-			id: notes.id
-		})
-		.from(notes)
-		.where(and(eq(notes.userId, userId), eq(notes.trashed, false)))
-		.orderBy(desc(notes.updatedAt))
-		.limit(limit);
+  return db
+    .select({
+      updatedAt: notes.updatedAt,
+      content: notes.content,
+      title: notes.title,
+      id: notes.id,
+    })
+    .from(notes)
+    .where(and(eq(notes.userId, userId), eq(notes.trashed, false)))
+    .orderBy(desc(notes.updatedAt))
+    .limit(limit);
 }

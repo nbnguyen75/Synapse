@@ -1,36 +1,33 @@
 {
-	"files.readonlyInclude": {
-		"**/bun.lock": true
-	},
-	"js/ts.preferences.importModuleSpecifier": "non-relative",
-	"js/ts.preferences.preferTypeOnlyAutoImports": true,
-	"files.exclude": {
-		"**/.git": true,
-		"**/.svn": true,
-		"**/.hg": true,
-		"**/.DS_Store": true,
-		"**/Thumbs.db": true,
-		"**/node_modules": true,
-		"**/LICENSE": true,
-		"**/README.md": true,
-		"**/bun.lock": true,
-		"**/.husky": true,
-		"**/.eslintcache": true,
-		"**/drizzle": true,
-		"**/.prettierignore": true,
-		"**/.prettierrc": true
-	},
-	"editor.codeActionsOnSave": {
-		"source.fixAll.prettier": "never",
-		"source.addMissingImports.ts": "explicit",
-		"source.organizeImports": "never"
-	},
-	"js/ts.updateImportsOnFileMove.enabled": "always",
-	"workbench.tree.renderIndentGuides": "always",
-	"workbench.tree.indent": 10,
-	"editor.tabSize": 2,
-	"chat.disableAIFeatures": true,
-	"workbench.colorCustomizations": {
+  "files.readonlyInclude": {
+    "**/bun.lock": true
+  },
+  "js/ts.preferences.importModuleSpecifier": "non-relative",
+  "js/ts.preferences.preferTypeOnlyAutoImports": true,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/node_modules": true,
+    "**/LICENSE": true,
+    "**/README.md": true,
+    "**/bun.lock": true,
+    "**/.eslintcache": true,
+    "**/drizzle": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.prettier": "never",
+    "source.addMissingImports.ts": "explicit",
+    "source.organizeImports": "never"
+  },
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+  "workbench.tree.renderIndentGuides": "always",
+  "workbench.tree.indent": 10,
+  "editor.tabSize": 2,
+  "chat.disableAIFeatures": true,
+  "workbench.colorCustomizations": {
     "activityBar.activeBackground": "#f86903",
     "activityBar.background": "#f86903",
     "activityBar.foreground": "#15202b",
@@ -58,5 +55,5 @@
     "activityBar.activeBorder": "#15202b",
     "activityBarTop.activeBorder": "#15202b"
   },
-	"peacock.color": "#c65402"
+  "peacock.color": "#c65402"
 }
